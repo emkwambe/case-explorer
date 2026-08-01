@@ -1,0 +1,326 @@
+{
+  "liabilities": {
+    "auto_loan_prob": {
+      "p": 0.58,
+      "distribution": "bernoulli"
+    },
+    "auto_loan_payment": {
+      "min": 250,
+      "max": 1100,
+      "distribution": "normal",
+      "stddev": 170,
+      "mean": 600
+    },
+    "student_loan_amount": {
+      "gini": 0.50,
+      "median": 39000,
+      "distribution": "lognormal"
+    },
+    "student_loan_prob": {
+      "p": 0.42,
+      "distribution": "bernoulli"
+    },
+    "credit_card_utilization": {
+      "beta": 4.2,
+      "alpha": 1.8,
+      "distribution": "beta",
+      "scale_max": 1.0
+    },
+    "dti_ratio": {
+      "beta": 6.0,
+      "scale_min": 0.0,
+      "alpha": 1.5,
+      "distribution": "beta",
+      "scale_max": 0.50
+    }
+  },
+  "corruption": {
+    "omission_prob": 0.08,
+    "benign_variance_prob": 0.15,
+    "clean_prob": 0.60,
+    "concealment_prob": 0.05,
+    "fabrication_prob": 0.03,
+    "inflation_prob": 0.05,
+    "bust_out_prob": 0.02,
+    "blend": {
+      "clean": 0.85,
+      "concealment": 0.07,
+      "inflation": 0.04,
+      "fabrication": 0.03,
+      "bust_out": 0.01
+    }
+  },
+  "employment": {
+    "salary_base": {
+      "gini": 0.42,
+      "median": 58000,
+      "distribution": "lognormal"
+    },
+    "employment_gap_prob": {
+      "p": 0.18,
+      "distribution": "bernoulli"
+    },
+    "tenure_months": {
+      "min": 1,
+      "rate": 0.035,
+      "max": 480,
+      "distribution": "exponential"
+    },
+    "industry": {
+      "probabilities": [
+        0.18,
+        0.14,
+        0.12,
+        0.15,
+        0.1,
+        0.13,
+        0.18
+      ],
+      "distribution": "categorical",
+      "categories": [
+        "Technology",
+        "Healthcare",
+        "Finance",
+        "Retail",
+        "Education",
+        "Manufacturing",
+        "Other"
+      ]
+    },
+    "industry_salary_multiplier": {
+      "Education": 0.82,
+      "Other": 1.0,
+      "Finance": 1.42,
+      "Healthcare": 1.15,
+      "Technology": 1.35,
+      "Manufacturing": 0.95,
+      "Retail": 0.78
+    },
+    "salary_by_age": {
+      "decline_rate": 0.02,
+      "peak_age": 52,
+      "age_coefficient": 1200
+    }
+  },
+  "credit": {
+    "score_by_dti": {
+      "dti_penalty": -20
+    },
+    "inquiry_count": {
+      "lambda": 2.3,
+      "distribution": "poisson"
+    },
+    "score_base": {
+      "min": 300,
+      "max": 850,
+      "distribution": "normal",
+      "stddev": 85,
+      "mean": 692
+    }
+  },
+  "assets": {
+    "savings_rate": {
+      "beta": 8.0,
+      "alpha": 2.0,
+      "distribution": "beta"
+    },
+    "down_payment_months": {
+      "min": 3,
+      "max": 60,
+      "distribution": "normal",
+      "stddev": 8,
+      "mean": 18
+    },
+    "checking_balance": {
+      "gini": 0.55,
+      "median": 12000,
+      "distribution": "lognormal"
+    }
+  },
+  "income": {
+    "pay_frequency": {
+      "distribution": "categorical",
+      "categories": ["BIWEEKLY", "SEMIMONTHLY", "MONTHLY"],
+      "probabilities": [0.60, 0.25, 0.15]
+    },
+    "pretax_deduction_rate": {
+      "distribution": "beta",
+      "alpha": 2.5,
+      "beta": 6.0,
+      "scale_min": 0.12,
+      "scale_max": 0.36
+    },
+    "payroll_variance": {
+      "distribution": "normal",
+      "mean": 0.0,
+      "stddev": 0.02
+    }
+  },
+  "expenses": {
+    "rent_to_income_gross_ratio": {
+      "distribution": "beta",
+      "alpha": 2.2,
+      "beta": 5.0,
+      "scale_min": 0.18,
+      "scale_max": 0.42
+    },
+    "utility_amount": {
+      "distribution": "normal",
+      "mean": 185,
+      "stddev": 45,
+      "min": 80,
+      "max": 380
+    },
+    "discretionary_rate": {
+      "distribution": "beta",
+      "alpha": 2.0,
+      "beta": 5.0,
+      "scale_min": 0.05,
+      "scale_max": 0.25
+    }
+  },
+  "ledger": {
+    "statement_months": 3,
+    "max_negative_balance_months": 2,
+    "overdraft_fee": 35
+  },
+  "demographics": {
+    "ssn_last4": {
+      "min": 1000,
+      "max": 9999,
+      "distribution": "uniform_int"
+    },
+    "age": {
+      "min": 22,
+      "max": 70,
+      "distribution": "normal",
+      "stddev": 12.3,
+      "mean": 38.5
+    }
+  },
+  "latent": {
+    "financial_health": {
+      "distribution": "normal",
+      "mean": 0,
+      "stddev": 1,
+      "income_sensitivity": 0.25,
+      "dti_sensitivity": 0.30,
+      "checking_sensitivity": 0.40,
+      "credit_sensitivity": 25
+    }
+  },
+  "underwriting": {
+    "dti": {
+      "approve_max": 0.38,
+      "manual_review_max": 0.47
+    },
+    "credit_score": {
+      "approve_min": 640,
+      "manual_review_min": 600
+    },
+    "reserves": {
+      "approve_min_months": 0.25,
+      "manual_review_min_months": 0.1
+    },
+    "tenure": {
+      "approve_min_months": 12,
+      "manual_review_min_months": 6
+    }
+  },
+  "loan": {
+    "interest_rate": 0.0675,
+    "term_years": 30,
+    "tax_insurance_rate": 0.015
+  },
+  "regimes": {
+    "distribution": "categorical",
+    "categories": ["PRIME", "SUBPRIME", "SELF_EMPLOYED"],
+    "probabilities": [0.55, 0.30, 0.15],
+    "params": {
+      "PRIME": {
+        "financial_health_shift": 0.5,
+        "checking_balance_multiplier": 1.25,
+        "credit_score_floor": 640
+      },
+      "SUBPRIME": {
+        "financial_health_shift": -0.8,
+        "credit_score_cap": 680,
+        "max_dti_ratio": 0.55
+      },
+      "SELF_EMPLOYED": {
+        "financial_health_shift": 0.0,
+        "income_gini_multiplier": 1.6,
+        "tenure_rate_multiplier": 0.6,
+        "employment_label": "Self-Employed"
+      }
+    }
+  },
+  "adversarial": {
+    "enabled": false,
+    "adversarial_rate": 0.70,
+    "inflation_dti_min": 0.36,
+    "inflation_dti_max": 0.47,
+    "concealment_dti_threshold": 0.40,
+    "fabrication_credit_threshold": 620,
+    "weights": {
+      "inflation": 1.5,
+      "concealment": 1.0,
+      "fabrication": 1.0
+    }
+  },
+  "copula": {
+    "enabled": true,
+    "variables": ["age", "salary_base", "dti", "checking_balance", "credit_score"],
+    "correlation_matrix": [
+      [1.00,  0.20, -0.15,  0.10,  0.05],
+      [0.20,  1.00, -0.35,  0.40,  0.30],
+      [-0.15, -0.35, 1.00, -0.25, -0.50],
+      [0.10,  0.40, -0.25,  1.00,  0.25],
+      [0.05,  0.30, -0.50,  0.25,  1.00]
+    ]
+  },
+  "geography": {
+    "distribution": "categorical",
+    "categories": ["HIGH_COST", "MEDIUM_COST", "LOW_COST"],
+    "probabilities": [0.25, 0.50, 0.25],
+    "params": {
+      "HIGH_COST": {
+        "zip_prefixes": ["90", "10", "94", "02", "98", "60", "77"],
+        "cost_of_living_index": 1.42,
+        "rent_multiplier": 1.65,
+        "salary_multiplier": 1.22,
+        "checking_multiplier": 1.15
+      },
+      "MEDIUM_COST": {
+        "zip_prefixes": ["30", "75", "85", "55", "80", "28", "12"],
+        "cost_of_living_index": 1.05,
+        "rent_multiplier": 1.05,
+        "salary_multiplier": 1.00,
+        "checking_multiplier": 1.00
+      },
+      "LOW_COST": {
+        "zip_prefixes": ["37", "64", "71", "88", "40", "66", "31"],
+        "cost_of_living_index": 0.84,
+        "rent_multiplier": 0.72,
+        "salary_multiplier": 0.88,
+        "checking_multiplier": 0.88
+      }
+    }
+  },
+  "personas": {
+    "distribution": "categorical",
+    "categories": ["SOFTWARE_ENGINEER", "TEACHER", "NURSE", "CONSTRUCTION_WORKER", "ENTREPRENEUR", "PHYSICIAN_ASSISTANT", "IMMIGRANT_PROFESSIONAL", "RETAIL_MANAGER", "FINANCE_ANALYST"],
+    "probabilities": [0.18, 0.14, 0.12, 0.08, 0.08, 0.08, 0.08, 0.12, 0.12],
+    "params": {
+      "SOFTWARE_ENGINEER": { "industry": "Technology", "student_loan_prob": 0.35, "tenure_stability": "stable", "salary_median": 133000, "salary_gini": 0.30, "salary_min": 80000, "salary_max": 220000 },
+      "TEACHER": { "industry": "Education", "student_loan_prob": 0.55, "tenure_stability": "stable", "salary_median": 65000, "salary_gini": 0.18, "salary_min": 45000, "salary_max": 100000 },
+      "NURSE": { "industry": "Healthcare", "student_loan_prob": 0.45, "tenure_stability": "stable", "salary_median": 94000, "salary_gini": 0.20, "salary_min": 65000, "salary_max": 140000 },
+      "CONSTRUCTION_WORKER": { "industry": "Manufacturing", "student_loan_prob": 0.20, "tenure_stability": "seasonal", "salary_median": 46000, "salary_gini": 0.22, "salary_min": 30000, "salary_max": 75000 },
+      "ENTREPRENEUR": { "industry": "Other", "student_loan_prob": 0.30, "tenure_stability": "variable", "salary_median": 65000, "salary_gini": 0.55, "salary_min": 15000, "salary_max": 400000 },
+      "PHYSICIAN_ASSISTANT": { "industry": "Healthcare", "student_loan_prob": 0.70, "tenure_stability": "stable", "salary_median": 133000, "salary_gini": 0.16, "salary_min": 90000, "salary_max": 180000 },
+      "IMMIGRANT_PROFESSIONAL": { "industry": "Technology", "student_loan_prob": 0.30, "tenure_stability": "recent", "salary_median": 85000, "salary_gini": 0.32, "salary_min": 45000, "salary_max": 180000 },
+      "RETAIL_MANAGER": { "industry": "Retail", "student_loan_prob": 0.30, "tenure_stability": "stable", "salary_median": 50000, "salary_gini": 0.18, "salary_min": 30000, "salary_max": 85000 },
+      "FINANCE_ANALYST": { "industry": "Finance", "student_loan_prob": 0.40, "tenure_stability": "stable", "salary_median": 100000, "salary_gini": 0.25, "salary_min": 60000, "salary_max": 180000 }
+    }
+  }
+}
