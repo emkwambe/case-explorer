@@ -1,0 +1,581 @@
+"Title","Body","Labels","Milestone","Assignee","Estimate (hours)"
+"Set up GitHub Projects board with columns and milestones","## Task
+Create the "Case Explorer: 90-Day Roadmap" GitHub Projects board with:
+- Columns: To Do, In Progress, In Review, Done, Blocked
+- Milestones: Sprint 0-4
+- Add all issues from this document to the board
+- Configure automation rules
+
+## Acceptance Criteria
+- [ ] Projects board exists with correct name
+- [ ] All 5 columns are configured
+- [ ] All 5 milestones are created
+- [ ] All Sprint 0 issues are added to the board
+- [ ] Automation rules are configured
+
+## Labels
+`devops`, `priority:high`, `epic:sprint-0`
+
+## Estimate
+2 hours","devops,priority:high,epic:sprint-0","Sprint 0: Foundation","",2
+"Set up CI/CD pipeline with GitHub Actions","## Task
+Create GitHub Actions workflows to automate:
+- Running tests on pull requests (lint, validate)
+- Running tests on pushes to main
+- Building and deploying the static site
+- Automating release process
+
+## Acceptance Criteria
+- [ ] `.github/workflows/ci.yml` exists
+- [ ] Workflow runs on PR to `main` branch
+- [ ] Workflow runs `npm run lint` successfully
+- [ ] Workflow runs `npm run validate` successfully
+- [ ] Workflow runs `npm run build` successfully
+- [ ] Workflow fails and blocks merge if tests fail
+
+## Labels
+`devops`, `backend`, `priority:high`, `epic:sprint-0`
+
+## Estimate
+4 hours","devops,backend,priority:high,epic:sprint-0","Sprint 0: Foundation","",4
+"Configure PostgreSQL database (local + cloud)","## Task
+Set up PostgreSQL database for development and production:
+- Local PostgreSQL setup instructions
+- Cloud database on Supabase or Neon.tech
+- Connection string management (environment variables)
+- Basic schema for cases, users, configurations
+
+## Acceptance Criteria
+- [ ] `docs/DB_SETUP.md` created with setup instructions
+- [ ] Local PostgreSQL connection works
+- [ ] Cloud PostgreSQL instance created and configured
+- [ ] `.env.example` contains all required DB variables
+- [ ] Basic schema SQL file created (`docs/db/schema.sql`)
+
+## Labels
+`database`, `backend`, `devops`, `priority:high`, `epic:sprint-0`
+
+## Estimate
+6 hours","database,backend,devops,priority:high,epic:sprint-0","Sprint 0: Foundation","",6
+"Create PROJECT.md with 90-day roadmap overview","## Task
+Create a comprehensive `PROJECT.md` file at the repo root that includes:
+- Project vision and goals
+- 90-day roadmap with sprint summaries
+- Sprint objectives
+- Team roles and responsibilities
+- Links to resources (board, docs, Slack)
+
+## Acceptance Criteria
+- [ ] `PROJECT.md` exists at repo root
+- [ ] Contains project vision and goals
+- [ ] Contains 90-day roadmap with sprint summaries
+- [ ] Contains team contact information
+- [ ] Links to GitHub Projects board
+
+## Labels
+`documentation`, `priority:high`, `epic:sprint-0`
+
+## Estimate
+2 hours","documentation,priority:high,epic:sprint-0","Sprint 0: Foundation","",2
+"Document current architecture with Mermaid diagrams","## Task
+Create `docs/ARCHITECTURE.md` with:
+- High-level system architecture diagram (Mermaid.js)
+- Component descriptions
+- Data flow explanations
+- Technology stack overview
+- Deployment architecture
+
+## Acceptance Criteria
+- [ ] `docs/ARCHITECTURE.md` exists
+- [ ] Contains at least 2 Mermaid diagrams
+- [ ] Describes all major components
+- [ ] Explains data flow
+- [ ] Lists technology stack
+
+## Labels
+`documentation`, `priority:high`, `epic:sprint-0`
+
+## Estimate
+4 hours","documentation,priority:high,epic:sprint-0","Sprint 0: Foundation","",4
+"Create #case-explorer Slack channel for team communication","## Task
+Set up team communication infrastructure:
+- Create Slack channel #case-explorer
+- Invite all team members
+- Set up channel purpose and guidelines
+- Integrate GitHub notifications
+
+## Acceptance Criteria
+- [ ] Slack channel #case-explorer exists
+- [ ] All team members are invited
+- [ ] Channel purpose is set
+- [ ] GitHub integration is configured
+
+## Labels
+`devops`, `priority:medium`, `epic:sprint-0`
+
+## Estimate
+1 hour","devops,priority:medium,epic:sprint-0","Sprint 0: Foundation","",1
+"Create GitHub issue and PR templates","## Task
+Create standardized templates for:
+- Bug reports
+- Feature requests
+- Pull requests
+- Documentation requests
+
+## Acceptance Criteria
+- [ ] `.github/ISSUE_TEMPLATE/bug_report.md` exists
+- [ ] `.github/ISSUE_TEMPLATE/feature_request.md` exists
+- [ ] `.github/pull_request_template.md` exists
+- [ ] Templates include all required fields
+
+## Labels
+`devops`, `documentation`, `priority:medium`, `epic:sprint-0`
+
+## Estimate
+2 hours","devops,documentation,priority:medium,epic:sprint-0","Sprint 0: Foundation","",2
+"Design REST API specification","## Task
+Design the API specification using OpenAPI/Swagger:
+- Endpoints for case generation
+- Endpoints for batch generation
+- Authentication endpoints
+- Rate limiting strategy
+- Error handling standards
+
+## Acceptance Criteria
+- [ ] `docs/api/openapi.yaml` or `openapi.json` exists
+- [ ] All major endpoints are defined
+- [ ] Request/response schemas are documented
+- [ ] Authentication flow is documented
+- [ ] Reviewed by team
+
+## Labels
+`backend`, `documentation`, `priority:high`, `epic:sprint-1`
+
+## Estimate
+4 hours","backend,documentation,priority:high,epic:sprint-1","Sprint 1: API & Core","",4
+"Implement Express.js API server for case generation","## Task
+Create a Node.js/Express server that:
+- Exposes REST endpoints from the API spec
+- Integrates with the existing generator.js
+- Handles request validation
+- Returns proper HTTP status codes
+
+## Acceptance Criteria
+- [ ] `src/server.js` or `src/api/index.js` exists
+- [ ] `/api/health` endpoint works
+- [ ] `/api/cases/generate` endpoint works
+- [ ] `/api/cases/batch` endpoint works
+- [ ] Request validation implemented
+- [ ] Error handling implemented
+
+## Labels
+`backend`, `priority:high`, `epic:sprint-1`
+
+## Estimate
+8 hours","backend,priority:high,epic:sprint-1","Sprint 1: API & Core","",8
+"Implement API key authentication for endpoints","## Task
+Implement authentication using API keys:
+- Generate API keys for users
+- Validate API keys on protected endpoints
+- Store API keys securely
+- Rate limit by API key
+
+## Acceptance Criteria
+- [ ] API key generation endpoint works
+- [ ] Protected endpoints require valid API key
+- [ ] Rate limiting works (e.g., 1000 reqs/hour free tier)
+- [ ] API keys stored securely (hashed)
+- [ ] Invalid key returns 401 Unauthorized
+
+## Labels
+`backend`, `devops`, `priority:high`, `epic:sprint-1`
+
+## Estimate
+6 hours","backend,devops,priority:high,epic:sprint-1","Sprint 1: API & Core","",6
+"Deploy API documentation using Swagger UI or Redoc","## Task
+Deploy interactive API documentation:
+- Use Swagger UI or Redoc
+- Host on GitHub Pages or Vercel
+- Keep in sync with OpenAPI spec
+
+## Acceptance Criteria
+- [ ] API docs site is deployed and accessible
+- [ ] All endpoints are documented
+- [ ] Try-it-out functionality works
+- [ ] Links from README and main site
+
+## Labels
+`backend`, `documentation`, `priority:medium`, `epic:sprint-1`
+
+## Estimate
+2 hours","backend,documentation,priority:medium,epic:sprint-1","Sprint 1: API & Core","",2
+"Add input validation middleware for API endpoints","## Task
+Add validation for all API inputs:
+- Use Joi or Zod for schema validation
+- Validate query parameters
+- Validate request bodies
+- Return clear error messages
+
+## Acceptance Criteria
+- [ ] Validation middleware implemented
+- [ ] All endpoints have input validation
+- [ ] Invalid input returns 400 with clear message
+- [ ] Validation schemas are tested
+
+## Labels
+`backend`, `priority:medium`, `epic:sprint-1`
+
+## Estimate
+4 hours","backend,priority:medium,epic:sprint-1","Sprint 1: API & Core","",4
+"Add unit tests for API endpoints","## Task
+Add comprehensive tests for API:
+- Test all endpoints (health, generate, batch)
+- Test authentication
+- Test validation
+- Test error handling
+
+## Acceptance Criteria
+- [ ] Tests exist for all API endpoints
+- [ ] Tests pass locally
+- [ ] Tests run in CI/CD
+- [ ] Coverage >80% for API code
+
+## Labels
+`backend`, `priority:medium`, `epic:sprint-1`
+
+## Estimate
+4 hours","backend,priority:medium,epic:sprint-1","Sprint 1: API & Core","",4
+"Integrate PostgreSQL database for case persistence","## Task
+Connect the generator to PostgreSQL:
+- Store generated cases in database
+- Add metadata (timestamp, user, seed)
+- Implement query endpoints for cases
+- Add pagination for case listings
+
+## Acceptance Criteria
+- [ ] Cases are stored in PostgreSQL
+- [ ] `/api/cases` endpoint returns paginated list
+- [ ] `/api/cases/{id}` endpoint returns single case
+- [ ] Database schema is versioned
+- [ ] Migrations are documented
+
+## Labels
+`backend`, `database`, `priority:high`, `epic:sprint-2`
+
+## Estimate
+8 hours","backend,database,priority:high,epic:sprint-2","Sprint 2: Scalability","",8
+"Implement worker threads for parallel case generation","## Task
+Improve batch generation performance:
+- Use Node.js worker_threads module
+- Parallelize case generation
+- Implement progress reporting
+- Handle errors gracefully
+
+## Acceptance Criteria
+- [ ] Worker thread implementation exists
+- [ ] Batch generation uses multiple threads
+- [ ] Progress is reported during batch
+- [ ] 10K cases generate in < 60 seconds
+- [ ] Error handling works across threads
+
+## Labels
+`backend`, `priority:high`, `epic:sprint-2`
+
+## Estimate
+6 hours","backend,priority:high,epic:sprint-2","Sprint 2: Scalability","",6
+"Add Redis caching for frequent queries","## Task
+Add Redis caching for:
+- Frequently accessed cases
+- Configuration lookups
+- Rate limit tracking
+- Common queries
+
+## Acceptance Criteria
+- [ ] Redis integration implemented
+- [ ] Cache hit/miss metrics logged
+- [ ] Cache TTL configured appropriately
+- [ ] Cache invalidation works
+- [ ] Performance improvement measured
+
+## Labels
+`backend`, `database`, `priority:medium`, `epic:sprint-2`
+
+## Estimate
+4 hours","backend,database,priority:medium,epic:sprint-2","Sprint 2: Scalability","",4
+"Set up monitoring, logging, and error tracking","## Task
+Implement observability:
+- Structured logging (Winston or Pino)
+- Error tracking (Sentry or similar)
+- Basic metrics (request counts, errors)
+- Health check endpoint
+
+## Acceptance Criteria
+- [ ] Structured logging implemented
+- [ ] Error tracking is set up
+- [ ] Basic metrics are collected
+- [ ] Health endpoint includes system status
+- [ ] Logs are retained for 30 days
+
+## Labels
+`devops`, `backend`, `priority:medium`, `epic:sprint-2`
+
+## Estimate
+4 hours","devops,backend,priority:medium,epic:sprint-2","Sprint 2: Scalability","",4
+"Deploy static frontend to Cloudflare Pages","## Task
+Deploy the React/Vite app to Cloudflare:
+- Set up Cloudflare Pages project
+- Connect to GitHub repository
+- Configure build settings
+- Deploy to production
+
+## Acceptance Criteria
+- [ ] Cloudflare Pages project exists
+- [ ] Connected to GitHub repo
+- [ ] Auto-deploys on push to main
+- [ ] Site is accessible at Cloudflare URL
+- [ ] Build logs are accessible
+
+## Labels
+`frontend`, `devops`, `priority:high`, `epic:sprint-2`
+
+## Estimate
+2 hours","frontend,devops,priority:high,epic:sprint-2","Sprint 2: Scalability","",2
+"Migrate core generator.js to TypeScript","## Task
+Convert the main generator to TypeScript:
+- Add type definitions for all functions
+- Type all interfaces (Case, Truth, Presentation, etc.)
+- Configure tsconfig.json
+- Fix any type errors
+
+## Acceptance Criteria
+- [ ] `tsconfig.json` exists with proper configuration
+- [ ] `src/generator.ts` exists (or gradual migration)
+- [ ] All major types are defined
+- [ ] Build process works with TypeScript
+- [ ] No type errors in core paths
+
+## Labels
+`frontend`, `backend`, `priority:high`, `epic:sprint-3`
+
+## Estimate
+12 hours","frontend,backend,priority:high,epic:sprint-3","Sprint 3: Productization","",12
+"Split generator.js into domain-specific modules","## Task
+Split the 1820-line generator.js into modules:
+- `distributions.ts` - Statistical sampling functions
+- `corruption.ts` - Fraud/corruption logic
+- `evidence.ts` - Evidence synthesis
+- `decision.ts` - Decision engine
+- `ledger.ts` - Cash flow ledger logic
+
+## Acceptance Criteria
+- [ ] `src/distributions.ts` exists
+- [ ] `src/corruption.ts` exists
+- [ ] `src/evidence.ts` exists
+- [ ] `src/decision.ts` exists
+- [ ] `src/ledger.ts` exists
+- [ ] All imports work correctly
+- [ ] No circular dependencies
+
+## Labels
+`backend`, `priority:high`, `epic:sprint-3`
+
+## Estimate
+8 hours","backend,priority:high,epic:sprint-3","Sprint 3: Productization","",8
+"Remove redundant npm dependencies","## Task
+Audit and remove unnecessary dependencies:
+- Remove `gaussian` (internal normal sampling exists)
+- Remove `random-js` (Mulberry32 PRNG internal)
+- Review `mathjs` and `simple-statistics` usage
+- Update package.json
+
+## Acceptance Criteria
+- [ ] `gaussian` removed from package.json
+- [ ] `random-js` removed from package.json
+- [ ] Unused functions from mathjs/simple-statistics identified
+- [ ] All tests still pass
+- [ ] Bundle size reduced
+
+## Labels
+`backend`, `devops`, `priority:medium`, `epic:sprint-3`
+
+## Estimate
+2 hours","backend,devops,priority:medium,epic:sprint-3","Sprint 3: Productization","",2
+"Add Jest/Vitest unit tests for core functions","## Task
+Add comprehensive unit tests:
+- Test statistical sampling functions
+- Test corruption logic
+- Test decision engine
+- Test ledger accounting
+- Aim for >80% coverage
+
+## Acceptance Criteria
+- [ ] Jest or Vitest configured
+- [ ] Tests for `generateCase()` exist
+- [ ] Tests for `corruptPresentation()` exist
+- [ ] Tests for `computeDecision()` exist
+- [ ] Tests for `simulateMonthlyLedger()` exist
+- [ ] Coverage >80%
+
+## Labels
+`backend`, `frontend`, `priority:high`, `epic:sprint-3`
+
+## Estimate
+8 hours","backend,frontend,priority:high,epic:sprint-3","Sprint 3: Productization","",8
+"Add React error boundaries to frontend","## Task
+Add error handling to React UI:
+- Create error boundary component
+- Wrap main app components
+- Display user-friendly error messages
+- Log errors to console/sentry
+
+## Acceptance Criteria
+- [ ] ErrorBoundary component exists
+- [ ] Main app is wrapped in ErrorBoundary
+- [ ] User-friendly error messages display
+- [ ] Errors are logged
+- [ ] App doesn't crash on errors
+
+## Labels
+`frontend`, `priority:medium`, `epic:sprint-3`
+
+## Estimate
+2 hours","frontend,priority:medium,epic:sprint-3","Sprint 3: Productization","",2
+"Build web dashboard for case configuration","## Task
+Create a web-based configuration UI:
+- Form for generating individual cases
+- Form for batch generation
+- Configuration preset management
+- Export options (JSON, CSV)
+
+## Acceptance Criteria
+- [ ] Configuration form works
+- [ ] Case generation works from UI
+- [ ] Batch generation form works
+- [ ] Presets can be saved/loaded
+- [ ] Export options work
+
+## Labels
+`frontend`, `enhancement`, `priority:medium`, `epic:sprint-3`
+
+## Estimate
+8 hours","frontend,enhancement,priority:medium,epic:sprint-3","Sprint 3: Productization","",8
+"Extend generator to support auto, personal, commercial loans","## Task
+Add support for additional loan types:
+- Auto loan configurations
+- Personal loan configurations
+- Commercial loan configurations
+- Loan-type-specific parameters
+- Updated UI to select loan type
+
+## Acceptance Criteria
+- [ ] `loan_type` parameter accepts: MORTGAGE, AUTO, PERSONAL, COMMERCIAL
+- [ ] Each loan type has appropriate parameters
+- [ ] Decision engine handles all loan types
+- [ ] UI allows loan type selection
+- [ ] Documentation updated
+
+## Labels
+`backend`, `enhancement`, `priority:high`, `epic:sprint-4`
+
+## Estimate
+8 hours","backend,enhancement,priority:high,epic:sprint-4","Sprint 4: Advanced Features","",8
+"Add charts and visualizations to UI","## Task
+Add visualization using Chart.js or similar:
+- Distribution histograms (age, salary, credit score)
+- Correlation heatmap
+- Fraud pattern breakdown
+- Decision outcome pie chart
+- Time series for batch generation
+
+## Acceptance Criteria
+- [ ] Chart.js or similar library added
+- [ ] Salary distribution chart works
+- [ ] Credit score distribution chart works
+- [ ] Fraud type breakdown chart works
+- [ ] Decision outcome chart works
+- [ ] Charts are responsive
+
+## Labels
+`frontend`, `enhancement`, `priority:medium`, `epic:sprint-4`
+
+## Estimate
+6 hours","frontend,enhancement,priority:medium,epic:sprint-4","Sprint 4: Advanced Features","",6
+"Create UI for custom fraud pattern configuration","## Task
+Allow users to create custom fraud patterns:
+- UI form for defining new corruption types
+- Backend validation
+- Save custom patterns to database
+- Apply custom patterns to generation
+
+## Acceptance Criteria
+- [ ] Custom fraud pattern form exists
+- [ ] Patterns are validated
+- [ ] Patterns saved to database
+- [ ] Patterns can be applied to generation
+- [ ] Patterns can be shared/exported
+
+## Labels
+`frontend`, `backend`, `enhancement`, `priority:medium`, `epic:sprint-4`
+
+## Estimate
+8 hours","frontend,backend,enhancement,priority:medium,epic:sprint-4","Sprint 4: Advanced Features","",8
+"Add versioning system for generated datasets","## Task
+Track dataset versions:
+- Version number for each dataset
+- Changelog between versions
+- Reproduce old datasets from version + seed
+- List version history
+
+## Acceptance Criteria
+- [ ] Datasets have version numbers
+- [ ] Version history is stored
+- [ ] Old versions can be reproduced
+- [ ] Version changes are logged
+- [ ] API returns version info
+
+## Labels
+`backend`, `database`, `priority:medium`, `epic:sprint-4`
+
+## Estimate
+4 hours","backend,database,priority:medium,epic:sprint-4","Sprint 4: Advanced Features","",4
+"Implement tiered rate limiting for API","## Task
+Add rate limiting with tiers:
+- Free tier: 1000 requests/hour
+- Pro tier: 10000 requests/hour
+- Enterprise: custom
+- Track usage per API key
+
+## Acceptance Criteria
+- [ ] Rate limiting implemented
+- [ ] Free tier limits enforced
+- [ ] Pro tier limits enforced
+- [ ] Usage is tracked per key
+- [ ] Rate limit headers included in responses
+
+## Labels
+`backend`, `devops`, `priority:high`, `epic:sprint-4`
+
+## Estimate
+4 hours","backend,devops,priority:high,epic:sprint-4","Sprint 4: Advanced Features","",4
+"Deploy complete application to production","## Task
+Full production deployment:
+- Cloudflare Pages for frontend
+- Cloudflare Workers for API
+- PostgreSQL database
+- Custom domain configured
+- SSL certificates
+- Monitoring setup
+
+## Acceptance Criteria
+- [ ] Frontend deployed to production
+- [ ] API deployed to production
+- [ ] Database in production
+- [ ] Custom domain works
+- [ ] SSL certificates valid
+- [ ] Monitoring is active
+
+## Labels
+`devops`, `priority:high`, `epic:sprint-4`
+
+## Estimate
+4 hours","devops,priority:high,epic:sprint-4","Sprint 4: Advanced Features","",4
