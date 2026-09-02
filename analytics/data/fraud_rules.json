@@ -1,0 +1,353 @@
+{
+  "ruleset_version": "1.3.0",
+  "rules": [
+    {
+      "id": "FR-001",
+      "version": "1.2.0",
+      "description": "Stated income exceeds employer-verified salary. Above the material threshold the income is unverifiable; between the variance and material thresholds the case is re-underwritten on verified income.",
+      "features_used": [
+        "claims.salary",
+        "evidence.employer_salary",
+        "evidence.w2_wages"
+      ],
+      "threshold": {
+        "pct": 0.15,
+        "variance_pct": 0.02
+      },
+      "target_scenarios": [
+        "INFLATION",
+        "FABRICATION"
+      ],
+      "severity": "HIGH",
+      "reason_code": "UNVERIFIABLE_INCOME",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-002",
+      "version": "1.0.0",
+      "description": "Stated employer does not match employer verification.",
+      "features_used": [
+        "claims.employer",
+        "evidence.employer_name"
+      ],
+      "threshold": {},
+      "target_scenarios": [
+        "FABRICATION",
+        "BUST_OUT"
+      ],
+      "severity": "HIGH",
+      "reason_code": "UNVERIFIABLE_EMPLOYMENT",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-003",
+      "version": "1.2.0",
+      "description": "Credit bureau shows monthly obligations above those disclosed. Material gaps are undisclosed liabilities; small gaps are re-underwritten on bureau obligations.",
+      "features_used": [
+        "claims.monthly_obligations",
+        "evidence.bureau_monthly_obligations",
+        "claims.liability_count",
+        "evidence.bureau_liability_count"
+      ],
+      "threshold": {
+        "min_hidden_monthly": 100,
+        "variance_monthly": 25
+      },
+      "target_scenarios": [
+        "CONCEALMENT"
+      ],
+      "severity": "HIGH",
+      "reason_code": "UNDISCLOSED_LIABILITIES",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-004",
+      "version": "1.0.0",
+      "description": "Stated checking balance exceeds bank-statement balance.",
+      "features_used": [
+        "claims.checking_balance",
+        "evidence.checking_balance"
+      ],
+      "threshold": {
+        "abs": 500,
+        "pct": 0.1
+      },
+      "target_scenarios": [
+        "FABRICATION"
+      ],
+      "severity": "HIGH",
+      "reason_code": "UNVERIFIABLE_ASSETS",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-005",
+      "version": "1.0.0",
+      "description": "Bank statement contains a large deposit with no documented source.",
+      "features_used": [
+        "evidence.recent_large_deposits",
+        "claims.salary"
+      ],
+      "threshold": {
+        "min_pct_of_monthly_income": 0.5
+      },
+      "target_scenarios": [
+        "EVIDENCE_TAMPERING",
+        "GIFT_FUND_MISREPRESENTATION",
+        "ASSET_SEASONING"
+      ],
+      "severity": "MEDIUM",
+      "reason_code": "UNSOURCED_LARGE_DEPOSIT",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-006",
+      "version": "1.0.0",
+      "description": "Bank statement balance materially exceeds stated balance (possible statement alteration).",
+      "features_used": [
+        "claims.checking_balance",
+        "evidence.checking_balance"
+      ],
+      "threshold": {
+        "pct": 0.15
+      },
+      "target_scenarios": [
+        "EVIDENCE_TAMPERING"
+      ],
+      "severity": "HIGH",
+      "reason_code": "POTENTIAL_DOCUMENT_TAMPERING",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-007",
+      "version": "1.0.0",
+      "description": "Payroll deposits on bank statement inconsistent with employer-verified net pay.",
+      "features_used": [
+        "evidence.monthly_payroll_deposit",
+        "evidence.expected_monthly_net_deposit"
+      ],
+      "threshold": {
+        "pct": 0.15
+      },
+      "target_scenarios": [
+        "EVIDENCE_TAMPERING"
+      ],
+      "severity": "MEDIUM",
+      "reason_code": "POTENTIAL_DOCUMENT_TAMPERING",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-008",
+      "version": "1.0.0",
+      "description": "Employer name varies between W-2 and employer verification.",
+      "features_used": [
+        "evidence.w2_employer",
+        "evidence.employer_name"
+      ],
+      "threshold": {},
+      "target_scenarios": [
+        "EVIDENCE_TAMPERING"
+      ],
+      "severity": "LOW",
+      "reason_code": "EMPLOYER_NAME_VARIATION",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-009",
+      "version": "1.1.0",
+      "description": "Rapid credit-profile construction: claimed prime score with a thin, tightly-clustered file and employment start that contradicts verification.",
+      "features_used": [
+        "claims.credit_score",
+        "evidence.credit_score",
+        "claims.liability_cluster_days",
+        "claims.liability_count",
+        "_timeline.claimed_employment_start_vs_hire_date_days"
+      ],
+      "threshold": {
+        "score_gap": 40,
+        "cluster_days": 120,
+        "max_liabilities": 3
+      },
+      "target_scenarios": [
+        "BUST_OUT"
+      ],
+      "severity": "HIGH",
+      "reason_code": "IDENTITY_UNVERIFIABLE",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-010",
+      "version": "1.0.0",
+      "description": "Application originated from a high-risk or anonymised network location.",
+      "features_used": [
+        "metadata.ip_risk_score",
+        "metadata.is_tor"
+      ],
+      "threshold": {
+        "ip_risk": 0.7
+      },
+      "target_scenarios": [
+        "*"
+      ],
+      "severity": "MEDIUM",
+      "reason_code": "HIGH_RISK_NETWORK_ORIGIN",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-011",
+      "version": "1.0.0",
+      "description": "Three or more supporting documents created within two days of submission.",
+      "features_used": [
+        "metadata.docs_created_within_2_days"
+      ],
+      "threshold": {
+        "docs": 3
+      },
+      "target_scenarios": [
+        "*"
+      ],
+      "severity": "MEDIUM",
+      "reason_code": "SUSPICIOUS_DOCUMENT_METADATA",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-012",
+      "version": "1.0.0",
+      "description": "Session behaviour inconsistent with a natural applicant (heavy copy-paste, very short session).",
+      "features_used": [
+        "metadata.fields_copy_pasted",
+        "metadata.session_duration_seconds"
+      ],
+      "threshold": {
+        "copy_paste": 4,
+        "session_seconds": 120
+      },
+      "target_scenarios": [
+        "*"
+      ],
+      "severity": "LOW",
+      "reason_code": "ANOMALOUS_APPLICATION_BEHAVIOR",
+      "effective_date": "2026-01-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-013",
+      "version": "1.0.0",
+      "description": "Submitted information violates accounting or timeline invariants (data integrity).",
+      "features_used": [
+        "claims.monthly_obligations",
+        "claims.salary",
+        "evidence.w2_wages",
+        "_timeline.rent_before_lease",
+        "_timeline.deposit_before_employment"
+      ],
+      "threshold": {
+        "obligations_share": 0.8
+      },
+      "target_scenarios": [
+        "INCOHERENT"
+      ],
+      "severity": "HIGH",
+      "reason_code": "DATA_INTEGRITY_FAILURE",
+      "effective_date": "2026-01-01",
+      "owner": "data-quality",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-014",
+      "version": "1.0.0",
+      "description": "Occupancy misrepresentation: stated primary residence while rent verification shows an active lease elsewhere at distance.",
+      "features_used": [
+        "claims.occupancy",
+        "evidence.rent_monthly",
+        "claims.events"
+      ],
+      "threshold": {},
+      "target_scenarios": [
+        "OCCUPANCY_MISREPRESENTATION"
+      ],
+      "severity": "HIGH",
+      "reason_code": "MATERIAL_APPLICATION_DISCREPANCY",
+      "effective_date": "2026-03-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-015",
+      "version": "1.0.0",
+      "description": "Gift funds: large deposit labelled as gift without donor letter or with donor matching a party to the transaction.",
+      "features_used": [
+        "evidence.recent_large_deposits"
+      ],
+      "threshold": {},
+      "target_scenarios": [
+        "GIFT_FUND_MISREPRESENTATION"
+      ],
+      "severity": "HIGH",
+      "reason_code": "UNVERIFIABLE_ASSETS",
+      "effective_date": "2026-03-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-016",
+      "version": "1.0.0",
+      "description": "Asset seasoning: majority of stated reserves arrived within the statement window.",
+      "features_used": [
+        "evidence.recent_large_deposits",
+        "evidence.checking_balance"
+      ],
+      "threshold": {
+        "share": 0.5
+      },
+      "target_scenarios": [
+        "ASSET_SEASONING"
+      ],
+      "severity": "MEDIUM",
+      "reason_code": "UNSOURCED_LARGE_DEPOSIT",
+      "effective_date": "2026-03-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    },
+    {
+      "id": "FR-017",
+      "version": "1.0.0",
+      "description": "Straw-buyer indicators: third party funds the down payment and applicant's stated occupancy is inconsistent with their housing history.",
+      "features_used": [
+        "claims.events",
+        "evidence.recent_large_deposits"
+      ],
+      "threshold": {},
+      "target_scenarios": [
+        "STRAW_BUYER"
+      ],
+      "severity": "HIGH",
+      "reason_code": "MATERIAL_APPLICATION_DISCREPANCY",
+      "effective_date": "2026-03-01",
+      "owner": "fraud-strategy",
+      "approval_status": "APPROVED"
+    }
+  ]
+}

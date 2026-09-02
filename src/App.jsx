@@ -1,7 +1,5 @@
-import FraudCaseExplorer from './FraudCaseExplorer'
+import CaseExplorer from './ui/CaseExplorer.jsx';
 
-function App() {
-  return <FraudCaseExplorer />
+export default function App() {
+  return <CaseExplorer />;
 }
-
-export default App
