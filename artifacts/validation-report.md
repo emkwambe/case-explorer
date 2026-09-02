@@ -1,6 +1,6 @@
 # Validation Report
 
-Generated 2026-09-02T18:01:00.931Z · seed `42` · 2,000 blended + 2,250 stratified cases · generator 2.0.0 · commit `5f9eae4e` · config `570e1e0c7fda`
+Generated 2026-09-02T18:18:00.257Z · seed `42` · 2,000 blended + 2,250 stratified cases · generator 2.0.0 · commit `62a7d104` · config `570e1e0c7fda`
 
 ## Release gates — **PASS**
 

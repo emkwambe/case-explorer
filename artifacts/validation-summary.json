@@ -1,14 +1,14 @@
 {
   "manifest": {
     "benchmark_version": "1.0.0",
-    "generated_at": "2026-09-02T18:01:00.931Z",
+    "generated_at": "2026-09-02T18:18:00.257Z",
     "generator_version": "2.0.0",
     "case_schema_version": "2.0.0",
     "ruleset_version": "1.3.0",
     "policy_version": "2.1.0",
     "reason_code_catalog_version": "1.0.0",
     "feature_policy_version": "1.0.0",
-    "generator_commit": "5f9eae4eff8b066440b172c1e837da9a85fd30d3",
+    "generator_commit": "62a7d104e1de970e58f886705668b6dfd6570f6b",
     "configuration_hash": "sha256:570e1e0c7fda442882594d2d320465d67d3cfe307543719abc5109277a15c692",
     "seed": "42",
     "as_of_date": "2026-01-15",
@@ -16,7 +16,7 @@
     "record_count": 2000,
     "stratified_record_count": 2250,
     "node_version": "v22.18.0",
-    "duration_seconds": 6
+    "duration_seconds": 8.4
   },
   "gates": {
     "passed": true,

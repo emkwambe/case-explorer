@@ -53,9 +53,10 @@ export function createApp({ store = new MemoryStore() } = {}) {
     app.use('/api/docs/assets', express.static(require('swagger-ui-dist').getAbsoluteFSPath()));
   } catch { /* swagger assets optional */ }
 
-  // Protected routes
-  app.use(apiKeyAuth);
-  app.use(rateLimit);
+  // Protected routes. Scoped to /api so the static demo UI below stays publicly reachable;
+  // /api/health, /api/metrics, /api/docs and /api/openapi.yaml are registered above this line.
+  app.use('/api', apiKeyAuth);
+  app.use('/api', rateLimit);
   app.use('/api/config', configRoutes);
   app.use('/api/batch', batchRoutes);
 

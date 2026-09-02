@@ -20,6 +20,14 @@ describe(`API workflow (${process.env.DATABASE_URL ? "postgres" : "memory"})`, (
   });
   afterAll(async () => { await store.close(); });
 
+  it("scopes authentication to /api so the static demo UI stays reachable", async () => {
+    // Without a key, an API route is rejected; a non-API path falls through to the app's own
+    // 404 (or the built UI in the container), never to an auth error.
+    expect((await request(app).get("/api/rules")).status).toBe(401);
+    expect((await request(app).get("/")).status).not.toBe(401);
+    expect((await request(app).get("/some/deep/route")).status).not.toBe(401);
+  });
+
   it("serves OpenAPI and docs without auth", async () => {
     expect((await request(app).get("/api/openapi.yaml")).status).toBe(200);
     expect((await request(app).get("/api/docs")).status).toBe(200);

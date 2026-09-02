@@ -67,6 +67,9 @@ Three commits took the project from a synthetic case generator with a mixed vali
 - Analytics artifacts serialise through a JSON-safe writer, so non-finite metrics become `null` rather than invalid JSON.
 - A rejected investigation transition set its error inside a state updater where React discarded it.
 - The rule identifier was split across text nodes in the UI.
+- Audit event hashing used a `JSON.stringify` replacer array, which the runtime applies at every depth, so nested `payload` keys were stripped and payload contents were never covered by the hash. Tampering inside a payload was undetectable. Replaced with a recursive canonical serialiser.
+- API-key authentication was mounted globally rather than scoped to `/api`, so the static demo UI served by the container returned 401.
+- The GitHub Pages deployment published only the benchmark artifacts, leaving the demo without the model artifacts its Explanation and Validation tabs read.
 
 ### Removed
 
