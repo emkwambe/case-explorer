@@ -594,7 +594,7 @@ const INITIAL_CASES = [
         "employment_status": "ACTIVE",
         "employer": "Technology Corp",
         "industry": "Technology",
-        "persona": "IMMIGRANT_PROFESSIONAL",
+        "persona": "RELOCATED_PROFESSIONAL",
         "tenure_stability": "recent",
         "salary": 180000,
         "tenure_months": 5,
@@ -721,7 +721,7 @@ const INITIAL_CASES = [
         "employment_status": "ACTIVE",
         "employer": "Technology Corp",
         "industry": "Technology",
-        "persona": "IMMIGRANT_PROFESSIONAL",
+        "persona": "RELOCATED_PROFESSIONAL",
         "tenure_stability": "recent",
         "salary": 180000,
         "tenure_months": 5,
@@ -892,7 +892,7 @@ const INITIAL_CASES = [
               "payment": 508
             }
           ],
-          "persona": "IMMIGRANT_PROFESSIONAL"
+          "persona": "RELOCATED_PROFESSIONAL"
         },
         "fidelity": 0.9356542101142222
       },

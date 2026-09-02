@@ -6,6 +6,30 @@ Every case is a simulated financial life — not just a bundle of documents. The
 
 ---
 
+
+## Verified metrics
+
+<!-- metrics:start -->
+_Generated 2026-09-02T14:46:48.448Z from `artifacts/validation-summary.json` (seed 42, commit eb3c94bb) by `npm run readme:metrics`. Do not edit by hand._
+
+| Capability | Result |
+|---|---|
+| Generated cases (benchmark run) | 2,700 |
+| Ledger invariants | 100.0% |
+| Evidence consistency | 99.9% |
+| Distribution tests passing | 100.0% |
+| Correlation targets within tolerance | 100.0% |
+| Reproducibility (seeded) | 100.0% |
+| Ground-truth reconciliation | 100.0% |
+| Rule-baseline fraud recall / precision | 1.000 / 0.993 |
+| Rule-baseline false-positive rate (clean) | 0.4% |
+| Decision-rule agreement | 98.7% |
+| Prohibited variables in decision inputs | 0 |
+| Counterfactual fairness invariance | 100.0% |
+| Fairness checks | WARN |
+| Release gates | PASS |
+<!-- metrics:end -->
+
 ## Quick start
 
 ```bash

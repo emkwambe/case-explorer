@@ -42,13 +42,7 @@
     "fabrication_prob": 0.03,
     "inflation_prob": 0.05,
     "bust_out_prob": 0.02,
-    "blend": {
-      "clean": 0.85,
-      "concealment": 0.07,
-      "inflation": 0.04,
-      "fabrication": 0.03,
-      "bust_out": 0.01
-    }
+    "blend": { "clean": 0.79, "concealment": 0.06, "inflation": 0.04, "fabrication": 0.03, "bust_out": 0.01, "evidence_tampering": 0.02, "occupancy_misrepresentation": 0.01, "gift_fund_misrepresentation": 0.01, "asset_seasoning": 0.01, "straw_buyer": 0.01, "incoherent": 0.01 }
   },
   "employment": {
     "salary_base": {
@@ -271,6 +265,7 @@
   "copula": {
     "enabled": true,
     "variables": ["age", "salary_base", "dti", "checking_balance", "credit_score"],
+    "dampen_latent_health": 0.6,
     "correlation_matrix": [
       [1.00,  0.20, -0.15,  0.10,  0.05],
       [0.20,  1.00, -0.35,  0.40,  0.30],
@@ -309,7 +304,7 @@
   },
   "personas": {
     "distribution": "categorical",
-    "categories": ["SOFTWARE_ENGINEER", "TEACHER", "NURSE", "CONSTRUCTION_WORKER", "ENTREPRENEUR", "PHYSICIAN_ASSISTANT", "IMMIGRANT_PROFESSIONAL", "RETAIL_MANAGER", "FINANCE_ANALYST"],
+    "categories": ["SOFTWARE_ENGINEER", "TEACHER", "NURSE", "CONSTRUCTION_WORKER", "ENTREPRENEUR", "PHYSICIAN_ASSISTANT", "RELOCATED_PROFESSIONAL", "RETAIL_MANAGER", "FINANCE_ANALYST"],
     "probabilities": [0.18, 0.14, 0.12, 0.08, 0.08, 0.08, 0.08, 0.12, 0.12],
     "params": {
       "SOFTWARE_ENGINEER": { "industry": "Technology", "student_loan_prob": 0.35, "tenure_stability": "stable", "salary_median": 133000, "salary_gini": 0.30, "salary_min": 80000, "salary_max": 220000 },
@@ -318,9 +313,12 @@
       "CONSTRUCTION_WORKER": { "industry": "Manufacturing", "student_loan_prob": 0.20, "tenure_stability": "seasonal", "salary_median": 46000, "salary_gini": 0.22, "salary_min": 30000, "salary_max": 75000 },
       "ENTREPRENEUR": { "industry": "Other", "student_loan_prob": 0.30, "tenure_stability": "variable", "salary_median": 65000, "salary_gini": 0.55, "salary_min": 15000, "salary_max": 400000 },
       "PHYSICIAN_ASSISTANT": { "industry": "Healthcare", "student_loan_prob": 0.70, "tenure_stability": "stable", "salary_median": 133000, "salary_gini": 0.16, "salary_min": 90000, "salary_max": 180000 },
-      "IMMIGRANT_PROFESSIONAL": { "industry": "Technology", "student_loan_prob": 0.30, "tenure_stability": "recent", "salary_median": 85000, "salary_gini": 0.32, "salary_min": 45000, "salary_max": 180000 },
+      "RELOCATED_PROFESSIONAL": { "industry": "Technology", "student_loan_prob": 0.30, "tenure_stability": "recent", "salary_median": 85000, "salary_gini": 0.32, "salary_min": 45000, "salary_max": 180000 },
       "RETAIL_MANAGER": { "industry": "Retail", "student_loan_prob": 0.30, "tenure_stability": "stable", "salary_median": 50000, "salary_gini": 0.18, "salary_min": 30000, "salary_max": 85000 },
       "FINANCE_ANALYST": { "industry": "Finance", "student_loan_prob": 0.40, "tenure_stability": "stable", "salary_median": 100000, "salary_gini": 0.25, "salary_min": 60000, "salary_max": 180000 }
     }
-  }
+  },
+  "metadata": { "fraud_signal_rate": 0.6, "_note": "Share of fraud cases whose device/behaviour metadata shows risk signals. Modelling assumption; see docs/methodology/PARAMETER_SOURCES.md." },
+  "generation": { "as_of_date": null, "_note": "Simulation as-of date (YYYY-MM-DD). null = today. Set for reproducible evidence dates." },
+  "fairness": { "scenario_attributes": { "family_status_probabilities": [0.35, 0.35, 0.22, 0.08], "disability_income_scenario_rate": 0.04 } }
 }

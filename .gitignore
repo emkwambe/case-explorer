@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +23,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Generated datasets and model artifacts
+analytics/data/*.csv
+analytics/data/*.manifest.json
+analytics/data/datasets.manifest.json
+analytics/artifacts/
+*.egg-info/
+__pycache__/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+coverage/

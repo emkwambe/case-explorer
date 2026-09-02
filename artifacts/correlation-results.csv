@@ -1,0 +1,15 @@
+pair,source,target,achieved,diff,tolerance,within_tolerance
+age vs salary_base,copula,0.2,0.211,0.011,0.25,true
+age vs dti,copula,-0.15,-0.134,0.016,0.25,true
+age vs checking_balance,copula,0.1,0.055,-0.045,0.25,true
+age vs credit_score,copula,0.05,0.028,-0.022,0.25,true
+salary_base vs dti,copula,-0.35,-0.265,0.085,0.25,true
+salary_base vs checking_balance,copula,0.4,0.296,-0.104,0.25,true
+salary_base vs credit_score,copula,0.3,0.225,-0.075,0.25,true
+dti vs checking_balance,copula,-0.25,-0.257,-0.007,0.25,true
+dti vs credit_score,copula,-0.5,-0.519,-0.019,0.25,true
+checking_balance vs credit_score,copula,0.25,0.298,0.048,0.25,true
+salary_base vs dti,sign-expectation,negative,-0.265,,,true
+salary_base vs credit_score,sign-expectation,positive,0.225,,,true
+dti vs credit_score,sign-expectation,negative,-0.519,,,true
+salary_base vs checking_balance,sign-expectation,positive,0.296,,,true

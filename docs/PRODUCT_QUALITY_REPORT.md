@@ -1,3 +1,7 @@
+> **SUPERSEDED (2026-09-02).** This assessment was produced against generator v1.0.0 and an evaluation harness that compared applicant claims directly against ground truth. It reported a 55.2% decision accuracy, 79.2% reconciliation and a NO-GO status that contradicted the passing CI validation. Both numbers came from a checker that mixed three different questions (is the data valid? can rules find the fraud? is the decision right?).
+>
+> The authoritative evaluation is now `npm run benchmark` (`scripts/benchmark.js`), which separates those questions into three independent layers plus fairness, enforces explicit release gates in `src/evaluation/gates.js`, and writes its evidence to `artifacts/validation-report.md` and `artifacts/validation-summary.json`. The README metrics table is generated from those artifacts. This file is retained for history only.
+
 # Case Explorer: Product Quality Assessment for Validation
 
 **Version:** 1.0.0 | **Date:** 2026-07-31 | **Author:** Mistral Vibe | **Status:** Draft

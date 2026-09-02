@@ -1,0 +1,20 @@
+name,family,test,statistic,p_value,threshold,n,grade,detail
+age,truncated normal,chi-square,2.988,0.5598,15,5000,PASS,
+salary_base,lognormal,KS,0.0208,0.026,0.05,5000,PASS,
+dti,scaled beta,KS,0.0165,0.1309,0.05,5000,PASS,
+credit_score_base,truncated normal,KS,0.0315,0.0001,0.05,5000,PASS,
+checking_balance,lognormal,KS,0.0125,0.4128,0.05,5000,PASS,
+regime_mixture,categorical mixture,chi-square,0.277,0.8706,0.001,1500,PASS,PRIME:832 SUBPRIME:450 SELF_EMPLOYED:218
+region_mixture,categorical mixture,chi-square,1.067,0.5866,0.001,1500,PASS,HIGH_COST:385 MEDIUM_COST:730 LOW_COST:385
+persona_salary_band:SOFTWARE_ENGINEER,range,bounds,0,,0,221,PASS,[70400-268400]
+persona_salary_band:TEACHER,range,bounds,0,,0,216,PASS,[39600-122000]
+persona_salary_band:NURSE,range,bounds,0,,0,257,PASS,[57200-170800]
+persona_salary_band:CONSTRUCTION_WORKER,range,bounds,0,,0,91,PASS,[26400-91500]
+persona_salary_band:ENTREPRENEUR,range,bounds,0,,0,114,PASS,[13200-488000]
+persona_salary_band:PHYSICIAN_ASSISTANT,range,bounds,0,,0,82,PASS,[79200-219600]
+persona_salary_band:RELOCATED_PROFESSIONAL,range,bounds,0,,0,147,PASS,[39600-219600]
+persona_salary_band:RETAIL_MANAGER,range,bounds,0,,0,154,PASS,[26400-103700]
+persona_salary_band:FINANCE_ANALYST,range,bounds,0,,0,218,PASS,[52800-219600]
+range:age,range,bounds,0,,0,1500,PASS,[22-70]
+range:credit_score,range,bounds,0,,0,1500,PASS,[300-850]
+range:dti,range,bounds,0,,0,1500,PASS,[0-0.5]
