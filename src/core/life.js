@@ -369,7 +369,6 @@ export function generateLifeScript(entityId, config, rng = { random: () => Math.
 
   const latentCfg = config.latent?.financial_health || { distribution: "normal", mean: 0, stddev: 1 };
   const regimeCfg = config.regimes || { categories: ["GENERIC"], probabilities: [1] };
-  const personaCfg = config.personas || { categories: ["GENERIC"], probabilities: [1] };
   const regime = randomCategorical(regimeCfg.categories, regimeCfg.probabilities, rng);
   const persona = choosePersonaBySalaryRank(config, rng, copulaPrimitives?.salary_base);
   const regimeParams = regimeCfg.params?.[regime] || {};
@@ -378,7 +377,7 @@ export function generateLifeScript(entityId, config, rng = { random: () => Math.
   const region = randomCategorical(geoCfg.categories, geoCfg.probabilities, rng);
   const geoParams = geoCfg.params?.[region] || { zip_prefixes: ["00"], cost_of_living_index: 1, rent_multiplier: 1, salary_multiplier: 1, checking_multiplier: 1 };
   const zipPrefix = randomChoice(geoParams.zip_prefixes, rng);
-  const zipCode = zipPrefix + String(randomInt(1000, 9999, rng)).padStart(4, '0');
+  const zipCode = zipPrefix + String(randomInt(100, 999, rng)).padStart(3, '0'); // 5-digit ZIP: 2-digit regional prefix + 3
 
   let financialHealth = randomNormal(latentCfg.mean ?? 0, latentCfg.stddev ?? 1, rng);
   financialHealth += regimeParams.financial_health_shift ?? 0;
@@ -394,7 +393,8 @@ export function generateLifeScript(entityId, config, rng = { random: () => Math.
   const assets = generateAssets(emp.salary, config, rng, financialHealth, regime, copulaPrimitives?.checking_balance);
   assets.checkingBalance = roundToInt(assets.checkingBalance * (geoParams.checking_multiplier || 1.0));
   const creditScore = generateCreditScore(liab.dti, config, rng, financialHealth, regime, copulaPrimitives?.credit_score);
-  const startDate = new Date(2024, 0, 1);
+  // Anchor the life script to the simulation as-of date so tenure and history are measured to origination.
+  const startDate = config.generation?.as_of_date ? new Date(config.generation.as_of_date) : new Date();
   const events = [];
   const empStartDate = new Date(startDate);
   empStartDate.setMonth(empStartDate.getMonth() - emp.tenureMonths);

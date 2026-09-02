@@ -13,5 +13,7 @@ export function apiKeyAuth(req, res, next) {
     return res.status(401).json({ error: 'Unauthorized: invalid or missing X-API-Key header' });
   }
 
+  // Attribute actions to the key (never log the key itself): stable short id for audit events.
+  req.apiKeyId = `key-${allowedKeys.indexOf(key) + 1}`;
   next();
 }

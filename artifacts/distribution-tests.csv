@@ -15,6 +15,6 @@ persona_salary_band:PHYSICIAN_ASSISTANT,range,bounds,0,,0,82,PASS,[79200-219600]
 persona_salary_band:RELOCATED_PROFESSIONAL,range,bounds,0,,0,147,PASS,[39600-219600]
 persona_salary_band:RETAIL_MANAGER,range,bounds,0,,0,154,PASS,[26400-103700]
 persona_salary_band:FINANCE_ANALYST,range,bounds,0,,0,218,PASS,[52800-219600]
-range:age,range,bounds,0,,0,1500,PASS,[22-70]
-range:credit_score,range,bounds,0,,0,1500,PASS,[300-850]
-range:dti,range,bounds,0,,0,1500,PASS,[0-0.5]
+range:age,range,bounds,0,,0,1490,PASS,[22-70] (coherent cases only)
+range:credit_score,range,bounds,0,,0,1490,PASS,[300-850] (coherent cases only)
+range:dti,range,bounds,0,,0,1490,PASS,[0-0.5] (coherent cases only)

@@ -48,7 +48,7 @@ export function generateCase(id, config, corruptionType = "NONE", severity = "LO
 
   // A3 incoherent world: corrupt the underlying world truth, then honestly report it.
   if (corruptionType === "INCOHERENT") {
-    truth = corruptWorldTruth(truth, rng);
+    truth = corruptWorldTruth(truth, rng, asOf);
   }
 
   const presentation = corruptPresentation(truth, corruptionType, severity, config, rng);
@@ -121,6 +121,12 @@ export function generateCase(id, config, corruptionType = "NONE", severity = "LO
   };
 }
 
+/** Blended inflation spans non-material (LOW 5%), borderline (MEDIUM 10%) and material (HIGH 20%) overstatement. */
+function pickInflationSeverity(rng) {
+  const r = rng.random();
+  return r < 0.3 ? "LOW" : r < 0.65 ? "MEDIUM" : "HIGH";
+}
+
 export function generateBlendedCase(id, config, seed, adversarial = false) {
   const mixRng = createRng(seed !== undefined ? `${seed}-mix-${id}` : undefined);
   const caseSeed = seed !== undefined ? `${seed}-${id}` : undefined;
@@ -143,7 +149,7 @@ export function generateBlendedCase(id, config, seed, adversarial = false) {
     let type = "NONE", sev = "LOW";
     if (total > 0 && mixRng.random() < advCfg.adversarial_rate) {
       const pick = mixRng.random() * total;
-      if (pick < inflationScore) { type = "INFLATION"; sev = "MEDIUM"; }
+      if (pick < inflationScore) { type = "INFLATION"; sev = pickInflationSeverity(mixRng); }
       else if (pick < inflationScore + concealmentScore) { type = "CONCEALMENT"; sev = mixRng.random() > 0.5 ? "MEDIUM" : "HIGH"; }
       else { type = "FABRICATION"; sev = "HIGH"; }
     }
@@ -155,7 +161,7 @@ export function generateBlendedCase(id, config, seed, adversarial = false) {
   const order = [
     ["clean", "NONE", () => "LOW"],
     ["concealment", "CONCEALMENT", () => (mixRng.random() > 0.5 ? "MEDIUM" : "HIGH")],
-    ["inflation", "INFLATION", () => "MEDIUM"],
+    ["inflation", "INFLATION", () => pickInflationSeverity(mixRng)],
     ["fabrication", "FABRICATION", () => "HIGH"],
     ["bust_out", "BUST_OUT", () => "HIGH"],
     ["evidence_tampering", "EVIDENCE_TAMPERING", () => (mixRng.random() > 0.5 ? "MEDIUM" : "HIGH")],

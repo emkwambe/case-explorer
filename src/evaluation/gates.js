@@ -29,7 +29,11 @@ export const RELEASE_GATES = [
   { id: "fraud_recall_rules", label: "Rule-baseline fraud recall", layer: "detection", threshold: 0.90, op: ">=", mandatory: false,
     read: r => r.detection.overall.recall },
   { id: "clean_false_positive_rate", label: "Rule-baseline FPR on clean cases", layer: "detection", threshold: 0.05, op: "<=", mandatory: false,
-    read: r => r.detection.fpr_on_clean }
+    read: r => r.detection.fpr_on_clean },
+  { id: "network_ring_recall", label: "Coordinated-ring recall (network analytics)", layer: "network", threshold: 0.8, op: ">=", mandatory: true,
+    read: r => r.network.ring_recall },
+  { id: "network_false_positive_rate", label: "Non-ring cases linked into clusters", layer: "network", threshold: 0.05, op: "<=", mandatory: true,
+    read: r => r.network.non_ring_false_positive_rate }
 ];
 
 export function evaluateGates(results, gates = RELEASE_GATES) {

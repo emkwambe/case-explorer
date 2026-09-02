@@ -8,7 +8,7 @@
 //    and requires the outcome and reason codes to be unchanged. Any difference is a critical finding.
 
 import { scoreCase } from "../../decisioning/index.js";
-import { AGE_BANDS, INCOME_BANDS, FAMILY_STATUS_SCENARIOS } from "../../core/audit_attributes.js";
+import { AGE_BANDS, FAMILY_STATUS_SCENARIOS } from "../../core/audit_attributes.js";
 import { isFraudCase } from "../../ml/decision_features.js";
 import { round } from "../stats.js";
 

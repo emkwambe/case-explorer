@@ -95,9 +95,11 @@ export function pipelineMixtureTests(cases, config) {
     ["credit_score", c => c.truth.current_state.credit_score, config.credit.score_base.min, config.credit.score_base.max],
     ["dti", c => c.truth.current_state.dti, 0, config.liabilities.dti_ratio.scale_max + (config.liabilities.dti_ratio.scale_min || 0)]
   ];
+  // The INCOHERENT negative control deliberately breaks world-truth invariants; exclude it from range checks.
+  const coherent = cases.filter(c => c.meta?.corruption_type !== "INCOHERENT");
   for (const [name, get, lo, hi] of ranges) {
-    const oob = cases.filter(c => get(c) < lo - 1e-9 || get(c) > hi + 1e-9).length;
-    tests.push({ name: `range:${name}`, family: "range", test: "bounds", statistic: round(oob / cases.length), p_value: null, threshold: 0, n: cases.length, grade: oob === 0 ? "PASS" : "FAIL", detail: `[${lo}-${hi}]` });
+    const oob = coherent.filter(c => get(c) < lo - 1e-9 || get(c) > hi + 1e-9).length;
+    tests.push({ name: `range:${name}`, family: "range", test: "bounds", statistic: round(oob / Math.max(1, coherent.length)), p_value: null, threshold: 0, n: coherent.length, grade: oob === 0 ? "PASS" : "FAIL", detail: `[${lo}-${hi}] (coherent cases only)` });
   }
   return tests;
 }

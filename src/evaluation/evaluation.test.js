@@ -124,7 +124,7 @@ describe("fairness", () => {
 
 describe("release gates", () => {
   it("fails when a mandatory gate is violated and passes otherwise", () => {
-    const ok = { generator: { ledger_invariants: { all_pass_rate: 1 }, evidence_consistency: { rate: 1 }, distribution_pass_rate: 1, correlation_within_tolerance_rate: 1, reproducibility: { rate: 1 }, missing_required_fields: { rate: 0 } }, detection: { reconciliation: { rate: 1 }, overall: { recall: 0.95 }, fpr_on_clean: 0.01 }, decision: { agreement_rate: 0.99, permissible_variables: { violations: 0 }, governance: { invalid_decisions: 0 } }, fairness: { counterfactual: { invariance_rate: 1 }, independent_attribute_min_selection_ratio: 1 } };
+    const ok = { generator: { ledger_invariants: { all_pass_rate: 1 }, evidence_consistency: { rate: 1 }, distribution_pass_rate: 1, correlation_within_tolerance_rate: 1, reproducibility: { rate: 1 }, missing_required_fields: { rate: 0 } }, detection: { reconciliation: { rate: 1 }, overall: { recall: 0.95 }, fpr_on_clean: 0.01 }, decision: { agreement_rate: 0.99, permissible_variables: { violations: 0 }, governance: { invalid_decisions: 0 } }, fairness: { counterfactual: { invariance_rate: 1 }, independent_attribute_min_selection_ratio: 1 }, network: { ring_recall: 1, non_ring_false_positive_rate: 0 } };
     expect(evaluateGates(ok).passed).toBe(true);
     const bad = JSON.parse(JSON.stringify(ok)); bad.decision.permissible_variables.violations = 1;
     const r = evaluateGates(bad);

@@ -88,7 +88,7 @@ function nearestPositiveDefinite(m) {
     try {
       const L = cholesky(test);
       if (L) return test;
-    } catch (_e) {
+    } catch {
       // continue shrinking
     }
   }

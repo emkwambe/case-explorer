@@ -1,0 +1,289 @@
+openapi: 3.1.0
+info:
+  title: Case Explorer API
+  version: 2.0.0
+  description: |
+    Mortgage risk simulation, fraud analytics and model-validation lab.
+
+    All routes except `/api/health*`, `/api/docs` and `/api/openapi.yaml` require an `X-API-Key` header.
+    Requests are rate limited per key (defaults: 100 requests per 60 s; see `X-RateLimit-*` response headers).
+    Every request body is validated against the versioned contracts in `src/contracts/index.js`; invalid
+    payloads return `400` with the first offending fields. Consequential actions append hash-chained audit events.
+servers:
+  - url: http://localhost:3000
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: Datasets
+  - name: Cases
+  - name: Models
+  - name: Evaluations
+  - name: Analytics
+  - name: System
+paths:
+  /api/health:
+    get:
+      tags: [System]
+      security: []
+      summary: Liveness
+      responses:
+        "200": { description: OK }
+  /api/health/store:
+    get:
+      tags: [System]
+      security: []
+      summary: Storage backend and audit-chain integrity
+      responses:
+        "200": { description: Store kind and chain verification result }
+  /api/datasets/generate:
+    post:
+      tags: [Datasets]
+      summary: Generate a manifested synthetic dataset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GenerateDatasetRequest" }
+      responses:
+        "201":
+          description: Dataset created (manifest, case ids, sample cases)
+        "400": { description: Contract validation failed }
+  /api/datasets:
+    get:
+      tags: [Datasets]
+      summary: List datasets
+      responses:
+        "200": { description: Dataset list }
+  /api/datasets/{id}:
+    get:
+      tags: [Datasets]
+      summary: Dataset manifest and case ids
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Manifest }
+        "404": { description: Not found }
+  /api/datasets/{id}/cases:
+    get:
+      tags: [Datasets]
+      summary: Page through a dataset's cases
+      parameters:
+        - { $ref: "#/components/parameters/Id" }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 500, default: 50 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        "200": { description: Cases }
+  /api/datasets/{id}/network:
+    get:
+      tags: [Analytics]
+      summary: Entity and network analytics for a dataset (shared devices, IPs, addresses, documents; clusters)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Network analysis }
+  /api/cases/generate:
+    post:
+      tags: [Cases]
+      summary: Generate a single case with a chosen corruption type
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/GenerateCaseRequest" }
+      responses:
+        "200": { description: Case }
+  /api/cases/{id}:
+    get:
+      tags: [Cases]
+      summary: Fetch a case
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Case }
+        "404": { description: Not found }
+  /api/cases/{id}/score:
+    post:
+      tags: [Cases]
+      summary: Score a case (fraud rules + underwriting policy, optional model overlay) and issue an immutable decision
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model_id: { type: string, description: "rules-baseline (default) or a registered model id" }
+      responses:
+        "201": { description: Decision record with alerts, decision, explanation and versions }
+  /api/cases/{id}/explanation:
+    get:
+      tags: [Cases]
+      summary: Explanation for the latest decision (what was detected, inputs, evidence, versions, counterfactuals, automated vs reviewed)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Explanation }
+  /api/cases/{id}/review:
+    post:
+      tags: [Cases]
+      summary: Apply an investigation action (opens the investigation on first use)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReviewAction" }
+      responses:
+        "201": { description: Updated investigation and allowed next actions }
+        "403": { description: Role or four-eyes control violated }
+        "409": { description: Illegal state transition }
+  /api/cases/{id}/investigation:
+    get:
+      tags: [Cases]
+      summary: Current investigation (state, findings, notes, citations, timeline, disposition, audit events)
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Investigation }
+        "404": { description: No investigation yet }
+  /api/cases/{id}/audit:
+    get:
+      tags: [Cases]
+      summary: Immutable audit events for a case
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Events }
+  /api/models:
+    get:
+      tags: [Models]
+      summary: Registered models (rules baseline plus Python pipeline models when trained)
+      responses:
+        "200": { description: Models }
+  /api/models/train:
+    post:
+      tags: [Models]
+      summary: Start a training job (runs the Python pipeline in the background)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                strategies: { type: array, items: { type: string, enum: [rules, logistic_regression, random_forest, gradient_boosting] } }
+                quick: { type: boolean, default: true }
+      responses:
+        "202": { description: Job accepted; poll /api/jobs/{id} }
+  /api/models/{id}:
+    get:
+      tags: [Models]
+      summary: Model detail with lifecycle history
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Model }
+  /api/models/{id}/evaluate:
+    post:
+      tags: [Models]
+      summary: Record an evaluation of a model on a governed split
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                split: { type: string, enum: [test, out_of_time, geography_stress, economic_regime_stress, adversarial_fraud, clean_negative_control], default: test }
+      responses:
+        "201": { description: Evaluation recorded }
+  /api/jobs/{id}:
+    get:
+      tags: [Models]
+      summary: Training job status and log tail
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Job }
+  /api/evaluations:
+    get:
+      tags: [Evaluations]
+      summary: List stored evaluations and well-known report ids
+      responses:
+        "200": { description: Evaluations }
+  /api/evaluations/{id}/report:
+    get:
+      tags: [Evaluations]
+      summary: Evaluation report (JSON, or Markdown with `Accept: text/markdown`). Well-known ids benchmark-latest, model-validation-package, model-comparison.
+      parameters: [{ $ref: "#/components/parameters/Id" }]
+      responses:
+        "200": { description: Report }
+  /api/rules:
+    get:
+      tags: [Analytics]
+      summary: Governed fraud-rule catalog
+      responses:
+        "200": { description: Rules }
+  /api/reason-codes:
+    get:
+      tags: [Analytics]
+      summary: Governed reason-code catalog
+      responses:
+        "200": { description: Reason codes }
+  /api/feature-policy:
+    get:
+      tags: [Analytics]
+      summary: Permitted / sensitive / prohibited feature policy
+      responses:
+        "200": { description: Policy }
+  /api/economics/simulate:
+    post:
+      tags: [Analytics]
+      summary: Threshold simulator (expected value of alerts over a dataset under adjustable cost assumptions)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dataset_id]
+              properties:
+                dataset_id: { type: string }
+                model_id: { type: string, default: rules-baseline }
+                assumptions:
+                  type: object
+                  properties:
+                    fraud_prevalence: { type: number }
+                    average_loss_given_fraud: { type: number }
+                    manual_review_cost: { type: number }
+                    review_minutes_per_alert: { type: number }
+                    false_decline_cost: { type: number }
+                    customer_friction_cost: { type: number }
+                    model_operating_cost_per_case: { type: number }
+                    investigation_capacity: { type: integer }
+      responses:
+        "200": { description: Threshold sweep with EV-optimal threshold }
+components:
+  securitySchemes:
+    ApiKeyAuth: { type: apiKey, in: header, name: X-API-Key }
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: string } }
+  schemas:
+    GenerateDatasetRequest:
+      type: object
+      required: [count]
+      properties:
+        count: { type: integer, minimum: 1, maximum: 10000 }
+        seed: { oneOf: [{ type: string }, { type: number }] }
+        adversarial: { type: boolean, default: false }
+        as_of_date: { type: string, format: date }
+        population_regime: { type: string, enum: [baseline, out_of_time_rate_shock, high_cost_markets, subprime_heavy_rate_shock], default: baseline }
+        name: { type: string }
+    GenerateCaseRequest:
+      type: object
+      properties:
+        corruptionType: { type: string, enum: [NONE, INFLATION, CONCEALMENT, FABRICATION, BUST_OUT, EVIDENCE_TAMPERING, INCOHERENT, OCCUPANCY_MISREPRESENTATION, GIFT_FUND_MISREPRESENTATION, ASSET_SEASONING, STRAW_BUYER], default: NONE }
+        severity: { type: string, enum: [LOW, MEDIUM, HIGH], default: LOW }
+        seed: { oneOf: [{ type: string }, { type: number }] }
+        as_of_date: { type: string, format: date }
+    ReviewAction:
+      type: object
+      required: [action, actor]
+      properties:
+        action: { type: string, enum: [TRIAGE, START_REVIEW, ADD_NOTE, CITE_EVIDENCE, REQUEST_INFORMATION, RECEIVE_INFORMATION, ESCALATE, CLEAR, CONFIRM, APPROVE_DISPOSITION, REJECT_DISPOSITION, CLOSE, REOPEN] }
+        actor: { type: string }
+        role: { type: string, enum: [INVESTIGATOR, SENIOR_INVESTIGATOR, REVIEWER, SYSTEM], default: INVESTIGATOR }
+        note: { type: string }
+        reason: { type: string }
+        citations: { type: array, items: { type: object, properties: { source: { type: string }, field: { type: string }, value: {} } } }
+        disposition: { type: string, enum: [CLEARED, CONFIRMED_MISREPRESENTATION, CONFIRMED_DATA_ERROR, INCONCLUSIVE] }

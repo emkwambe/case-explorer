@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+.git
+.github
+analytics/data/*.csv
+analytics/artifacts
+analytics/.venv
+**/__pycache__
+*.log
+.env

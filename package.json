@@ -18,7 +18,12 @@
     "benchmark:quick": "node scripts/benchmark.js --count 500 --stratified 40 --seed 42",
     "datasets": "node scripts/build_datasets.js",
     "readme:metrics": "node scripts/update_readme_metrics.js",
-    "test:ci": "vitest run --coverage --reporter=default"
+    "test:ci": "vitest run --coverage --reporter=default",
+    "db:migrate": "node scripts/db_migrate.js",
+    "seed": "node scripts/seed.js",
+    "test:integration": "vitest run src/api --reporter=default",
+    "test:mutation": "stryker run",
+    "docker:up": "docker compose up --build"
   },
   "dependencies": {
     "cors": "^2.8.6",
@@ -26,15 +31,24 @@
     "express": "^5.2.1",
     "helmet": "^8.3.0",
     "mathjs": "^15.2.0",
+    "pg": "^8.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "simple-statistics": "^7.9.3"
+    "simple-statistics": "^7.9.3",
+    "swagger-ui-dist": "^5.32.14",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/vitest-runner": "^10.0.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",
     "@vitest/coverage-v8": "^4.1.10",
+    "fast-check": "^4.9.0",
+    "jsdom": "^29.1.1",
     "oxlint": "^1.71.0",
     "supertest": "^7.2.2",
     "vite": "^8.1.1",

@@ -7,7 +7,14 @@ import {
   roundToInt
 } from "../utils/distributions.js";
 
+function monthsBefore(asOf, months) {
+  const d = asOf ? new Date(asOf) : new Date();
+  d.setMonth(d.getMonth() - months);
+  return d;
+}
+
 export function corruptPresentation(truth, corruptionType, severity, config, rng = { random: () => Math.random() }) {
+  const asOf = config?.generation?.as_of_date ?? null;
   const presentation = JSON.parse(JSON.stringify(truth));
   if (corruptionType === "NONE") return presentation;
   const mult = severity === "HIGH" ? 0.20 : severity === "MEDIUM" ? 0.10 : 0.05;
@@ -29,7 +36,7 @@ export function corruptPresentation(truth, corruptionType, severity, config, rng
     presentation.current_state.salary = randomInt(120000, 180000, rng);
     presentation.current_state.checking_balance = randomInt(40000, 80000, rng);
     presentation.events.unshift({
-      t: "2021-01-01",
+      t: monthsBefore(asOf, 36).toISOString().split('T')[0],
       type: "EMPLOYMENT_START",
       entity: presentation.current_state.employer,
       salary: presentation.current_state.salary
@@ -79,7 +86,7 @@ export function corruptPresentation(truth, corruptionType, severity, config, rng
   } else if (corruptionType === "BUST_OUT") {
     // Synthetic identity: build a 24-month fake prime profile over a thin-file truth.
     const industries = config.employment.industry.categories;
-    const syntheticStart = new Date(2022, 0, 1);
+    const syntheticStart = monthsBefore(asOf, 24);
     const fakeEmployer = "Apex " + randomChoice(industries, rng);
     const fakeSalary = randomInt(110000, 160000, rng);
     const fakeCreditScore = randomInt(720, 780, rng);
@@ -216,7 +223,7 @@ export function applyTypologyEvidence(truth, presentation, evidence, corruptionT
 // Intentionally violates accounting or timeline invariants in the World Truth (S_t).
 // The applicant honestly reports this broken world, so the case should be declined
 // for physical impossibility rather than fraud.
-export function corruptWorldTruth(truth, rng = { random: () => Math.random() }) {
+export function corruptWorldTruth(truth, rng = { random: () => Math.random() }, asOf) {
   const t = truth.current_state;
   const mode = randomInt(0, 3, rng);
 
@@ -229,7 +236,7 @@ export function corruptWorldTruth(truth, rng = { random: () => Math.random() }) 
       liabEvents[0].payment = impossiblePayment;
     } else {
       truth.events.push({
-        t: "2020-01-01",
+        t: monthsBefore(asOf, 48).toISOString().split('T')[0],
         type: "LIABILITY_OPENED",
         type_detail: "PERSONAL_LOAN",
         payment: impossiblePayment

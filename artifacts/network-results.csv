@@ -1,0 +1,4 @@
+cluster_id,size,risk,linking_entity_types,density,cases
+cluster-1,6,HIGH,DEVICE|DOCUMENT|IP|ADDRESS,1.17,case-gen-111-b9d9c533|case-gen-256-fa34b123|case-gen-356-f4c6ca54|case-gen-644-a9698e7c|case-gen-852-78693731|case-gen-985-59f46d42
+cluster-2,3,MEDIUM,DEVICE|DOCUMENT,1.67,case-gen-205-0727f9a7|case-gen-721-af06465a|case-gen-1384-0011e65a
+cluster-3,3,MEDIUM,DEVICE,0.33,case-gen-216-0a2a3cf7|case-gen-554-006a7b14|case-gen-765-1afc6302

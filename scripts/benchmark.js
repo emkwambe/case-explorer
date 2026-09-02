@@ -29,6 +29,8 @@ import { evaluateDetection } from "../src/evaluation/detection/index.js";
 import { evaluateDecisions } from "../src/evaluation/decision/index.js";
 import { evaluateFairness } from "../src/evaluation/fairness/index.js";
 import { evaluateGates } from "../src/evaluation/gates.js";
+import { injectFraudRings } from "../src/simulation/rings.js";
+import { analyzeNetwork, evaluateNetworkDetection } from "../src/analytics/network.js";
 import { FRAUD_RULESET_VERSION } from "../src/decisioning/fraud-rules/rules.js";
 import { UNDERWRITING_POLICY_VERSION } from "../src/decisioning/underwriting/policy.js";
 import { REASON_CODE_CATALOG_VERSION } from "../src/decisioning/reason-codes/catalog.js";
@@ -93,7 +95,13 @@ export async function runBenchmark(args) {
   log(args, "Fairness: subgroup + counterfactual...");
   const fairness = evaluateFairness(population, config, { maxCounterfactualCases: 300 });
 
-  const results = { generator, detection, decision, fairness };
+  log(args, "Network analytics: ring injection + entity linkage...");
+  const ringPopulation = JSON.parse(JSON.stringify(population));
+  const rings = injectFraudRings(ringPopulation, { seed: `${args.seed}-rings`, ringCount: Math.max(3, Math.floor(population.length / 400)) });
+  const networkAnalysis = analyzeNetwork(ringPopulation);
+  const network = { ...evaluateNetworkDetection(ringPopulation, networkAnalysis), rings_injected_detail: rings.map(r => ({ ring_id: r.ring_id, size: r.size })), summary: networkAnalysis.summary };
+
+  const results = { generator, detection, decision, fairness, network };
   const gates = evaluateGates(results);
 
   const manifest = {
@@ -137,8 +145,11 @@ export async function runBenchmark(args) {
       reason_code_mean_jaccard: decision.reason_codes.mean_jaccard,
       prohibited_variable_violations: decision.permissible_variables.violations,
       counterfactual_invariance: fairness.counterfactual.invariance_rate,
-      fairness_status: fairness.status
+      fairness_status: fairness.status,
+      network_ring_recall: network.ring_recall,
+      network_false_positive_rate: network.non_ring_false_positive_rate
     },
+    network,
     generator: { ...generator, distribution_tests: undefined, correlation_results: undefined },
     detection: { ...detection, by_rule: undefined },
     decision: { ...decision, rows: undefined },
@@ -161,6 +172,7 @@ export async function runBenchmark(args) {
   write("fairness-results.csv", toCsv(fairness.subgroups));
   write("counterfactual-findings.csv", toCsv(fairness.counterfactual.findings, ["case_id", "attribute", "from", "to", "base_outcome", "alt_outcome", "base_codes", "alt_codes", "severity"]));
   write("rule-analytics.csv", toCsv(detection.by_rule));
+  write("network-results.csv", toCsv(networkAnalysis.clusters.map(c => ({ cluster_id: c.cluster_id, size: c.size, risk: c.risk, linking_entity_types: c.linking_entity_types.join("|"), density: c.density, cases: c.cases.join("|") })), ["cluster_id", "size", "risk", "linking_entity_types", "density", "cases"]));
   write("validation-report.md", renderReport(summary, generator, detection, decision, fairness, gates));
 
   if (args.verbose) printVerbose(generator, detection, decision, fairness);
@@ -178,23 +190,24 @@ function printGates(gates) {
 }
 
 function printVerbose(generator, detection, decision, fairness) {
-  console.log("\n=== Distribution Tests ==="); console.table(generator.distribution_tests.map(({ detail, ...r }) => r));
+  console.log("\n=== Distribution Tests ==="); console.table(generator.distribution_tests.map(({ detail: _d, ...r }) => r));
   console.log("\n=== Correlation Results ==="); console.table(generator.correlation_results);
   console.log("\n=== Ledger Invariants ==="); console.table(generator.ledger_invariants.rows);
   console.log("\n=== Evidence Consistency ==="); console.table([{ n: generator.evidence_consistency.n, pass: generator.evidence_consistency.pass, rate: generator.evidence_consistency.rate }]);
   console.log("\n=== Detection (rule baseline) ==="); console.table([detection.overall]);
-  console.log("\n=== Detection by Fraud Type ==="); console.table(detection.by_fraud_type.map(({ missed_examples, ...r }) => r));
+  console.log("\n=== Detection by Fraud Type ==="); console.table(detection.by_fraud_type.map(({ missed_examples: _m, ...r }) => r));
   console.log("\n=== Ground-truth Reconciliation ==="); console.table(detection.reconciliation.by_type);
   console.log("\n=== Rule Analytics ==="); console.table(detection.by_rule.map(r => ({ rule: r.rule_id, sev: r.severity, alerts: r.alerts, tp: r.true_positives, fp: r.false_positives, precision: r.precision, target_recall: r.target_recall, fp_rate_clean: r.customer_impact_fp_rate })));
   console.log("\n=== Decision Agreement ==="); console.table(decision.by_fraud_type); console.log(decision.confusion); console.table([decision.reason_codes]);
   console.log("\n=== Calibration by credit band (clean) ==="); console.table(decision.calibration_by_credit_band);
-  console.log("\n=== Fairness ==="); console.table(fairness.subgroups.map(({ top_reason_codes, ...r }) => r)); console.table([fairness.counterfactual]);
+  console.log("\n=== Fairness ==="); console.table(fairness.subgroups.map(({ top_reason_codes: _t, ...r }) => r)); console.table([fairness.counterfactual]);
 }
 
 function pct(x) { return x === null || x === undefined ? "n/a" : `${(x * 100).toFixed(1)}%`; }
 function num(x, d = 3) { return x === null || x === undefined ? "n/a" : Number(x).toFixed(d); }
 
 function renderReport(summary, generator, detection, decision, fairness, gates) {
+  const network = summary.network;
   const m = summary.manifest;
   const h = summary.headline;
   const lines = [];
@@ -250,6 +263,7 @@ function renderReport(summary, generator, detection, decision, fairness, gates) 
   lines.push(`| Attribute | Class | Group | n | Approval | Review | Decline | Selection ratio | FPR | FNR |`, `|---|---|---|---|---|---|---|---|---|---|`);
   for (const r of fairness.subgroups) lines.push(`| ${r.attribute} | ${r.attribute_class} | ${r.group} | ${r.n} | ${pct(r.approval_rate)} | ${pct(r.manual_review_rate)} | ${pct(r.decline_rate)} | ${num(r.selection_rate_ratio)} | ${r.false_positive_rate === null ? "n/a" : num(r.false_positive_rate)} | ${r.false_negative_rate === null ? "n/a" : num(r.false_negative_rate)} |`);
   if (fairness.derived_attributes_below_four_fifths.length) lines.push(``, `Derived attributes below four-fifths (reported, expected to correlate with legitimate financial variables): ${fairness.derived_attributes_below_four_fifths.join("; ")}.`);
+  lines.push(``, `## Entity and network analytics`, ``, `${network.rings_injected} coordinated rings injected into a copy of the population; ${network.rings_recovered} recovered (ring recall ${pct(network.ring_recall)}, member recall ${pct(network.member_recall)}, non-ring false-positive rate ${pct(network.non_ring_false_positive_rate)}). Shared devices ${network.summary.shared_devices}, shared IPs ${network.summary.shared_ips}, shared addresses ${network.summary.shared_addresses}, repeated document fingerprints ${network.summary.repeated_document_fingerprints}, clusters ${network.summary.clusters} (${network.summary.high_risk_clusters} high risk).`);
   lines.push(``, `## Versions`, ``, `| Component | Version |`, `|---|---|`, `| Generator | ${m.generator_version} |`, `| Case schema | ${m.case_schema_version} |`, `| Fraud ruleset | ${m.ruleset_version} |`, `| Underwriting policy | ${m.policy_version} |`, `| Reason-code catalog | ${m.reason_code_catalog_version} |`, `| Feature policy | ${m.feature_policy_version} |`, ``);
   return lines.join("\n");
 }

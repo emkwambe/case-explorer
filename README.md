@@ -10,25 +10,47 @@ Every case is a simulated financial life — not just a bundle of documents. The
 ## Verified metrics
 
 <!-- metrics:start -->
-_Generated 2026-09-02T14:46:48.448Z from `artifacts/validation-summary.json` (seed 42, commit eb3c94bb) by `npm run readme:metrics`. Do not edit by hand._
+_Generated from `artifacts/validation-summary.json` (benchmark seed 42, 1,500 blended + 1,200 stratified cases) by `npm run readme:metrics`. Do not edit by hand._
 
 | Capability | Result |
 |---|---|
 | Generated cases (benchmark run) | 2,700 |
 | Ledger invariants | 100.0% |
-| Evidence consistency | 99.9% |
+| Evidence consistency | 100.0% |
 | Distribution tests passing | 100.0% |
 | Correlation targets within tolerance | 100.0% |
 | Reproducibility (seeded) | 100.0% |
 | Ground-truth reconciliation | 100.0% |
-| Rule-baseline fraud recall / precision | 1.000 / 0.993 |
+| Rule-baseline fraud recall / precision | 1.000 / 0.994 |
 | Rule-baseline false-positive rate (clean) | 0.4% |
 | Decision-rule agreement | 98.7% |
 | Prohibited variables in decision inputs | 0 |
 | Counterfactual fairness invariance | 100.0% |
+| Coordinated-ring recall (network analytics) | 100.0% |
 | Fairness checks | WARN |
 | Release gates | PASS |
 <!-- metrics:end -->
+
+<!-- model-metrics:start -->
+_Generated from `analytics/artifacts/model-summary.json` (governed splits from `scripts/build_datasets.js`) by `npm run readme:metrics`. Do not edit by hand._
+
+| Model metric | Result |
+|---|---|
+| Champion model | random_forest (sklearn) |
+| Fraud PR-AUC (held-out test) | 0.995 |
+| Fraud ROC-AUC (held-out test) | 0.996 |
+| Recall at selected threshold (0.20) | 0.992 |
+| Precision at threshold | 1.000 |
+| False-positive rate at threshold | 0.000 |
+| Calibration error (ECE) | 0.034 |
+| Brier score | 0.005 |
+| Out-of-time PR-AUC / recall | 0.985 / 0.973 |
+| Adversarial-set PR-AUC | 1.000 |
+| Clean-control false-positive rate | 0.001 |
+| Challenger rules_baseline PR-AUC (test) | 0.976 |
+| Challenger logistic_regression PR-AUC (test) | 0.989 |
+| Challenger gradient_boosting PR-AUC (test) | 0.993 |
+<!-- model-metrics:end -->
 
 ## Quick start
 

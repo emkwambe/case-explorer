@@ -1,22 +1,22 @@
 {
   "manifest": {
     "benchmark_version": "1.0.0",
-    "generated_at": "2026-09-02T14:46:48.448Z",
+    "generated_at": "2026-09-02T15:01:52.847Z",
     "generator_version": "2.0.0",
     "case_schema_version": "2.0.0",
     "ruleset_version": "1.3.0",
     "policy_version": "2.1.0",
     "reason_code_catalog_version": "1.0.0",
     "feature_policy_version": "1.0.0",
-    "generator_commit": "eb3c94bbe951ed2058962e6e726c1a851eca67f6",
-    "configuration_hash": "sha256:5e52bfca321213a5010d6bcf761db25d0e02822cf317a4dc2e9b710b448b5497",
+    "generator_commit": "93bf79b98e315824d3a42619b2ed9e31a09e3644",
+    "configuration_hash": "sha256:570e1e0c7fda442882594d2d320465d67d3cfe307543719abc5109277a15c692",
     "seed": "42",
     "as_of_date": "2026-01-15",
     "population_regime": "baseline",
     "record_count": 1500,
     "stratified_record_count": 1200,
     "node_version": "v22.18.0",
-    "duration_seconds": 3.5
+    "duration_seconds": 3.7
   },
   "gates": {
     "passed": true,
@@ -38,7 +38,7 @@
         "layer": "generator",
         "threshold": 0.995,
         "op": ">=",
-        "value": 0.9992,
+        "value": 1,
         "mandatory": true,
         "status": "PASS"
       },
@@ -158,8 +158,28 @@
         "layer": "detection",
         "threshold": 0.05,
         "op": "<=",
-        "value": 0.0044,
+        "value": 0.004,
         "mandatory": false,
+        "status": "PASS"
+      },
+      {
+        "id": "network_ring_recall",
+        "label": "Coordinated-ring recall (network analytics)",
+        "layer": "network",
+        "threshold": 0.8,
+        "op": ">=",
+        "value": 1,
+        "mandatory": true,
+        "status": "PASS"
+      },
+      {
+        "id": "network_false_positive_rate",
+        "label": "Non-ring cases linked into clusters",
+        "layer": "network",
+        "threshold": 0.05,
+        "op": "<=",
+        "value": 0,
+        "mandatory": true,
         "status": "PASS"
       }
     ]
@@ -167,22 +187,55 @@
   "headline": {
     "generated_cases": 2700,
     "ledger_invariants": 1,
-    "evidence_consistency": 0.9992,
+    "evidence_consistency": 1,
     "distribution_tests_pass_rate": 1,
     "correlation_within_tolerance": 1,
     "reproducibility": 1,
     "missing_required_fields": 0,
     "ground_truth_reconciliation": 0.9995,
-    "rule_fraud_precision": 0.9929,
+    "rule_fraud_precision": 0.9941,
     "rule_fraud_recall": 1,
-    "rule_fraud_f1": 0.9965,
-    "rule_fpr_on_clean": 0.0044,
+    "rule_fraud_f1": 0.997,
+    "rule_fpr_on_clean": 0.004,
     "decision_rule_agreement": 0.987,
-    "reason_code_adverse_action_overlap": 0.9126,
-    "reason_code_mean_jaccard": 0.8634,
+    "reason_code_adverse_action_overlap": 0.9063,
+    "reason_code_mean_jaccard": 0.8598,
     "prohibited_variable_violations": 0,
     "counterfactual_invariance": 1,
-    "fairness_status": "WARN"
+    "fairness_status": "WARN",
+    "network_ring_recall": 1,
+    "network_false_positive_rate": 0
+  },
+  "network": {
+    "rings_injected": 3,
+    "rings_recovered": 3,
+    "ring_recall": 1,
+    "member_recall": 1,
+    "non_ring_false_positive_rate": 0,
+    "rings_injected_detail": [
+      {
+        "ring_id": "ring-42-rings-1",
+        "size": 3
+      },
+      {
+        "ring_id": "ring-42-rings-2",
+        "size": 3
+      },
+      {
+        "ring_id": "ring-42-rings-3",
+        "size": 6
+      }
+    ],
+    "summary": {
+      "shared_devices": 3,
+      "shared_ips": 1,
+      "shared_addresses": 1,
+      "reused_employers": 11,
+      "repeated_document_fingerprints": 8,
+      "clusters": 3,
+      "cases_in_clusters": 12,
+      "high_risk_clusters": 1
+    }
   },
   "generator": {
     "version": "1.0.0",
@@ -227,17 +280,10 @@
       "failures": []
     },
     "evidence_consistency": {
-      "n": 1276,
-      "pass": 1275,
-      "rate": 0.9992,
-      "failures": [
-        {
-          "case_id": "case-gen-1069-906b8d42",
-          "problems": [
-            "bank_vs_ledger_balance"
-          ]
-        }
-      ]
+      "n": 1184,
+      "pass": 1184,
+      "rate": 1,
+      "failures": []
     },
     "missing_required_fields": {
       "n": 1500,
@@ -255,97 +301,77 @@
     "version": "1.0.0",
     "ruleset_version": "1.3.0",
     "n": 2700,
-    "fraud_n": 1264,
+    "fraud_n": 1346,
     "overall": {
-      "tp": 1264,
-      "fp": 9,
+      "tp": 1346,
+      "fp": 8,
       "fn": 0,
-      "tn": 1427,
-      "precision": 0.9929,
+      "tn": 1346,
+      "precision": 0.9941,
       "recall": 1,
-      "f1": 0.9965,
-      "fpr": 0.0063,
+      "f1": 0.997,
+      "fpr": 0.0059,
       "fnr": 0,
-      "specificity": 0.9937,
-      "accuracy": 0.9967
+      "specificity": 0.9941,
+      "accuracy": 0.997
     },
-    "fpr_on_clean": 0.0044,
+    "fpr_on_clean": 0.004,
     "by_fraud_type": [
       {
         "fraud_type": "NONE",
-        "n": 1356,
-        "alerted": 6,
+        "n": 1264,
+        "alerted": 5,
         "high_alerted": 0,
         "is_fraud_scenario": false,
         "missed_examples": "",
-        "alert_rate": 0.0044,
+        "alert_rate": 0.004,
         "high_alert_rate": 0
       },
       {
         "fraud_type": "CONCEALMENT",
-        "n": 269,
-        "alerted": 269,
-        "high_alerted": 265,
+        "n": 252,
+        "alerted": 252,
+        "high_alerted": 248,
         "is_fraud_scenario": true,
-        "missed_examples": "case-gen-852-78693731|case-gen-340-03281f81|case-gen-377-0434ed07|case-gen-393-782f9375",
+        "missed_examples": "case-gen-229-872d4055|case-gen-340-03281f81|case-gen-377-0434ed07|case-gen-393-782f9375",
         "alert_rate": 1,
-        "high_alert_rate": 0.9851
-      },
-      {
-        "fraud_type": "FABRICATION",
-        "n": 126,
-        "alerted": 126,
-        "high_alerted": 126,
-        "is_fraud_scenario": true,
-        "missed_examples": "",
-        "alert_rate": 1,
-        "high_alert_rate": 1
+        "high_alert_rate": 0.9841
       },
       {
         "fraud_type": "INFLATION",
-        "n": 299,
-        "alerted": 299,
-        "high_alerted": 80,
+        "n": 304,
+        "alerted": 304,
+        "high_alerted": 98,
         "is_fraud_scenario": true,
-        "missed_examples": "case-gen-25-ad488c07|case-gen-103-bbdc06f0|case-gen-105-c1dc1062|case-gen-138-ccde604a|case-gen-168-caeb2917",
+        "missed_examples": "case-gen-5-fe62af0d|case-gen-41-2d56cd11|case-gen-87-9f396b73|case-gen-148-4ee5e8b5|case-gen-220-8e2d4b5a",
         "alert_rate": 1,
-        "high_alert_rate": 0.2676
+        "high_alert_rate": 0.3224
       },
       {
-        "fraud_type": "BUST_OUT",
-        "n": 90,
-        "alerted": 90,
-        "high_alerted": 90,
+        "fraud_type": "ASSET_SEASONING",
+        "n": 97,
+        "alerted": 97,
+        "high_alerted": 0,
         "is_fraud_scenario": true,
-        "missed_examples": "",
+        "missed_examples": "case-gen-19-214ffe68|case-gen-205-0727f9a7|case-gen-328-6cbabb49|case-gen-334-f2b7bca4|case-gen-473-89a9764c",
         "alert_rate": 1,
-        "high_alert_rate": 1
+        "high_alert_rate": 0
       },
       {
-        "fraud_type": "EVIDENCE_TAMPERING",
-        "n": 160,
-        "alerted": 160,
-        "high_alerted": 160,
+        "fraud_type": "FABRICATION",
+        "n": 125,
+        "alerted": 125,
+        "high_alerted": 125,
         "is_fraud_scenario": true,
-        "missed_examples": "",
-        "alert_rate": 1,
-        "high_alert_rate": 1
-      },
-      {
-        "fraud_type": "INCOHERENT",
-        "n": 80,
-        "alerted": 80,
-        "high_alerted": 80,
-        "is_fraud_scenario": false,
         "missed_examples": "",
         "alert_rate": 1,
         "high_alert_rate": 1
       },
       {
         "fraud_type": "OCCUPANCY_MISREPRESENTATION",
-        "n": 80,
-        "alerted": 80,
-        "high_alerted": 80,
+        "n": 97,
+        "alerted": 97,
+        "high_alerted": 97,
         "is_fraud_scenario": true,
         "missed_examples": "",
         "alert_rate": 1,
@@ -353,29 +379,49 @@
       },
       {
         "fraud_type": "GIFT_FUND_MISREPRESENTATION",
-        "n": 80,
-        "alerted": 80,
-        "high_alerted": 80,
+        "n": 95,
+        "alerted": 95,
+        "high_alerted": 95,
         "is_fraud_scenario": true,
         "missed_examples": "",
         "alert_rate": 1,
         "high_alert_rate": 1
       },
       {
-        "fraud_type": "ASSET_SEASONING",
-        "n": 80,
-        "alerted": 80,
-        "high_alerted": 0,
-        "is_fraud_scenario": true,
-        "missed_examples": "case-gen-1040-152b08fe|case-gen-1041-162b0a91|case-gen-1042-132b05d8|case-gen-1043-142b076b|case-gen-1044-192b0f4a",
+        "fraud_type": "INCOHERENT",
+        "n": 90,
+        "alerted": 90,
+        "high_alerted": 90,
+        "is_fraud_scenario": false,
+        "missed_examples": "",
         "alert_rate": 1,
-        "high_alert_rate": 0
+        "high_alert_rate": 1
+      },
+      {
+        "fraud_type": "EVIDENCE_TAMPERING",
+        "n": 193,
+        "alerted": 193,
+        "high_alerted": 193,
+        "is_fraud_scenario": true,
+        "missed_examples": "",
+        "alert_rate": 1,
+        "high_alert_rate": 1
+      },
+      {
+        "fraud_type": "BUST_OUT",
+        "n": 89,
+        "alerted": 89,
+        "high_alerted": 89,
+        "is_fraud_scenario": true,
+        "missed_examples": "",
+        "alert_rate": 1,
+        "high_alert_rate": 1
       },
       {
         "fraud_type": "STRAW_BUYER",
-        "n": 80,
-        "alerted": 80,
-        "high_alerted": 80,
+        "n": 94,
+        "alerted": 94,
+        "high_alerted": 94,
         "is_fraud_scenario": true,
         "missed_examples": "",
         "alert_rate": 1,
@@ -383,74 +429,74 @@
       }
     ],
     "reconciliation": {
-      "total": 1939,
-      "recovered": 1938,
+      "total": 2025,
+      "recovered": 2024,
       "rate": 0.9995,
       "by_type": [
         {
           "finding_type": "LIABILITY_CONCEALMENT",
-          "total": 342,
-          "recovered": 342,
+          "total": 324,
+          "recovered": 324,
           "rate": 1
         },
         {
           "finding_type": "INCOME_MISREPRESENTATION",
-          "total": 515,
-          "recovered": 515,
-          "rate": 1
-        },
-        {
-          "finding_type": "ASSET_MISREPRESENTATION",
-          "total": 216,
-          "recovered": 216,
-          "rate": 1
-        },
-        {
-          "finding_type": "EMPLOYER_FABRICATION",
-          "total": 216,
-          "recovered": 216,
-          "rate": 1
-        },
-        {
-          "finding_type": "SYNTHETIC_IDENTITY",
-          "total": 90,
-          "recovered": 89,
-          "rate": 0.9889
-        },
-        {
-          "finding_type": "EVIDENCE_TAMPERING",
-          "total": 160,
-          "recovered": 160,
-          "rate": 1
-        },
-        {
-          "finding_type": "INCOHERENT_WORLD",
-          "total": 80,
-          "recovered": 80,
-          "rate": 1
-        },
-        {
-          "finding_type": "OCCUPANCY_MISREPRESENTATION",
-          "total": 80,
-          "recovered": 80,
-          "rate": 1
-        },
-        {
-          "finding_type": "GIFT_FUND_MISREPRESENTATION",
-          "total": 80,
-          "recovered": 80,
+          "total": 518,
+          "recovered": 518,
           "rate": 1
         },
         {
           "finding_type": "ASSET_SEASONING",
-          "total": 80,
-          "recovered": 80,
+          "total": 97,
+          "recovered": 97,
           "rate": 1
         },
         {
+          "finding_type": "ASSET_MISREPRESENTATION",
+          "total": 214,
+          "recovered": 214,
+          "rate": 1
+        },
+        {
+          "finding_type": "EMPLOYER_FABRICATION",
+          "total": 214,
+          "recovered": 214,
+          "rate": 1
+        },
+        {
+          "finding_type": "OCCUPANCY_MISREPRESENTATION",
+          "total": 97,
+          "recovered": 97,
+          "rate": 1
+        },
+        {
+          "finding_type": "GIFT_FUND_MISREPRESENTATION",
+          "total": 95,
+          "recovered": 95,
+          "rate": 1
+        },
+        {
+          "finding_type": "INCOHERENT_WORLD",
+          "total": 90,
+          "recovered": 90,
+          "rate": 1
+        },
+        {
+          "finding_type": "EVIDENCE_TAMPERING",
+          "total": 193,
+          "recovered": 193,
+          "rate": 1
+        },
+        {
+          "finding_type": "SYNTHETIC_IDENTITY",
+          "total": 89,
+          "recovered": 88,
+          "rate": 0.9888
+        },
+        {
           "finding_type": "STRAW_BUYER",
-          "total": 80,
-          "recovered": 80,
+          "total": 94,
+          "recovered": 94,
           "rate": 1
         }
       ]
@@ -462,106 +508,106 @@
     "n": 2700,
     "agreement_rate": 0.987,
     "confusion": {
-      "MANUAL_REVIEW->MANUAL_REVIEW": 550,
-      "DECLINE->DECLINE": 1719,
-      "APPROVE->APPROVE": 396,
-      "APPROVE->MANUAL_REVIEW": 26,
-      "DECLINE->MANUAL_REVIEW": 6,
+      "MANUAL_REVIEW->MANUAL_REVIEW": 530,
+      "DECLINE->DECLINE": 1765,
+      "APPROVE->APPROVE": 370,
+      "APPROVE->MANUAL_REVIEW": 25,
+      "DECLINE->MANUAL_REVIEW": 7,
       "MANUAL_REVIEW->APPROVE": 1,
       "MANUAL_REVIEW->DECLINE": 2
     },
     "by_fraud_type": [
       {
         "fraud_type": "NONE",
-        "n": 1356,
-        "agree": 1321,
-        "agreement_rate": 0.9742
+        "n": 1264,
+        "agree": 1230,
+        "agreement_rate": 0.9731
       },
       {
         "fraud_type": "CONCEALMENT",
-        "n": 269,
-        "agree": 269,
-        "agreement_rate": 1
-      },
-      {
-        "fraud_type": "FABRICATION",
-        "n": 126,
-        "agree": 126,
+        "n": 252,
+        "agree": 252,
         "agreement_rate": 1
       },
       {
         "fraud_type": "INFLATION",
-        "n": 299,
-        "agree": 299,
+        "n": 304,
+        "agree": 303,
+        "agreement_rate": 0.9967
+      },
+      {
+        "fraud_type": "ASSET_SEASONING",
+        "n": 97,
+        "agree": 97,
         "agreement_rate": 1
       },
       {
-        "fraud_type": "BUST_OUT",
+        "fraud_type": "FABRICATION",
+        "n": 125,
+        "agree": 125,
+        "agreement_rate": 1
+      },
+      {
+        "fraud_type": "OCCUPANCY_MISREPRESENTATION",
+        "n": 97,
+        "agree": 97,
+        "agreement_rate": 1
+      },
+      {
+        "fraud_type": "GIFT_FUND_MISREPRESENTATION",
+        "n": 95,
+        "agree": 95,
+        "agreement_rate": 1
+      },
+      {
+        "fraud_type": "INCOHERENT",
         "n": 90,
         "agree": 90,
         "agreement_rate": 1
       },
       {
         "fraud_type": "EVIDENCE_TAMPERING",
-        "n": 160,
-        "agree": 160,
+        "n": 193,
+        "agree": 193,
         "agreement_rate": 1
       },
       {
-        "fraud_type": "INCOHERENT",
-        "n": 80,
-        "agree": 80,
-        "agreement_rate": 1
-      },
-      {
-        "fraud_type": "OCCUPANCY_MISREPRESENTATION",
-        "n": 80,
-        "agree": 80,
-        "agreement_rate": 1
-      },
-      {
-        "fraud_type": "GIFT_FUND_MISREPRESENTATION",
-        "n": 80,
-        "agree": 80,
-        "agreement_rate": 1
-      },
-      {
-        "fraud_type": "ASSET_SEASONING",
-        "n": 80,
-        "agree": 80,
+        "fraud_type": "BUST_OUT",
+        "n": 89,
+        "agree": 89,
         "agreement_rate": 1
       },
       {
         "fraud_type": "STRAW_BUYER",
-        "n": 80,
-        "agree": 80,
+        "n": 94,
+        "agree": 94,
         "agreement_rate": 1
       }
     ],
     "by_expected_outcome": [
       {
         "expected_outcome": "MANUAL_REVIEW",
-        "n": 553,
-        "agree": 550,
-        "agreement_rate": 0.9946
+        "n": 533,
+        "agree": 530,
+        "agreement_rate": 0.9944
       },
       {
         "expected_outcome": "DECLINE",
-        "n": 1725,
-        "agree": 1719,
-        "agreement_rate": 0.9965
+        "n": 1772,
+        "agree": 1765,
+        "agreement_rate": 0.996
       },
       {
         "expected_outcome": "APPROVE",
-        "n": 422,
-        "agree": 396,
-        "agreement_rate": 0.9384
+        "n": 395,
+        "agree": 370,
+        "agreement_rate": 0.9367
       }
     ],
     "reason_codes": {
-      "mean_jaccard": 0.8634,
-      "exact_match_rate": 0.71,
-      "adverse_action_overlap_rate": 0.9126
+      "mean_jaccard": 0.8598,
+      "exact_match_rate": 0.6956,
+      "adverse_action_overlap_rate": 0.9063
     },
     "permissible_variables": {
       "violations": 0,
@@ -572,64 +618,64 @@
       "invalid_decisions": 0
     },
     "outcome_distribution": {
-      "APPROVE": 0.147,
-      "MANUAL_REVIEW": 0.216,
-      "DECLINE": 0.637
+      "APPROVE": 0.137,
+      "MANUAL_REVIEW": 0.208,
+      "DECLINE": 0.654
     },
     "calibration_by_credit_band": [
       {
         "credit_band": "<600",
-        "n": 173,
+        "n": 155,
         "approval_rate": 0,
         "decline_rate": 1
       },
       {
         "credit_band": "600-639",
-        "n": 236,
+        "n": 218,
         "approval_rate": 0,
-        "decline_rate": 0.318
+        "decline_rate": 0.307
       },
       {
         "credit_band": "640-679",
-        "n": 395,
-        "approval_rate": 0.294,
-        "decline_rate": 0.273
+        "n": 369,
+        "approval_rate": 0.282,
+        "decline_rate": 0.268
       },
       {
         "credit_band": "680-719",
-        "n": 260,
-        "approval_rate": 0.458,
-        "decline_rate": 0.196
+        "n": 247,
+        "approval_rate": 0.462,
+        "decline_rate": 0.194
       },
       {
         "credit_band": "720+",
-        "n": 292,
-        "approval_rate": 0.555,
-        "decline_rate": 0.178
+        "n": 275,
+        "approval_rate": 0.556,
+        "decline_rate": 0.175
       }
     ],
     "calibration_by_dti_band": [
       {
         "dti_band": "<=30",
-        "n": 47,
-        "approval_rate": 0.553,
-        "decline_rate": 0.085
+        "n": 44,
+        "approval_rate": 0.545,
+        "decline_rate": 0.091
       },
       {
         "dti_band": "30-38",
-        "n": 662,
+        "n": 620,
         "approval_rate": 0.56,
-        "decline_rate": 0.198
+        "decline_rate": 0.197
       },
       {
         "dti_band": "38-47",
-        "n": 470,
+        "n": 446,
         "approval_rate": 0,
-        "decline_rate": 0.313
+        "decline_rate": 0.307
       },
       {
         "dti_band": ">47",
-        "n": 177,
+        "n": 154,
         "approval_rate": 0,
         "decline_rate": 1
       }
@@ -644,60 +690,60 @@
     "independent_attribute_ratios": [
       {
         "attribute": "family_status_scenario",
-        "group": "MARRIED",
-        "n": 530,
-        "ratio_vs_pooled": 1.041,
-        "p_value": 0.4985
-      },
-      {
-        "attribute": "family_status_scenario",
         "group": "SINGLE",
-        "n": 514,
-        "ratio_vs_pooled": 1.011,
-        "p_value": 0.8537
+        "n": 527,
+        "ratio_vs_pooled": 1.027,
+        "p_value": 0.6708
       },
       {
         "attribute": "family_status_scenario",
-        "group": "WITH_DEPENDENTS",
-        "n": 344,
-        "ratio_vs_pooled": 0.865,
-        "p_value": 0.0983
+        "group": "MARRIED",
+        "n": 540,
+        "ratio_vs_pooled": 0.955,
+        "p_value": 0.4678
       },
       {
         "attribute": "family_status_scenario",
         "group": "SINGLE_PARENT",
-        "n": 112,
-        "ratio_vs_pooled": 1.169,
-        "p_value": 0.2799
+        "n": 117,
+        "ratio_vs_pooled": 0.911,
+        "p_value": 0.5769
+      },
+      {
+        "attribute": "family_status_scenario",
+        "group": "WITH_DEPENDENTS",
+        "n": 316,
+        "ratio_vs_pooled": 1.065,
+        "p_value": 0.4691
       },
       {
         "attribute": "disability_income_scenario",
         "group": "0",
-        "n": 1444,
-        "ratio_vs_pooled": 1,
-        "p_value": 0.972
+        "n": 1450,
+        "ratio_vs_pooled": 0.979,
+        "p_value": 0.0136
       },
       {
         "attribute": "disability_income_scenario",
         "group": "1",
-        "n": 56,
-        "ratio_vs_pooled": 0.992,
-        "p_value": 0.972
+        "n": 50,
+        "ratio_vs_pooled": 1.619,
+        "p_value": 0.0136
       }
     ],
     "derived_attributes_below_four_fifths": [
-      "age_band=30-39 (0.597)",
-      "age_band=50-59 (0.62)",
-      "age_band=40-49 (0.682)",
-      "age_band=22-29 (0.527)",
-      "geography_group=LOW_COST (0.718)",
-      "income_band=80K-120K (0.618)",
-      "income_band=50K-80K (0.376)",
-      "income_band=<50K (0.065)",
-      "persona=ENTREPRENEUR (0.683)",
-      "persona=TEACHER (0.562)",
-      "persona=RETAIL_MANAGER (0.485)",
-      "persona=CONSTRUCTION_WORKER (0.513)"
+      "age_band=30-39 (0.678)",
+      "age_band=50-59 (0.682)",
+      "age_band=40-49 (0.777)",
+      "age_band=22-29 (0.56)",
+      "geography_group=LOW_COST (0.716)",
+      "income_band=80K-120K (0.608)",
+      "income_band=50K-80K (0.388)",
+      "income_band=<50K (0.071)",
+      "persona=ENTREPRENEUR (0.735)",
+      "persona=TEACHER (0.559)",
+      "persona=RETAIL_MANAGER (0.457)",
+      "persona=CONSTRUCTION_WORKER (0.553)"
     ],
     "counterfactual": {
       "cases_tested": 300,

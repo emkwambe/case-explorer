@@ -383,5 +383,5 @@ export function runFraudRules(view, { rules = FRAUD_RULES, includeUnapproved = f
 
 /** Compact rule metadata for the workbench / registry. */
 export function describeRules() {
-  return FRAUD_RULES.map(({ test, ...meta }) => ({ ...meta }));
+  return FRAUD_RULES.map(({ test: _test, ...meta }) => ({ ...meta }));
 }

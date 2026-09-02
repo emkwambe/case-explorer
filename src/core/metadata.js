@@ -31,6 +31,7 @@ function generateDocumentMetadata(source, submissionDate, isFraud, rng) {
     created: created.toISOString().split('T')[0],
     modified: modified.toISOString().split('T')[0],
     pdf_generator: randomChoice(["Adobe PDF Library", "Microsoft Print to PDF", "Chrome PDF Generator", "DocuSign", "Smallpdf"], rng),
+    content_hash: generateDeviceFingerprint(rng), // stands in for a hash of the document bytes
     days_before_submission: ageDays
   };
 }
