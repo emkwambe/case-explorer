@@ -1,4 +1,6 @@
 cluster_id,size,risk,linking_entity_types,density,cases
-cluster-1,6,HIGH,DEVICE|DOCUMENT|IP|ADDRESS,1.17,case-gen-111-b9d9c533|case-gen-256-fa34b123|case-gen-356-f4c6ca54|case-gen-644-a9698e7c|case-gen-852-78693731|case-gen-985-59f46d42
-cluster-2,3,MEDIUM,DEVICE|DOCUMENT,1.67,case-gen-205-0727f9a7|case-gen-721-af06465a|case-gen-1384-0011e65a
-cluster-3,3,MEDIUM,DEVICE,0.33,case-gen-216-0a2a3cf7|case-gen-554-006a7b14|case-gen-765-1afc6302
+cluster-2,6,HIGH,DEVICE|DOCUMENT|IP|ADDRESS,1.17,case-gen-169-c9eb2784|case-gen-328-6cbabb49|case-gen-511-75742d9f|case-gen-852-78693731|case-gen-1125-17d43089|case-gen-1300-6bfd75a6
+cluster-3,6,HIGH,DEVICE|IP|ADDRESS|DOCUMENT,1.17,case-gen-248-8231b5a4|case-gen-381-6fabb578|case-gen-1051-806db2a9|case-gen-1273-e8ded78b|case-gen-1460-44f262f1|case-gen-1531-db70e424
+cluster-1,5,HIGH,DEVICE|IP|DOCUMENT,1.2,case-gen-125-4de169f4|case-gen-148-4ee5e8b5|case-gen-342-fac9125d|case-gen-457-15aecfde|case-gen-1038-835eacd8
+cluster-4,3,MEDIUM,DEVICE|DOCUMENT,1.67,case-gen-250-0034ba95|case-gen-938-650a44e2|case-gen-1843-fd56acaa
+cluster-5,3,MEDIUM,DEVICE,0.33,case-gen-278-04393e0f|case-gen-726-aa063e7b|case-gen-1042-876ffc45

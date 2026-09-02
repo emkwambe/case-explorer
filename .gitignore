@@ -37,3 +37,6 @@ __pycache__/
 coverage/
 
 public/artifacts/
+
+reports/
+.stryker-tmp/

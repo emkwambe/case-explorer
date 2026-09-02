@@ -16,8 +16,18 @@ export const AUDIT_EVENT_TYPES = Object.freeze([
   "MODEL_REGISTERED", "MODEL_STATE_CHANGED", "SEGREGATION_OVERRIDE", "POLICY_VERSION_CHANGED", "DATASET_GENERATED", "EVALUATION_RECORDED"
 ]);
 
-function canonical(obj) {
-  return JSON.stringify(obj, Object.keys(obj).sort());
+/**
+ * Deterministic serialisation with recursively sorted object keys.
+ *
+ * A replacer array cannot be used here: JSON.stringify applies it at every depth, so nested
+ * payload keys would be stripped and their contents left outside the hash. The whole event,
+ * payload included, must be covered or tampering inside a payload would be undetectable.
+ */
+function canonical(value) {
+  if (value === null || typeof value !== "object") return JSON.stringify(value) ?? "null";
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  const keys = Object.keys(value).sort();
+  return `{${keys.map((k) => `${JSON.stringify(k)}:${canonical(value[k])}`).join(",")}}`;
 }
 
 export function hashEvent(eventWithoutHash) {
