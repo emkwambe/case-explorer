@@ -28,11 +28,13 @@ Each case has exactly one applicant. There is no co-borrower income, no joint li
 
 Consequences: metadata features will dominate any model trained on this data; measured lift from device or behavioural signals is an artefact of the injection design; the 0.6 rate is an assumption with no external source. Device fingerprints and IP addresses are unique per case, so velocity, reuse and linkage analytics have nothing to find.
 
-## 6. Labels are policy-derived and circular with the rule baseline
+## 6. Detection labels are circular with the rule baseline
 
 `label.expected_outcome`, `reason_codes` and `alignment_level` are produced by `computeDecision`, which reads the corruption type and world truth directly. The fraud rules in `src/decisioning/fraud-rules/rules.js` were written to target the same corruption operators, using thresholds (15% income, 100 USD/month liabilities, 500 USD assets, 0.7 IP risk, 3 documents in 2 days) that match the thresholds in `computeDecision`.
 
 Consequences: precision and recall of the rule baseline against these labels measure agreement between two hand-written descriptions of the same injection mechanism, not detection performance on real fraud. High scores are expected and uninformative; low scores indicate an inconsistency between the two specifications. Any "expected loss captured" figure inherits the same circularity. Some observable flags are planted (`synthetic_identity`, `retains_current_lease`, `third_party_will_occupy`, `donor_is_interested_party`), which further collapses the distinction between label and feature for those typologies.
+
+Scope. This limitation applies to the detection layer and to `label.expected_outcome`, which is now kept only as a reference diagnostic. It no longer applies to how the underwriting policy is graded: since version 2.1.0 the policy is scored against simulated loan performance, which reads no policy, rule or reason code. See section 7 for what that simulation is and is not.
 
 ## 7. Outcomes are simulated, not observed
 

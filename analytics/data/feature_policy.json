@@ -16,7 +16,8 @@
     "truth_",
     "label_",
     "outcome_",
-    "gt_"
+    "gt_",
+    "performance_"
   ],
   "prohibited_fields": [
     "case_id",
@@ -34,6 +35,15 @@
     "is_fraud",
     "corruption_type",
     "corruption_severity",
+    "defaulted",
+    "seriously_delinquent",
+    "first_payment_default",
+    "months_to_default",
+    "months_paid",
+    "payments_received",
+    "realized_loss",
+    "loss_given_default",
+    "performance_status",
     "identity_aligned",
     "employment_aligned",
     "income_aligned",
