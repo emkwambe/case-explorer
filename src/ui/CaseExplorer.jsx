@@ -7,6 +7,7 @@ import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
 import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks/useCaseAnalysis.js";
 import { OverviewTab, TimelineTab, AlignmentTab, TruthGraphTab, EvidenceTab, MetadataTab } from "./tabs/caseTabs.jsx";
 import { DecisionTab, ExplanationTab, FairnessTab, InvestigationTab } from "./tabs/decisionTabs.jsx";
+import { OutcomeTab } from "./tabs/outcomeTab.jsx";
 import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/analyticsTabs.jsx";
 import { TOUR_STEPS } from "./demo/tour.js";
 import { GENERATOR_VERSION } from "../core/case.js";
@@ -19,6 +20,7 @@ const TABS = [
   { id: "evidence", label: "Evidence" },
   { id: "metadata", label: "Metadata" },
   { id: "decision", label: "Decision" },
+  { id: "outcome", label: "Outcome" },
   { id: "explanation", label: "Explanation" },
   { id: "fairness", label: "Fairness" },
   { id: "investigation", label: "Investigation" },
@@ -158,6 +160,7 @@ export default function CaseExplorer() {
               {activeTab === "evidence" && <EvidenceTab caseData={selectedCase} />}
               {activeTab === "metadata" && <MetadataTab caseData={selectedCase} />}
               {activeTab === "decision" && <DecisionTab caseData={selectedCase} scored={scored} />}
+              {activeTab === "outcome" && <OutcomeTab caseData={selectedCase} scored={scored} />}
               {activeTab === "explanation" && <ExplanationTab scored={scored} />}
               {activeTab === "fairness" && <FairnessTab caseData={selectedCase} counterfactual={counterfactual} />}
               {activeTab === "investigation" && <InvestigationTab caseData={selectedCase} scored={scored} {...investigation} />}

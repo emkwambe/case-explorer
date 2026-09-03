@@ -93,6 +93,22 @@ export const AuditAttributes = z.object({
   policy_class: z.literal("SENSITIVE")
 }).passthrough();
 
+export const Performance = z.object({
+  simulation_version: z.string(),
+  horizon_months: z.number().int().positive(),
+  status: z.enum(["PERFORMING", "DELINQUENT", "DEFAULT"]),
+  defaulted: z.number().int().min(0).max(1),
+  seriously_delinquent: z.number().int().min(0).max(1),
+  first_payment_default: z.number().int().min(0).max(1),
+  months_to_default: z.number().int().nullable(),
+  max_consecutive_missed_payments: z.number().int().nonnegative(),
+  months_paid: z.number().int().nonnegative(),
+  payments_received: money.nonnegative(),
+  loss_given_default: z.number().min(0).max(1),
+  realized_loss: money.nonnegative(),
+  drivers: z.array(z.object({ driver: z.string() }).passthrough())
+}).passthrough();
+
 export const Case = z.object({
   id: z.string(),
   schema_version: z.string(),
@@ -106,6 +122,7 @@ export const Case = z.object({
   alignment_findings: z.array(AlignmentFinding),
   ground_truth_findings: z.array(GroundTruthFinding),
   label: Label,
+  performance: Performance,
   meta: z.object({ seed: z.union([z.string(), z.number()]).nullable(), generator_version: z.string(), corruption_type: z.enum(CORRUPTION_TYPES), severity: z.enum(SEVERITIES), as_of_date: isoDate }).passthrough()
 });
 

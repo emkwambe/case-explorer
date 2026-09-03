@@ -8,6 +8,7 @@ import { synthesizeEvidence } from "./evidence.js";
 import { generateAlignmentFindings, generateGroundTruthFindings, computeDecision } from "./findings.js";
 import { generateApplicationMetadata } from "./metadata.js";
 import { deriveAuditAttributes } from "./audit_attributes.js";
+import { simulateLoanPerformance } from "../simulation/performance.js";
 
 export const GENERATOR_VERSION = "2.0.0";
 export const CASE_SCHEMA_VERSION = "2.0.0";
@@ -79,6 +80,10 @@ export function generateCase(id, config, corruptionType = "NONE", severity = "LO
   // Sensitive evaluation attributes: isolated from decision inputs, used only by fairness tests.
   const auditAttributes = deriveAuditAttributes(truth, config, rng);
 
+  // Observed outcome. Simulated on a dedicated RNG stream so adding it does not shift any
+  // other draw, and computed from world truth without reading the policy or its label.
+  const performance = simulateLoanPerformance(truth, corruptionType, config, createRng(rng.seeded ? `${seed}-performance` : undefined));
+
   // Deterministic ids when seeded; wall-clock suffix only for unseeded generation.
   const caseId = rng.seeded
     ? `case-gen-${id}-${fnv1a(String(seed))}`
@@ -107,10 +112,14 @@ export function generateCase(id, config, corruptionType = "NONE", severity = "LO
     evidence,
     alignment_findings: findings,
     ground_truth_findings: groundTruthFindings,
+    // The reference labeller's view of the case. This is a policy opinion, not ground truth:
+    // evaluation gates on `performance` instead. Kept for diagnostics and for the UI.
     label: {
       ...label,
       conditions: label.conditions || []
     },
+    // Ground truth about what actually happened. Never a decision input.
+    performance,
     meta: {
       seed: rng.seeded ? seed : null,
       generator_version: GENERATOR_VERSION,

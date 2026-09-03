@@ -56,7 +56,7 @@ Persona is selected by salary rank (see STATISTICAL_ASSUMPTIONS). Persona `stude
 | `*.salary_gini` | 0.16-0.55 | lognormal shape | Hand-chosen | | | see Gini note | | SIMPLIFYING_ASSUMPTION |
 | `*.salary_min` / `salary_max` | per persona | bounds | Hand-chosen | | | clamp, scaled by geography salary multiplier | Creates point masses at the bounds. | SIMPLIFYING_ASSUMPTION |
 | `*.student_loan_prob` | 0.20-0.70 | bernoulli | Hand-chosen | | | **not read by code** | Dead parameter. | SIMPLIFYING_ASSUMPTION |
-| `*.tenure_stability` | label | | Hand-chosen | | | copied to case | No behavioural effect. | SIMPLIFYING_ASSUMPTION |
+| `*.tenure_stability` | label | | Hand-chosen | | | copied to case; selects the income-volatility class in the performance simulation | No effect on tenure sampling itself. | SIMPLIFYING_ASSUMPTION |
 
 ## income
 
@@ -87,7 +87,7 @@ Residual debt: `otherDebt = max(0, salary x dti / 12 - student - auto)` is assig
 | `checking_balance.median` | 12000 | lognormal | APPROXIMATE - not yet verified against source. Check Federal Reserve SCF median transaction-account balance (lower for all families, roughly 5-8k in recent waves; higher for homeowners). | none stated | | Copula inverse lognormal; `x max(0.25, 1 + 0.40 x financial_health)`; x 1.25 if PRIME; x geography checking multiplier; rounded | Represents total liquid reserves in a single account; no savings, retirement or brokerage accounts. | SIMPLIFYING_ASSUMPTION |
 | `checking_balance.gini` | 0.55 | lognormal shape | Hand-chosen | | | | True Gini about 0.39; SCF wealth concentration is far higher. | SIMPLIFYING_ASSUMPTION |
 | `savings_rate` | Beta(2, 8) | beta | Hand-chosen (mean 0.20 of gross monthly) | | | monthly savings = salary/12 x rate | Only feeds `down_payment`, which no decision reads. Check BEA personal saving rate if reactivated. | SIMPLIFYING_ASSUMPTION |
-| `down_payment_months` | N(18, 8) clamped [3, 60] | normal | Hand-chosen | | | `down_payment = monthly savings x months` | Not linked to loan amount or LTV; unused downstream. | SIMPLIFYING_ASSUMPTION |
+| `down_payment_months` | N(18, 8) clamped [3, 60] | normal | Hand-chosen | | | `down_payment = monthly savings x months` | Not linked to loan amount or LTV. No decision reads it, but the performance simulation now subtracts it (capped at the checking balance) from liquid assets to get reserves at closing, so it drives how much buffer a borrower starts with. | SIMPLIFYING_ASSUMPTION |
 
 ## expenses
 
@@ -238,6 +238,49 @@ Disabled by default. When enabled, corruption type is chosen to target cases nea
 | `scenario_attributes.family_status_probabilities` | SINGLE 0.35, MARRIED 0.35, WITH_DEPENDENTS 0.22, SINGLE_PARENT 0.08 | categorical | Hand-chosen scenario mix; sampled independently of every financial variable by construction | | | audit attribute only | Not a census household composition; deliberately not linked to anything so that any association with outcomes is a defect. Check Census CPS household composition only if the mix itself matters. | SIMPLIFYING_ASSUMPTION |
 | `scenario_attributes.disability_income_scenario_rate` | 0.04 | bernoulli | Hand-chosen | | | audit attribute only | Scenario label; no income component is actually generated for it. | SIMPLIFYING_ASSUMPTION |
 
+## performance
+
+The loan-performance simulation (`src/simulation/performance.js`) that produces the observed outcome label. Read from `config.performance`, with the same values hard-coded as `DEFAULT_PERFORMANCE_CONFIG` in that module. Every row here is a modelling assumption; none is fitted, and the two `intent_default` rows assert fraud behaviour rather than model it. See STATISTICAL_ASSUMPTIONS section 13 for the mechanics.
+
+| Parameter | Value | Distribution | Source or justification | Applicable year | Population represented | Transformation applied | Known limitation | Provenance class |
+|---|---|---|---|---|---|---|---|---|
+| `horizon_months` | 36 | constant | Hand-chosen observation window, long enough for early-life mortgage defaults to appear and short enough to keep the simulation cheap | none stated | funded mortgages | loop length; `performance.horizon_months` | Truncates well before the peak default hazard of a 30-year mortgage, so lifetime default and loss are understated by construction. Cumulative 36-month rates could be compared with Fannie Mae or Freddie Mac single-family loan performance data by origination cohort. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `months_missed_to_default` | 3 | constant | The 90-days-past-due convention used for serious delinquency in mortgage reporting | none stated | funded mortgages | 3 consecutive missed payments terminate the case in `DEFAULT` | Consecutive misses only: no roll rates, no self-cure, no forbearance or modification. Realised serious-delinquency and default rates should be checked against the Mortgage Bankers Association National Delinquency Survey and FHFA / Fannie Mae / Freddie Mac credit performance data. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `discretionary_compression_floor` | 0.55 | multiplier | Hand-chosen: households cut discretionary spending before missing a mortgage payment | none stated | stressed households | discretionary spend x 0.55 when reserves are below one PITI or income is interrupted | A single fixed cut with no gradation by severity or duration. BLS Consumer Expenditure Survey could bound how much of a household budget is genuinely compressible. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `reserve_share_available` | 0.85 | multiplier | Hand-chosen haircut for cash that is nominally in the account but not reachable in the month it is needed | none stated | borrowers at closing | `(checking_balance - down_payment) x 0.85` | Arbitrary. No savings, retirement or brokerage assets exist in the model, so this haircut is applied to the only account there is. | SIMPLIFYING_ASSUMPTION |
+| `income_volatility.stable` | 0.03 | normal (monthly multiplicative sd) | Hand-chosen by `tenure_stability` class | none stated | salaried employees | `income x (1 + N(0, 0.03))` each month | Salaried pay is usually far less variable than 3 percent month to month; the ledger elsewhere uses 2 percent. | SIMPLIFYING_ASSUMPTION |
+| `income_volatility.recent` | 0.05 | normal | Hand-chosen | none stated | recently hired employees | as above | No source; tenure does not in itself make pay variable. | SIMPLIFYING_ASSUMPTION |
+| `income_volatility.seasonal` | 0.14 | normal | Hand-chosen | none stated | seasonal workers | as above | Real seasonality is a periodic pattern, not white noise. | SIMPLIFYING_ASSUMPTION |
+| `income_volatility.variable` | 0.20 | normal | Hand-chosen | none stated | commission or variable-pay workers | as above | As above; the `tenure_stability` label is a persona attribute with no other behavioural effect. | SIMPLIFYING_ASSUMPTION |
+| `self_employed_volatility_multiplier` | 1.5 | multiplier | Hand-chosen; self-employment income is more variable than salaried income | none stated | SELF_EMPLOYED regime | multiplies the class volatility above | Magnitude has no source. | SIMPLIFYING_ASSUMPTION |
+| `job_loss.base_monthly_prob` | 0.004 | bernoulli per month | Hand-chosen baseline monthly hazard of an income interruption | none stated | employed borrowers | scaled by credit and tenure factors, clamped to [0, 0.08] | Should be checked against BLS Job Openings and Labor Turnover Survey separation and layoff rates, converted to a monthly involuntary-separation hazard. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `job_loss.credit_score_pivot` | 700 | pivot | Hand-chosen | none stated | | `1 + ((700 - score) / 100) x slope` | Credit score is used as a proxy for employment fragility, which is not a causal relationship; any real association runs through the same latent factor that produced the score. | SIMPLIFYING_ASSUMPTION |
+| `job_loss.credit_score_slope` | 0.9 | slope per 100 points | Hand-chosen | none stated | | multiplies the base hazard, floored at 0.25 | A score 100 points below the pivot nearly doubles the hazard. No source for that gradient. | SIMPLIFYING_ASSUMPTION |
+| `job_loss.tenure_protection_months` | 24 | threshold | Hand-chosen; last in, first out | none stated | | hazard x 0.7 at or above 24 months, x 1.35 below | Step function at exactly two years; BLS tenure and separation data could inform a smooth profile. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `job_loss.duration_months.min` / `max` | 1 / 5 | uniform integer | Hand-chosen | none stated | | months of interrupted income | Should be checked against BLS duration of unemployment (median and mean weeks). APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `job_loss.income_retained` | 0.35 | multiplier | Hand-chosen stand-in for unemployment insurance or partial replacement work | none stated | | `income x 0.35` while interrupted | State UI replacement rates vary widely and are capped in dollars, not as a share of prior income. | SIMPLIFYING_ASSUMPTION |
+| `expense_shock.monthly_prob` | 0.02 | bernoulli per month | Hand-chosen | none stated | all households | draws a one-off outflow in the month | No source; roughly one shock every four years per household. | SIMPLIFYING_ASSUMPTION |
+| `expense_shock.share_of_monthly_income` | 0.6 | multiplier | Hand-chosen | none stated | all households | `monthly_net_income x 0.6` added to that month's outflow | Sized off income rather than off the actual cost of the event; independent of household size or health. | SIMPLIFYING_ASSUMPTION |
+| `intent_default.BUST_OUT` | 0.85 | bernoulli | Asserted, not modelled. Bust-out damage is intent, not capacity, and no cash-flow simulation can express an applicant who never intended to pay. | none stated | injected `BUST_OUT` cases | on success the case defaults in month 1, 2 or 3 and the cash-flow loop is skipped | This is the outcome label being written directly from the injection label for these cases. Any model that separates `BUST_OUT` on outcome is partly recovering the injection. No public series can validate it. | FRAUD_INJECTION |
+| `intent_default.STRAW_BUYER` | 0.55 | bernoulli | Asserted, not modelled, as above | none stated | injected `STRAW_BUYER` cases | as above | As above. The gap between 0.85 and 0.55 is a hand-chosen ordering, not a measured one. | FRAUD_INJECTION |
+| `gift_fund_repayment_share` | 0.02 | multiplier | Hand-chosen: an undisclosed gift is really a loan, repaid monthly at 2 percent of the balance | none stated | `GIFT_FUND_MISREPRESENTATION` cases | added to true monthly obligations | 2 percent of balance is a convention borrowed from the 1 percent student-loan payment rule, with no source of its own. | SIMPLIFYING_ASSUMPTION |
+| `loss_given_default.base` | 0.22 | share of loan | Hand-chosen severity before foreclosure costs | none stated | defaulted mortgages | part of the LGD sum | Should be checked against GSE loss-given-default and loss-severity disclosures (Fannie Mae and Freddie Mac credit risk transfer and single-family loan performance data). APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `loss_given_default.foreclosure_cost_share` | 0.08 | share of loan | Hand-chosen direct cost of the foreclosure process | none stated | defaulted mortgages | added to `base` | As above; real foreclosure cost varies substantially by state timeline. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `loss_given_default.home_price_drift_monthly` | 0.0025 | geometric drift | Hand-chosen, about 3 percent a year | none stated | national house prices | compounded over months to default; appreciation reduces the loss | Should be checked against the FHFA House Price Index or S&P CoreLogic Case-Shiller. Always positive, so no borrower ever defaults into a falling market. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `loss_given_default.home_price_volatility_monthly` | 0.012 | normal | Hand-chosen | none stated | national house prices | monthly shock on the price path | Independent across cases, so there is no correlated downturn and portfolio tail risk is far too low. | SIMPLIFYING_ASSUMPTION |
+| `loss_given_default.min` / `max` | 0.02 / 0.65 | bounds | Hand-chosen | none stated | | clamp on the computed LGD | Creates point masses at both bounds. | SIMPLIFYING_ASSUMPTION |
+| equity build (hard-coded) | `min(0.06, months x 0.0012)` | linear | Hard-coded in `lossGivenDefault` | | | subtracted from LGD | Not in config. A linear stand-in for amortisation, not the actual 30-year schedule at the configured 6.75 percent rate. | SIMPLIFYING_ASSUMPTION |
+
+## value_assumptions
+
+Economics used by the outcome evaluation (`DEFAULT_VALUE_ASSUMPTIONS` in `src/evaluation/outcome/index.js`) to price a policy's decisions against simulated performance. They are overridable through `config.value_assumptions`, which the shipped config does not set. They affect the portfolio-value comparison and the `policy_beats_decline_all` gate only; they do not affect generation.
+
+| Parameter | Value | Distribution | Source or justification | Applicable year | Population represented | Transformation applied | Known limitation | Provenance class |
+|---|---|---|---|---|---|---|---|---|
+| `margin_on_performing` | 0.03 | share of loan amount | Hand-chosen lifetime net margin on a loan that performs over the simulated horizon; stated in the source as a modelling assumption, not a fitted value | none stated | funded mortgages | `loan_amount x 0.03` earned on every non-defaulted funded loan | Not a spread, not discounted, and not sensitive to rate, term or prepayment. Mortgage banking income could be bounded from MBA or public originator disclosures but no figure is claimed here. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+| `manual_review_cost` | 250 | USD per application | Hand-chosen cost of putting one application through manual underwriting | none stated | reviewed applications | `reviewed count x 250` subtracted from policy net value | Flat per-case cost with no dependence on review depth or analyst time; the model card's separate 45-minutes-per-review figure is a different assumption in a different module. | SIMPLIFYING_ASSUMPTION |
+| `origination_cost` | 900 | USD per funded loan | Hand-chosen cost of originating any funded loan | none stated | funded mortgages | `funded count x 900` subtracted from net value | Per-loan origination cost is reported in the MBA quarterly mortgage bankers performance report; this value has not been checked against it. APPROXIMATE - not yet verified against source. | SIMPLIFYING_ASSUMPTION |
+
 ## Summary of dead or ineffective parameters
 
 | Parameter | Status |
@@ -245,7 +288,7 @@ Disabled by default. When enabled, corruption type is chosen to target cases nea
 | `employment.employment_gap_prob` | sampled, result discarded |
 | `employment.industry.*` | fallback only; every persona overrides |
 | `personas.*.student_loan_prob` | never read |
-| `personas.*.tenure_stability` | label only |
+| `personas.*.tenure_stability` | no longer dead: read by the performance simulation to pick income volatility |
 | `liabilities.credit_card_utilization` | never read |
 | `credit.inquiry_count` | never read |
 | `expenses.rent_to_income_gross_ratio` | never read; rent is uniform 1000-2200 x regional multiplier |
@@ -255,4 +298,4 @@ Disabled by default. When enabled, corruption type is chosen to target cases nea
 | `regimes.SELF_EMPLOYED.employment_label` | never read |
 | `corruption.*_prob`, `clean_prob`, `omission_prob`, `benign_variance_prob` | legacy, never read |
 | `geography.*.cost_of_living_index` | copied, never used in a calculation |
-| `assets.savings_rate`, `assets.down_payment_months` | feed `down_payment`, which nothing reads |
+| `assets.savings_rate`, `assets.down_payment_months` | feed `down_payment`, which no decision reads; the performance simulation reads it to set reserves at closing |

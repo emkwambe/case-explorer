@@ -18,6 +18,10 @@ function passingResults() {
     },
     detection: { reconciliation: { rate: 1 }, overall: { recall: 1 }, fpr_on_clean: 0 },
     decision: { agreement_rate: 1, permissible_variables: { violations: 0 }, governance: { invalid_decisions: 0 } },
+    outcome: {
+      policy: { discrimination_auc: 1, risk_separation: 1 },
+      value: { beats_decline_all: true }
+    },
     fairness: { counterfactual: { invariance_rate: 1 }, independent_attribute_min_selection_ratio: 1 },
     network: { ring_recall: 1, non_ring_false_positive_rate: 0 }
   };
@@ -32,7 +36,9 @@ const SETTERS = {
   reproducibility: (r, v) => { r.generator.reproducibility.rate = v; },
   missing_required_fields: (r, v) => { r.generator.missing_required_fields.rate = v; },
   ground_truth_reconciliation: (r, v) => { r.detection.reconciliation.rate = v; },
-  decision_rule_agreement: (r, v) => { r.decision.agreement_rate = v; },
+  outcome_discrimination: (r, v) => { r.outcome.policy.discrimination_auc = v; },
+  approval_risk_separation: (r, v) => { r.outcome.policy.risk_separation = v; },
+  policy_beats_decline_all: (r, v) => { r.outcome.value.beats_decline_all = v >= 1; },
   permissible_variables: (r, v) => { r.decision.permissible_variables.violations = v; },
   reason_code_governance: (r, v) => { r.decision.governance.invalid_decisions = v; },
   counterfactual_invariance: (r, v) => { r.fairness.counterfactual.invariance_rate = v; },
@@ -52,7 +58,9 @@ const EXPECTED = [
   ["reproducibility", "generator", ">=", 1.0, true],
   ["missing_required_fields", "generator", "<=", 0.0, true],
   ["ground_truth_reconciliation", "detection", ">=", 0.97, true],
-  ["decision_rule_agreement", "decision", ">=", 0.95, true],
+  ["outcome_discrimination", "outcome", ">=", 0.65, true],
+  ["approval_risk_separation", "outcome", ">=", 0.5, true],
+  ["policy_beats_decline_all", "outcome", ">=", 1, true],
   ["permissible_variables", "decision", "<=", 0, true],
   ["reason_code_governance", "decision", "<=", 0, true],
   ["counterfactual_invariance", "fairness", ">=", 1.0, true],
@@ -88,7 +96,8 @@ describe("release gate contract", () => {
 
   for (const [id, , op, threshold, mandatory] of EXPECTED) {
     it(`gate ${id} reads its own value and flips exactly at ${op} ${threshold}`, () => {
-      const eps = threshold === 0 ? 1 : Math.max(threshold * 0.01, 0.001);
+      // policy_beats_decline_all is boolean-backed and reads 1 or 0, so probe it by a whole unit.
+      const eps = id === "policy_beats_decline_all" ? 1 : threshold === 0 ? 1 : Math.max(threshold * 0.01, 0.001);
       const atBoundary = threshold;
       const justOver = op === ">=" ? threshold - eps : threshold + eps;
 
@@ -131,10 +140,10 @@ describe("release gate contract", () => {
   });
 
   it("accepts a custom gate list so a caller can evaluate a subset", () => {
-    const one = RELEASE_GATES.filter((g) => g.id === "decision_rule_agreement");
+    const one = RELEASE_GATES.filter((g) => g.id === "outcome_discrimination");
     const r = evaluateGates(passingResults(), one);
     expect(r.rows.length).toBe(1);
-    expect(r.rows[0].id).toBe("decision_rule_agreement");
+    expect(r.rows[0].id).toBe("outcome_discrimination");
     expect(r.passed).toBe(true);
   });
 });

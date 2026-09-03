@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 560" width="1120" height="560" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 620" width="1120" height="620" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif" role="img" aria-labelledby="title desc">
   <title id="title">Case Explorer architecture</title>
-  <desc id="desc">Five layers. Generation produces world truth, claimed truth and evidence. Only claimed truth, evidence and submission metadata reach the decisioning layer of fraud rules, underwriting policy and models. Evaluation runs three independent layers plus fairness. Governance records immutable audit events and model lifecycle. Delivery exposes the API, the explorer UI and published artifacts.</desc>
+  <desc id="desc">Five layers. Generation produces world truth, claimed truth, evidence and a simulated loan outcome. Only claimed truth, evidence and submission metadata reach the decisioning layer of fraud rules, underwriting policy and models. Evaluation runs four independent layers plus fairness, and grades the policy against the simulated outcome rather than against another policy. Governance records immutable audit events and model lifecycle. Delivery exposes the API, the explorer UI and published artifacts.</desc>
 
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -9,6 +9,9 @@
     <marker id="arrowBlocked" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#ef4444"/>
     </marker>
+    <marker id="arrowTruth" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed"/>
+    </marker>
     <style>
       .layer { fill:#f8fafc; stroke:#e2e8f0; stroke-width:1.5; rx:10 }
       .layerTitle { font-size:12px; font-weight:700; fill:#475569; letter-spacing:.08em; text-transform:uppercase }
@@ -16,16 +19,17 @@
       .boxText { font-size:12.5px; fill:#0f172a; font-weight:600 }
       .sub { font-size:11px; fill:#64748b }
       .edge { stroke:#64748b; stroke-width:1.6; fill:none; marker-end:url(#arrow) }
+      .edgeTruth { stroke:#7c3aed; stroke-width:1.6; fill:none; stroke-dasharray:6 4; marker-end:url(#arrowTruth) }
       .edgeBlocked { stroke:#ef4444; stroke-width:1.6; fill:none; stroke-dasharray:5 4 }
       .edgeLabel { font-size:10.5px; fill:#64748b }
       .note { font-size:11.5px; fill:#991b1b; font-weight:600 }
     </style>
   </defs>
 
-  <rect width="1120" height="560" fill="#ffffff"/>
+  <rect width="1120" height="620" fill="#ffffff"/>
 
   <!-- Generation -->
-  <rect class="layer" x="16" y="44" width="250" height="330"/>
+  <rect class="layer" x="16" y="44" width="250" height="386"/>
   <text class="layerTitle" x="32" y="68">Generation</text>
 
   <rect class="box" x="32" y="84" width="218" height="52" fill="#eff6ff" stroke="#bfdbfe"/>
@@ -47,8 +51,12 @@
   <rect class="box" x="32" y="332" width="218" height="30" fill="#f5f3ff" stroke="#ddd6fe"/>
   <text class="sub" x="44" y="352" style="font-weight:600;fill:#5b21b6">Sensitive audit attributes (isolated)</text>
 
+  <rect class="box" x="32" y="372" width="218" height="46" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text class="boxText" x="44" y="391" style="fill:#5b21b6">Loan outcome (simulated)</text>
+  <text class="sub" x="44" y="408">36-month cash flow on world truth</text>
+
   <!-- Decisioning -->
-  <rect class="layer" x="300" y="44" width="266" height="330"/>
+  <rect class="layer" x="300" y="44" width="266" height="386"/>
   <text class="layerTitle" x="316" y="68">Decisioning</text>
 
   <rect class="box" x="316" y="84" width="234" height="52" fill="#ffffff" stroke="#cbd5e1"/>
@@ -70,8 +78,12 @@
   <rect class="box" x="316" y="332" width="234" height="30" fill="#ffffff" stroke="#cbd5e1"/>
   <text class="sub" x="328" y="352" style="font-weight:600;fill:#334155">Explanation and counterfactuals</text>
 
+  <rect class="box" x="316" y="372" width="234" height="46" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="boxText" x="328" y="391">Investigation workflow</text>
+  <text class="sub" x="328" y="408">Four-eyes disposition, audit trail</text>
+
   <!-- Evaluation -->
-  <rect class="layer" x="600" y="44" width="250" height="330"/>
+  <rect class="layer" x="600" y="44" width="250" height="386"/>
   <text class="layerTitle" x="616" y="68">Evaluation</text>
 
   <rect class="box" x="616" y="84" width="218" height="46" fill="#ffffff" stroke="#cbd5e1"/>
@@ -83,37 +95,41 @@
   <text class="sub" x="628" y="175">Recall, FPR, reconciliation</text>
 
   <rect class="box" x="616" y="196" width="218" height="46" fill="#ffffff" stroke="#cbd5e1"/>
-  <text class="boxText" x="628" y="215">3. Decision</text>
-  <text class="sub" x="628" y="231">Agreement, codes, calibration</text>
+  <text class="boxText" x="628" y="215">3. Decision governance</text>
+  <text class="sub" x="628" y="231">Permitted inputs, reason codes</text>
 
-  <rect class="box" x="616" y="252" width="218" height="46" fill="#f5f3ff" stroke="#ddd6fe"/>
-  <text class="boxText" x="628" y="271">Fairness</text>
-  <text class="sub" x="628" y="287">Subgroups, counterfactuals</text>
+  <rect class="box" x="616" y="252" width="218" height="46" fill="#f5f3ff" stroke="#c4b5fd"/>
+  <text class="boxText" x="628" y="271" style="fill:#5b21b6">4. Outcome</text>
+  <text class="sub" x="628" y="287">Discrimination, separation, value</text>
 
-  <rect class="box" x="616" y="308" width="218" height="54" fill="#ecfdf5" stroke="#a7f3d0"/>
-  <text class="boxText" x="628" y="328">Release gates</text>
-  <text class="sub" x="628" y="345">CI fails on regression</text>
+  <rect class="box" x="616" y="308" width="218" height="46" fill="#f5f3ff" stroke="#ddd6fe"/>
+  <text class="boxText" x="628" y="327">Fairness</text>
+  <text class="sub" x="628" y="343">Subgroups, counterfactuals</text>
+
+  <rect class="box" x="616" y="364" width="218" height="54" fill="#ecfdf5" stroke="#a7f3d0"/>
+  <text class="boxText" x="628" y="384">Release gates</text>
+  <text class="sub" x="628" y="401">CI fails on regression</text>
 
   <!-- Governance and delivery -->
-  <rect class="layer" x="884" y="44" width="220" height="160"/>
+  <rect class="layer" x="884" y="44" width="220" height="180"/>
   <text class="layerTitle" x="900" y="68">Governance</text>
-  <rect class="box" x="900" y="84" width="188" height="46" fill="#ffffff" stroke="#cbd5e1"/>
-  <text class="boxText" x="912" y="103">Model registry</text>
-  <text class="sub" x="912" y="119">9 states, duty separation</text>
-  <rect class="box" x="900" y="140" width="188" height="46" fill="#ffffff" stroke="#cbd5e1"/>
-  <text class="boxText" x="912" y="159">Audit events</text>
-  <text class="sub" x="912" y="175">Hash-chained, immutable</text>
+  <rect class="box" x="900" y="84" width="188" height="52" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="boxText" x="912" y="104">Model registry</text>
+  <text class="sub" x="912" y="121">9 states, duty separation</text>
+  <rect class="box" x="900" y="146" width="188" height="52" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="boxText" x="912" y="166">Audit events</text>
+  <text class="sub" x="912" y="183">Hash-chained, immutable</text>
 
-  <rect class="layer" x="884" y="214" width="220" height="160"/>
-  <text class="layerTitle" x="900" y="238">Delivery</text>
-  <rect class="box" x="900" y="254" width="188" height="46" fill="#ffffff" stroke="#cbd5e1"/>
-  <text class="boxText" x="912" y="273">REST API</text>
-  <text class="sub" x="912" y="289">OpenAPI, PostgreSQL</text>
-  <rect class="box" x="900" y="310" width="188" height="52" fill="#ffffff" stroke="#cbd5e1"/>
-  <text class="boxText" x="912" y="329">Explorer UI</text>
-  <text class="sub" x="912" y="346">Guided walkthrough, artifacts</text>
+  <rect class="layer" x="884" y="240" width="220" height="190"/>
+  <text class="layerTitle" x="900" y="264">Delivery</text>
+  <rect class="box" x="900" y="280" width="188" height="52" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="boxText" x="912" y="300">REST API</text>
+  <text class="sub" x="912" y="317">OpenAPI, PostgreSQL</text>
+  <rect class="box" x="900" y="342" width="188" height="58" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="boxText" x="912" y="362">Explorer UI</text>
+  <text class="sub" x="912" y="379">Guided walkthrough, artifacts</text>
 
-  <!-- Edges: only claims, evidence, metadata reach decisioning -->
+  <!-- Edges: only claims, evidence and metadata reach decisioning -->
   <path class="edge" d="M 250 172 L 314 110"/>
   <path class="edge" d="M 250 234 L 314 110"/>
   <path class="edge" d="M 250 296 L 314 110"/>
@@ -123,18 +139,24 @@
   <path class="edge" d="M 550 172 L 614 163"/>
   <path class="edge" d="M 550 234 L 614 219"/>
   <path class="edge" d="M 550 296 L 614 219"/>
-  <path class="edge" d="M 250 110 L 300 400 L 604 400 L 660 366" />
-  <text class="edgeLabel" x="330" y="416">world truth labels the case and scores detection</text>
-  <path class="edgeBlocked" d="M 250 347 L 300 430 L 630 430 L 660 300" marker-end="url(#arrowBlocked)"/>
-  <text class="edgeLabel" x="330" y="446" style="fill:#991b1b">sensitive attributes reach fairness testing only</text>
+  <path class="edge" d="M 550 234 L 614 275"/>
+
+  <!-- World truth feeds the outcome simulation; the outcome is the label the policy is graded on -->
+  <path class="edgeTruth" d="M 141 136 L 141 372"/>
+  <path class="edgeTruth" d="M 250 395 L 570 395 L 570 452 L 700 452 L 700 300"/>
+  <text class="edgeLabel" x="292" y="446" style="fill:#5b21b6">simulated outcome grades the policy, and no policy can see it</text>
+
+  <path class="edgeBlocked" d="M 250 347 L 290 470 L 660 470 L 700 358" marker-end="url(#arrowBlocked)"/>
+  <text class="edgeLabel" x="292" y="486" style="fill:#991b1b">sensitive attributes reach fairness testing only</text>
 
   <path class="edge" d="M 834 130 L 898 110"/>
-  <path class="edge" d="M 834 335 L 898 290"/>
-  <path class="edge" d="M 550 320 L 880 200" opacity="0"/>
+  <path class="edge" d="M 834 391 L 898 366"/>
+  <path class="edge" d="M 550 395 L 880 190" opacity="0"/>
 
   <!-- Legend -->
-  <rect x="16" y="470" width="1088" height="72" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
-  <text class="layerTitle" x="32" y="492">Central rule</text>
-  <text x="32" y="514" font-size="13" fill="#0f172a">World truth is never a decision input. Rules, models and the underwriting policy read only the application claims, the evidence documents and the submission metadata,</text>
-  <text x="32" y="532" font-size="13" fill="#0f172a">which is exactly what a lender receives. World truth labels the case and scores detection. Sensitive attributes are isolated and reach fairness testing only.</text>
+  <rect x="16" y="508" width="1088" height="94" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text class="layerTitle" x="32" y="530">The two rules that carry the design</text>
+  <text x="32" y="554" font-size="13" fill="#0f172a"><tspan font-weight="700">World truth is never a decision input.</tspan> Rules, models and the underwriting policy read only the application claims, the evidence documents and the submission</text>
+  <text x="32" y="572" font-size="13" fill="#0f172a">metadata, which is exactly what a lender receives. Sensitive attributes are isolated and reach fairness testing only.</text>
+  <text x="32" y="592" font-size="13" fill="#0f172a"><tspan font-weight="700">A policy is never graded against another policy.</tspan> Every case is simulated forward as if funded, declined ones included, and that outcome is what the decision is scored on.</text>
 </svg>

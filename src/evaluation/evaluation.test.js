@@ -7,7 +7,7 @@ import { evaluateGeneratorQuality, ledgerInvariantChecks, evidenceConsistencyChe
 import { evaluateDetection, compareRulesets } from "./detection/index.js";
 import { evaluateDecisions } from "./decision/index.js";
 import { evaluateFairness, makeCounterfactual, counterfactualTests } from "./fairness/index.js";
-import { evaluateGates, RELEASE_GATES } from "./gates.js";
+import { RELEASE_GATES } from "./gates.js";
 import { ksTest, chiSquarePValue, confusion, jaccard, pearson } from "./stats.js";
 import { FRAUD_RULES } from "../decisioning/fraud-rules/rules.js";
 import { scoreCase } from "../decisioning/index.js";
@@ -122,14 +122,21 @@ describe("fairness", () => {
   });
 });
 
+// Release gates have their own dedicated contract suite in gates.test.js, which asserts
+// every threshold, direction and boundary individually. Only the wiring is checked here.
 describe("release gates", () => {
-  it("fails when a mandatory gate is violated and passes otherwise", () => {
-    const ok = { generator: { ledger_invariants: { all_pass_rate: 1 }, evidence_consistency: { rate: 1 }, distribution_pass_rate: 1, correlation_within_tolerance_rate: 1, reproducibility: { rate: 1 }, missing_required_fields: { rate: 0 } }, detection: { reconciliation: { rate: 1 }, overall: { recall: 0.95 }, fpr_on_clean: 0.01 }, decision: { agreement_rate: 0.99, permissible_variables: { violations: 0 }, governance: { invalid_decisions: 0 } }, fairness: { counterfactual: { invariance_rate: 1 }, independent_attribute_min_selection_ratio: 1 }, network: { ring_recall: 1, non_ring_false_positive_rate: 0 } };
-    expect(evaluateGates(ok).passed).toBe(true);
-    const bad = JSON.parse(JSON.stringify(ok)); bad.decision.permissible_variables.violations = 1;
-    const r = evaluateGates(bad);
-    expect(r.passed).toBe(false);
-    expect(r.failed_ids).toEqual(["permissible_variables"]);
-    expect(RELEASE_GATES.filter(g => g.mandatory).length).toBeGreaterThanOrEqual(12);
+  it("declares a mandatory gate for every evaluation layer", () => {
+    const layers = new Set(RELEASE_GATES.filter((g) => g.mandatory).map((g) => g.layer));
+    for (const layer of ["generator", "detection", "outcome", "decision", "fairness", "network"]) {
+      expect(layers, `${layer} must have a mandatory gate`).toContain(layer);
+    }
+    expect(RELEASE_GATES.filter((g) => g.mandatory).length).toBeGreaterThanOrEqual(14);
+  });
+
+  it("grades the policy on outcomes rather than on agreement with another policy", () => {
+    const ids = RELEASE_GATES.map((g) => g.id);
+    expect(ids).not.toContain("decision_rule_agreement");
+    expect(ids).toContain("outcome_discrimination");
+    expect(ids).toContain("approval_risk_separation");
   });
 });

@@ -1,6 +1,6 @@
 # Validation Report
 
-Generated 2026-09-02T18:18:00.257Z · seed `42` · 2,000 blended + 2,250 stratified cases · generator 2.0.0 · commit `62a7d104` · config `570e1e0c7fda`
+Generated 2026-09-03T06:36:42.707Z · seed `42` · 2,000 blended + 2,250 stratified cases · generator 2.0.0 · commit `7e568561` · config `e984ec798bee`
 
 ## Release gates — **PASS**
 
@@ -13,7 +13,9 @@ Generated 2026-09-02T18:18:00.257Z · seed `42` · 2,000 blended + 2,250 stratif
 | Reproducibility (seeded) | generator | >= 1 | 1 | PASS |
 | Missing required fields | generator | <= 0 | 0 | PASS |
 | Ground-truth reconciliation | detection | >= 0.97 | 0.9997 | PASS |
-| Decision-rule agreement | decision | >= 0.95 | 0.9889 | PASS |
+| Policy ranks actual defaults (AUC) | outcome | >= 0.65 | 0.6675 | PASS |
+| Approved pool safer than population | outcome | >= 0.5 | 1 | PASS |
+| Policy creates value over declining everyone | outcome | >= 1 | 1 | PASS |
 | Prohibited variables in decision inputs | decision | <= 0 | 0 | PASS |
 | Declines without adverse-action reason | decision | <= 0 | 0 | PASS |
 | Counterfactual fairness invariance | fairness | >= 1 | 1 | PASS |
@@ -35,9 +37,12 @@ Generated 2026-09-02T18:18:00.257Z · seed `42` · 2,000 blended + 2,250 stratif
 | Reproducibility | 100.0% |
 | Missing required fields | 0.0% |
 | Ground-truth reconciliation | 100.0% |
+| Policy discrimination on outcomes (AUC) | 0.667 |
+| Approved-pool risk separation | 100.0% |
+| Population bad rate / approved bad rate | 7.2% / 0.0% |
 | Rule-baseline fraud precision / recall / F1 | 0.995 / 1.000 / 0.998 |
 | Rule-baseline false-positive rate (clean) | 0.4% |
-| Decision-rule agreement | 98.9% |
+| Decision-rule agreement | n/a |
 | Adverse-action reason overlap | 89.8% |
 | Prohibited variables in decision inputs | 0 |
 | Counterfactual invariance | 100.0% |
@@ -194,6 +199,48 @@ Reason codes — mean Jaccard 0.848, exact match 66.9%, adverse-action overlap 8
 | 30-38 | 856 | 56.4% | 19.2% |
 | 38-47 | 607 | 0.0% | 31.0% |
 | >47 | 208 | 0.0% | 100.0% |
+
+## Outcome-grounded policy evaluation
+
+The policy is graded against simulated loan performance, which no policy produced. Every case is simulated as if funded, including the ones the policy declines, so a false decline is measurable. This replaces the old "agreement with the generator's own label" metric, which compared two implementations of similar logic and could not tell a good policy from a shared mistake.
+
+| Measure | Value |
+|---|---|
+| Horizon | 36 months |
+| Population bad rate | 7.2% (307 defaults) |
+| Mean loss given default | 28.9% |
+| Approval / review / decline | 12.1% / 19.0% / 68.9% |
+| Approved-pool bad rate | 0.0% |
+| Risk separation | 1.000 |
+| Discrimination (AUC of policy severity vs default) | 0.667 |
+| False decline rate | 91.8% |
+
+### Portfolio value on the blended book (2,000 cases, bad rate 2.5%)
+
+| Strategy | Funded | Margin | Loss | Net value |
+|---|---|---|---|---|
+| Policy | 471 | 6,430,092 | 0 | 5,850,192 |
+| Approve everyone | 2000 | 23,857,456 | 5,837,063 | 16,220,393 |
+| Decline everyone | 0 | 0 | 0 | 0 |
+| Oracle (funds only what performs) | 1949 | 23,857,456 | 0 | 22,103,356 |
+
+The policy captures 26.5% of the achievable value. It avoids 5,837,063 of loss and forgoes 16,097,164 of margin on applicants who would have paid. Against funding everyone the net cost of that conservatism is 10,370,201.
+
+| Typology | n | Bad rate | Approval rate | Approved bad rate | Mean loss |
+|---|---|---|---|---|---|
+| NONE | 1730 | 0.6% | 29.6% | 0.0% | 507 |
+| CONCEALMENT | 420 | 0.7% | 0.0% | n/a | 829 |
+| INFLATION | 531 | 0.9% | 0.0% | n/a | 1,009 |
+| ASSET_SEASONING | 175 | 0.6% | 0.0% | n/a | 634 |
+| FABRICATION | 213 | 3.8% | 0.0% | n/a | 4,287 |
+| OCCUPANCY_MISREPRESENTATION | 172 | 0.6% | 0.0% | n/a | 249 |
+| GIFT_FUND_MISREPRESENTATION | 168 | 1.2% | 0.0% | n/a | 1,394 |
+| INCOHERENT | 162 | 21.6% | 0.0% | n/a | 26,057 |
+| EVIDENCE_TAMPERING | 344 | 1.2% | 0.0% | n/a | 835 |
+| BUST_OUT | 165 | 84.9% | 0.0% | n/a | 100,184 |
+| STRAW_BUYER | 170 | 57.1% | 0.0% | n/a | 71,223 |
+
+Reference-label agreement is 98.9%. That figure is a consistency diagnostic between the reference labeller and the policy. It is reported, not gated: agreement with another policy says nothing about whether either is right.
 
 ## Fairness controls — WARN
 

@@ -4,7 +4,33 @@ All notable changes to this project are documented here.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2026-09-02
+## [2.1.0] - 2026-09-03
+
+Replaces the policy-derived label with a simulated loan outcome, removing the circularity in how the underwriting policy was graded.
+
+### Added
+
+- `src/simulation/performance.js` simulates every case forward over a 36 month horizon as if the loan were funded, using world-truth cash flows plus a job-loss hazard scaled by credit score and tenure, an expense shock, and a loss-given-default model with a simulated home-price path. The result (`PERFORMING`, `DELINQUENT` or `DEFAULT`, months to default, loss given default, realised loss) is attached to every case as `performance`.
+- Performance is simulated for declined applications as well as approved ones. Without that counterfactual a false decline cannot be measured and a policy that declines everything would score perfectly.
+- `src/evaluation/outcome/index.js` grades the policy against that outcome: discrimination (does policy severity rank real defaults), approved-pool risk separation, false decline rate, and portfolio value against approve-all, decline-all and an oracle that funds only what performs.
+- Three outcome-grounded release gates: `outcome_discrimination`, `approval_risk_separation` and `policy_beats_decline_all`.
+- New `Outcome` tab in the explorer and an extra step in the guided walkthrough, both stating plainly that this information is never available at decision time.
+- Datasets now export the observed outcome as a second modelling target (`label__defaulted` and friends) alongside the injection target `label__is_fraud`, and split manifests record `bad_rate`, `default_count` and `total_realized_loss`.
+- `artifacts/outcome-results.csv` and an outcome section in the validation report.
+- A `performance` section in `src/distribution_config.json` and `value_assumptions` in the outcome evaluation, both documented in the methodology with provenance classes.
+
+### Changed
+
+- The `decision_rule_agreement` gate is removed. It compared the policy against a label the generator's own rule engine produced, which measured whether two implementations of similar logic agreed and could not distinguish a good policy from a shared mistake. Agreement is still computed and reported as a consistency diagnostic, and is no longer gated.
+- Decision economics uses the measured `realized_loss` when a scored row carries one, falling back to the assumed loss-given-fraud only when it does not.
+- `labels.expected_outcome` in the model feature export is renamed `reference_outcome`, to make clear it is a policy opinion and not a training target.
+- The performance simulation draws from a dedicated random stream, so adding it perturbs no other generated value. A regression test asserts this.
+
+### Fixed
+
+- The methodology, dataset card and model card no longer claim there are no observed outcomes and that expected loss is a proxy.
+
+
 
 Three commits took the project from a synthetic case generator with a mixed validation script to a governed decisioning, model-validation and investigation stack. Numbers stated in the README are generated from `artifacts/validation-summary.json` and `analytics/artifacts/model-summary.json`.
 

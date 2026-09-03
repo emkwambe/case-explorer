@@ -1,22 +1,22 @@
 {
   "manifest": {
     "benchmark_version": "1.0.0",
-    "generated_at": "2026-09-02T18:18:00.257Z",
+    "generated_at": "2026-09-03T06:36:42.707Z",
     "generator_version": "2.0.0",
     "case_schema_version": "2.0.0",
     "ruleset_version": "1.3.0",
     "policy_version": "2.1.0",
     "reason_code_catalog_version": "1.0.0",
     "feature_policy_version": "1.0.0",
-    "generator_commit": "62a7d104e1de970e58f886705668b6dfd6570f6b",
-    "configuration_hash": "sha256:570e1e0c7fda442882594d2d320465d67d3cfe307543719abc5109277a15c692",
+    "generator_commit": "7e5685616da4dfc77b6d38f2745957a89d970450",
+    "configuration_hash": "sha256:e984ec798beee74c88e4a25089df2071c5d9b9cd5acc8cc0471fba2b3f386a7b",
     "seed": "42",
     "as_of_date": "2026-01-15",
     "population_regime": "baseline",
     "record_count": 2000,
     "stratified_record_count": 2250,
     "node_version": "v22.18.0",
-    "duration_seconds": 8.4
+    "duration_seconds": 8.1
   },
   "gates": {
     "passed": true,
@@ -93,12 +93,32 @@
         "status": "PASS"
       },
       {
-        "id": "decision_rule_agreement",
-        "label": "Decision-rule agreement",
-        "layer": "decision",
-        "threshold": 0.95,
+        "id": "outcome_discrimination",
+        "label": "Policy ranks actual defaults (AUC)",
+        "layer": "outcome",
+        "threshold": 0.65,
         "op": ">=",
-        "value": 0.9889,
+        "value": 0.6675,
+        "mandatory": true,
+        "status": "PASS"
+      },
+      {
+        "id": "approval_risk_separation",
+        "label": "Approved pool safer than population",
+        "layer": "outcome",
+        "threshold": 0.5,
+        "op": ">=",
+        "value": 1,
+        "mandatory": true,
+        "status": "PASS"
+      },
+      {
+        "id": "policy_beats_decline_all",
+        "label": "Policy creates value over declining everyone",
+        "layer": "outcome",
+        "threshold": 1,
+        "op": ">=",
+        "value": 1,
         "mandatory": true,
         "status": "PASS"
       },
@@ -197,7 +217,12 @@
     "rule_fraud_recall": 1,
     "rule_fraud_f1": 0.9975,
     "rule_fpr_on_clean": 0.004,
-    "decision_rule_agreement": 0.9889,
+    "policy_discrimination_auc": 0.6675,
+    "approval_risk_separation": 1,
+    "population_bad_rate": 0.0722,
+    "approved_bad_rate": 0,
+    "false_decline_rate": 0.9178,
+    "reference_label_agreement": 0.9889,
     "reason_code_adverse_action_overlap": 0.8979,
     "reason_code_mean_jaccard": 0.8481,
     "prohibited_variable_violations": 0,
@@ -688,6 +713,251 @@
         "decline_rate": 1
       }
     ]
+  },
+  "outcome": {
+    "version": "1.0.0",
+    "n": 4250,
+    "horizon_months": 36,
+    "value_assumptions": {
+      "margin_on_performing": 0.03,
+      "manual_review_cost": 250,
+      "origination_cost": 900
+    },
+    "population": {
+      "bad_rate": 0.0722,
+      "defaults": 307,
+      "total_loss": 36208204,
+      "mean_loss_given_default": 0.2894,
+      "first_payment_defaults": 83
+    },
+    "policy": {
+      "approval_rate": 0.1207,
+      "manual_review_rate": 0.1901,
+      "decline_rate": 0.6892,
+      "approved_bad_rate": 0,
+      "reviewed_bad_rate": 0,
+      "declined_bad_rate": 0.1048,
+      "risk_separation": 1,
+      "discrimination_auc": 0.6675,
+      "false_decline_rate": 0.9178,
+      "decline_only_false_rate": 0.8952
+    },
+    "value": {
+      "book_size": 2000,
+      "book_bad_rate": 0.0255,
+      "book_note": "Portfolio value is computed on the blended population only. The stratified detection set over-samples fraud and would misstate the economics.",
+      "policy": {
+        "funded": 471,
+        "margin_earned": 6430092,
+        "loss_incurred": 0,
+        "origination_cost": 423900,
+        "review_cost": 156000,
+        "net_value": 5850192
+      },
+      "approve_all": {
+        "funded": 2000,
+        "margin_earned": 23857456,
+        "loss_incurred": 5837063,
+        "origination_cost": 1800000,
+        "review_cost": 0,
+        "net_value": 16220393
+      },
+      "decline_all": {
+        "funded": 0,
+        "margin_earned": 0,
+        "loss_incurred": 0,
+        "origination_cost": 0,
+        "review_cost": 0,
+        "net_value": 0
+      },
+      "oracle": {
+        "funded": 1949,
+        "margin_earned": 23857456,
+        "loss_incurred": 0,
+        "origination_cost": 1754100,
+        "review_cost": 0,
+        "net_value": 22103356
+      },
+      "capture_of_ceiling": 0.2647,
+      "beats_approve_all": false,
+      "beats_decline_all": true,
+      "foregone_margin_on_good_declines": 16097164,
+      "loss_avoided_on_declines": 5837063,
+      "net_cost_of_conservatism": 10370201
+    },
+    "by_fraud_type": [
+      {
+        "key": "NONE",
+        "n": 1730,
+        "defaults": 11,
+        "approved": 513,
+        "approved_defaults": 0,
+        "loss": 876281,
+        "bad_rate": 0.0064,
+        "approval_rate": 0.2965,
+        "approved_bad_rate": 0,
+        "mean_loss": 507
+      },
+      {
+        "key": "CONCEALMENT",
+        "n": 420,
+        "defaults": 3,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 348385,
+        "bad_rate": 0.0071,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 829
+      },
+      {
+        "key": "INFLATION",
+        "n": 531,
+        "defaults": 5,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 535880,
+        "bad_rate": 0.0094,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 1009
+      },
+      {
+        "key": "ASSET_SEASONING",
+        "n": 175,
+        "defaults": 1,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 110980,
+        "bad_rate": 0.0057,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 634
+      },
+      {
+        "key": "FABRICATION",
+        "n": 213,
+        "defaults": 8,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 913073,
+        "bad_rate": 0.0376,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 4287
+      },
+      {
+        "key": "OCCUPANCY_MISREPRESENTATION",
+        "n": 172,
+        "defaults": 1,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 42821,
+        "bad_rate": 0.0058,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 249
+      },
+      {
+        "key": "GIFT_FUND_MISREPRESENTATION",
+        "n": 168,
+        "defaults": 2,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 234119,
+        "bad_rate": 0.0119,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 1394
+      },
+      {
+        "key": "INCOHERENT",
+        "n": 162,
+        "defaults": 35,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 4221283,
+        "bad_rate": 0.216,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 26057
+      },
+      {
+        "key": "EVIDENCE_TAMPERING",
+        "n": 344,
+        "defaults": 4,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 287098,
+        "bad_rate": 0.0116,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 835
+      },
+      {
+        "key": "BUST_OUT",
+        "n": 165,
+        "defaults": 140,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 16530416,
+        "bad_rate": 0.8485,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 100184
+      },
+      {
+        "key": "STRAW_BUYER",
+        "n": 170,
+        "defaults": 97,
+        "approved": 0,
+        "approved_defaults": 0,
+        "loss": 12107868,
+        "bad_rate": 0.5706,
+        "approval_rate": 0,
+        "approved_bad_rate": null,
+        "mean_loss": 71223
+      }
+    ],
+    "by_regime": [
+      {
+        "key": "PRIME",
+        "n": 2372,
+        "defaults": 150,
+        "approved": 341,
+        "approved_defaults": 0,
+        "loss": 17943869,
+        "bad_rate": 0.0632,
+        "approval_rate": 0.1438,
+        "approved_bad_rate": 0,
+        "mean_loss": 7565
+      },
+      {
+        "key": "SUBPRIME",
+        "n": 1269,
+        "defaults": 105,
+        "approved": 100,
+        "approved_defaults": 0,
+        "loss": 12178144,
+        "bad_rate": 0.0827,
+        "approval_rate": 0.0788,
+        "approved_bad_rate": 0,
+        "mean_loss": 9597
+      },
+      {
+        "key": "SELF_EMPLOYED",
+        "n": 609,
+        "defaults": 52,
+        "approved": 72,
+        "approved_defaults": 0,
+        "loss": 6086191,
+        "bad_rate": 0.0854,
+        "approval_rate": 0.1182,
+        "approved_bad_rate": 0,
+        "mean_loss": 9994
+      }
+    ],
+    "reference_label_agreement": 0.9889
   },
   "fairness": {
     "version": "1.0.0",

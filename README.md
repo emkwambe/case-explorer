@@ -22,7 +22,7 @@ The system supports the five workflows a lending analytics function actually run
 | Independent validation, fairness and stress testing | Three separate evaluation layers, counterfactual fairness testing, out-of-time and adversarial stress sets. |
 | Governed deployment and performance monitoring | Model registry with lifecycle states and separation of duties, immutable audit events, drift monitoring. |
 
-The central design rule: **world truth is never a decision input.** Rules, models and the underwriting policy read only what a lender receives, which is the application claims, the evidence documents and the submission metadata. World truth exists to label the case and to score detection.
+Two design rules carry the project. **World truth is never a decision input:** rules, models and the underwriting policy read only what a lender receives, which is the application claims, the evidence documents and the submission metadata. **A policy is never graded against another policy:** every case is simulated forward as if the loan were funded, and that observed performance is what the decision is scored on.
 
 ---
 
@@ -58,7 +58,10 @@ _Generated from `artifacts/validation-summary.json` (benchmark seed 42, 2,000 bl
 | Ground-truth reconciliation | 100.0% |
 | Rule-baseline fraud recall / precision | 1.000 / 0.995 |
 | Rule-baseline false-positive rate (clean) | 0.4% |
-| Decision-rule agreement | 98.9% |
+| Policy discrimination on outcomes (AUC) | 0.667 |
+| Population bad rate / approved-pool bad rate | 7.2% / 0.0% |
+| Approved-pool risk separation | 100.0% |
+| False decline rate | 91.8% |
 | Prohibited variables in decision inputs | 0 |
 | Counterfactual fairness invariance | 100.0% |
 | Coordinated-ring recall (network analytics) | 100.0% |
@@ -141,6 +144,8 @@ Eight splits are produced, each with its own manifest recording dataset version,
 
 Four strategies are compared on identical splits: an underwriting rules baseline, logistic regression, random forest, and gradient boosting. The comparison explains why the winner wins rather than reporting that a library was imported.
 
+Each split carries two ground-truth targets. `label__is_fraud` records which typology was actually injected. `label__defaulted` records the simulated outcome. Neither is produced by a policy. The shipped model suite predicts fraud; the default target is exported and not yet modelled.
+
 Because fraud is rare, accuracy is not the headline. The pipeline reports precision, recall, F1, PR-AUC, ROC-AUC, false-positive and false-negative rates, specificity, expected calibration error, Brier score, the confusion matrix, performance by fraud type and by risk regime, and a full threshold sweep. For underwriting outcomes it reports approval, manual-review and decline rates, a bad-rate proxy, expected loss, false-decline rate, review workload and a customer-friction proxy.
 
 A threshold simulator turns those into operational consequences:
@@ -155,15 +160,24 @@ Fraud prevalence, average loss, review cost, false-decline cost, investigation c
 
 ## Validation results
 
-Three independent evaluation layers, deliberately kept separate because they answer different questions.
+Four independent evaluation layers, deliberately kept separate because they answer different questions.
 
 | Layer | Question |
 |---|---|
 | Generator validation | Are the distributions correct, the financial relationships coherent, the evidence consistent, the correlations realistic, the seeds reproducible? |
 | Detection evaluation | Can rules or a model identify the injected fraud, which types are missed, what is the false-positive rate, which evidence supports each alert? |
-| Decision evaluation | Should the case be approved, declined or reviewed, was only permissible data used, are the reason codes accurate, is the decision calibrated to risk? |
+| Decision governance | Was only permissible data used, are the reason codes accurate and adverse-action eligible, does the decision hold up against the reason-code rules? |
+| Outcome evaluation | Did the decision turn out to be right? Does the policy rank real defaults, is the approved pool actually safer, and what does the boundary cost? |
 
-`npm run benchmark` runs all three plus fairness and network analytics, writes `artifacts/` (summary JSON, Markdown report, and CSVs for distributions, correlations, reconciliation, decisions, fairness, counterfactual findings, rule analytics and network clusters), and **exits non-zero when any mandatory release gate fails**. The gates are declared in `src/evaluation/gates.js` and cover ledger invariants, evidence consistency, distribution and correlation tests, reproducibility, required fields, ground-truth reconciliation, decision agreement, prohibited-variable leakage, reason-code governance, counterfactual invariance, scenario-attribute parity and coordinated-ring recall.
+### Grading a policy on outcomes rather than on agreement
+
+Every case is simulated forward over a 36 month horizon using world-truth cash flows, and the resulting performance becomes the label. That simulation reads no policy, no rule and no reason code, so it can grade them. It runs for declined applications too, because without that counterfactual a false decline cannot be measured and a policy that declines everything would look flawless.
+
+Most of the damage from misrepresentation emerges rather than being asserted. An applicant who overstated income is underwritten on the claim but lives on the truth, so their residual income is thinner than the file suggests and they fail more often. Concealed debt is different again: it does not change the borrower's own capacity at all, it changes which borrowers get approved, and the outcome layer measures that as adverse selection into the approved pool.
+
+This replaced a metric that compared the policy against a label the generator's own rule engine produced. That comparison scored 98.9 percent, which looked excellent and meant almost nothing: it measured whether two implementations of similar logic agreed. Graded on outcomes the same policy tells a different story. It achieves a clean approved pool and ranks real defaults, but it declines most applicants who would have paid, and on this population it captures roughly a quarter of the value an oracle could. Label agreement is still reported, as a consistency diagnostic, and is no longer gated.
+
+`npm run benchmark` runs all three plus fairness and network analytics, writes `artifacts/` (summary JSON, Markdown report, and CSVs for distributions, correlations, reconciliation, decisions, fairness, counterfactual findings, rule analytics and network clusters), and **exits non-zero when any mandatory release gate fails**. The gates are declared in `src/evaluation/gates.js` and cover ledger invariants, evidence consistency, distribution and correlation tests, reproducibility, required fields, ground-truth reconciliation, outcome discrimination, approved-pool risk separation, prohibited-variable leakage, reason-code governance, counterfactual invariance, scenario-attribute parity and coordinated-ring recall.
 
 ---
 
@@ -196,8 +210,9 @@ Node and Python versions are pinned in `.nvmrc` and `.python-version`, dependenc
 Stated in full in [docs/methodology/LIMITATIONS.md](docs/methodology/LIMITATIONS.md). The most important ones:
 
 - Most distribution parameters are hand-chosen modelling assumptions, not fitted to real data.
-- Labels are produced by the same generator that produces the cases, so detection performance carries circularity risk. The three-layer split limits it but does not remove it.
-- There are no observed default or loss outcomes, so bad rate and expected loss are proxies.
+- Loan outcomes are simulated, not observed. That removes the circularity of grading a policy against another policy, but the hazard and loss parameters are themselves assumptions, so only the relative ordering of outcomes should be trusted, never the absolute default or loss level.
+- Two typologies, synthetic identity and straw buyer, carry an asserted intent-to-default term rather than an emergent one.
+- The expense model omits several essential household costs, and the down payment consumes nearly all liquid assets, so residual income is more comfortable and post-closing reserves thinner than a real borrower's. Capacity-driven defaults are rarer here than in reality.
 - Fraud typologies are simplified and their metadata signals are separable by construction, which flatters detection.
 - Only mortgage purchase and refinance, with the loan amount fixed at three times stated income. No property, appraisal, LTV or co-borrower modelling.
 - Evidence documents are structured fields, not images or PDFs.
@@ -218,7 +233,9 @@ See [SECURITY.md](SECURITY.md), the [model card](docs/MODEL_CARD.md) and the [da
 - Calibrate the parameter set against the public series named in the parameter-source tables, and reclassify each row from assumption to empirically calibrated as that lands.
 - Add property, appraisal and LTV modelling so occupancy and valuation typologies have a real subject property.
 - Extend network analytics with broker and bank-account entities, and add the remaining typologies listed as not yet implemented in the fraud methodology.
-- Replace the policy-derived label with a simulated performance outcome so bad rate and expected loss stop being proxies.
+- Remove the planted boolean flags so the remaining typologies must be inferred from evidence rather than read from a marker.
+- Calibrate the performance hazard and loss parameters against public mortgage performance series so absolute default levels become credible, not just their ordering.
+- Train a credit-risk model on the default target that the datasets now carry, alongside the existing fraud models.
 - Online scoring for tree models so the API can serve the champion directly instead of falling back to the rule score.
 
 ---

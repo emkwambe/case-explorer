@@ -9,7 +9,9 @@ export const ECONOMICS_VERSION = "1.0.0";
 
 export const DEFAULT_ASSUMPTIONS = Object.freeze({
   fraud_prevalence: null,          // null = use observed prevalence in the scored set
-  average_loss_given_fraud: 0.25,  // share of loan amount lost when fraud is funded (proxy)
+  // Fallback only. When a scored row carries `realized_loss` from the performance
+  // simulation, that measured figure is used instead of this assumption.
+  average_loss_given_fraud: 0.25,
   average_loan_amount: null,       // null = observed mean loan amount
   manual_review_cost: 85,          // cost per reviewed alert (analyst time)
   review_minutes_per_alert: 35,
@@ -41,12 +43,12 @@ export function simulateThreshold(scored, threshold, assumptions = {}) {
   flagged.forEach((s, i) => {
     const w = s.is_fraud ? wFraud : wClean;
     alerts += w;
-    if (!reviewed.has(i)) { if (s.is_fraud) { fn += w; lossMissed += w * (s.loan_amount || meanLoan) * a.average_loss_given_fraud; } else tn += w; return; }
-    if (s.is_fraud) { tp += w; lossAvoided += w * (s.loan_amount || meanLoan) * a.average_loss_given_fraud; } else fp += w;
+    if (!reviewed.has(i)) { if (s.is_fraud) { fn += w; lossMissed += w * lossOf(s, meanLoan, a); } else tn += w; return; }
+    if (s.is_fraud) { tp += w; lossAvoided += w * lossOf(s, meanLoan, a); } else fp += w;
   });
   for (const s of scored) if (s.score < threshold) {
     const w = s.is_fraud ? wFraud : wClean;
-    if (s.is_fraud) { fn += w; lossMissed += w * (s.loan_amount || meanLoan) * a.average_loss_given_fraud; } else tn += w;
+    if (s.is_fraud) { fn += w; lossMissed += w * lossOf(s, meanLoan, a); } else tn += w;
   }
   const reviewedAlerts = Math.min(alerts, capacity);
   const reviewCost = reviewedAlerts * a.manual_review_cost;
@@ -75,6 +77,12 @@ export function thresholdSweep(scored, assumptions = {}, thresholds = defaultThr
 }
 
 export function defaultThresholds() { return Array.from({ length: 19 }, (_, i) => +((i + 1) * 0.05).toFixed(2)); }
+
+/** Measured loss when the performance simulation supplied one, otherwise the assumption. */
+function lossOf(s, meanLoan, a) {
+  if (typeof s.realized_loss === "number") return s.realized_loss;
+  return (s.loan_amount || meanLoan) * a.average_loss_given_fraud;
+}
 
 /** Convert rule alerts to a [0,1] score so the simulator can run on the rule baseline. */
 export function alertsToScore(alerts) {

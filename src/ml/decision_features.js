@@ -229,10 +229,21 @@ export function extractDecisionFeatures(c) {
 
   const labels = {
     case_id: c.id,
+    // Injection ground truth: whether a typology was actually applied. Not policy-derived.
     is_fraud: isFraudCase(c) ? 1 : 0,
     fraud_type: c.meta?.corruption_type ?? "UNKNOWN",
     severity: c.meta?.severity ?? "UNKNOWN",
-    expected_outcome: c.label?.expected_outcome,
+    // Observed outcome ground truth: simulated loan performance if funded. Not policy-derived.
+    defaulted: c.performance?.defaulted ?? null,
+    seriously_delinquent: c.performance?.seriously_delinquent ?? null,
+    first_payment_default: c.performance?.first_payment_default ?? null,
+    performance_status: c.performance?.status ?? null,
+    months_to_default: c.performance?.months_to_default ?? null,
+    realized_loss: c.performance?.realized_loss ?? null,
+    loan_amount: c.application?.loan_amount ?? null,
+    // Reference policy opinion, kept for diagnostics. This one IS policy-derived and must
+    // not be used as a training target.
+    reference_outcome: c.label?.expected_outcome,
     reason_codes: (c.label?.reason_codes || []).join("|"),
     regime: c.truth?.current_state?.regime,
     split_hint: null

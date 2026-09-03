@@ -15,8 +15,15 @@ export const RELEASE_GATES = [
     read: r => r.generator.missing_required_fields.rate },
   { id: "ground_truth_reconciliation", label: "Ground-truth reconciliation", layer: "detection", threshold: 0.97, op: ">=", mandatory: true,
     read: r => r.detection.reconciliation.rate },
-  { id: "decision_rule_agreement", label: "Decision-rule agreement", layer: "decision", threshold: 0.95, op: ">=", mandatory: true,
-    read: r => r.decision.agreement_rate },
+  // The policy is graded against simulated loan performance, which no policy produced.
+  // The old "agreement with the generator's own label" gate is gone: it compared two
+  // implementations of similar logic and could not tell a good policy from a shared mistake.
+  { id: "outcome_discrimination", label: "Policy ranks actual defaults (AUC)", layer: "outcome", threshold: 0.65, op: ">=", mandatory: true,
+    read: r => r.outcome.policy.discrimination_auc },
+  { id: "approval_risk_separation", label: "Approved pool safer than population", layer: "outcome", threshold: 0.5, op: ">=", mandatory: true,
+    read: r => r.outcome.policy.risk_separation },
+  { id: "policy_beats_decline_all", label: "Policy creates value over declining everyone", layer: "outcome", threshold: 1, op: ">=", mandatory: true,
+    read: r => (r.outcome.value.beats_decline_all ? 1 : 0) },
   { id: "permissible_variables", label: "Prohibited variables in decision inputs", layer: "decision", threshold: 0, op: "<=", mandatory: true,
     read: r => r.decision.permissible_variables.violations },
   { id: "reason_code_governance", label: "Declines without adverse-action reason", layer: "decision", threshold: 0, op: "<=", mandatory: true,

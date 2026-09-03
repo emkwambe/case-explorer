@@ -20,7 +20,8 @@ The CSVs and their manifests are gitignored; the counts below come from a run at
 | Task | How the data supports it |
 |---|---|
 | Fraud detection | `label__is_fraud` and `label__fraud_type` over nine injected typologies, with a clean negative control for false-positive measurement |
-| Underwriting decision modelling | `label__expected_outcome` (`APPROVE`, `MANUAL_REVIEW`, `DECLINE`) and `label__reason_codes` from the governed catalog |
+| Credit default modelling | `label__defaulted`, `label__seriously_delinquent`, `label__first_payment_default`, `label__months_to_default` and `label__realized_loss` from the 36-month performance simulation, available for every row including the ones a policy would decline |
+| Underwriting decision analysis | `label__reference_outcome` (`APPROVE`, `MANUAL_REVIEW`, `DECLINE`) and `label__reason_codes` from the governed catalog. Diagnostic only: this is one policy's opinion, not an outcome, and must not be used as a training target |
 | Fairness testing | `sensitive__*` columns, held out of every decision input, supporting subgroup slicing and counterfactual twins |
 | Drift monitoring | Four stress splits generated from the same schema under shifted populations and rate environments, each with its own configuration hash |
 
@@ -36,24 +37,38 @@ Rows are flat CSV. Columns fall into three families, governed by `src/decisionin
 |---|---|---|---|
 | Permitted features | none | `PERMITTED` | Loan terms, claims, evidence values, claim-versus-evidence discrepancies, underwriting ratios and application metadata. 55 columns. These are the only columns a rule or a model may read. |
 | Sensitive attributes | `sensitive__` | `SENSITIVE` | `age`, `age_band`, `region`, `geography_group`, `income_band`, `family_status_scenario`, `disability_income_scenario`, `persona`. Never a decision input; available to fairness testing only. |
-| Labels | `label__` | `PROHIBITED` | `case_id`, `is_fraud`, `fraud_type`, `severity`, `expected_outcome`, `reason_codes` (pipe-joined), `regime`, `split_hint`. Blocked from training and scoring. |
+| Labels | `label__` | `PROHIBITED` | `case_id`, `is_fraud`, `fraud_type`, `severity`, `defaulted`, `seriously_delinquent`, `first_payment_default`, `performance_status`, `months_to_default`, `realized_loss`, `loan_amount`, `reference_outcome`, `reason_codes` (pipe-joined), `regime`, `split_hint`. Blocked from decision inputs, scoring and rules. |
 
 Discrepancy columns are claim-versus-evidence only. Anything computed against world truth is prohibited leakage and is rejected at runtime by `enforceFeaturePolicy` in strict mode, which is also what the `permissible_variables` release gate checks. `label__is_fraud` is 1 for the nine fraud typologies and 0 for both `NONE` and `INCOHERENT`, since the incoherent split is a negative control for impossible worlds rather than for deception.
+
+### Three kinds of label
+
+The `label__` family mixes three things that must not be confused. Only the first two are legitimate modelling targets.
+
+| Kind | Columns | What it is | Usable as a target |
+|---|---|---|---|
+| Injection ground truth | `is_fraud`, `fraud_type`, `severity` | Which typology the generator actually applied to the case, recorded back. Nothing infers it; it is the instruction that was executed. | Yes. This is what the shipped model suite is trained on. |
+| Observed outcome ground truth | `defaulted`, `seriously_delinquent`, `first_payment_default`, `performance_status`, `months_to_default`, `realized_loss` | Simulated loan performance over 36 months from `src/simulation/performance.js`, computed on world-truth cash flows without reading the policy, the rules or the findings, and computed for every case including those a policy would decline. | Yes, for credit-default modelling. Simulated, not real: see the limitations below. |
+| Reference policy opinion | `reference_outcome`, `reason_codes` | What the generator's own rule engine (`computeDecision`) thought the decision should be. It is derived from a policy, so training on it teaches a model to imitate that policy, including its mistakes. | No. Diagnostic only. |
+
+`label__loan_amount` is carried alongside so realised loss can be expressed as a share; it duplicates the permitted `loan_amount` feature. The `expected_outcome` column of earlier dataset builds is now `reference_outcome`, and the manifest key `outcomes` is now `reference_outcomes`, so that the name states what it is.
 
 The feature policy itself is exported to `analytics/data/feature_policy.json` and the ruleset to `analytics/data/fraud_rules.json`, so the Python layer enforces the same rules as the JavaScript layer.
 
 ## The eight splits
 
-| Split | Records | Fraud rate | Population regime | As-of | Seed | What it stresses |
-|---|---|---|---|---|---|---|
-| `train` | 3,598 | 0.1882 | baseline | 2026-01-15 | `42` | Model fitting. Deterministic SHA-1 hash split of the baseline population, 60/20/20 by case id. |
-| `validation` | 1,155 | 0.1810 | baseline | 2026-01-15 | `42` | Threshold selection and model choice, disjoint from train by construction. |
-| `test` | 1,247 | 0.1989 | baseline | 2026-01-15 | `42` | Held-out reporting on the population the model was fitted to. |
-| `out_of_time` | 1,500 | 0.1980 | out-of-time rate shock | 2026-07-15 | `42-oot` | Temporal drift: originations six months later with a +150bp mortgage-rate shock, which raises PITI and back-end DTI for the same borrower. |
-| `geography_stress` | 1,500 | 0.1980 | high-cost markets | 2026-01-15 | `42-geo` | Covariate shift: 70 percent of applicants drawn from high-cost markets, moving salary, rent and balance multipliers together. |
-| `economic_regime_stress` | 1,500 | 0.2107 | subprime-heavy rate shock | 2026-01-15 | `42-regime` | Population and rate shift together: 60 percent subprime under a +200bp rate shock. The hardest split for the current champion. |
-| `adversarial_fraud` | 1,500 | 0.1033 | adversarial placement | 2026-01-15 | `42-adv` | Fraud injected where it is hardest to distinguish from legitimate marginal applicants (income inflation near the DTI boundary, concealment above it, fabrication at low scores). |
-| `clean_negative_control` | 750 | 0.0000 | clean only | 2026-01-15 | `42-clean` | No corruption of any kind. Every alert on this split is a false positive. |
+Bad rate is the share of rows whose simulated 36-month performance ends in default. It is read from the `bad_rate` field of each split manifest.
+
+| Split | Records | Fraud rate | Bad rate | Population regime | As-of | Seed | What it stresses |
+|---|---|---|---|---|---|---|---|
+| `train` | 3,598 | 0.1882 | 0.0222 | baseline | 2026-01-15 | `42` | Model fitting. Deterministic SHA-1 hash split of the baseline population, 60/20/20 by case id. |
+| `validation` | 1,155 | 0.1810 | 0.0225 | baseline | 2026-01-15 | `42` | Threshold selection and model choice, disjoint from train by construction. |
+| `test` | 1,247 | 0.1989 | 0.0329 | baseline | 2026-01-15 | `42` | Held-out reporting on the population the model was fitted to. |
+| `out_of_time` | 1,500 | 0.1980 | 0.0360 | out-of-time rate shock | 2026-07-15 | `42-oot` | Temporal drift: originations six months later with a +150bp mortgage-rate shock, which raises PITI and back-end DTI for the same borrower. |
+| `geography_stress` | 1,500 | 0.1980 | 0.0260 | high-cost markets | 2026-01-15 | `42-geo` | Covariate shift: 70 percent of applicants drawn from high-cost markets, moving salary, rent and balance multipliers together. |
+| `economic_regime_stress` | 1,500 | 0.2107 | 0.0400 | subprime-heavy rate shock | 2026-01-15 | `42-regime` | Population and rate shift together: 60 percent subprime under a +200bp rate shock. The hardest split for the current champion. |
+| `adversarial_fraud` | 1,500 | 0.1033 | 0.0180 | adversarial placement | 2026-01-15 | `42-adv` | Fraud injected where it is hardest to distinguish from legitimate marginal applicants (income inflation near the DTI boundary, concealment above it, fabrication at low scores). |
+| `clean_negative_control` | 750 | 0.0000 | 0.0040 | clean only | 2026-01-15 | `42-clean` | No corruption of any kind. Every alert on this split is a false positive. |
 
 ## Data collection
 
@@ -66,19 +81,24 @@ The generation process, per case:
 3. A claimed application is deep-copied from that truth, then a corruption operator may mutate the claim, the evidence or the world itself.
 4. Evidence documents are synthesised from the ledger (W-2, employer verification, bank statement, credit bureau, rent verification, geographic verification) with per-document fidelity noise, then typology-specific evidence effects are applied.
 5. Application metadata is drawn from either a clean or a signalled regime.
-6. `extractDecisionFeatures` projects the case down to the underwriter-visible row written to CSV.
+6. The loan is simulated forward for 36 months on world truth, on its own random stream, producing the performance record that carries the outcome labels.
+7. `extractDecisionFeatures` projects the case down to the underwriter-visible row written to CSV.
 
 Everything is seeded. A given seed and configuration reproduce the identical corpus, which is what the `reproducibility` release gate verifies.
 
-Each split writes `analytics/data/<split>.manifest.json` carrying the dataset version, generator version, case schema version, feature schema version, ruleset version, generator commit, a SHA-256 configuration hash, the seed, the as-of date, record and fraud counts by typology, outcome counts and a SHA-256 of the CSV file. The index at `analytics/data/datasets.manifest.json` collects them. Metrics are only comparable across runs that share the dataset version, configuration hash and generator commit.
+Each split writes `analytics/data/<split>.manifest.json` carrying the dataset version, generator version, case schema version, feature schema version, ruleset version, generator commit, a SHA-256 configuration hash, the seed, the as-of date, record and fraud counts by typology, the outcome fields `default_count`, `bad_rate` and `total_realized_loss`, the diagnostic `reference_outcomes` counts, and a SHA-256 of the CSV file. The index at `analytics/data/datasets.manifest.json` collects them. Metrics are only comparable across runs that share the dataset version, configuration hash and generator commit.
 
 ## Annotation
 
-There are no human annotations and no observed outcomes.
+There are no human annotations. Labels come from three separate mechanisms, described in "Three kinds of label" above.
 
-`label__expected_outcome`, `label__reason_codes`, `label__is_fraud` and the alignment level are produced by the generator's own decision engine (`computeDecision` in `src/core/findings.js`), which reads the corruption type and world truth directly. `label__fraud_type` and `label__severity` are simply the injection parameters recorded back.
+**Injection ground truth.** `label__fraud_type` and `label__severity` are the injection parameters recorded back, and `label__is_fraud` is 1 for the nine fraud typologies. Nothing infers them from the data. A model trained on `label__is_fraud` learns to recover a documented injection mechanism, not to detect real fraud; section 5 of `docs/methodology/LIMITATIONS.md` explains why the application-metadata design makes that mechanism unusually easy to recover.
 
-These are policy-derived labels, not outcomes. No case has a repayment history, delinquency, default or loss. A model trained here learns to recover a documented injection mechanism, not to predict a real event. Section 6 of `docs/methodology/LIMITATIONS.md` sets out the circularity this creates between the labels and the rule baseline that was written against the same operators.
+**Observed outcome ground truth.** `label__defaulted`, `label__seriously_delinquent`, `label__first_payment_default`, `label__performance_status`, `label__months_to_default` and `label__realized_loss` come from `simulateLoanPerformance` (`src/simulation/performance.js`). Each case is run forward for 36 months as if the loan were funded, on world-truth income, obligations and reserves, with a job-loss hazard, an expense shock and a loss-given-default model on a simulated home-price path. Three consecutive missed payments is the default trigger. The simulation never reads the policy, the rules, the reason codes or the findings, and it runs for declined applications too, so false declines are measurable. Two typologies, `BUST_OUT` and `STRAW_BUYER`, additionally carry an explicit intent-to-default probability, which is a stated modelling assumption about intent rather than an emergent result; every other typology gets its damage from the gap between the claim the lender underwrites and the truth the household lives on. Full mechanics are in section 13 of `docs/methodology/STATISTICAL_ASSUMPTIONS.md`, parameters in the `performance` section of `docs/methodology/PARAMETER_SOURCES.md`.
+
+These outcomes are simulated, not observed in the real world. No case has a repayment history from a real borrower, and the hazard and loss parameters are assumptions, so absolute default and loss levels are not credible; only the relative ordering carries information.
+
+**Reference policy opinion.** `label__reference_outcome`, `label__reason_codes` and the alignment level are produced by the generator's own decision engine (`computeDecision` in `src/core/findings.js`), which reads the corruption type and world truth directly. These are one policy's opinion, not an outcome, and are kept for diagnostics only. Training on them teaches a model to imitate the labelling policy; section 6 of `docs/methodology/LIMITATIONS.md` sets out the circularity that creates with the rule baseline, which was written against the same operators. Policy evaluation no longer uses them as a target: agreement with the reference label is reported as a consistency diagnostic (0.9889 on the current corpus) and is not gated.
 
 ## Personal and sensitive information
 
@@ -108,8 +128,8 @@ The full statement is `docs/methodology/LIMITATIONS.md`. The points that most af
 - No property, appraisal, LTV or down payment applied to the loan.
 - One applicant per case; no co-borrowers or household structure.
 - Application metadata is separable by construction, so metadata features will dominate any model trained here and any measured lift from device or behavioural signals is an artefact of the injection design.
-- Labels are policy-derived and circular with the rule baseline.
-- No observed outcomes, so bad rate and expected loss are proxies that cannot be validated.
+- `label__reference_outcome` and `label__reason_codes` are policy-derived and circular with the rule baseline; they are diagnostics, not targets.
+- Outcome labels are simulated, not observed. They remove the circularity of grading a policy against another policy, but the hazard and loss parameters are assumptions, so absolute default and loss levels are not credible and only the relative ordering should be trusted. Sections 7 to 10 of `docs/methodology/LIMITATIONS.md` state this in full, along with the thin post-closing reserves, the incomplete expense model, and the two typologies whose default is asserted rather than emergent.
 - Evidence documents are structured JSON fields, not images or PDFs, so nothing here supports document forensics or OCR work.
 
 ## Licensing and citation

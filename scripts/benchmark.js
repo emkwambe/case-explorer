@@ -28,6 +28,7 @@ import { evaluateGeneratorQuality } from "../src/evaluation/generator-quality/in
 import { evaluateDetection } from "../src/evaluation/detection/index.js";
 import { evaluateDecisions } from "../src/evaluation/decision/index.js";
 import { evaluateFairness } from "../src/evaluation/fairness/index.js";
+import { evaluateOutcomes } from "../src/evaluation/outcome/index.js";
 import { evaluateGates } from "../src/evaluation/gates.js";
 import { injectFraudRings } from "../src/simulation/rings.js";
 import { analyzeNetwork, evaluateNetworkDetection } from "../src/analytics/network.js";
@@ -95,13 +96,16 @@ export async function runBenchmark(args) {
   log(args, "Fairness: subgroup + counterfactual...");
   const fairness = evaluateFairness(population, config, { maxCounterfactualCases: 300 });
 
+  log(args, "Outcome evaluation: policy against simulated loan performance...");
+  const outcome = evaluateOutcomes(union, config, { portfolioIds: new Set(population.map(c => c.id)) });
+
   log(args, "Network analytics: ring injection + entity linkage...");
   const ringPopulation = JSON.parse(JSON.stringify(population));
   const rings = injectFraudRings(ringPopulation, { seed: `${args.seed}-rings`, ringCount: Math.max(3, Math.floor(population.length / 400)) });
   const networkAnalysis = analyzeNetwork(ringPopulation);
   const network = { ...evaluateNetworkDetection(ringPopulation, networkAnalysis), rings_injected_detail: rings.map(r => ({ ring_id: r.ring_id, size: r.size })), summary: networkAnalysis.summary };
 
-  const results = { generator, detection, decision, fairness, network };
+  const results = { generator, detection, decision, outcome, fairness, network };
   const gates = evaluateGates(results);
 
   const manifest = {
@@ -140,7 +144,12 @@ export async function runBenchmark(args) {
       rule_fraud_recall: detection.overall.recall,
       rule_fraud_f1: detection.overall.f1,
       rule_fpr_on_clean: detection.fpr_on_clean,
-      decision_rule_agreement: decision.agreement_rate,
+      policy_discrimination_auc: outcome.policy.discrimination_auc,
+      approval_risk_separation: outcome.policy.risk_separation,
+      population_bad_rate: outcome.population.bad_rate,
+      approved_bad_rate: outcome.policy.approved_bad_rate,
+      false_decline_rate: outcome.policy.false_decline_rate,
+      reference_label_agreement: decision.agreement_rate,
       reason_code_adverse_action_overlap: decision.reason_codes.adverse_action_overlap_rate,
       reason_code_mean_jaccard: decision.reason_codes.mean_jaccard,
       prohibited_variable_violations: decision.permissible_variables.violations,
@@ -153,6 +162,7 @@ export async function runBenchmark(args) {
     generator: { ...generator, distribution_tests: undefined, correlation_results: undefined },
     detection: { ...detection, by_rule: undefined },
     decision: { ...decision, rows: undefined },
+    outcome: { ...outcome, rows: undefined },
     fairness: { ...fairness, subgroups: undefined }
   };
 
@@ -169,13 +179,14 @@ export async function runBenchmark(args) {
     ...detection.by_fraud_type.map(r => ({ scope: "fraud_type_alert_rate", key: r.fraud_type, total: r.n, recovered: r.alerted, rate: r.alert_rate }))
   ], ["scope", "key", "total", "recovered", "rate"]));
   write("decision-results.csv", toCsv(decision.rows));
+  write("outcome-results.csv", toCsv(outcome.rows));
   write("fairness-results.csv", toCsv(fairness.subgroups));
   write("counterfactual-findings.csv", toCsv(fairness.counterfactual.findings, ["case_id", "attribute", "from", "to", "base_outcome", "alt_outcome", "base_codes", "alt_codes", "severity"]));
   write("rule-analytics.csv", toCsv(detection.by_rule));
   write("network-results.csv", toCsv(networkAnalysis.clusters.map(c => ({ cluster_id: c.cluster_id, size: c.size, risk: c.risk, linking_entity_types: c.linking_entity_types.join("|"), density: c.density, cases: c.cases.join("|") })), ["cluster_id", "size", "risk", "linking_entity_types", "density", "cases"]));
-  write("validation-report.md", renderReport(summary, generator, detection, decision, fairness, gates));
+  write("validation-report.md", renderReport(summary, generator, detection, decision, outcome, fairness, gates));
 
-  if (args.verbose) printVerbose(generator, detection, decision, fairness);
+  if (args.verbose) printVerbose(generator, detection, decision, outcome, fairness);
   printGates(gates);
   console.log(`\nArtifacts written to ${path.relative(ROOT, outDir) || "."}/ (${manifest.duration_seconds}s)`);
   return { summary, gates, outDir };
@@ -189,7 +200,7 @@ function printGates(gates) {
   console.log(gates.passed ? "ALL MANDATORY GATES PASSED" : `GATE FAILURES: ${gates.failed_ids.join(", ")}`);
 }
 
-function printVerbose(generator, detection, decision, fairness) {
+function printVerbose(generator, detection, decision, outcome, fairness) {
   console.log("\n=== Distribution Tests ==="); console.table(generator.distribution_tests.map(({ detail: _d, ...r }) => r));
   console.log("\n=== Correlation Results ==="); console.table(generator.correlation_results);
   console.log("\n=== Ledger Invariants ==="); console.table(generator.ledger_invariants.rows);
@@ -198,7 +209,10 @@ function printVerbose(generator, detection, decision, fairness) {
   console.log("\n=== Detection by Fraud Type ==="); console.table(detection.by_fraud_type.map(({ missed_examples: _m, ...r }) => r));
   console.log("\n=== Ground-truth Reconciliation ==="); console.table(detection.reconciliation.by_type);
   console.log("\n=== Rule Analytics ==="); console.table(detection.by_rule.map(r => ({ rule: r.rule_id, sev: r.severity, alerts: r.alerts, tp: r.true_positives, fp: r.false_positives, precision: r.precision, target_recall: r.target_recall, fp_rate_clean: r.customer_impact_fp_rate })));
-  console.log("\n=== Decision Agreement ==="); console.table(decision.by_fraud_type); console.log(decision.confusion); console.table([decision.reason_codes]);
+  console.log("\n=== Outcome-grounded policy evaluation ==="); console.table([outcome.policy]); console.table([outcome.population]);
+  console.log("\n=== Portfolio value vs baselines ==="); console.table({ policy: outcome.value.policy, approve_all: outcome.value.approve_all, decline_all: outcome.value.decline_all, oracle: outcome.value.oracle });
+  console.log("\n=== Outcome by fraud type ==="); console.table(outcome.by_fraud_type);
+  console.log("\n=== Reference-label agreement (diagnostic, not a gate) ==="); console.table(decision.by_fraud_type); console.table([decision.reason_codes]);
   console.log("\n=== Calibration by credit band (clean) ==="); console.table(decision.calibration_by_credit_band);
   console.log("\n=== Fairness ==="); console.table(fairness.subgroups.map(({ top_reason_codes: _t, ...r }) => r)); console.table([fairness.counterfactual]);
 }
@@ -206,7 +220,7 @@ function printVerbose(generator, detection, decision, fairness) {
 function pct(x) { return x === null || x === undefined ? "n/a" : `${(x * 100).toFixed(1)}%`; }
 function num(x, d = 3) { return x === null || x === undefined ? "n/a" : Number(x).toFixed(d); }
 
-function renderReport(summary, generator, detection, decision, fairness, gates) {
+function renderReport(summary, generator, detection, decision, outcome, fairness, gates) {
   const network = summary.network;
   const m = summary.manifest;
   const h = summary.headline;
@@ -223,6 +237,9 @@ function renderReport(summary, generator, detection, decision, fairness, gates) 
   lines.push(`| Reproducibility | ${pct(h.reproducibility)} |`);
   lines.push(`| Missing required fields | ${pct(h.missing_required_fields)} |`);
   lines.push(`| Ground-truth reconciliation | ${pct(h.ground_truth_reconciliation)} |`);
+  lines.push(`| Policy discrimination on outcomes (AUC) | ${num(h.policy_discrimination_auc)} |`);
+  lines.push(`| Approved-pool risk separation | ${pct(h.approval_risk_separation)} |`);
+  lines.push(`| Population bad rate / approved bad rate | ${pct(h.population_bad_rate)} / ${pct(h.approved_bad_rate)} |`);
   lines.push(`| Rule-baseline fraud precision / recall / F1 | ${num(h.rule_fraud_precision)} / ${num(h.rule_fraud_recall)} / ${num(h.rule_fraud_f1)} |`);
   lines.push(`| Rule-baseline false-positive rate (clean) | ${pct(h.rule_fpr_on_clean)} |`);
   lines.push(`| Decision-rule agreement | ${pct(h.decision_rule_agreement)} |`);
@@ -258,6 +275,26 @@ function renderReport(summary, generator, detection, decision, fairness, gates) 
   lines.push(``, `| DTI band (clean) | n | Approval rate | Decline rate |`, `|---|---|---|---|`);
   for (const r of decision.calibration_by_dti_band) lines.push(`| ${r.dti_band} | ${r.n} | ${pct(r.approval_rate)} | ${pct(r.decline_rate)} |`);
 
+  lines.push(``, `## Outcome-grounded policy evaluation`, ``, `The policy is graded against simulated loan performance, which no policy produced. Every case is simulated as if funded, including the ones the policy declines, so a false decline is measurable. This replaces the old "agreement with the generator's own label" metric, which compared two implementations of similar logic and could not tell a good policy from a shared mistake.`, ``);
+  lines.push(`| Measure | Value |`, `|---|---|`,
+    `| Horizon | ${outcome.horizon_months} months |`,
+    `| Population bad rate | ${pct(outcome.population.bad_rate)} (${outcome.population.defaults} defaults) |`,
+    `| Mean loss given default | ${pct(outcome.population.mean_loss_given_default)} |`,
+    `| Approval / review / decline | ${pct(outcome.policy.approval_rate)} / ${pct(outcome.policy.manual_review_rate)} / ${pct(outcome.policy.decline_rate)} |`,
+    `| Approved-pool bad rate | ${pct(outcome.policy.approved_bad_rate)} |`,
+    `| Risk separation | ${num(outcome.policy.risk_separation)} |`,
+    `| Discrimination (AUC of policy severity vs default) | ${num(outcome.policy.discrimination_auc)} |`,
+    `| False decline rate | ${pct(outcome.policy.false_decline_rate)} |`);
+  lines.push(``, `### Portfolio value on the blended book (${outcome.value.book_size.toLocaleString()} cases, bad rate ${pct(outcome.value.book_bad_rate)})`, ``,
+    `| Strategy | Funded | Margin | Loss | Net value |`, `|---|---|---|---|---|`,
+    `| Policy | ${outcome.value.policy.funded} | ${outcome.value.policy.margin_earned.toLocaleString()} | ${outcome.value.policy.loss_incurred.toLocaleString()} | ${outcome.value.policy.net_value.toLocaleString()} |`,
+    `| Approve everyone | ${outcome.value.approve_all.funded} | ${outcome.value.approve_all.margin_earned.toLocaleString()} | ${outcome.value.approve_all.loss_incurred.toLocaleString()} | ${outcome.value.approve_all.net_value.toLocaleString()} |`,
+    `| Decline everyone | 0 | 0 | 0 | 0 |`,
+    `| Oracle (funds only what performs) | ${outcome.value.oracle.funded} | ${outcome.value.oracle.margin_earned.toLocaleString()} | 0 | ${outcome.value.oracle.net_value.toLocaleString()} |`);
+  lines.push(``, `The policy captures ${pct(outcome.value.capture_of_ceiling)} of the achievable value. It avoids ${outcome.value.loss_avoided_on_declines.toLocaleString()} of loss and forgoes ${outcome.value.foregone_margin_on_good_declines.toLocaleString()} of margin on applicants who would have paid. Against funding everyone the net cost of that conservatism is ${outcome.value.net_cost_of_conservatism.toLocaleString()}.`);
+  lines.push(``, `| Typology | n | Bad rate | Approval rate | Approved bad rate | Mean loss |`, `|---|---|---|---|---|---|`);
+  for (const t of outcome.by_fraud_type) lines.push(`| ${t.key} | ${t.n} | ${pct(t.bad_rate)} | ${pct(t.approval_rate)} | ${t.approved_bad_rate === null ? "n/a" : pct(t.approved_bad_rate)} | ${t.mean_loss.toLocaleString()} |`);
+  lines.push(``, `Reference-label agreement is ${pct(outcome.reference_label_agreement)}. That figure is a consistency diagnostic between the reference labeller and the policy. It is reported, not gated: agreement with another policy says nothing about whether either is right.`);
   lines.push(``, `## Fairness controls — ${fairness.status}`, ``, `> ${fairness.disclaimer}`, ``);
   lines.push(`Counterfactual pairs: ${fairness.counterfactual.pairs} tested on ${fairness.counterfactual.cases_tested} cases; unchanged ${fairness.counterfactual.unchanged}; **changed ${fairness.counterfactual.changed}**.`, ``);
   lines.push(`| Attribute | Class | Group | n | Approval | Review | Decline | Selection ratio | FPR | FNR |`, `|---|---|---|---|---|---|---|---|---|---|`);

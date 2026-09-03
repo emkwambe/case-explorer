@@ -21,6 +21,7 @@ export const REQUIRED_CASE_PATHS = [
   "presentation.current_state.salary", "presentation.current_state.backend_dti",
   "evidence", "alignment_findings", "ground_truth_findings",
   "label.expected_outcome", "label.reason_codes", "label.alignment_level", "label.fraud_risk_level",
+  "performance.status", "performance.defaulted", "performance.realized_loss", "performance.horizon_months",
   "meta.generator_version", "meta.corruption_type"
 ];
 const NON_EMPTY_ARRAYS = new Set(["evidence", "alignment_findings", "application_metadata.documents", "truth.current_state.monthly_ledger"]);

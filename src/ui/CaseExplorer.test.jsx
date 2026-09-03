@@ -91,6 +91,23 @@ describe("CaseExplorer", () => {
     expect(screen.getByText(/Not a SAR determination/)).toBeInTheDocument();
   });
 
+  it("shows the observed outcome and names it as unavailable at decision time", async () => {
+    render(<CaseExplorer />);
+    const bustOut = buildInitialCases().find((c) => c.meta.corruption_type === "BUST_OUT");
+    await userEvent.click(screen.getByText(bustOut.applicant.name));
+    await openTab("Outcome");
+    expect(await screen.findByText(/never has this at decision time/)).toBeInTheDocument();
+    expect(screen.getByText("Realised loss")).toBeInTheDocument();
+    // The rendered status must be the simulated one, not anything the policy produced.
+    // "Outcome" also names the tab, so anchor on the metric card's own subtitle instead.
+    const card = screen.getByText(/of \d+ payments made/).closest("div").parentElement;
+    expect(card.textContent).toMatch(new RegExp(bustOut.performance.status, "i"));
+    // A declined loan that would have defaulted is a loss avoided, not a false decline.
+    if (bustOut.performance.status === "DEFAULT") {
+      expect(screen.getByText(/Loss avoided|realised loss/i)).toBeInTheDocument();
+    }
+  });
+
   it("simulates decision economics and moves the optimal threshold with the assumptions", async () => {
     render(<CaseExplorer />);
     await openTab("Economics");

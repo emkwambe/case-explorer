@@ -1,19 +1,19 @@
 {
   "benchmark_version": "1.0.0",
-  "generated_at": "2026-09-02T18:18:00.257Z",
+  "generated_at": "2026-09-03T06:36:42.707Z",
   "generator_version": "2.0.0",
   "case_schema_version": "2.0.0",
   "ruleset_version": "1.3.0",
   "policy_version": "2.1.0",
   "reason_code_catalog_version": "1.0.0",
   "feature_policy_version": "1.0.0",
-  "generator_commit": "62a7d104e1de970e58f886705668b6dfd6570f6b",
-  "configuration_hash": "sha256:570e1e0c7fda442882594d2d320465d67d3cfe307543719abc5109277a15c692",
+  "generator_commit": "7e5685616da4dfc77b6d38f2745957a89d970450",
+  "configuration_hash": "sha256:e984ec798beee74c88e4a25089df2071c5d9b9cd5acc8cc0471fba2b3f386a7b",
   "seed": "42",
   "as_of_date": "2026-01-15",
   "population_regime": "baseline",
   "record_count": 2000,
   "stratified_record_count": 2250,
   "node_version": "v22.18.0",
-  "duration_seconds": 8.4
+  "duration_seconds": 8.1
 }

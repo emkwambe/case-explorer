@@ -4,7 +4,7 @@ Case Explorer is a mortgage risk simulation, fraud analytics and model-validatio
 
 ![Architecture](images/architecture.svg)
 
-## The central rule
+## The two central rules
 
 Generation produces three layers plus metadata:
 
@@ -15,8 +15,11 @@ Generation produces three layers plus metadata:
 | Evidence | The six documents a lender receives | Decisioning |
 | Submission metadata | Device, network, behaviour, document ages | Decisioning |
 | Audit attributes | Sensitive evaluation attributes | Fairness testing only |
+| Performance | Simulated loan outcome if funded | Outcome evaluation and model targets only |
 
-`src/ml/decision_features.js` builds the underwriter-visible view. `src/decisioning/policies/feature_policy.js` classifies every field as permitted, sensitive or prohibited and throws at runtime if a prohibited field reaches a model. Prohibited covers everything derived from world truth, every label, and identity.
+`src/ml/decision_features.js` builds the underwriter-visible view. `src/decisioning/policies/feature_policy.js` classifies every field as permitted, sensitive or prohibited and throws at runtime if a prohibited field reaches a model. Prohibited covers everything derived from world truth, every label, identity, and every field of the performance simulation, which is information about the future.
+
+The second rule is that a policy is never graded against another policy. `src/simulation/performance.js` simulates each case forward as if the loan were funded, reading world-truth cash flows and no policy, rule or reason code. `src/evaluation/outcome/index.js` grades the underwriting policy on that outcome: does policy severity rank real defaults, is the approved pool safer than the population, how many rejected applicants would have paid, and what is the portfolio worth against approve-all, decline-all and an oracle. Performance is simulated for declined cases too, so a false decline is measurable.
 
 ## Request and evaluation flows
 
@@ -45,15 +48,19 @@ flowchart LR
   subgraph ev[Evaluation]
     G1[generator quality]
     G2[detection]
-    G3[decision]
+    G3[decision governance]
+    G4[outcome]
     F[fairness]
     GT[release gates]
   end
-  T -.labels only.-> G2
-  T -.labels only.-> G3
+  T --> PERF[performance simulation]
+  PERF -.observed label.-> G4
+  T -.injection label only.-> G2
   A -.fairness only.-> F
   P --> G3
+  P --> G4
   R --> G2
+  G4 --> GT
   G1 --> GT
   G2 --> GT
   G3 --> GT
@@ -66,9 +73,9 @@ flowchart LR
 |---|---|
 | `src/core/` | Life-script generation, corruption operators, evidence synthesis, application metadata, sensitive audit attributes, alignment and ground-truth findings, the labelling decision engine |
 | `src/utils/` | Seeded PRNG (Mulberry32 with FNV-1a hashing), distributions, copula helpers |
-| `src/simulation/` | Coordinated-ring injection at batch level |
+| `src/simulation/` | Coordinated-ring injection at batch level, and the loan-performance simulation that produces the observed outcome label |
 | `src/decisioning/` | Fraud-rule catalog, underwriting policy, reason-code catalog, feature policy, investigation workflow, end-to-end scoring and explanation |
-| `src/evaluation/` | Three evaluation layers, fairness, decision economics, shared statistics, release gates |
+| `src/evaluation/` | Four evaluation layers (generator quality, detection, decision governance, outcome), fairness, decision economics, shared statistics, release gates |
 | `src/ml/` | Decision view and permitted feature rows, legacy diagnostic feature extraction |
 | `src/analytics/` | Entity and network analytics over devices, IPs, addresses, employers, documents |
 | `src/governance/` | Hash-chained immutable audit events |

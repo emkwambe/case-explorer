@@ -25,6 +25,18 @@ cd analytics && python -m case_analytics.pipeline --data data --out artifacts
 
 Challengers evaluated in the same run: `rules_baseline` v1.3.0 (deterministic rules), `logistic_regression` v1.0.0 (scikit-learn), `gradient_boosting` v1.0.0 (LightGBM).
 
+## Available targets
+
+The governed splits carry two distinct label families that can be modelled, and one that cannot.
+
+| Target | Column | Kind of truth | Status |
+|---|---|---|---|
+| Fraud detection | `label__is_fraud` (with `label__fraud_type`) | Injection ground truth: which typology the generator actually applied | Modelled. Every metric in this card is from this target. |
+| Credit default | `label__defaulted` (with `label__seriously_delinquent`, `label__first_payment_default`, `label__months_to_default`, `label__realized_loss`) | Observed outcome ground truth: 36-month simulated loan performance from `src/simulation/performance.js`, computed on world truth for every case including declined ones | Available, not yet modelled by this pipeline. |
+| Reference policy opinion | `label__reference_outcome`, `label__reason_codes` | What the generator's own rule engine thought the decision should be | Not a target. Diagnostic only. |
+
+**The shipped model suite predicts injected fraud, not default.** No model in the registry is trained on `label__defaulted`, none of the metrics below says anything about credit risk, and no default model has been fitted, validated or approved. The default target exists in the data and in the split manifests (`bad_rate`, `default_count`, `total_realized_loss`) and is open for future work.
+
 ## Intended use
 
 The suite is fraud triage support on **synthetic** mortgage applications, for research and portfolio demonstration. Its purposes are:
@@ -42,7 +54,7 @@ The following uses are explicitly out of scope and are not supported by any evid
 - any real lending decision, pricing, pre-screening or account action;
 - adverse action against a real person, or any input to an adverse-action notice;
 - any production credit or fraud decisioning system;
-- credit-risk modelling, loss forecasting or capital work, since no case has an observed repayment outcome.
+- credit-risk modelling, loss forecasting or capital work. The dataset now carries a simulated default outcome, but it is generated from assumed hazard and loss parameters and no model here is fitted to it.
 
 The model has never been evaluated on real data and no result here transfers to a real applicant population.
 
@@ -180,8 +192,8 @@ The reason-code mapping is what connects a score to a decision explanation. It c
 ## Caveats and recommendations
 
 1. **The task is near-separable on synthetic data.** Every model in the suite scores above 0.97 test PR-AUC, including the deterministic rules baseline at 0.976. The champion ranking rests on a 0.006 margin over logistic regression and 0.002 over gradient boosting. Do not read the ranking as evidence that random forests are better for fraud detection; it is evidence that this generated task is easy and that the four strategies agree.
-2. **Labels are policy-derived, from the same generator.** `label.expected_outcome` and the fraud label come from `computeDecision`, which reads the corruption type and world truth directly, and the fraud rules were written against the same corruption operators with matching thresholds. This is circularity risk: measured precision and recall report agreement between two hand-written descriptions of one injection mechanism, not detection performance on real fraud. Section 6 of `docs/methodology/LIMITATIONS.md` states this in full.
-3. **No observed outcomes exist, so expected loss is a proxy.** No case has repayment history, delinquency, default, loss given default or prepayment. Bad rate means the share of cases carrying a fraud typology or a decline label, and expected loss means a loan amount multiplied by an assumed rate. The 470,820 USD figure above is arithmetic on assumptions, not a measured loss.
+2. **The fraud label is injection truth, and the rule baseline was written against the same operators.** `label__is_fraud` and `label__fraud_type` are not policy-derived: they record which typology the generator applied, so training on them is not circular with the labelling policy. The circularity that does remain is between the injected operators and the deterministic rule baseline, which was written to target those same operators with matching thresholds, so precision and recall of the rules report agreement between two descriptions of one injection mechanism. The policy-derived column, `label__reference_outcome`, is a diagnostic and is not a training target for any model here. Section 6 of `docs/methodology/LIMITATIONS.md` states this in full.
+3. **The default outcome exists but is simulated from assumed parameters.** Every row now carries 36-month performance from `src/simulation/performance.js`, which reads world truth and never reads the policy, so grading a decision against it is not circular. It is still not a real outcome: the job-loss hazard, expense shock, income volatility and loss-given-default terms are hand-chosen assumptions, and two typologies default by an asserted intent probability rather than by mechanism. Absolute default and loss levels from this data are not credible; only the relative ordering is. Sections 7 to 10 of `docs/methodology/LIMITATIONS.md` set this out. Separately, the 470,820 USD expected-loss figure quoted above is not from that simulation at all: it is a loan amount multiplied by an assumed loss-given-fraud rate of 0.35, and remains arithmetic on assumptions.
 4. **Parameters are not fitted to any real data.** No parameter in `src/distribution_config.json` reaches the `EMPIRICALLY_CALIBRATED` provenance class; see `docs/methodology/PARAMETER_SOURCES.md`.
 5. **Small typology cells.** Seven of nine typologies have fewer than 50 test cases and four have fewer than 20. Treat per-typology recall as directional.
 6. **Calibration is adequate but not the best available.** The champion sits at ECE 0.034 against the stated 0.05 bar, while the gradient-boosting challenger reaches 0.002. If scores are used as probabilities rather than as a ranking, prefer the better-calibrated model or recalibrate the champion.

@@ -12,7 +12,7 @@
       "mean": 600
     },
     "student_loan_amount": {
-      "gini": 0.50,
+      "gini": 0.5,
       "median": 39000,
       "distribution": "lognormal"
     },
@@ -31,18 +31,30 @@
       "scale_min": 0.0,
       "alpha": 1.5,
       "distribution": "beta",
-      "scale_max": 0.50
+      "scale_max": 0.5
     }
   },
   "corruption": {
     "omission_prob": 0.08,
     "benign_variance_prob": 0.15,
-    "clean_prob": 0.60,
+    "clean_prob": 0.6,
     "concealment_prob": 0.05,
     "fabrication_prob": 0.03,
     "inflation_prob": 0.05,
     "bust_out_prob": 0.02,
-    "blend": { "clean": 0.79, "concealment": 0.06, "inflation": 0.04, "fabrication": 0.03, "bust_out": 0.01, "evidence_tampering": 0.02, "occupancy_misrepresentation": 0.01, "gift_fund_misrepresentation": 0.01, "asset_seasoning": 0.01, "straw_buyer": 0.01, "incoherent": 0.01 }
+    "blend": {
+      "clean": 0.79,
+      "concealment": 0.06,
+      "inflation": 0.04,
+      "fabrication": 0.03,
+      "bust_out": 0.01,
+      "evidence_tampering": 0.02,
+      "occupancy_misrepresentation": 0.01,
+      "gift_fund_misrepresentation": 0.01,
+      "asset_seasoning": 0.01,
+      "straw_buyer": 0.01,
+      "incoherent": 0.01
+    }
   },
   "employment": {
     "salary_base": {
@@ -134,8 +146,16 @@
   "income": {
     "pay_frequency": {
       "distribution": "categorical",
-      "categories": ["BIWEEKLY", "SEMIMONTHLY", "MONTHLY"],
-      "probabilities": [0.60, 0.25, 0.15]
+      "categories": [
+        "BIWEEKLY",
+        "SEMIMONTHLY",
+        "MONTHLY"
+      ],
+      "probabilities": [
+        0.6,
+        0.25,
+        0.15
+      ]
     },
     "pretax_deduction_rate": {
       "distribution": "beta",
@@ -198,8 +218,8 @@
       "mean": 0,
       "stddev": 1,
       "income_sensitivity": 0.25,
-      "dti_sensitivity": 0.30,
-      "checking_sensitivity": 0.40,
+      "dti_sensitivity": 0.3,
+      "checking_sensitivity": 0.4,
       "credit_sensitivity": 25
     }
   },
@@ -228,8 +248,16 @@
   },
   "regimes": {
     "distribution": "categorical",
-    "categories": ["PRIME", "SUBPRIME", "SELF_EMPLOYED"],
-    "probabilities": [0.55, 0.30, 0.15],
+    "categories": [
+      "PRIME",
+      "SUBPRIME",
+      "SELF_EMPLOYED"
+    ],
+    "probabilities": [
+      0.55,
+      0.3,
+      0.15
+    ],
     "params": {
       "PRIME": {
         "financial_health_shift": 0.5,
@@ -251,10 +279,10 @@
   },
   "adversarial": {
     "enabled": false,
-    "adversarial_rate": 0.70,
+    "adversarial_rate": 0.7,
     "inflation_dti_min": 0.36,
     "inflation_dti_max": 0.47,
-    "concealment_dti_threshold": 0.40,
+    "concealment_dti_threshold": 0.4,
     "fabrication_credit_threshold": 620,
     "weights": {
       "inflation": 1.5,
@@ -264,37 +292,105 @@
   },
   "copula": {
     "enabled": true,
-    "variables": ["age", "salary_base", "dti", "checking_balance", "credit_score"],
+    "variables": [
+      "age",
+      "salary_base",
+      "dti",
+      "checking_balance",
+      "credit_score"
+    ],
     "dampen_latent_health": 0.6,
     "correlation_matrix": [
-      [1.00,  0.20, -0.15,  0.10,  0.05],
-      [0.20,  1.00, -0.35,  0.40,  0.30],
-      [-0.15, -0.35, 1.00, -0.25, -0.50],
-      [0.10,  0.40, -0.25,  1.00,  0.25],
-      [0.05,  0.30, -0.50,  0.25,  1.00]
+      [
+        1.0,
+        0.2,
+        -0.15,
+        0.1,
+        0.05
+      ],
+      [
+        0.2,
+        1.0,
+        -0.35,
+        0.4,
+        0.3
+      ],
+      [
+        -0.15,
+        -0.35,
+        1.0,
+        -0.25,
+        -0.5
+      ],
+      [
+        0.1,
+        0.4,
+        -0.25,
+        1.0,
+        0.25
+      ],
+      [
+        0.05,
+        0.3,
+        -0.5,
+        0.25,
+        1.0
+      ]
     ]
   },
   "geography": {
     "distribution": "categorical",
-    "categories": ["HIGH_COST", "MEDIUM_COST", "LOW_COST"],
-    "probabilities": [0.25, 0.50, 0.25],
+    "categories": [
+      "HIGH_COST",
+      "MEDIUM_COST",
+      "LOW_COST"
+    ],
+    "probabilities": [
+      0.25,
+      0.5,
+      0.25
+    ],
     "params": {
       "HIGH_COST": {
-        "zip_prefixes": ["90", "10", "94", "02", "98", "60", "77"],
+        "zip_prefixes": [
+          "90",
+          "10",
+          "94",
+          "02",
+          "98",
+          "60",
+          "77"
+        ],
         "cost_of_living_index": 1.42,
         "rent_multiplier": 1.65,
         "salary_multiplier": 1.22,
         "checking_multiplier": 1.15
       },
       "MEDIUM_COST": {
-        "zip_prefixes": ["30", "75", "85", "55", "80", "28", "12"],
+        "zip_prefixes": [
+          "30",
+          "75",
+          "85",
+          "55",
+          "80",
+          "28",
+          "12"
+        ],
         "cost_of_living_index": 1.05,
         "rent_multiplier": 1.05,
-        "salary_multiplier": 1.00,
-        "checking_multiplier": 1.00
+        "salary_multiplier": 1.0,
+        "checking_multiplier": 1.0
       },
       "LOW_COST": {
-        "zip_prefixes": ["37", "64", "71", "88", "40", "66", "31"],
+        "zip_prefixes": [
+          "37",
+          "64",
+          "71",
+          "88",
+          "40",
+          "66",
+          "31"
+        ],
         "cost_of_living_index": 0.84,
         "rent_multiplier": 0.72,
         "salary_multiplier": 0.88,
@@ -304,21 +400,171 @@
   },
   "personas": {
     "distribution": "categorical",
-    "categories": ["SOFTWARE_ENGINEER", "TEACHER", "NURSE", "CONSTRUCTION_WORKER", "ENTREPRENEUR", "PHYSICIAN_ASSISTANT", "RELOCATED_PROFESSIONAL", "RETAIL_MANAGER", "FINANCE_ANALYST"],
-    "probabilities": [0.18, 0.14, 0.12, 0.08, 0.08, 0.08, 0.08, 0.12, 0.12],
+    "categories": [
+      "SOFTWARE_ENGINEER",
+      "TEACHER",
+      "NURSE",
+      "CONSTRUCTION_WORKER",
+      "ENTREPRENEUR",
+      "PHYSICIAN_ASSISTANT",
+      "RELOCATED_PROFESSIONAL",
+      "RETAIL_MANAGER",
+      "FINANCE_ANALYST"
+    ],
+    "probabilities": [
+      0.18,
+      0.14,
+      0.12,
+      0.08,
+      0.08,
+      0.08,
+      0.08,
+      0.12,
+      0.12
+    ],
     "params": {
-      "SOFTWARE_ENGINEER": { "industry": "Technology", "student_loan_prob": 0.35, "tenure_stability": "stable", "salary_median": 133000, "salary_gini": 0.30, "salary_min": 80000, "salary_max": 220000 },
-      "TEACHER": { "industry": "Education", "student_loan_prob": 0.55, "tenure_stability": "stable", "salary_median": 65000, "salary_gini": 0.18, "salary_min": 45000, "salary_max": 100000 },
-      "NURSE": { "industry": "Healthcare", "student_loan_prob": 0.45, "tenure_stability": "stable", "salary_median": 94000, "salary_gini": 0.20, "salary_min": 65000, "salary_max": 140000 },
-      "CONSTRUCTION_WORKER": { "industry": "Manufacturing", "student_loan_prob": 0.20, "tenure_stability": "seasonal", "salary_median": 46000, "salary_gini": 0.22, "salary_min": 30000, "salary_max": 75000 },
-      "ENTREPRENEUR": { "industry": "Other", "student_loan_prob": 0.30, "tenure_stability": "variable", "salary_median": 65000, "salary_gini": 0.55, "salary_min": 15000, "salary_max": 400000 },
-      "PHYSICIAN_ASSISTANT": { "industry": "Healthcare", "student_loan_prob": 0.70, "tenure_stability": "stable", "salary_median": 133000, "salary_gini": 0.16, "salary_min": 90000, "salary_max": 180000 },
-      "RELOCATED_PROFESSIONAL": { "industry": "Technology", "student_loan_prob": 0.30, "tenure_stability": "recent", "salary_median": 85000, "salary_gini": 0.32, "salary_min": 45000, "salary_max": 180000 },
-      "RETAIL_MANAGER": { "industry": "Retail", "student_loan_prob": 0.30, "tenure_stability": "stable", "salary_median": 50000, "salary_gini": 0.18, "salary_min": 30000, "salary_max": 85000 },
-      "FINANCE_ANALYST": { "industry": "Finance", "student_loan_prob": 0.40, "tenure_stability": "stable", "salary_median": 100000, "salary_gini": 0.25, "salary_min": 60000, "salary_max": 180000 }
+      "SOFTWARE_ENGINEER": {
+        "industry": "Technology",
+        "student_loan_prob": 0.35,
+        "tenure_stability": "stable",
+        "salary_median": 133000,
+        "salary_gini": 0.3,
+        "salary_min": 80000,
+        "salary_max": 220000
+      },
+      "TEACHER": {
+        "industry": "Education",
+        "student_loan_prob": 0.55,
+        "tenure_stability": "stable",
+        "salary_median": 65000,
+        "salary_gini": 0.18,
+        "salary_min": 45000,
+        "salary_max": 100000
+      },
+      "NURSE": {
+        "industry": "Healthcare",
+        "student_loan_prob": 0.45,
+        "tenure_stability": "stable",
+        "salary_median": 94000,
+        "salary_gini": 0.2,
+        "salary_min": 65000,
+        "salary_max": 140000
+      },
+      "CONSTRUCTION_WORKER": {
+        "industry": "Manufacturing",
+        "student_loan_prob": 0.2,
+        "tenure_stability": "seasonal",
+        "salary_median": 46000,
+        "salary_gini": 0.22,
+        "salary_min": 30000,
+        "salary_max": 75000
+      },
+      "ENTREPRENEUR": {
+        "industry": "Other",
+        "student_loan_prob": 0.3,
+        "tenure_stability": "variable",
+        "salary_median": 65000,
+        "salary_gini": 0.55,
+        "salary_min": 15000,
+        "salary_max": 400000
+      },
+      "PHYSICIAN_ASSISTANT": {
+        "industry": "Healthcare",
+        "student_loan_prob": 0.7,
+        "tenure_stability": "stable",
+        "salary_median": 133000,
+        "salary_gini": 0.16,
+        "salary_min": 90000,
+        "salary_max": 180000
+      },
+      "RELOCATED_PROFESSIONAL": {
+        "industry": "Technology",
+        "student_loan_prob": 0.3,
+        "tenure_stability": "recent",
+        "salary_median": 85000,
+        "salary_gini": 0.32,
+        "salary_min": 45000,
+        "salary_max": 180000
+      },
+      "RETAIL_MANAGER": {
+        "industry": "Retail",
+        "student_loan_prob": 0.3,
+        "tenure_stability": "stable",
+        "salary_median": 50000,
+        "salary_gini": 0.18,
+        "salary_min": 30000,
+        "salary_max": 85000
+      },
+      "FINANCE_ANALYST": {
+        "industry": "Finance",
+        "student_loan_prob": 0.4,
+        "tenure_stability": "stable",
+        "salary_median": 100000,
+        "salary_gini": 0.25,
+        "salary_min": 60000,
+        "salary_max": 180000
+      }
     }
   },
-  "metadata": { "fraud_signal_rate": 0.6, "_note": "Share of fraud cases whose device/behaviour metadata shows risk signals. Modelling assumption; see docs/methodology/PARAMETER_SOURCES.md." },
-  "generation": { "as_of_date": null, "_note": "Simulation as-of date (YYYY-MM-DD). null = today. Set for reproducible evidence dates." },
-  "fairness": { "scenario_attributes": { "family_status_probabilities": [0.35, 0.35, 0.22, 0.08], "disability_income_scenario_rate": 0.04 } }
+  "metadata": {
+    "fraud_signal_rate": 0.6,
+    "_note": "Share of fraud cases whose device/behaviour metadata shows risk signals. Modelling assumption; see docs/methodology/PARAMETER_SOURCES.md."
+  },
+  "generation": {
+    "as_of_date": null,
+    "_note": "Simulation as-of date (YYYY-MM-DD). null = today. Set for reproducible evidence dates."
+  },
+  "fairness": {
+    "scenario_attributes": {
+      "family_status_probabilities": [
+        0.35,
+        0.35,
+        0.22,
+        0.08
+      ],
+      "disability_income_scenario_rate": 0.04
+    }
+  },
+  "performance": {
+    "_note": "Loan performance simulation. Drives the observed outcome label that replaces the policy-derived label. See docs/methodology/PARAMETER_SOURCES.md; these are modelling assumptions, not fitted values.",
+    "horizon_months": 36,
+    "months_missed_to_default": 3,
+    "discretionary_compression_floor": 0.55,
+    "reserve_share_available": 0.85,
+    "income_volatility": {
+      "stable": 0.03,
+      "recent": 0.05,
+      "seasonal": 0.14,
+      "variable": 0.2
+    },
+    "self_employed_volatility_multiplier": 1.5,
+    "job_loss": {
+      "base_monthly_prob": 0.004,
+      "credit_score_pivot": 700,
+      "credit_score_slope": 0.9,
+      "tenure_protection_months": 24,
+      "duration_months": {
+        "min": 1,
+        "max": 5
+      },
+      "income_retained": 0.35
+    },
+    "expense_shock": {
+      "monthly_prob": 0.02,
+      "share_of_monthly_income": 0.6
+    },
+    "intent_default": {
+      "BUST_OUT": 0.85,
+      "STRAW_BUYER": 0.55
+    },
+    "gift_fund_repayment_share": 0.02,
+    "loss_given_default": {
+      "base": 0.22,
+      "foreclosure_cost_share": 0.08,
+      "home_price_drift_monthly": 0.0025,
+      "home_price_volatility_monthly": 0.012,
+      "min": 0.02,
+      "max": 0.65
+    }
+  }
 }

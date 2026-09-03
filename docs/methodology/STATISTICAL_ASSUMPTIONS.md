@@ -205,3 +205,114 @@ Where it is unrealistic: any downstream consumer that computes ages, tenures or 
 What it implies: among signalled fraud cases, the IP-risk rule (> 0.7 or Tor) fires with probability about two thirds and the document-age rule (3 of 4 documents within 2 days, each with probability 3/4) with probability about 0.74, so most signalled fraud cases are declined on metadata alone before any financial rule is consulted. Clean cases can still be declined on metadata through the 0.5% Tor rate.
 
 Where it is unrealistic: the mixture is two well-separated regimes with no overlap in the document-age dimension (clean 14-180 days, signalled 0-3 days); real device and behaviour signals are weak, noisy and shared across legitimate populations. See LIMITATIONS.
+
+## 13. Simulated loan performance (the observed outcome label)
+
+`simulateLoanPerformance` (`src/simulation/performance.js`, simulation version 1.0.0) runs every case forward as if the loan were funded and returns the performance record attached at `case.performance` by `generateCase`. It replaces the previous practice of grading the policy against `label.expected_outcome`, which was produced by the generator's own rule engine and therefore measured agreement between two implementations of similar logic.
+
+The simulation reads **world truth only**: true income, true obligations, true reserves. It never reads the presentation, the policy, the rules, the reason codes or the findings. It is run for every case, including cases a policy would decline, so a false decline is measurable; a policy that declined everything would otherwise look perfect.
+
+### 13.1 Position at closing
+
+| Quantity | Definition |
+|---|---|
+| Monthly net income | `truth.income_stream.monthly_net_deposit`, falling back to `salary / 12 x 0.72` |
+| Down payment | `min(truth.down_payment, truth.checking_balance)` |
+| Reserves at closing | `(checking_balance - down_payment) x reserve_share_available` (0.85), floored at 0 |
+| Recurring obligations | `truth.monthly_obligations`, plus `undisclosed_loan_disguised_as_gift x gift_fund_repayment_share` (0.02) when present |
+| Utilities, discretionary | `truth.expense_obligations.utilities` and `.discretionary` |
+
+On a purchase the mortgage payment (PITI) takes the place of rent rather than being added to it: rent is not debited in the loop, `truth.monthly_mortgage_payment` is.
+
+Consequence worth stating plainly: because the down payment is capped at the checking balance and then subtracted from it, most borrowers enter the simulation with very thin post-closing reserves. Whenever the sampled down payment reaches the balance, reserves at closing are zero and the household has no buffer at all. Reserves are therefore not an independent risk dimension here; they are whatever the down payment left behind.
+
+Two diagnostic drivers are recorded at this point and carry no behaviour: `negative_residual_at_origination` when income minus PITI, obligations, utilities and discretionary is below zero, and `payment_shock` when PITI exceeds 45% of monthly net income.
+
+### 13.2 The monthly loop
+
+For each of `horizon_months` (36) months:
+
+1. If not already in an income interruption, draw a job loss with probability `hazard` (section 13.3). Its duration is uniform on `[job_loss.duration_months.min, max]` = [1, 5] months.
+2. Income for the month is `monthly_net_income x (employed ? 1 : job_loss.income_retained) x (1 + N(0, volatility))`.
+3. If the household is stressed (reserves below one PITI, or not employed) discretionary spending is compressed to `discretionary_compression_floor` (0.55) of its base level. Households cut discretionary spend before missing the mortgage.
+4. Outflow is PITI plus true obligations plus utilities plus discretionary, plus an expense shock drawn with probability `expense_shock.monthly_prob` (0.02) and sized at `expense_shock.share_of_monthly_income` (0.6) of monthly net income.
+5. If `reserves + income - outflow >= 0` the month is paid and the surplus or deficit is carried in reserves. Otherwise the mortgage payment is missed: reserves absorb the remainder of the shortfall (floored at 0) and the consecutive-missed counter increments.
+6. `months_missed_to_default` (3) consecutive missed payments ends the simulation in `DEFAULT`. This is the 90-days-past-due convention.
+
+A case that reaches the horizon is `DELINQUENT` if it ever missed a payment and `PERFORMING` otherwise. `first_payment_default` is set when the default occurs in month 1.
+
+Income volatility is the monthly multiplicative standard deviation, taken from the persona's `tenure_stability` label:
+
+| `tenure_stability` | Volatility |
+|---|---|
+| stable | 0.03 |
+| recent | 0.05 |
+| seasonal | 0.14 |
+| variable | 0.20 |
+
+`SELF_EMPLOYED` cases multiply that by `self_employed_volatility_multiplier` (1.5). This is the only place `tenure_stability` has a behavioural effect anywhere in the generator.
+
+### 13.3 Job-loss hazard
+
+The monthly hazard is
+
+```
+hazard       = clamp(base_monthly_prob x creditFactor x tenureFactor, 0, 0.08)
+creditFactor = max(0.25, 1 + ((700 - credit_score) / 100) x 0.9)
+tenureFactor = tenure_months >= 24 ? 0.7 : 1.35
+```
+
+with `base_monthly_prob` 0.004. Credit score is used as a stand-in for employment fragility: a score 100 points below the 700 pivot nearly doubles the hazard, a score 100 points above it nearly halves it. Tenure of at least two years cuts the hazard by 30 percent, shorter tenure raises it by 35 percent. During an interruption the household retains 35 percent of its income, standing in for unemployment insurance or partial replacement work.
+
+This is an assumption, not an estimate. Employment separation is not in fact a function of credit score; any real association runs through the same latent financial-health factor that produced the score, so the simulation is reusing an existing signal rather than adding an independent one.
+
+### 13.4 Intent-driven default
+
+Two typologies do not fail because of capacity, so capacity cannot express them:
+
+| Typology | Probability of an intent default |
+|---|---|
+| `BUST_OUT` | 0.85 |
+| `STRAW_BUYER` | 0.55 |
+
+When the draw succeeds the case defaults in month 1, 2 or 3 (uniform) with the driver `intent_not_to_repay`, and the cash-flow loop never runs. This is a stated modelling assumption about intent, not an emergent property of the simulation, and it is the only place in the performance model where the corruption type is read at all. Every other typology gets its damage from the truth-versus-claim gap described in 13.6.
+
+### 13.5 Loss given default
+
+For a defaulted case:
+
+```
+priceIndex  = product over months of (1 + 0.0025 + N(0, 0.012))
+equityBuilt = min(0.06, months_to_default x 0.0012)
+lgd         = clamp(0.22 + 0.08 - (priceIndex - 1) - equityBuilt, 0.02, 0.65)
+realized_loss = round(loan_amount x lgd)
+```
+
+`base` (0.22) is the share of the loan lost on sale after time and price, and `foreclosure_cost_share` (0.08) the direct cost of the process. The simulated home-price path drifts up 0.25 percent a month with a 1.2 percent monthly volatility, and amortisation builds equity at 0.12 percent of the loan per month capped at 6 percent. Both terms shrink the loss as the loan seasons, so an early default loses materially more than a late one: little principal has been repaid, no price appreciation has accumulated, and the fixed foreclosure costs are the same. Non-defaulted cases have `loss_given_default` 0 and `realized_loss` 0.
+
+The price path is a geometric random walk with positive drift, no regime and no correlation across cases. Every simulated borrower defaults into an independently rising market, which understates loss in exactly the correlated downturn that matters most.
+
+### 13.6 Where fraud damage comes from
+
+Apart from the two intent typologies above, no typology carries a performance term. Damage emerges because the lender underwrites the claim while the household lives on the truth:
+
+- overstated income means the file shows affordability the borrower does not have;
+- concealed liabilities are debited every month even though the application omitted them;
+- tampered or unseasoned balances mean the reserves meant to absorb a shock are not there;
+- an undisclosed loan dressed up as a gift is repaid monthly at 2 percent of the balance.
+
+Important consequence: concealment does **not** raise the concealing borrower's own default rate. The concealed obligation was always in world truth and was always debited, so hiding it from the application changes what the lender sees, not what the household pays. Measured on the current corpus (`artifacts/validation-summary.json`, `outcome.by_fraud_type`) the `CONCEALMENT` bad rate is 0.0071 against 0.0064 for `NONE`, on 420 and 1,730 cases respectively. The harm of concealment is adverse selection into the approved pool, which is a property of the policy rather than of the borrower, and the outcome evaluation measures it separately through approved-pool bad rate and risk separation.
+
+### 13.7 Random stream
+
+Performance is drawn from a dedicated stream, `createRng(seed + "-performance")` in `src/core/case.js`, not from the case stream. Adding the simulation therefore perturbs no other draw: for a given seed, every financial variable, evidence document, metadata field and label is identical to what the generator produced before the simulation existed. Unseeded cases get an unseeded performance stream and are not reproducible, as elsewhere.
+
+### 13.8 Where it is unrealistic
+
+- The parameters are hand-chosen. Absolute default and loss levels are not credible; only the ordering across cases is meant to carry information.
+- The expense model has four lines (PITI, obligations, utilities, discretionary). Food, transport, healthcare and childcare are absent unless the discretionary line is read as covering them, so residual income is more comfortable than a real household's and capacity-driven default is rarer than reality.
+- There is no prepayment, refinance, loan modification, forbearance, cure after a missed payment, or partial payment. A household either pays the month in full or misses it.
+- Defaults are independent across cases. There is no macroeconomic factor, so a portfolio of these loans carries far less tail risk than a real book.
+- The default trigger is a hard count of three consecutive missed payments, with no roll rates and no self-cure.
+- 36 months truncates the observation window well before the peak default hazard of a 30-year mortgage.
+- Credit score enters only through the job-loss hazard and reserves only through the buffer, so the simulation cannot represent willingness to pay, payment hierarchy across debts, or strategic default on negative equity.

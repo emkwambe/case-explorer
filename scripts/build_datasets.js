@@ -109,7 +109,13 @@ export function buildDatasets(args) {
     fs.writeFileSync(path.join(outDir, `${r.split}.csv`), csv);
     const fraudTypes = {};
     const outcomes = {};
-    for (const row of rows) { fraudTypes[row.labels.fraud_type] = (fraudTypes[row.labels.fraud_type] || 0) + 1; outcomes[row.labels.expected_outcome] = (outcomes[row.labels.expected_outcome] || 0) + 1; }
+    let defaults = 0, loss = 0;
+    for (const row of rows) {
+      fraudTypes[row.labels.fraud_type] = (fraudTypes[row.labels.fraud_type] || 0) + 1;
+      outcomes[row.labels.reference_outcome] = (outcomes[row.labels.reference_outcome] || 0) + 1;
+      defaults += row.labels.defaulted ?? 0;
+      loss += row.labels.realized_loss ?? 0;
+    }
     const manifest = {
       dataset_version: DATASET_VERSION,
       split: r.split,
@@ -127,14 +133,19 @@ export function buildDatasets(args) {
       fraud_count: rows.filter(x => x.labels.is_fraud === 1).length,
       fraud_rate: rows.length ? +(rows.filter(x => x.labels.is_fraud === 1).length / rows.length).toFixed(4) : 0,
       fraud_types: fraudTypes,
-      outcomes,
+      // Observed outcome ground truth, available as a modelling target alongside is_fraud.
+      default_count: defaults,
+      bad_rate: rows.length ? +(defaults / rows.length).toFixed(4) : 0,
+      total_realized_loss: Math.round(loss),
+      // Reference policy opinions, for diagnostics only. Never a training target.
+      reference_outcomes: outcomes,
       note: r.note,
       file: `${r.split}.csv`,
       file_sha256: "sha256:" + crypto.createHash("sha256").update(csv).digest("hex")
     };
     fs.writeFileSync(path.join(outDir, `${r.split}.manifest.json`), JSON.stringify(manifest, null, 2));
-    index.splits[r.split] = { file: manifest.file, record_count: manifest.record_count, fraud_rate: manifest.fraud_rate, population_regime: manifest.population_regime, configuration_hash: manifest.configuration_hash, seed: manifest.seed };
-    console.log(`${r.split.padEnd(26)} ${String(rows.length).padStart(6)} rows  fraud ${(manifest.fraud_rate * 100).toFixed(1)}%`);
+    index.splits[r.split] = { file: manifest.file, record_count: manifest.record_count, fraud_rate: manifest.fraud_rate, bad_rate: manifest.bad_rate, population_regime: manifest.population_regime, configuration_hash: manifest.configuration_hash, seed: manifest.seed };
+    console.log(`${r.split.padEnd(26)} ${String(rows.length).padStart(6)} rows  fraud ${(manifest.fraud_rate * 100).toFixed(1)}%  default ${(manifest.bad_rate * 100).toFixed(1)}%`);
   }
   fs.writeFileSync(path.join(outDir, "feature_policy.json"), JSON.stringify(exportPolicy(), null, 2));
   fs.writeFileSync(path.join(outDir, "fraud_rules.json"), JSON.stringify({ ruleset_version: FRAUD_RULESET_VERSION, rules: describeRules() }, null, 2));

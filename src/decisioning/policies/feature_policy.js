@@ -31,7 +31,7 @@ export const SENSITIVE_ATTRIBUTES = Object.freeze([
 ]);
 
 /** Prefixes / names that leak ground truth, labels or identity. */
-export const PROHIBITED_PREFIXES = Object.freeze(["truth_", "label_", "outcome_", "gt_"]);
+export const PROHIBITED_PREFIXES = Object.freeze(["truth_", "label_", "outcome_", "gt_", "performance_"]);
 export const PROHIBITED_FIELDS = Object.freeze([
   "case_id",
   "name",
@@ -48,6 +48,17 @@ export const PROHIBITED_FIELDS = Object.freeze([
   "is_fraud",
   "corruption_type",
   "corruption_severity",
+  // Simulated loan performance is what happens after the decision. Using any of it to make
+  // the decision would be looking into the future.
+  "defaulted",
+  "seriously_delinquent",
+  "first_payment_default",
+  "months_to_default",
+  "months_paid",
+  "payments_received",
+  "realized_loss",
+  "loss_given_default",
+  "performance_status",
   // Alignment flags are computed *from* truth-vs-claim comparisons in the generator; a real
   // underwriter only sees claim-vs-evidence, so these are label leakage.
   "identity_aligned", "employment_aligned", "income_aligned", "assets_aligned",

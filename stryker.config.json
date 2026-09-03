@@ -1,11 +1,19 @@
 {
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
-  "_comment": "Mutation testing scoped to the decision logic where a silently wrong branch is most costly: the fraud rules, the underwriting policy, reason-code governance, the feature policy and the release gates. Run with `npm run test:mutation`.",
+  "_comment": "Mutation testing scoped to the decision logic where a silently wrong branch is most costly: the fraud rules, the underwriting policy, reason-code governance, the feature policy, the investigation workflow, the outcome evaluation that grades the policy, the release gates and audit events. src/simulation/performance.js is deliberately excluded: its tests are statistical, so mutants surface as flaky rather than killed. Run with `npm run test:mutation`.",
   "packageManager": "npm",
   "testRunner": "vitest",
-  "vitest": { "configFile": "vitest.config.js" },
-  "reporters": ["html", "clear-text", "progress"],
-  "htmlReporter": { "fileName": "reports/mutation/index.html" },
+  "vitest": {
+    "configFile": "vitest.config.js"
+  },
+  "reporters": [
+    "html",
+    "clear-text",
+    "progress"
+  ],
+  "htmlReporter": {
+    "fileName": "reports/mutation/index.html"
+  },
   "coverageAnalysis": "perTest",
   "mutate": [
     "src/decisioning/fraud-rules/rules.js",
@@ -13,10 +21,15 @@
     "src/decisioning/reason-codes/catalog.js",
     "src/decisioning/policies/feature_policy.js",
     "src/decisioning/investigation/workflow.js",
+    "src/evaluation/outcome/index.js",
     "src/evaluation/gates.js",
     "src/governance/audit.js"
   ],
-  "thresholds": { "high": 85, "low": 70, "break": 60 },
+  "thresholds": {
+    "high": 85,
+    "low": 70,
+    "break": 60
+  },
   "timeoutMS": 30000,
   "concurrency": 4,
   "tempDirName": ".stryker-tmp",

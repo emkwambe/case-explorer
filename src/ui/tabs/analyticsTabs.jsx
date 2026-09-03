@@ -70,6 +70,7 @@ export function DataTableTab({ cases, onSelect }) {
             <Th label="Align" sortKey="label.alignment_level" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Outcome" sortKey="label.expected_outcome" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Fraud risk" sortKey="label.fraud_risk_level" sortConfig={sortConfig} onSort={requestSort} />
+            <Th label="Observed outcome" sortKey="performance.status" sortConfig={sortConfig} onSort={requestSort} />
           </tr></thead>
           <tbody>
             {rows.map((c) => (
@@ -83,6 +84,10 @@ export function DataTableTab({ cases, onSelect }) {
                 <td style={styles.td}><Badge color={ALIGNMENT_COLORS[c.label.alignment_level]}>{c.label.alignment_level}</Badge></td>
                 <td style={styles.td}><span style={{ color: OUTCOME_COLORS[c.label.expected_outcome], fontWeight: 600 }}>{c.label.expected_outcome}</span></td>
                 <td style={styles.td}><span style={{ color: FRAUD_COLORS[c.label.fraud_risk_level] }}>{c.label.fraud_risk_level}</span></td>
+                <td style={styles.td}>
+                  <span style={{ color: c.performance?.status === "DEFAULT" ? "#ef4444" : c.performance?.status === "DELINQUENT" ? "#f59e0b" : "#10b981", fontWeight: 600 }}>{titleCase(c.performance?.status)}</span>
+                  {c.performance?.realized_loss ? <span style={{ color: "#64748b" }}> · {money(c.performance.realized_loss)}</span> : null}
+                </td>
               </tr>
             ))}
           </tbody>
