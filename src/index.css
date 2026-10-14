@@ -17,3 +17,96 @@ button {
 ul {
   list-style: disc;
 }
+/* Credit Risk Mode layout. The underwriting sidebar sits right of the tabs on wide screens and
+   stacks above them below 900px. The compliance footer stays visible on every tab and mode. */
+.ce-credit-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.ce-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+.ce-credit-sidebar {
+  order: 2;
+  width: 320px;
+  flex-shrink: 0;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.ce-portfolio-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ce-benchmark {
+  padding: 12px 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+}
+
+.ce-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  padding: 8px 16px;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 12px;
+  text-align: center;
+}
+
+.ce-app {
+  padding-bottom: 40px;
+}
+
+.ce-layout > .ce-library,
+.ce-layout > .ce-main {
+  max-height: calc(100vh - 116px) !important;
+}
+
+@media (max-width: 900px) {
+  .ce-layout {
+    flex-direction: column;
+  }
+
+  .ce-layout > .ce-library,
+  .ce-layout > .ce-main {
+    width: 100% !important;
+    max-height: none !important;
+  }
+
+  .ce-layout > .ce-library {
+    border-right: none !important;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .ce-case-list {
+    max-height: 320px;
+  }
+
+  .ce-layout > .ce-main {
+    padding: 12px !important;
+  }
+
+  .ce-credit-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ce-credit-sidebar {
+    order: -1;
+    width: 100%;
+  }
+}

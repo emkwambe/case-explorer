@@ -11,6 +11,10 @@ import { OutcomeTab } from "./tabs/outcomeTab.jsx";
 import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/analyticsTabs.jsx";
 import { TOUR_STEPS } from "./demo/tour.js";
 import { GENERATOR_VERSION } from "../core/case.js";
+import { PORTFOLIO_PROFILES } from "../creditRisk.js";
+import { demoConfig } from "./hooks/useCaseLibrary.js";
+import { UnderwritingSidebar, PortfolioStrip, BenchmarkPanel, ComplianceFooter } from "./credit/CreditRisk.jsx";
+import { useCreditAssessments, CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -47,9 +51,11 @@ const SCENARIOS = [
 
 export default function CaseExplorer() {
   const library = useCaseLibrary();
-  const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config } = library;
+  const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config, profile, setProfile } = library;
   const [activeTab, setActiveTab] = useState("overview");
   const [tourStep, setTourStep] = useState(null);
+  const [creditMode, setCreditMode] = useState(false);
+  const assessments = useCreditAssessments(cases, creditMode);
 
   const scored = useScoredCase(selectedCase, config);
   const investigation = useInvestigation(selectedCase, scored);
@@ -76,7 +82,7 @@ export default function CaseExplorer() {
   }, [cases]);
 
   return (
-    <div style={styles.app}>
+    <div style={styles.app} className="ce-app">
       <header style={styles.header}>
         <div style={{ flex: "1 1 320px" }}>
           <h1 style={styles.title}>Case Explorer</h1>
@@ -85,6 +91,12 @@ export default function CaseExplorer() {
             ({counts.APPROVE} approve, {counts.MANUAL_REVIEW} review, {counts.DECLINE} decline)
           </p>
         </div>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569" }}>
+          Portfolio profile:
+          <select style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Portfolio profile" value={profile} onChange={(e) => setProfile(e.target.value)} data-testid="portfolio-profile">
+            {PORTFOLIO_PROFILES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+          </select>
+        </label>
         <button onClick={startTour} data-testid="start-tour" style={{ ...styles.btnPrimary, width: "auto", padding: "10px 18px", marginBottom: 0 }}>
           Start guided walkthrough
         </button>
@@ -107,12 +119,12 @@ export default function CaseExplorer() {
         </div>
       )}
 
-      <div style={styles.layout}>
-        <aside style={styles.sidebar}>
+      <div style={styles.layout} className="ce-layout">
+        <aside style={styles.sidebar} className="ce-library">
           <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Case library</div>
-          <div style={{ flex: 1, minHeight: 0 }}>
+          <div style={{ flex: 1, minHeight: 120, overflowY: "auto" }} className="ce-case-list">
             {cases.slice().reverse().map((c) => (
-              <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
+              <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
             ))}
           </div>
           <div style={styles.generatorPanel}>
@@ -131,13 +143,25 @@ export default function CaseExplorer() {
               <input type="checkbox" checked={genConfig.adversarial} onChange={(e) => setGenConfig({ ...genConfig, adversarial: e.target.checked })} />
               Adversarial placement (fraud hides in marginal profiles)
             </label>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: 12, color: "#475569", cursor: "pointer" }}>
+              <input type="checkbox" checked={creditMode} onChange={(e) => setCreditMode(e.target.checked)} data-testid="credit-risk-mode" />
+              Credit Risk Mode
+            </label>
             <button style={styles.btnPrimary} data-testid="generate" onClick={() => { generate(); setActiveTab("portfolio"); }}>Generate</button>
             <button style={styles.btnSecondary} onClick={() => { library.reset(); setActiveTab("overview"); }}>Reset library</button>
           </div>
         </aside>
 
-        <main style={styles.main}>
-          <div style={styles.detail}>
+        <main style={styles.main} className="ce-main">
+          {creditMode && (
+            <div style={{ marginBottom: 14 }}>
+              <PortfolioStrip assessments={assessments} />
+              <BenchmarkPanel cases={cases} baseConfig={demoConfig} profile={profile} />
+            </div>
+          )}
+          <div className="ce-credit-layout">
+          {creditMode && <UnderwritingSidebar key={selectedCase.id} caseData={selectedCase} assessment={assessments.get(selectedCase.id)} />}
+          <div style={styles.detail} className="ce-detail">
             <div style={styles.tabs} role="tablist">
               {TABS.map((t) => (
                 <button
@@ -170,8 +194,10 @@ export default function CaseExplorer() {
               {activeTab === "validation" && <ValidationTab />}
             </div>
           </div>
+          </div>
         </main>
       </div>
+      <ComplianceFooter />
     </div>
   );
 }

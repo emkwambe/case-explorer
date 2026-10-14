@@ -63,13 +63,13 @@ export function ComparisonRow({ label, truth, pres }) {
   );
 }
 
-export function CaseCard({ caseData, selected, onClick }) {
+export function CaseCard({ caseData, selected, onClick, accentColor }) {
   const { applicant, label } = caseData;
   return (
     <div
       onClick={onClick}
       data-testid="case-card"
-      style={{ ...styles.caseCard, borderLeft: `4px solid ${ALIGNMENT_COLORS[label.alignment_level]}`, background: selected ? "#f0f9ff" : "white" }}
+      style={{ ...styles.caseCard, borderLeft: `4px solid ${accentColor ?? ALIGNMENT_COLORS[label.alignment_level]}`, background: selected ? "#f0f9ff" : "white" }}
     >
       <div style={styles.cardHeader}>
         <strong>{applicant.name}</strong>

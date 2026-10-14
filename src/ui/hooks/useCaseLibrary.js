@@ -6,6 +6,7 @@
 import { useCallback, useMemo, useState } from "react";
 import CONFIG from "../../distribution_config.json";
 import { generateCase, generateBlendedCase } from "../../generator.js";
+import { applyProfile } from "../../creditRisk.js";
 
 export const DEMO_SEED = "demo-2026";
 export const DEMO_AS_OF = "2026-01-15";
@@ -14,18 +15,20 @@ export const DEMO_AS_OF = "2026-01-15";
 export const demoConfig = { ...CONFIG, generation: { ...(CONFIG.generation || {}), as_of_date: DEMO_AS_OF } };
 
 /** A curated opening set: one clean approval, one review, and one of each headline typology. */
-export function buildInitialCases() {
+export function buildInitialCases(config = demoConfig) {
   const curated = [
     ["NONE", "LOW"], ["NONE", "LOW"], ["INFLATION", "HIGH"], ["CONCEALMENT", "HIGH"],
     ["FABRICATION", "HIGH"], ["BUST_OUT", "HIGH"], ["EVIDENCE_TAMPERING", "HIGH"],
     ["OCCUPANCY_MISREPRESENTATION", "MEDIUM"], ["GIFT_FUND_MISREPRESENTATION", "MEDIUM"],
     ["ASSET_SEASONING", "MEDIUM"], ["STRAW_BUYER", "HIGH"], ["INCOHERENT", "HIGH"]
   ];
-  return curated.map(([type, sev], i) => generateCase(i, demoConfig, type, sev, `${DEMO_SEED}-${type}-${i}`));
+  return curated.map(([type, sev], i) => generateCase(i, config, type, sev, `${DEMO_SEED}-${type}-${i}`));
 }
 
 export function useCaseLibrary() {
-  const initial = useMemo(buildInitialCases, []);
+  const [profile, setProfileState] = useState("MORTGAGE");
+  const config = useMemo(() => applyProfile(demoConfig, profile), [profile]);
+  const initial = useMemo(() => buildInitialCases(), []);
   const [cases, setCases] = useState(initial);
   const [selectedId, setSelectedId] = useState(initial[0].id);
   const [genConfig, setGenConfig] = useState({ corruptionType: "MIXED", severity: "HIGH", count: 10, seed: "", adversarial: false });
@@ -43,21 +46,29 @@ export function useCaseLibrary() {
     const produced = [];
     const base = seedValue ?? `run-${Date.now()}`;
     for (let i = 0; i < genConfig.count; i++) {
-      if (genConfig.corruptionType === "MIXED") produced.push(generateBlendedCase(i, demoConfig, base, genConfig.adversarial));
-      else produced.push(generateCase(i, demoConfig, genConfig.corruptionType, genConfig.severity, `${base}-${i}`));
+      if (genConfig.corruptionType === "MIXED") produced.push(generateBlendedCase(i, config, base, genConfig.adversarial));
+      else produced.push(generateCase(i, config, genConfig.corruptionType, genConfig.severity, `${base}-${i}`));
     }
     addCases(produced);
     return produced;
-  }, [genConfig, seedValue, addCases]);
+  }, [genConfig, seedValue, addCases, config]);
 
   const generateOne = useCallback((corruptionType, severity, seed) => {
-    const c = generateCase(0, demoConfig, corruptionType, severity, seed ?? `${DEMO_SEED}-tour-${corruptionType}`);
+    const c = generateCase(0, config, corruptionType, severity, seed ?? `${DEMO_SEED}-tour-${corruptionType}`);
     addCases([c]);
     return c;
-  }, [addCases]);
+  }, [addCases, config]);
 
   const select = useCallback((id) => setSelectedId(id), []);
-  const reset = useCallback(() => { const fresh = buildInitialCases(); setCases(fresh); setSelectedId(fresh[0].id); }, []);
+  const reset = useCallback(() => { const fresh = buildInitialCases(config); setCases(fresh); setSelectedId(fresh[0].id); }, [config]);
 
-  return { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, addCases, reset, config: demoConfig };
+  /** Switching the portfolio profile regenerates the opening library under that profile. */
+  const setProfile = useCallback((next) => {
+    const fresh = buildInitialCases(applyProfile(demoConfig, next));
+    setProfileState(next);
+    setCases(fresh);
+    setSelectedId(fresh[0].id);
+  }, []);
+
+  return { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, addCases, reset, config, profile, setProfile };
 }

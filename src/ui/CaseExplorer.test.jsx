@@ -147,3 +147,51 @@ describe("CaseExplorer", () => {
     expect(screen.getByText(/feature policy/i)).toBeInTheDocument();
   });
 });
+
+describe("Credit Risk Mode", () => {
+  const FOOTER = "Demo only · Synthetic data · Not a consumer report · Not for credit decisions · Educational portfolio project";
+
+  it("shows the compliance footer on every tab with the mode off and on", async () => {
+    render(<CaseExplorer />);
+    for (const mode of [false, true]) {
+      if (mode) await userEvent.click(screen.getByTestId("credit-risk-mode"));
+      for (const tab of screen.getAllByRole("tab")) {
+        await userEvent.click(tab);
+        expect(screen.getByTestId("compliance-footer")).toHaveTextContent(FOOTER);
+      }
+    }
+  });
+
+  it("shows the underwriting sidebar, portfolio strip and copyable risk summary", async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    render(<CaseExplorer />);
+    expect(screen.queryByTestId("underwriting-sidebar")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByTestId("credit-risk-mode"));
+    expect(screen.getByRole("heading", { name: "Underwriting Decision" })).toBeInTheDocument();
+    expect(screen.getByTestId("portfolio-strip")).toHaveTextContent(/APPROVE \d+%/);
+    const summary = screen.getByTestId("risk-summary").textContent;
+    expect(summary).toMatch(/^Borrower: FICO \d+, DTI \d+%, Student \$[\d,]+\/mo, Fraud: (None|Review), Policy: /);
+    await userEvent.click(screen.getByTestId("copy-risk-summary"));
+    expect(writeText).toHaveBeenCalledWith(summary);
+    expect(await screen.findByText("Copied")).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId("show-ground-truth"));
+    expect(screen.getByTestId("ground-truth-comparison")).toBeInTheDocument();
+  });
+
+  it("compares all-application and approved-only FICO with the 10-K benchmark for both profiles", async () => {
+    render(<CaseExplorer />);
+    await userEvent.click(screen.getByTestId("credit-risk-mode"));
+    expect(screen.getByTestId("conflict-approve-decline")).toHaveTextContent(/Integrity APPROVE · Credit DECLINE: \d+/);
+    expect(screen.getByTestId("conflict-flag-approve")).toHaveTextContent(/Integrity DECLINE or fraud REVIEW · Credit APPROVE: \d+/);
+    const panel = screen.getByTestId("benchmark-panel");
+    panel.open = true;
+    fireEvent(panel, new Event("toggle"));
+    for (const id of ["MORTGAGE", "SOLAR_PRIME"]) {
+      expect(await within(panel).findByTestId(`delta-approved-${id}`, {}, { timeout: 60000 })).toBeInTheDocument();
+      expect(within(panel).getByTestId(`delta-all-${id}`)).toBeInTheDocument();
+    }
+    expect(within(panel).getAllByText("2,000").length).toBe(2);
+    expect(within(panel).getByRole("link", { name: "FY2022 Form 10-K" })).toHaveAttribute("href", expect.stringContaining("sec.gov"));
+  }, 90000);
+});
