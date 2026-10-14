@@ -15,6 +15,8 @@ import { ActiveProfileProvider, useActiveProfile } from "../profiles/activeProfi
 import { demoConfig } from "./hooks/useCaseLibrary.js";
 import { UnderwritingSidebar, PortfolioStrip, BenchmarkPanel, ComplianceFooter } from "./credit/CreditRisk.jsx";
 import { useCreditAssessments, CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
+import { DealerViewTab } from "./dealers/DealerView.jsx";
+import { useDealerPortfolio } from "./dealers/useDealerPortfolio.js";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -29,6 +31,7 @@ const TABS = [
   { id: "fairness", label: "Fairness" },
   { id: "investigation", label: "Investigation" },
   { id: "portfolio", label: "Portfolio" },
+  { id: "dealers", label: "Dealer View" },
   { id: "network", label: "Network" },
   { id: "economics", label: "Economics" },
   { id: "validation", label: "Validation" }
@@ -66,6 +69,7 @@ function CaseExplorerShell() {
   const [tourStep, setTourStep] = useState(null);
   const [creditMode, setCreditMode] = useState(false);
   const assessments = useCreditAssessments(cases, creditMode);
+  const dealerPortfolio = useDealerPortfolio(demoConfig);
 
   const scored = useScoredCase(selectedCase, config);
   const investigation = useInvestigation(selectedCase, scored);
@@ -199,6 +203,7 @@ function CaseExplorerShell() {
               {activeTab === "fairness" && <FairnessTab caseData={selectedCase} counterfactual={counterfactual} />}
               {activeTab === "investigation" && <InvestigationTab caseData={selectedCase} scored={scored} {...investigation} />}
               {activeTab === "portfolio" && <DataTableTab cases={cases} onSelect={(id) => { select(id); setActiveTab("overview"); }} />}
+              {activeTab === "dealers" && <DealerViewTab portfolio={dealerPortfolio} />}
               {activeTab === "network" && <NetworkTab cases={cases} />}
               {activeTab === "economics" && <EconomicsTab cases={cases} config={config} />}
               {activeTab === "validation" && <ValidationTab />}

@@ -10,6 +10,7 @@ import CaseExplorer from "./CaseExplorer.jsx";
 import { buildInitialCases, demoConfig } from "./hooks/useCaseLibrary.js";
 import { TOUR_STEPS } from "./demo/tour.js";
 import { scoreCase } from "../decisioning/index.js";
+import { PROFILES } from "../profiles/index.js";
 
 // The artifact hook fetches published JSON; in tests there is no server.
 beforeEach(() => {
@@ -231,5 +232,60 @@ describe("lender profiles", () => {
     expect(screen.getByTestId("portfolio-profile")).toHaveValue("SOLAR_PRIME");
     const after = screen.getAllByTestId("case-card").map((c) => c.textContent).join("|");
     expect(after).not.toBe(before);
+  });
+});
+
+describe("Dealer View", () => {
+  const solar = PROFILES.find((p) => p.id === "SOLAR_PRIME");
+  const SMALL_SOLAR = Object.freeze({
+    ...solar,
+    defaults: { ...solar.defaults, dealerView: { ...solar.defaults.dealerView, portfolio: { count: 300, seed: 42 } } }
+  });
+  const REGISTRY = [PROFILES.find((p) => p.id === "MORTGAGE"), SMALL_SOLAR];
+
+  it("generates the portfolio, shows computed alerts and a labelled dealer-failure scenario", async () => {
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await openTab("Dealer View");
+    expect(screen.getByTestId("synthetic-label")).toHaveTextContent("Synthetic data");
+    expect(screen.getByTestId("dealer-model-note")).toHaveTextContent(/simulated public-record signal/);
+    expect(screen.getByLabelText("Dealer portfolio profile")).toHaveValue("SOLAR_PRIME");
+    expect(screen.queryByTestId("dealer-case-study")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByTestId("generate-10k"));
+    const table = await screen.findByTestId("dealer-table", {}, { timeout: 30000 });
+    expect(within(table).getAllByRole("row").length).toBe(51);
+    expect(screen.getByText(/300 loans/)).toBeInTheDocument();
+    await userEvent.click(within(table).getAllByRole("button", { name: "Fail this dealer" })[0]);
+    const result = screen.getByTestId("dealer-failure-result");
+    expect(result).toHaveTextContent(/Advance write-off/);
+    expect(result).toHaveTextContent(/Change in expected loss/);
+    expect(result).toHaveTextContent(/New portfolio expected loss/);
+    expect(within(result).getAllByText("assumption").length).toBe(3);
+    expect(screen.getByTestId("dealer-simulated-label")).toHaveTextContent("simulated — dealer effect is a set assumption");
+    expect(table).toHaveTextContent("simulated — dealer effect is a set assumption");
+    expect(screen.getByTestId("advance-source")).toHaveTextContent("$30,000,000, $10,000,000, $7,000,000, $5,000,000");
+    expect(screen.getByTestId("loan-amount-source")).toHaveTextContent(/\$10,000 to \$150,000 \(disclosed/);
+    expect(screen.getByTestId("exposure-note")).toHaveTextContent("Simulated 10,000-loan sample; advance-to-loan ratios are not comparable to");
+    expect(screen.getByTestId("loan-amount-source")).toHaveTextContent(/Calibration target: mean loan amount \$46,000 \(disclosed; Item 7/);
+    expect(screen.getByTestId("rating-method")).toHaveTextContent(/one-sided binomial test/);
+    expect(screen.getByTestId("rating-method")).toHaveTextContent(/Bonferroni/);
+    expect(within(table).getByText("p-value")).toBeInTheDocument();
+    const noise = screen.getByTestId("signal-vs-noise");
+    noise.open = true;
+    fireEvent(noise, new Event("toggle"));
+    expect(within(noise).getByTestId("false-flags")).toHaveTextContent(/\d+ RED, \d+ YELLOW of \d+ rated/);
+    expect(within(noise).getByTestId("false-flags-no-min")).toHaveTextContent(/of 50 rated/);
+    await userEvent.selectOptions(screen.getByLabelText("Dealer effect strength"), "0");
+    expect(screen.getByTestId("dealer-simulated-label")).toHaveTextContent("strength 0");
+    expect(screen.queryByTestId("dealer-failure-result")).not.toBeInTheDocument();
+    expect(screen.getByTestId("compliance-footer")).toBeInTheDocument();
+  }, 60000);
+
+  it("shows the case-study panel only for an active profile with entries, with exactly two linked facts", async () => {
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    await openTab("Dealer View");
+    const panel = screen.getByTestId("dealer-case-study");
+    expect(within(panel).getAllByRole("listitem")).toHaveLength(2);
+    expect(within(panel).getAllByRole("link")).toHaveLength(2);
   });
 });

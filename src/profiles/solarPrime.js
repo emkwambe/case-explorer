@@ -65,6 +65,34 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
   defaults: Object.freeze({
     dealerView: {
       portfolio: { count: 10000, seed: 42 },
+      // Solar loan amounts for exposure and expected loss, so loan losses and contractor advance
+      // write-offs share a scale. The range is disclosed; the median is an assumption chosen so the
+      // simulated mean (about $46,000) matches the disclosed FY2022 average solar loan balance.
+      loanAmount: {
+        distribution: "lognormal, clipped",
+        min: { value: 10_000, status: "disclosed", source: SUNLIGHT_10K_FY2022 },
+        max: { value: 150_000, status: "disclosed", source: SUNLIGHT_10K_FY2022 },
+        median: { value: 40_700, status: "assumption", note: "Chosen so the clipped mean matches the disclosed FY2022 average solar loan balance of $46,000." },
+        sigma: { value: 0.5, status: "assumption" },
+        calibrationTarget: {
+          metric: "mean loan amount",
+          value: 46_000,
+          status: "disclosed",
+          source: SUNLIGHT_10K_FY2022,
+          citation: "Item 7 (MD&A), \"Loan Characteristics\" table, p. 48: average characteristics of loans Sunlight facilitated for the year ended December 31, 2022 (USD in thousands); Solar, Loan Balance $46."
+        }
+      },
+      exposureNote: "Simulated 10,000-loan sample; advance-to-loan ratios are not comparable to Sunlight's actual book.",
+      network: {
+        // The four largest contractor advances follow the disclosed amounts; which synthetic
+        // dealers hold them, and every other advance, stay simulated.
+        topAdvances: {
+          values: [30_000_000, 10_000_000, 7_000_000, 5_000_000],
+          status: "disclosed",
+          note: "Largest installer: $30–33 million of advances expected to be impaired (low end used); next three largest partner advances: $10 million, $7 million and $5 million.",
+          source: SUNLIGHT_PR_2022_09_28
+        }
+      },
       dealerFailure: {
         nonWorkingShare: { value: 0.30, status: "assumption" },
         baseRecovery: { value: 0.15, status: "assumption" }
@@ -97,11 +125,8 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
       id: "installer_risk",
       panel: "dealerView",
       title: "Case study: Sunlight Financial and installer risk",
-      caveat: "Sunlight's announcement did not name the installer. These are separate sourced facts; the app does not claim they concern the same company.",
       facts: [
-        { date: "2022-09-28", text: "Sunlight said one of its largest installers was winding down its operations and expected to impair $30–33 million of advances to that installer; its next three largest partner advances were $10 million, $7 million and $5 million, and it was re-underwriting all contractor partners' advances.", source: SUNLIGHT_PR_2022_09_28 },
-        { date: "2022-12-31", text: "The FY2022 Form 10-K records a non-cash charge of $32.4 million on advances made to a contractor.", source: SUNLIGHT_10K_FY2022 },
-        { date: "2022-10-07", text: "Power Home Solar, LLC d/b/a Pink Energy filed for bankruptcy.", source: AG_LETTER_2022_11_22 },
+        { date: "2022-09-28", text: "Sunlight said one of its largest installers was winding down its operations and expected to impair $30–33 million of advances to that installer; its next three largest partner advances were $10 million, $7 million and $5 million.", source: SUNLIGHT_PR_2022_09_28 },
         { date: "2022-11-22", text: "Nine state attorneys general wrote to five solar lenders, including Sunlight Financial and Cross River Bank, about Pink Energy customers, asking them to suspend loan payments and interest for consumers whose systems were never installed or do not work properly, until an investigation can be completed.", source: AG_LETTER_2022_11_22 }
       ]
     },
