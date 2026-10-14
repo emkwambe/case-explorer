@@ -21,6 +21,12 @@ const SUNLIGHT_EMERGENCE_PR = Object.freeze({
   label: "Sunlight Financial emergence press release, December 7, 2023",
   url: "https://www.sec.gov/Archives/edgar/data/0001821850/000110465923124299/tm2332394d1_ex99-1.htm"
 });
+// Listed as further reading only. It describes Cross River Bank as part of the consortium, which
+// the emergence press release does not, so no fact below is sourced to it.
+const PV_MAGAZINE_2023_10_31 = Object.freeze({
+  label: "pv magazine USA, October 31, 2023",
+  url: "https://pv-magazine-usa.com/2023/10/31/sunlight-financial-files-bankruptcy-acquired-by-industry-consortium/"
+});
 
 export const SOLAR_PRIME_PROFILE = Object.freeze({
   id: "SOLAR_PRIME",
@@ -114,7 +120,16 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
       monthlyOpex: { value: 6_000_000, status: "assumption" },
       minLiquidity: { value: 20_000_000, status: "assumption" },
       loanCap: { value: 600_000_000, status: "assumption" },
-      baseRecovery: { value: 0.15, status: "assumption" }
+      baseRecovery: { value: 0.15, status: "assumption" },
+      // Not in the sprint table; the liquidity path needs them, so they are labelled assumptions.
+      lossRecognitionMonths: { value: 6, status: "assumption" },
+      monthlyNewFees: { value: 4_000_000, status: "assumption" },
+      loanSize: {
+        value: 46_000,
+        status: "disclosed",
+        source: SUNLIGHT_10K_FY2022,
+        citation: "Item 7 (MD&A), \"Loan Characteristics\" table, p. 48: average solar loan balance of loans facilitated in the year ended December 31, 2022, $46 thousand."
+      }
     }
   }),
 
@@ -136,6 +151,8 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
       id: "funding_history",
       panel: "fundingRates",
       title: "Sunlight history (sourced)",
+      hint: "Switch to Solar prime to see the sourced Sunlight history",
+      sources: [SUNLIGHT_10K_FY2022, SUNLIGHT_8K_CHAPTER_11, SUNLIGHT_EMERGENCE_PR, PV_MAGAZINE_2023_10_31],
       facts: [
         { date: "2022-12-31", text: "Sunlight earned platform fees, generally the margin between the contractor fee and the discount at which its capital provider funds or purchases a loan, and did not earn material revenue from loans held on its balance sheet.", source: SUNLIGHT_10K_FY2022 },
         { date: "2022-12-31", text: "In the indirect channel, loans were funded by Cross River Bank (the Bank Partner), then pooled and sold; prices were set at the credit approval event, and Sunlight had no interest rate risk hedging program for these agreements.", source: SUNLIGHT_10K_FY2022 },

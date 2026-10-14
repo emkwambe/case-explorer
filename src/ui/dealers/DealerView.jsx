@@ -84,7 +84,7 @@ export function DealerViewTab({ portfolio }) {
   const [failure, setFailure] = useState(null);
   const [strengthChoice, setStrengthChoice] = useState(null);
 
-  const { status, progress, inputs, dealers, settings: profileSettings, profile: portfolioProfile, generate } = portfolio;
+  const { status, progress, inputs, dealers, settings: profileSettings, profile: portfolioProfile, generate, setLastFailure } = portfolio;
   const defaultStrength = profileSettings?.dealerEffect.strength ?? 1;
   const strength = strengthChoice ?? defaultStrength;
   const settings = useMemo(() => (profileSettings ? withDealerEffect(profileSettings, strength) : null), [profileSettings, strength]);
@@ -118,7 +118,11 @@ export function DealerViewTab({ portfolio }) {
     generate(activeProfile);
   };
   const changeStrength = (value) => { setStrengthChoice(value); setFailure(null); };
-  const failDealer = (dealerId) => setFailure(simulateDealerFailure({ loans, dealers }, dealerId, settings.dealerFailure));
+  const failDealer = (dealerId) => {
+    const result = simulateDealerFailure({ loans, dealers }, dealerId, settings.dealerFailure);
+    setFailure(result);
+    setLastFailure?.({ ...result, strength, profileId: portfolioProfile.id });
+  };
   const count = dealerSettings(activeProfile.defaults?.dealerView).portfolio.count;
   const topAdvances = settings?.network.topAdvances;
   const sizing = settings?.loanAmount;

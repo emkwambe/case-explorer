@@ -307,3 +307,58 @@ describe("Dealer View", () => {
     expect(within(panel).getAllByRole("link")).toHaveLength(2);
   });
 });
+
+describe("Funding & Rates", () => {
+  const solar = PROFILES.find((p) => p.id === "SOLAR_PRIME");
+  const SMALL_SOLAR = Object.freeze({
+    ...solar,
+    defaults: { ...solar.defaults, dealerView: { ...solar.defaults.dealerView, portfolio: { count: 300, seed: 42 } } }
+  });
+  const REGISTRY = [PROFILES.find((p) => p.id === "MORTGAGE"), SMALL_SOLAR];
+
+  it("computes the pricing lag, liquidity path and sourced history from the active profile", async () => {
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    await openTab("Funding & Rates");
+    const tile = screen.getByTestId("tile-break-even");
+    const chart = screen.getByTestId("chart-fee-vs-shock");
+    const tileValue = tile.textContent.match(/([\d.]+) bps/)[1];
+    expect(within(chart).getByText(`Break-even ${tileValue} bps`)).toBeInTheDocument();
+    expect(tileValue).toBe("112.8");
+    expect(screen.getByTestId("input-loan-size")).toHaveValue(46000);
+    expect(screen.getByTestId("loan-size-citation")).toHaveTextContent(/Item 7/);
+    expect(within(screen.getByTestId("panel-pricing-lag")).getAllByText("assumption").length).toBeGreaterThanOrEqual(3);
+    expect(within(screen.getByTestId("panel-pricing-lag")).getAllByText("disclosed range")).toHaveLength(2);
+    fireEvent.change(screen.getByTestId("input-shock"), { target: { value: "250" } });
+    expect(screen.getByTestId("liquidity-sentence")).toHaveTextContent(/^A \+250 bps move between approval and sale turns a \$6\.34 fee into −\$6\.69 per \$100; on a \$500,000,000 unsold backbook that is −\$33,468,306, which breaches the \$20,000,000 liquidity minimum in month \d+\.$/);
+    const history = screen.getByTestId("panel-history");
+    expect(within(history).getAllByRole("listitem")).toHaveLength(9);
+    expect(within(screen.getByTestId("history-sources")).getAllByRole("link")).toHaveLength(4);
+    expect(screen.getByTestId("analysis-line")).toHaveTextContent(/^Analysis, not fact:/);
+    expect(screen.getByTestId("compliance-footer")).toBeInTheDocument();
+  }, 30000);
+
+  it("applies the dealer portfolio and the last dealer-failure scenario to expected loss", async () => {
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    await openTab("Funding & Rates");
+    expect(within(screen.getByTestId("panel-credit-loss")).getByText(/Generate the 10k portfolio/)).toBeInTheDocument();
+    await openTab("Dealer View");
+    await userEvent.click(screen.getByTestId("generate-10k"));
+    const table = await screen.findByTestId("dealer-table", {}, { timeout: 30000 });
+    await userEvent.click(within(table).getAllByRole("button", { name: "Fail this dealer" })[0]);
+    await openTab("Funding & Rates");
+    const panel = screen.getByTestId("panel-credit-loss");
+    expect(within(panel).getByText("Portfolio expected loss")).toBeInTheDocument();
+    await userEvent.click(within(panel).getByTestId("apply-failure"));
+    expect(within(panel).getByText("With last dealer failure")).toBeInTheDocument();
+  }, 60000);
+
+  it("says Mortgage has no funding defaults and points to the profile that does", async () => {
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await openTab("Funding & Rates");
+    expect(screen.getByTestId("funding-not-configured")).toHaveTextContent("not configured for Mortgage (default). Profiles with defaults: Solar prime (calibrated).");
+    expect(screen.getByTestId("funding-hint")).toHaveTextContent("Switch to Solar prime to see the sourced");
+    expect(screen.queryByTestId("panel-pricing-lag")).not.toBeInTheDocument();
+  });
+});

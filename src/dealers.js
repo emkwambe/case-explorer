@@ -301,6 +301,7 @@ export function simulateDealerFailure(portfolio, dealerId, params = {}) {
     stressedExpectedLoss: stressed,
     deltaExpectedLoss: stressed - baseline,
     affectedLoans: affected.size,
+    affectedIds: [...affected],
     dealerLoans: loans.filter((l) => l.dealerId === dealerId).length,
     assumptions: p
   };

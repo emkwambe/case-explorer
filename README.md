@@ -94,6 +94,24 @@ Fairness reports **WARN** by design. Counterfactual invariance is exact and the 
 
 ---
 
+## Credit analysis mode
+
+Three views look at a point-of-sale lender's risk through the active **lender profile**, chosen in the header (`src/profiles/`). The default Mortgage profile has no calibration, benchmarks or case studies. The Solar prime profile is calibrated against one public lender's filings.
+
+| View | What it shows |
+|---|---|
+| **Credit Risk Mode** (toggle) | A credit policy overlay on claimed values: back-end DTI, FICO, liquidity and visible fraud alerts, with adverse-action reasons. It sits beside the generator's integrity check and flags the two disagreements that matter. |
+| **Dealer View** (tab) | Installer-channel risk over a 10,000-loan portfolio: fictional dealers, a binomial dealer rating, concentration alerts, and a dealer-failure loss covering both contractor advances and asset-level losses. A signal-vs-noise panel shows how many dealers the rating flags when dealer quality has no effect at all. |
+| **Funding & Rates** (tab) | The pricing-lag channel: a fixed-rate loan priced at approval and sold later, the platform fee against the rate shock, the unsold backbook, a liquidity path with a minimum-liquidity covenant, the funding partner's loan cap, and portfolio expected loss. |
+
+**Calibration benchmark.** The Solar prime profile tunes only the credit score base so that applications approved under the current credit policy average a FICO of 748. That is the average reported for financed borrowers in Sunlight Financial's FY2022 Form 10-K. Loan amounts use the 10-K's disclosed $10,000–$150,000 range, with an assumed median chosen to match the disclosed $46,000 average solar loan balance. Every other distribution keeps the generator default and is uncalibrated.
+
+**Data provenance.** Every borrower, dealer, loan outcome and portfolio is synthetic. The only real-world inputs are cited public documents: Sunlight Financial's FY2022 Form 10-K and SEC filings, a September 2022 press release, and a November 2022 letter from state attorneys general. Each fact and default input is tagged in the app as either *disclosed*, with a link to its source, or an *assumption*. Real company names appear only in `src/profiles/`, and a test enforces this.
+
+**What the app is not.** It is not a consumer report, not a credit decision tool and not a model of any lender's actual current book or terms. Dealer metrics are simulated under a set dealer-effect assumption and are not evidence about real dealers. No fair-lending or disparate-impact testing is claimed for synthetic data. Every page carries a compliance footer: *Demo only · Synthetic data · Not a consumer report · Not for credit decisions · Educational portfolio project*.
+
+---
+
 ## Architecture
 
 ```

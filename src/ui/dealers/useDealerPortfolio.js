@@ -14,6 +14,8 @@ const SLICE_MS = 25;
 
 export function useDealerPortfolio(baseConfig) {
   const [state, setState] = useState({ status: "idle", progress: 0, inputs: null, profile: null, settings: null, dealers: null });
+  // The last "Fail this dealer" result, shared so other tabs can apply it. Cleared on regeneration.
+  const [lastFailure, setLastFailure] = useState(null);
   const cancelRun = useRef(() => {});
 
   const generate = useCallback((profile) => {
@@ -28,6 +30,7 @@ export function useDealerPortfolio(baseConfig) {
     const inputs = [];
     let i = 0;
     setState({ status: "running", progress: 0, inputs: null, profile, settings, dealers });
+    setLastFailure(null);
 
     const step = () => {
       if (cancelled) return;
@@ -48,5 +51,5 @@ export function useDealerPortfolio(baseConfig) {
 
   useEffect(() => () => cancelRun.current(), []);
 
-  return { ...state, generate };
+  return { ...state, generate, lastFailure, setLastFailure };
 }

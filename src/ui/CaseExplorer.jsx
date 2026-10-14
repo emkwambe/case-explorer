@@ -17,6 +17,7 @@ import { UnderwritingSidebar, PortfolioStrip, BenchmarkPanel, ComplianceFooter }
 import { useCreditAssessments, CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
 import { DealerViewTab } from "./dealers/DealerView.jsx";
 import { useDealerPortfolio } from "./dealers/useDealerPortfolio.js";
+import { FundingViewTab } from "./funding/FundingView.jsx";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -32,6 +33,7 @@ const TABS = [
   { id: "investigation", label: "Investigation" },
   { id: "portfolio", label: "Portfolio" },
   { id: "dealers", label: "Dealer View" },
+  { id: "funding", label: "Funding & Rates" },
   { id: "network", label: "Network" },
   { id: "economics", label: "Economics" },
   { id: "validation", label: "Validation" }
@@ -204,6 +206,7 @@ function CaseExplorerShell() {
               {activeTab === "investigation" && <InvestigationTab caseData={selectedCase} scored={scored} {...investigation} />}
               {activeTab === "portfolio" && <DataTableTab cases={cases} onSelect={(id) => { select(id); setActiveTab("overview"); }} />}
               {activeTab === "dealers" && <DealerViewTab portfolio={dealerPortfolio} />}
+              {activeTab === "funding" && <FundingViewTab portfolio={dealerPortfolio} />}
               {activeTab === "network" && <NetworkTab cases={cases} />}
               {activeTab === "economics" && <EconomicsTab cases={cases} config={config} />}
               {activeTab === "validation" && <ValidationTab />}
