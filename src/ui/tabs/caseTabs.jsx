@@ -2,7 +2,7 @@
 // ground-truth graph, evidence and application metadata.
 
 import React from "react";
-import { styles, ALIGNMENT_COLORS, FRAUD_COLORS, OUTCOME_COLORS, OUTCOME_ICONS, money, pct, titleCase } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, OUTCOME_ICONS, eventFamily, money, pct, titleCase } from "../theme.js";
 import { MetricCard, Panel, KV, Badge, ComparisonRow, CitationList, Callout } from "../components/primitives.jsx";
 
 export function OverviewTab({ caseData }) {
@@ -70,12 +70,17 @@ export function TimelineTab({ caseData }) {
         The life script that produced this case. The ledger below closes the loop: every month must satisfy
         starting balance plus deposits minus outflows equals ending balance, and the bank statement is derived from it.
       </div>
-      <div style={styles.timelineHeader}><div style={styles.legendDot} /><span>World-truth events</span></div>
+      <div style={{ ...styles.timelineHeader, gap: 14, flexWrap: "wrap" }} data-testid="timeline-legend">
+        <span>World-truth events:</span>
+        {[...new Map(events.map((ev) => { const f = eventFamily(ev.type); return [f.id, f]; })).values()].map((f) => (
+          <span key={f.id} style={{ display: "inline-flex", alignItems: "center" }}><span style={{ ...styles.legendDot, background: f.color }} />{f.label}</span>
+        ))}
+      </div>
       <div style={styles.timeline}>
         {events.map((ev, i) => (
           <div key={`${ev.t}-${ev.type}-${i}`} style={styles.timelineRow}>
             <div style={styles.timelineDate}>{ev.t}</div>
-            <div style={styles.timelineDot}><div style={{ ...styles.dot, background: "#10b981" }} /></div>
+            <div style={styles.timelineDot}><div style={{ ...styles.dot, background: eventFamily(ev.type).color }} title={eventFamily(ev.type).label} data-family={eventFamily(ev.type).id} /></div>
             <div style={styles.timelineContent}>
               <div style={styles.eventType}>{titleCase(ev.type)}{ev.type_detail ? ` · ${titleCase(ev.type_detail)}` : ""}</div>
               <div style={styles.eventDetails}>
@@ -139,7 +144,7 @@ export function AlignmentTab({ caseData }) {
         {findings.map((f, i) => (
           <div key={`${f.dimension}-detail-${i}`} style={{ ...styles.finding, borderLeft: `4px solid ${ALIGNMENT_COLORS[f.level]}` }}>
             <div style={styles.findingHeader}>
-              <Badge color={ALIGNMENT_COLORS[f.level]}>{f.level}</Badge>
+              <Badge color={ALIGNMENT_COLORS[f.level]} title={ALIGNMENT_DESCRIPTIONS[f.level]}>{f.level}</Badge>
               <strong>{titleCase(f.dimension)}</strong>
               <span style={{ marginLeft: "auto", color: "#64748b", fontStyle: "italic" }}>{titleCase(f.status)}</span>
             </div>
@@ -166,7 +171,7 @@ export function TruthGraphTab({ caseData }) {
         {findings.map((f, i) => (
           <div key={`${f.type}-${i}`} style={{ ...styles.finding, borderLeft: `4px solid ${ALIGNMENT_COLORS[f.classification]}` }}>
             <div style={styles.findingHeader}>
-              <Badge color={ALIGNMENT_COLORS[f.classification]}>{f.classification}</Badge>
+              <Badge color={ALIGNMENT_COLORS[f.classification]} title={ALIGNMENT_DESCRIPTIONS[f.classification]}>{f.classification}</Badge>
               <strong>{titleCase(f.type)}</strong>
               <span style={{ marginLeft: "auto", color: "#64748b", fontStyle: "italic" }}>{titleCase(f.target_layer)}</span>
             </div>

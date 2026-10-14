@@ -1,6 +1,27 @@
 // src/ui/theme.js — Shared colour scale and style objects for the explorer UI.
 
 export const ALIGNMENT_COLORS = { A0: "#10b981", A1: "#3b82f6", A2: "#f59e0b", A3: "#f97316", A4: "#ef4444", A5: "#7c2d12" };
+// Alignment levels (max across alignment findings), as defined in docs/methodology/DATA_DICTIONARY.md
+// and src/core/findings.js. Used for the A0–A5 badge tooltips.
+export const ALIGNMENT_DESCRIPTIONS = {
+  A0: "A0 aligned: claims match the evidence (coherent; fraud risk none).",
+  A1: "A1 explainable variance: a small difference such as income overstated by up to 15% (mostly coherent; fraud risk none).",
+  A2: "A2 partial incoherence: e.g. income understated by more than $1,000 (fraud risk low).",
+  A3: "A3 material mismatch: e.g. undisclosed liabilities, overstated assets or an incoherent world (fraud risk moderate).",
+  A4: "A4 probable manipulation: e.g. a claimed employer that differs from verification or income overstated by more than 15% (fraud risk high).",
+  A5: "A5 synthetic identity: the identity itself is fabricated (fraud risk critical)."
+};
+
+// Timeline event families. Three categorical slots validated all-pairs (light mode) with the
+// dataviz palette validator; every dot is also labelled with its event type, and a legend is shown.
+export const EVENT_FAMILIES = [
+  { id: "employment", label: "Employment and income", color: "#2a78d6", types: ["EMPLOYMENT_START", "SALARY_INCREASE", "SALARY_DEPOSIT"] },
+  { id: "housing", label: "Housing and occupancy", color: "#eb6834", types: ["ADDRESS_CHANGE", "OCCUPANCY_DECLARATION", "RENT_PAYMENT"] },
+  { id: "liabilities", label: "Liabilities and credit", color: "#1baf7a", types: ["LIABILITY_OPENED"] }
+];
+export const OTHER_EVENT_COLOR = "#64748b";
+export const eventFamily = (type) => EVENT_FAMILIES.find((f) => f.types.includes(type)) ?? { id: "other", label: "Other", color: OTHER_EVENT_COLOR };
+
 export const FRAUD_COLORS = { NONE: "#10b981", LOW: "#3b82f6", MODERATE: "#f59e0b", HIGH: "#f97316", CRITICAL: "#ef4444" };
 export const OUTCOME_COLORS = { APPROVE: "#10b981", MANUAL_REVIEW: "#f59e0b", DECLINE: "#ef4444" };
 export const OUTCOME_ICONS = { APPROVE: "✓", DECLINE: "✗", MANUAL_REVIEW: "?" };
@@ -29,8 +50,14 @@ export const styles = {
   cardDifficulty: { color: "#94a3b8", fontSize: 11, textTransform: "uppercase" },
   generatorPanel: { marginTop: 16, padding: 14, background: "#f1f5f9", borderRadius: 6, border: "1px solid #e2e8f0" },
   detail: { background: "white", borderRadius: 8, boxShadow: "0 1px 3px rgba(0,0,0,0.1)" },
-  tabs: { display: "flex", borderBottom: "1px solid #e2e8f0", padding: "0 12px", overflowX: "auto" },
-  tab: { padding: "12px 16px", background: "none", border: "none", cursor: "pointer", fontSize: 13, whiteSpace: "nowrap" },
+  // Tabs wrap onto a second line rather than scrolling sideways.
+  tabs: { display: "flex", flexWrap: "wrap", borderBottom: "1px solid #e2e8f0", padding: "0 12px" },
+  tab: { padding: "12px 12px", background: "none", border: "none", cursor: "pointer", fontSize: 13, whiteSpace: "nowrap" },
+  segmented: { display: "inline-flex", gap: 2, margin: "12px 12px 0", padding: 3, background: "#f1f5f9", borderRadius: 8, border: "1px solid #e2e8f0", flexWrap: "wrap" },
+  segment: { padding: "6px 14px", border: "none", borderRadius: 6, background: "transparent", color: "#475569", fontSize: 13, fontWeight: 600, cursor: "pointer" },
+  segmentActive: { background: "white", color: "#1d4ed8", boxShadow: "0 1px 2px rgba(15,23,42,0.12)" },
+  // Numeric table cells: right-aligned with tabular figures so digits line up.
+  num: { textAlign: "right", fontVariantNumeric: "tabular-nums" },
   tabContent: { padding: 22 },
   grid2: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16, marginBottom: 16 },
   grid4: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginBottom: 16 },

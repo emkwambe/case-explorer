@@ -15,8 +15,15 @@ export const DEMO_AS_OF = "2026-01-15";
 /** Config with a fixed as-of date so evidence dates and tenure are stable across reloads. */
 export const demoConfig = { ...CONFIG, generation: { ...(CONFIG.generation || {}), as_of_date: DEMO_AS_OF } };
 
-/** A curated opening set: one clean approval, one review, and one of each headline typology. */
-export function buildInitialCases(config = demoConfig) {
+/**
+ * The opening library. By default a curated set: one clean approval, one review, and one of each
+ * headline typology. A profile can ask for a blended set instead: the first applications of its
+ * own seeded stream, so the library shows the profile's natural mix.
+ */
+export function buildInitialCases(config = demoConfig, opening) {
+  if (opening?.kind === "blended") {
+    return Array.from({ length: opening.count ?? 12 }, (_, i) => generateBlendedCase(i, config, DEMO_SEED));
+  }
   const curated = [
     ["NONE", "LOW"], ["NONE", "LOW"], ["INFLATION", "HIGH"], ["CONCEALMENT", "HIGH"],
     ["FABRICATION", "HIGH"], ["BUST_OUT", "HIGH"], ["EVIDENCE_TAMPERING", "HIGH"],
@@ -30,7 +37,7 @@ export function useCaseLibrary() {
   const { profile } = useActiveProfile();
   const config = useMemo(() => applyProfile(demoConfig, profile), [profile]);
   // The opening library is built once for the profile active at mount; profile switches rebuild it below.
-  const [cases, setCases] = useState(() => buildInitialCases(config));
+  const [cases, setCases] = useState(() => buildInitialCases(config, profile.openingLibrary));
   const [selectedId, setSelectedId] = useState(() => cases[0].id);
   const [genConfig, setGenConfig] = useState({ corruptionType: "MIXED", severity: "HIGH", count: 10, seed: "", adversarial: false });
 
@@ -61,17 +68,17 @@ export function useCaseLibrary() {
   }, [addCases, config]);
 
   const select = useCallback((id) => setSelectedId(id), []);
-  const reset = useCallback(() => { const fresh = buildInitialCases(config); setCases(fresh); setSelectedId(fresh[0].id); }, [config]);
+  const reset = useCallback(() => { const fresh = buildInitialCases(config, profile.openingLibrary); setCases(fresh); setSelectedId(fresh[0].id); }, [config, profile.openingLibrary]);
 
   // Switching the active lender profile regenerates the opening library under that profile.
   const libraryProfile = useRef(profile.id);
   useEffect(() => {
     if (libraryProfile.current === profile.id) return;
     libraryProfile.current = profile.id;
-    const fresh = buildInitialCases(config);
+    const fresh = buildInitialCases(config, profile.openingLibrary);
     setCases(fresh);
     setSelectedId(fresh[0].id);
-  }, [profile.id, config]);
+  }, [profile.id, config, profile.openingLibrary]);
 
   return { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, addCases, reset, config };
 }

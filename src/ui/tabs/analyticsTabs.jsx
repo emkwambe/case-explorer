@@ -1,7 +1,7 @@
 // src/ui/tabs/analyticsTabs.jsx — Portfolio-level tabs: data table, network, economics, validation.
 
 import React, { useMemo, useState } from "react";
-import { styles, ALIGNMENT_COLORS, FRAUD_COLORS, OUTCOME_COLORS, money, pct, titleCase } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, money, pct, titleCase } from "../theme.js";
 import { MetricCard, Panel, Badge, Chip, Th, Callout } from "../components/primitives.jsx";
 import { download } from "../components/download.js";
 import { scoreCase } from "../../decisioning/index.js";
@@ -63,10 +63,10 @@ export function DataTableTab({ cases, onSelect }) {
           <thead><tr>
             <Th label="Name" sortKey="applicant.name" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Scenario" sortKey="scenario" sortConfig={sortConfig} onSort={requestSort} />
-            <Th label="Loan" sortKey="application.loan_amount" sortConfig={sortConfig} onSort={requestSort} />
-            <Th label="Salary" sortKey="salary" sortConfig={sortConfig} onSort={requestSort} />
-            <Th label="Back-end DTI" sortKey="dti" sortConfig={sortConfig} onSort={requestSort} />
-            <Th label="Credit" sortKey="credit_score" sortConfig={sortConfig} onSort={requestSort} />
+            <Th label="Loan" sortKey="application.loan_amount" sortConfig={sortConfig} onSort={requestSort} numeric />
+            <Th label="Salary" sortKey="salary" sortConfig={sortConfig} onSort={requestSort} numeric />
+            <Th label="Back-end DTI" sortKey="dti" sortConfig={sortConfig} onSort={requestSort} numeric />
+            <Th label="Credit" sortKey="credit_score" sortConfig={sortConfig} onSort={requestSort} numeric />
             <Th label="Align" sortKey="label.alignment_level" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Outcome" sortKey="label.expected_outcome" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Fraud risk" sortKey="label.fraud_risk_level" sortConfig={sortConfig} onSort={requestSort} />
@@ -77,11 +77,11 @@ export function DataTableTab({ cases, onSelect }) {
               <tr key={c.id} style={{ ...styles.tableRow, cursor: "pointer" }} onClick={() => onSelect?.(c.id)}>
                 <td style={styles.td}><strong>{c.applicant.name}</strong></td>
                 <td style={styles.td}>{titleCase(c.meta?.corruption_type)}</td>
-                <td style={styles.td}>{money(c.application.loan_amount)}</td>
-                <td style={styles.td}>{money(c.truth.current_state?.salary)}</td>
-                <td style={styles.td}>{pct(c.truth.current_state?.backend_dti)}</td>
-                <td style={styles.td}>{c.truth.current_state?.credit_score}</td>
-                <td style={styles.td}><Badge color={ALIGNMENT_COLORS[c.label.alignment_level]}>{c.label.alignment_level}</Badge></td>
+                <td style={{ ...styles.td, ...styles.num }}>{money(c.application.loan_amount)}</td>
+                <td style={{ ...styles.td, ...styles.num }}>{money(c.truth.current_state?.salary)}</td>
+                <td style={{ ...styles.td, ...styles.num }}>{pct(c.truth.current_state?.backend_dti)}</td>
+                <td style={{ ...styles.td, ...styles.num }}>{c.truth.current_state?.credit_score}</td>
+                <td style={styles.td}><Badge color={ALIGNMENT_COLORS[c.label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[c.label.alignment_level]}>{c.label.alignment_level}</Badge></td>
                 <td style={styles.td}><span style={{ color: OUTCOME_COLORS[c.label.expected_outcome], fontWeight: 600 }}>{c.label.expected_outcome}</span></td>
                 <td style={styles.td}><span style={{ color: FRAUD_COLORS[c.label.fraud_risk_level] }}>{c.label.fraud_risk_level}</span></td>
                 <td style={styles.td}>

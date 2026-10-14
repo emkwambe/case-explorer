@@ -1,6 +1,6 @@
 // src/ui/components/primitives.jsx — Small presentational building blocks.
 import React from "react";
-import { styles, ALIGNMENT_COLORS, FRAUD_COLORS, titleCase } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, titleCase } from "../theme.js";
 
 export function MetricCard({ title, value, color, subtitle, icon }) {
   return (
@@ -32,8 +32,8 @@ export function KV({ label, children, mono }) {
   );
 }
 
-export function Badge({ color, children }) {
-  return <span style={{ ...styles.badge, background: color }}>{children}</span>;
+export function Badge({ color, children, title }) {
+  return <span title={title} style={{ ...styles.badge, background: color, cursor: title ? "help" : undefined }}>{children}</span>;
 }
 
 export function Chip({ color, children, title }) {
@@ -73,7 +73,7 @@ export function CaseCard({ caseData, selected, onClick, accentColor }) {
     >
       <div style={styles.cardHeader}>
         <strong>{applicant.name}</strong>
-        <Badge color={ALIGNMENT_COLORS[label.alignment_level]}>{label.alignment_level}</Badge>
+        <Badge color={ALIGNMENT_COLORS[label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[label.alignment_level]}>{label.alignment_level}</Badge>
       </div>
       <div style={styles.cardMeta}>Age {applicant.age} · ${caseData.application.loan_amount.toLocaleString()} · {titleCase(caseData.meta?.corruption_type ?? "none")}</div>
       <div style={styles.cardOutcome}>
@@ -84,10 +84,10 @@ export function CaseCard({ caseData, selected, onClick, accentColor }) {
   );
 }
 
-export function Th({ label, sortKey, sortConfig, onSort }) {
+export function Th({ label, sortKey, sortConfig, onSort, numeric }) {
   const isActive = sortConfig.key === sortKey;
   return (
-    <th onClick={() => onSort(sortKey)} style={{ ...styles.th, cursor: "pointer", background: isActive ? "#f1f5f9" : "#f8fafc" }}>
+    <th onClick={() => onSort(sortKey)} style={{ ...styles.th, ...(numeric ? styles.num : null), cursor: "pointer", background: isActive ? "#f1f5f9" : "#f8fafc" }}>
       {label}{isActive && <span style={{ marginLeft: 4 }}>{sortConfig.direction === "asc" ? "↑" : "↓"}</span>}
     </th>
   );

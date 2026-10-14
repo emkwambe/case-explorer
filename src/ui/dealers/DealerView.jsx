@@ -13,6 +13,7 @@ const RATING_COLORS = { RED: "#b91c1c", YELLOW: "#b45309", GREEN: "#047857", INS
 const RATING_LABELS = { RED: "Red", YELLOW: "Yellow", GREEN: "Green", INSUFFICIENT_DATA: "Insufficient data" };
 const STRENGTHS = [0, 0.5, 1, 1.5, 2];
 const SIMULATED_LABEL = "simulated — dealer effect is a set assumption";
+const NUMERIC = new Set(["loans", "avgFico", "avgDti", "dpd30Rate", "chargeOffRate", "exposure", "exposureShare", "advanceBalance", "pValue"]);
 const COLUMNS = [
   ["dealer", "Dealer"], ["city", "City"], ["state", "State"], ["loans", "Loans"], ["avgFico", "Avg FICO"],
   ["avgDti", "Avg back-end DTI"], ["dpd30Rate", "30+ DPD"], ["chargeOffRate", "Charge-off"], ["exposure", "Loan exposure"],
@@ -232,7 +233,7 @@ export function DealerViewTab({ portfolio }) {
               <caption style={{ captionSide: "top", textAlign: "left", padding: "8px 12px", fontSize: 12, color: "#92400e" }}>Dealer metrics: {SIMULATED_LABEL}</caption>
               <thead>
                 <tr>
-                  {COLUMNS.map(([key, label]) => <Th key={key} label={label} sortKey={key} sortConfig={sortConfig} onSort={onSort} />)}
+                  {COLUMNS.map(([key, label]) => <Th key={key} label={label} sortKey={key} sortConfig={sortConfig} onSort={onSort} numeric={NUMERIC.has(key)} />)}
                   <th style={styles.th}>Scenario</th>
                 </tr>
               </thead>
@@ -242,16 +243,16 @@ export function DealerViewTab({ portfolio }) {
                     <td style={styles.td}>{r.dealer}</td>
                     <td style={styles.td}>{r.city}</td>
                     <td style={styles.td}>{r.state}</td>
-                    <td style={styles.td}>{r.loans.toLocaleString("en-US")}</td>
-                    <td style={styles.td}>{r.avgFico === null ? "—" : r.avgFico.toFixed(0)}</td>
-                    <td style={styles.td}>{pct(r.avgDti)}</td>
-                    <td style={styles.td}>{pct(r.dpd30Rate)}</td>
-                    <td style={styles.td}>{pct(r.chargeOffRate)}</td>
-                    <td style={styles.td}>{money(r.exposure)}</td>
-                    <td style={styles.td}>{pct(r.exposureShare)}</td>
-                    <td style={styles.td}>{money(r.advanceBalance)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{r.loans.toLocaleString("en-US")}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{r.avgFico === null ? "—" : r.avgFico.toFixed(0)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{pct(r.avgDti)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{pct(r.dpd30Rate)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{pct(r.chargeOffRate)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{money(r.exposure)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{pct(r.exposureShare)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{money(r.advanceBalance)}</td>
                     <td style={styles.td}>{r.signal ? "Simulated public-record signal" : "—"}</td>
-                    <td style={styles.td}>{r.pValue === null ? "—" : r.pValue < 0.0001 ? "<0.0001" : r.pValue.toFixed(4)}</td>
+                    <td style={{ ...styles.td, ...styles.num }}>{r.pValue === null ? "—" : r.pValue < 0.0001 ? "<0.0001" : r.pValue.toFixed(4)}</td>
                     <td style={{ ...styles.td, color: RATING_COLORS[r.rating], fontWeight: 700 }}>{RATING_LABELS[r.rating]}</td>
                     <td style={styles.td}>
                       <button style={styles.btnSmall} onClick={() => failDealer(r.dealerId)} data-testid={`fail-${r.dealerId}`}>Fail this dealer</button>

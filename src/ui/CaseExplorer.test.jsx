@@ -11,6 +11,7 @@ import { buildInitialCases, demoConfig } from "./hooks/useCaseLibrary.js";
 import { TOUR_STEPS } from "./demo/tour.js";
 import { scoreCase } from "../decisioning/index.js";
 import { PROFILES } from "../profiles/index.js";
+import { TAB_GROUPS } from "./navigation.js";
 
 // The artifact hook fetches published JSON; in tests there is no server.
 beforeEach(() => {
@@ -20,8 +21,21 @@ beforeEach(() => {
   window.URL.revokeObjectURL = vi.fn();
 });
 
+// Tabs live in sections: select the tab's section first, then the tab.
 const openTab = async (name) => {
+  const group = TAB_GROUPS.find((g) => g.tabs.some((t) => t.label === name));
+  if (group) await userEvent.click(screen.getByTestId(`section-${group.id}`));
   await userEvent.click(screen.getByRole("tab", { name }));
+};
+
+// Every tab the active profile can show, across all sections.
+const allTabs = async () => {
+  const names = [];
+  for (const g of TAB_GROUPS) {
+    await userEvent.click(screen.getByTestId(`section-${g.id}`));
+    names.push(...screen.getAllByRole("tab").map((t) => t.textContent));
+  }
+  return names;
 };
 
 describe("case library", () => {
@@ -152,16 +166,21 @@ describe("CaseExplorer", () => {
 describe("Credit Risk Mode", () => {
   const FOOTER = "Demo only · Synthetic data · Not a consumer report · Not for credit decisions · Educational portfolio project";
 
-  it("shows the compliance footer on every tab with the mode off and on", async () => {
+  it("shows the compliance footer on every tab in every section, with the mode off and on, for both profiles", async () => {
     render(<CaseExplorer />);
-    for (const mode of [false, true]) {
-      if (mode) await userEvent.click(screen.getByTestId("credit-risk-mode"));
-      for (const tab of screen.getAllByRole("tab")) {
-        await userEvent.click(tab);
-        expect(screen.getByTestId("compliance-footer")).toHaveTextContent(FOOTER);
+    for (const profile of ["MORTGAGE", "SOLAR_PRIME"]) {
+      await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), profile);
+      for (const mode of [false, true]) {
+        if (screen.getByTestId("credit-risk-mode").checked !== mode) await userEvent.click(screen.getByTestId("credit-risk-mode"));
+        const names = await allTabs();
+        expect(names.length).toBe(profile === "SOLAR_PRIME" ? 18 : 17);
+        for (const name of names) {
+          await openTab(name);
+          expect(screen.getByTestId("compliance-footer")).toHaveTextContent(FOOTER);
+        }
       }
     }
-  }, 30000);
+  }, 90000);
 
   it("shows the underwriting sidebar, portfolio strip and copyable risk summary", async () => {
     const writeText = vi.fn(() => Promise.resolve());
@@ -210,8 +229,8 @@ describe("lender profiles", () => {
       expect(screen.getByTestId("portfolio-profile")).toHaveValue("BARE");
       for (const mode of [false, true]) {
         if (mode) await userEvent.click(screen.getByTestId("credit-risk-mode"));
-        for (const tab of screen.getAllByRole("tab")) {
-          await userEvent.click(tab);
+        for (const name of await allTabs()) {
+          await openTab(name);
           expect(screen.getByTestId("compliance-footer")).toBeInTheDocument();
         }
       }
@@ -366,6 +385,8 @@ describe("Funding & Rates", () => {
 describe("Public record", () => {
   it("is shown only when the active profile has public-record data", async () => {
     render(<CaseExplorer />);
+    await userEvent.click(screen.getByTestId("section-credit"));
+    expect(screen.getByRole("tab", { name: "Dealer View" })).toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Public record" })).not.toBeInTheDocument();
     await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
     expect(screen.getByRole("tab", { name: "Public record" })).toBeInTheDocument();
@@ -402,4 +423,38 @@ describe("Public record", () => {
     const urls = globalThis.fetch.mock.calls.map((c) => String(c[0]));
     expect(urls.filter((u) => /sec\.gov|stlouisfed\.org/.test(u))).toEqual([]);
   }, 30000);
+});
+
+describe("navigation and header", () => {
+  it("groups tabs into Case, Portfolio and Credit lab, with the toggle and profile in the header", async () => {
+    render(<CaseExplorer />);
+    expect(screen.getAllByRole("tab").map((t) => t.textContent)).toEqual(["Overview", "World truth", "Alignment", "Ground truth", "Evidence", "Metadata", "Decision", "Outcome", "Explanation"]);
+    await userEvent.click(screen.getByTestId("section-portfolio"));
+    expect(screen.getAllByRole("tab").map((t) => t.textContent)).toEqual(["Portfolio", "Fairness", "Investigation", "Network", "Economics", "Validation"]);
+    expect(screen.getByTestId("section-portfolio")).toHaveAttribute("aria-pressed", "true");
+    const header = screen.getByRole("banner");
+    expect(within(header).getByTestId("credit-risk-mode")).toBeInTheDocument();
+    expect(within(header).getByTestId("portfolio-profile")).toBeInTheDocument();
+    expect(screen.getByTestId("generator-panel")).not.toHaveAttribute("open");
+  });
+
+  it("header subtitle and counts follow the active profile; Solar prime opens on its own seeded mix", async () => {
+    render(<CaseExplorer />);
+    expect(screen.getByTestId("header-subtitle")).toHaveTextContent(/^Mortgage risk simulation, fraud analytics and model validation · generator 2\.0\.0 · 12 cases \(integrity check: \d+ approve, \d+ review, \d+ decline\)$/);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    expect(screen.getByTestId("header-subtitle")).toHaveTextContent("Prime solar lending: credit policy, dealer channel, funding stress and public record · generator 2.0.0 · 12 cases (credit policy: 6 approve, 4 review, 2 decline)");
+    const types = screen.getAllByTestId("case-card").map((c) => c.textContent);
+    expect(types.filter((t) => /· None/.test(t)).length).toBe(8);
+  });
+
+  it("explains alignment badges and colours timeline dots by event family", async () => {
+    render(<CaseExplorer />);
+    expect(screen.getAllByTestId("case-card")[0].querySelector("[title]").getAttribute("title")).toMatch(/^A\d /);
+    await openTab("World truth");
+    const legend = screen.getByTestId("timeline-legend");
+    expect(legend).toHaveTextContent("Employment and income");
+    const families = [...document.querySelectorAll("[data-family]")].map((d) => d.getAttribute("data-family"));
+    expect(families.length).toBeGreaterThan(0);
+    expect(families).toContain("employment");
+  });
 });

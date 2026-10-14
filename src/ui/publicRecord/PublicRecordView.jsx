@@ -125,7 +125,7 @@ function UnitEconomicsPanel({ record, select }) {
       </p>
       <div style={styles.tableContainer}>
         <table style={styles.table} data-testid="unit-economics-table">
-          <thead><tr>{["Quarter", "Funded loans", "Platform fees", "Take rate", "Fed funds avg", "10-year avg"].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>
+          <thead><tr>{["Quarter", "Funded loans", "Platform fees", "Take rate", "Fed funds avg", "10-year avg"].map((h, i) => <th key={h} style={i ? { ...styles.th, ...styles.num } : styles.th}>{h}</th>)}</tr></thead>
           <tbody>
             {ue.quarters.map((q) => {
               const fv = record.quarterly.quarters.find((r) => r.quarter === q.quarter).metrics.funded_volume;
@@ -136,11 +136,11 @@ function UnitEconomicsPanel({ record, select }) {
               return (
                 <tr key={q.quarter} style={brk?.quarter === q.quarter ? { background: "#fffbeb" } : undefined}>
                   <td style={styles.td}>{qLabel(q.quarter)}</td>
-                  <td style={styles.td}>{cell(fv, "funded loans")}</td>
-                  <td style={styles.td}>{cell(pf, "platform fees")}{brk?.quarter === q.quarter && <span style={{ fontSize: 10, color: "#92400e" }} data-testid="break-badge"> presentation break</span>}</td>
-                  <td style={styles.td}>{q.takeRate ? <Val refData={takeRef(q)} text={fmtPct(q.takeRate.value)} onSelect={(r) => select(`take rate, ${qLabel(q.quarter)}`, r)} /> : q.stubs ? "— (stubs)" : "—"}</td>
-                  <td style={styles.td}><Val refData={q.fedFunds} text={fmtRate(q.fedFunds?.value)} onSelect={(r) => select(`fed funds average, ${qLabel(q.quarter)}`, r)} /></td>
-                  <td style={styles.td}><Val refData={q.tenYear} text={fmtRate(q.tenYear?.value)} onSelect={(r) => select(`10-year average, ${qLabel(q.quarter)}`, r)} /></td>
+                  <td style={{ ...styles.td, ...styles.num }}>{cell(fv, "funded loans")}</td>
+                  <td style={{ ...styles.td, ...styles.num }}>{cell(pf, "platform fees")}{brk?.quarter === q.quarter && <span style={{ fontSize: 10, color: "#92400e" }} data-testid="break-badge"> presentation break</span>}</td>
+                  <td style={{ ...styles.td, ...styles.num }}>{q.takeRate ? <Val refData={takeRef(q)} text={fmtPct(q.takeRate.value)} onSelect={(r) => select(`take rate, ${qLabel(q.quarter)}`, r)} /> : q.stubs ? "— (stubs)" : "—"}</td>
+                  <td style={{ ...styles.td, ...styles.num }}><Val refData={q.fedFunds} text={fmtRate(q.fedFunds?.value)} onSelect={(r) => select(`fed funds average, ${qLabel(q.quarter)}`, r)} /></td>
+                  <td style={{ ...styles.td, ...styles.num }}><Val refData={q.tenYear} text={fmtRate(q.tenYear?.value)} onSelect={(r) => select(`10-year average, ${qLabel(q.quarter)}`, r)} /></td>
                 </tr>
               );
             })}
@@ -178,17 +178,17 @@ function LiquidityPanel({ record, select }) {
       <p style={styles.note}>No periodic filings exist after June 30, 2023, so the chart has no cash points after that date; later events are still marked.</p>
       <div style={styles.tableContainer}>
         <table style={styles.table} data-testid="runway-table">
-          <thead><tr>{["Quarter", "Cash", "TTM operating cash flow", "Burn per month", "Runway", "Status"].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>
+          <thead><tr>{["Quarter", "Cash", "TTM operating cash flow", "Burn per month", "Runway", "Status"].map((h, i) => <th key={h} style={i >= 1 && i <= 4 ? { ...styles.th, ...styles.num } : styles.th}>{h}</th>)}</tr></thead>
           <tbody>
             {runway.map((r) => {
               const ttmRef = r.ttmOperatingCashFlow && { computed: `sum of operating cash flow for ${r.ttmOperatingCashFlow.quarters.map(qLabel).join(", ")}`, inputs: r.ttmOperatingCashFlow.inputs };
               return (
                 <tr key={r.quarter}>
                   <td style={styles.td}>{qLabel(r.quarter)}</td>
-                  <td style={styles.td}><Val refData={r.cash} text={r.cash ? fmtM(toMillions(r.cash)) : "—"} onSelect={(x) => select(`cash, ${qLabel(r.quarter)}`, x)} /></td>
-                  <td style={styles.td}>{ttmRef ? <Val refData={ttmRef} text={fmtM(r.ttmOperatingCashFlow.value / 1e6)} onSelect={(x) => select(`TTM operating cash flow, ${qLabel(r.quarter)}`, x)} /> : "—"}</td>
-                  <td style={styles.td}>{r.burnPerMonth === null ? "—" : <Val refData={{ computed: "−TTM operating cash flow ÷ 12", inputs: [ttmRef] }} text={fmtM(r.burnPerMonth / 1e6)} onSelect={(x) => select(`burn per month, ${qLabel(r.quarter)}`, x)} />}</td>
-                  <td style={styles.td}>{r.runwayMonths === null ? "—" : <Val refData={{ computed: "cash ÷ burn per month", inputs: [r.cash, ttmRef] }} text={`${r.runwayMonths.toFixed(1)} months`} onSelect={(x) => select(`runway, ${qLabel(r.quarter)}`, x)} />}</td>
+                  <td style={{ ...styles.td, ...styles.num }}><Val refData={r.cash} text={r.cash ? fmtM(toMillions(r.cash)) : "—"} onSelect={(x) => select(`cash, ${qLabel(r.quarter)}`, x)} /></td>
+                  <td style={{ ...styles.td, ...styles.num }}>{ttmRef ? <Val refData={ttmRef} text={fmtM(r.ttmOperatingCashFlow.value / 1e6)} onSelect={(x) => select(`TTM operating cash flow, ${qLabel(r.quarter)}`, x)} /> : "—"}</td>
+                  <td style={{ ...styles.td, ...styles.num }}>{r.burnPerMonth === null ? "—" : <Val refData={{ computed: "−TTM operating cash flow ÷ 12", inputs: [ttmRef] }} text={fmtM(r.burnPerMonth / 1e6)} onSelect={(x) => select(`burn per month, ${qLabel(r.quarter)}`, x)} />}</td>
+                  <td style={{ ...styles.td, ...styles.num }}>{r.runwayMonths === null ? "—" : <Val refData={{ computed: "cash ÷ burn per month", inputs: [r.cash, ttmRef] }} text={`${r.runwayMonths.toFixed(1)} months`} onSelect={(x) => select(`runway, ${qLabel(r.quarter)}`, x)} />}</td>
                   <td style={{ ...styles.td, fontSize: 12 }} data-testid={`runway-status-${r.quarter}`}>{r.status}{r.reason && r.status !== "ok" ? `: ${r.reason}` : ""}</td>
                 </tr>
               );
@@ -274,7 +274,7 @@ function ProvenancePanel({ record }) {
                 <td style={{ ...styles.td, wordBreak: "break-all" }}>{s.url}</td>
                 <td style={styles.td}>{s.retrievedAt.replace("T", " ").slice(0, 19)}</td>
                 <td style={{ ...styles.td, fontFamily: "monospace" }} title={s.sha256}>{s.sha256.slice(0, 16)}…</td>
-                <td style={styles.td}>{s.bytes.toLocaleString("en-US")}</td>
+                <td style={{ ...styles.td, ...styles.num }}>{s.bytes.toLocaleString("en-US")}</td>
                 <td style={styles.td}>{s.committed ? "yes" : "no (hash recorded; re-download to verify)"}</td>
               </tr>
             ))}
@@ -296,7 +296,7 @@ function ProvenancePanel({ record }) {
           <thead><tr>{["Metric", "Concept", "Raw facts", "Pre-merger (excluded)", "Duplicates in one filing", "Duplicates across filings", "Periods reported more than once", "Kept"].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>
           <tbody>
             {Object.entries(eda.dedupe).map(([metric, d]) => (
-              <tr key={metric}><td style={styles.td}>{metric}</td><td style={styles.td}>{d.concept}</td><td style={styles.td}>{d.rawFacts}</td><td style={styles.td}>{d.excludedPreMergerRegistrant}</td><td style={styles.td}>{d.removedSameFiling}</td><td style={styles.td}>{d.removedAcrossFilings}</td><td style={styles.td}>{d.periodsReportedMoreThanOnce}</td><td style={styles.td}>{d.keptFacts}</td></tr>
+              <tr key={metric}><td style={styles.td}>{metric}</td><td style={styles.td}>{d.concept}</td><td style={{ ...styles.td, ...styles.num }}>{d.rawFacts}</td><td style={{ ...styles.td, ...styles.num }}>{d.excludedPreMergerRegistrant}</td><td style={{ ...styles.td, ...styles.num }}>{d.removedSameFiling}</td><td style={{ ...styles.td, ...styles.num }}>{d.removedAcrossFilings}</td><td style={{ ...styles.td, ...styles.num }}>{d.periodsReportedMoreThanOnce}</td><td style={{ ...styles.td, ...styles.num }}>{d.keptFacts}</td></tr>
             ))}
           </tbody>
         </table>

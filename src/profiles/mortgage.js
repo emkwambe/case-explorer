@@ -4,6 +4,11 @@ export const MORTGAGE_PROFILE = Object.freeze({
   id: "MORTGAGE",
   label: "Mortgage (default)",
   description: "The generator's default mortgage application stream. No calibration preset and no public benchmark.",
+  subtitle: "Mortgage risk simulation, fraud analytics and model validation",
+  // Header counts use the generator's integrity check.
+  headerLens: "integrity",
+  // The opening library is the fraud-typology showcase used by the guided walkthrough.
+  openingLibrary: { kind: "showcase" },
   // No overrides: generation uses src/distribution_config.json as is.
   preset: null,
   benchmarks: [],

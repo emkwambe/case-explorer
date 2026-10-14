@@ -7,6 +7,12 @@ import { SUNLIGHT_CASE_STUDIES } from "./sunlight/caseStudies.js";
 export const SOLAR_PRIME_PROFILE = Object.freeze({
   id: "SOLAR_PRIME",
   label: "Solar prime (calibrated)",
+  subtitle: "Prime solar lending: credit policy, dealer channel, funding stress and public record",
+  // Header counts use the credit policy.
+  headerLens: "credit",
+  // The opening library is the first applications of the profile's own seeded stream, so it shows
+  // the profile's natural mix rather than a fraud showcase.
+  openingLibrary: { kind: "blended", count: 12 },
   description: "Prime solar application stream. The approved-under-credit-policy population is calibrated to Sunlight Financial's reported average FICO of financed borrowers; every other distribution keeps the generator default and is uncalibrated.",
 
   // Calibration preset, deep-merged over src/distribution_config.json. The regime mix is mostly

@@ -1,7 +1,7 @@
 // src/ui/CaseExplorer.jsx — Application shell: case library, tab routing and the guided tour.
 
 import React, { useCallback, useMemo, useState } from "react";
-import { styles, ALIGNMENT_COLORS, titleCase } from "./theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase } from "./theme.js";
 import { CaseCard, Chip } from "./components/primitives.jsx";
 import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
 import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks/useCaseAnalysis.js";
@@ -19,27 +19,8 @@ import { DealerViewTab } from "./dealers/DealerView.jsx";
 import { useDealerPortfolio } from "./dealers/useDealerPortfolio.js";
 import { FundingViewTab } from "./funding/FundingView.jsx";
 import { PublicRecordTab } from "./publicRecord/PublicRecordView.jsx";
-
-const TABS = [
-  { id: "overview", label: "Overview" },
-  { id: "timeline", label: "World truth" },
-  { id: "alignment", label: "Alignment" },
-  { id: "truth_graph", label: "Ground truth" },
-  { id: "evidence", label: "Evidence" },
-  { id: "metadata", label: "Metadata" },
-  { id: "decision", label: "Decision" },
-  { id: "outcome", label: "Outcome" },
-  { id: "explanation", label: "Explanation" },
-  { id: "fairness", label: "Fairness" },
-  { id: "investigation", label: "Investigation" },
-  { id: "portfolio", label: "Portfolio" },
-  { id: "dealers", label: "Dealer View" },
-  { id: "funding", label: "Funding & Rates" },
-  { id: "public_record", label: "Public record", needs: "publicRecord" },
-  { id: "network", label: "Network" },
-  { id: "economics", label: "Economics" },
-  { id: "validation", label: "Validation" }
-];
+import { TAB_GROUPS, visibleTabs, groupOfTab } from "./navigation.js";
+import { assessCredit } from "../creditRisk.js";
 
 const SCENARIOS = [
   ["MIXED", "Realistic mix (blended portfolio)"],
@@ -68,8 +49,6 @@ export default function CaseExplorer({ profileRegistry } = {}) {
 function CaseExplorerShell() {
   const library = useCaseLibrary();
   const { registry, profileId, setProfileId, profile } = useActiveProfile();
-  // Profile-specific tabs appear only when the active profile has the data they need.
-  const tabs = TABS.filter((t) => !t.needs || profile[t.needs]);
   const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config } = library;
   const [activeTab, setActiveTab] = useState("overview");
   const [tourStep, setTourStep] = useState(null);
@@ -95,28 +74,47 @@ function CaseExplorerShell() {
   }, []);
 
   const step = tourStep === null ? null : TOUR_STEPS[tourStep];
+  // The selected tab picks the section; a tab the active profile cannot show falls back to the
+  // first tab of its section.
+  const group = groupOfTab(activeTab);
+  const tabs = visibleTabs(group, profile);
+  const currentTab = tabs.some((t) => t.id === activeTab) ? activeTab : tabs[0].id;
+  const openGroup = (g) => setActiveTab(visibleTabs(g, profile)[0].id);
+
+  // Header counts use the profile's lens: the credit policy for credit profiles, otherwise the
+  // generator's integrity check.
+  const lens = profile.headerLens === "credit" ? "credit policy" : "integrity check";
   const counts = useMemo(() => {
-    const byOutcome = { APPROVE: 0, MANUAL_REVIEW: 0, DECLINE: 0 };
-    for (const c of cases) byOutcome[c.label.expected_outcome] = (byOutcome[c.label.expected_outcome] ?? 0) + 1;
+    const byOutcome = { APPROVE: 0, REVIEW: 0, DECLINE: 0 };
+    for (const c of cases) {
+      const outcome = profile.headerLens === "credit" ? assessCredit(c).policyDecision : c.label.expected_outcome === "MANUAL_REVIEW" ? "REVIEW" : c.label.expected_outcome;
+      byOutcome[outcome] = (byOutcome[outcome] ?? 0) + 1;
+    }
     return byOutcome;
-  }, [cases]);
+  }, [cases, profile.headerLens]);
 
   return (
     <div style={styles.app} className="ce-app">
       <header style={styles.header}>
         <div style={{ flex: "1 1 320px" }}>
           <h1 style={styles.title}>Case Explorer</h1>
-          <p style={styles.subtitle}>
-            Mortgage risk simulation, fraud analytics and model validation · generator {GENERATOR_VERSION} · {cases.length} cases
-            ({counts.APPROVE} approve, {counts.MANUAL_REVIEW} review, {counts.DECLINE} decline)
+          <p style={styles.subtitle} data-testid="header-subtitle">
+            {profile.subtitle ?? profile.label} · generator {GENERATOR_VERSION} · {cases.length} cases
+            ({lens}: {counts.APPROVE} approve, {counts.REVIEW} review, {counts.DECLINE} decline)
           </p>
         </div>
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569" }}>
-          Portfolio profile:
-          <select style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Portfolio profile" value={profileId} onChange={(e) => setProfileId(e.target.value)} data-testid="portfolio-profile">
-            {registry.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-          </select>
-        </label>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569" }}>
+            Portfolio profile:
+            <select style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Portfolio profile" value={profileId} onChange={(e) => setProfileId(e.target.value)} data-testid="portfolio-profile">
+              {registry.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+            </select>
+          </label>
+          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer" }}>
+            <input type="checkbox" checked={creditMode} onChange={(e) => setCreditMode(e.target.checked)} data-testid="credit-risk-mode" />
+            Credit Risk Mode
+          </label>
+        </div>
         <button onClick={startTour} data-testid="start-tour" style={{ ...styles.btnPrimary, width: "auto", padding: "10px 18px", marginBottom: 0 }}>
           Start guided walkthrough
         </button>
@@ -147,8 +145,9 @@ function CaseExplorerShell() {
               <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
             ))}
           </div>
-          <div style={styles.generatorPanel}>
-            <h3 style={styles.panelTitle}>Generate cases</h3>
+          <details style={styles.generatorPanel} data-testid="generator-panel">
+            <summary style={{ ...styles.panelTitle, marginBottom: 0, cursor: "pointer" }}>Generate cases</summary>
+            <div style={{ marginTop: 12 }}>
             <select style={styles.select} aria-label="Scenario" value={genConfig.corruptionType} onChange={(e) => setGenConfig({ ...genConfig, corruptionType: e.target.value })}>
               {SCENARIOS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
@@ -163,13 +162,10 @@ function CaseExplorerShell() {
               <input type="checkbox" checked={genConfig.adversarial} onChange={(e) => setGenConfig({ ...genConfig, adversarial: e.target.checked })} />
               Adversarial placement (fraud hides in marginal profiles)
             </label>
-            <label style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, fontSize: 12, color: "#475569", cursor: "pointer" }}>
-              <input type="checkbox" checked={creditMode} onChange={(e) => setCreditMode(e.target.checked)} data-testid="credit-risk-mode" />
-              Credit Risk Mode
-            </label>
             <button style={styles.btnPrimary} data-testid="generate" onClick={() => { generate(); setActiveTab("portfolio"); }}>Generate</button>
             <button style={styles.btnSecondary} onClick={() => { library.reset(); setActiveTab("overview"); }}>Reset library</button>
-          </div>
+            </div>
+          </details>
         </aside>
 
         <main style={styles.main} className="ce-main">
@@ -182,39 +178,45 @@ function CaseExplorerShell() {
           <div className="ce-credit-layout">
           {creditMode && <UnderwritingSidebar key={selectedCase.id} caseData={selectedCase} assessment={assessments.get(selectedCase.id)} />}
           <div style={styles.detail} className="ce-detail">
-            <div style={styles.tabs} role="tablist">
+            <div style={styles.segmented} role="group" aria-label="Sections" data-testid="section-control">
+              {TAB_GROUPS.map((g) => (
+                <button key={g.id} type="button" aria-pressed={group.id === g.id} onClick={() => openGroup(g)} data-testid={`section-${g.id}`}
+                  style={{ ...styles.segment, ...(group.id === g.id ? styles.segmentActive : null) }}>{g.label}</button>
+              ))}
+            </div>
+            <div style={styles.tabs} role="tablist" aria-label={`${group.label} tabs`}>
               {tabs.map((t) => (
                 <button
-                  key={t.id} role="tab" aria-selected={activeTab === t.id} onClick={() => setActiveTab(t.id)}
-                  style={{ ...styles.tab, borderBottom: activeTab === t.id ? "3px solid #2563eb" : "3px solid transparent", color: activeTab === t.id ? "#2563eb" : "#64748b", fontWeight: activeTab === t.id ? 600 : 400 }}
+                  key={t.id} role="tab" aria-selected={currentTab === t.id} onClick={() => setActiveTab(t.id)}
+                  style={{ ...styles.tab, borderBottom: currentTab === t.id ? "3px solid #2563eb" : "3px solid transparent", color: currentTab === t.id ? "#2563eb" : "#64748b", fontWeight: currentTab === t.id ? 600 : 400 }}
                 >{t.label}</button>
               ))}
             </div>
             <div style={styles.tabContent}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-                <Chip color={ALIGNMENT_COLORS[selectedCase.label.alignment_level]}>{selectedCase.label.alignment_level}</Chip>
+                <Chip color={ALIGNMENT_COLORS[selectedCase.label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[selectedCase.label.alignment_level]}>{selectedCase.label.alignment_level}</Chip>
                 <strong>{selectedCase.applicant.name}</strong>
                 <span style={{ color: "#64748b", fontSize: 13 }}>{titleCase(selectedCase.meta?.corruption_type)} · {selectedCase.id}</span>
               </div>
 
-              {activeTab === "overview" && <OverviewTab caseData={selectedCase} />}
-              {activeTab === "timeline" && <TimelineTab caseData={selectedCase} />}
-              {activeTab === "alignment" && <AlignmentTab caseData={selectedCase} />}
-              {activeTab === "truth_graph" && <TruthGraphTab caseData={selectedCase} />}
-              {activeTab === "evidence" && <EvidenceTab caseData={selectedCase} />}
-              {activeTab === "metadata" && <MetadataTab caseData={selectedCase} />}
-              {activeTab === "decision" && <DecisionTab caseData={selectedCase} scored={scored} />}
-              {activeTab === "outcome" && <OutcomeTab caseData={selectedCase} scored={scored} />}
-              {activeTab === "explanation" && <ExplanationTab scored={scored} />}
-              {activeTab === "fairness" && <FairnessTab caseData={selectedCase} counterfactual={counterfactual} />}
-              {activeTab === "investigation" && <InvestigationTab caseData={selectedCase} scored={scored} {...investigation} />}
-              {activeTab === "portfolio" && <DataTableTab cases={cases} onSelect={(id) => { select(id); setActiveTab("overview"); }} />}
-              {activeTab === "dealers" && <DealerViewTab portfolio={dealerPortfolio} />}
-              {activeTab === "funding" && <FundingViewTab portfolio={dealerPortfolio} />}
-              {activeTab === "public_record" && profile.publicRecord && <PublicRecordTab profile={profile} />}
-              {activeTab === "network" && <NetworkTab cases={cases} />}
-              {activeTab === "economics" && <EconomicsTab cases={cases} config={config} />}
-              {activeTab === "validation" && <ValidationTab />}
+              {currentTab === "overview" && <OverviewTab caseData={selectedCase} />}
+              {currentTab === "timeline" && <TimelineTab caseData={selectedCase} />}
+              {currentTab === "alignment" && <AlignmentTab caseData={selectedCase} />}
+              {currentTab === "truth_graph" && <TruthGraphTab caseData={selectedCase} />}
+              {currentTab === "evidence" && <EvidenceTab caseData={selectedCase} />}
+              {currentTab === "metadata" && <MetadataTab caseData={selectedCase} />}
+              {currentTab === "decision" && <DecisionTab caseData={selectedCase} scored={scored} />}
+              {currentTab === "outcome" && <OutcomeTab caseData={selectedCase} scored={scored} />}
+              {currentTab === "explanation" && <ExplanationTab scored={scored} />}
+              {currentTab === "fairness" && <FairnessTab caseData={selectedCase} counterfactual={counterfactual} />}
+              {currentTab === "investigation" && <InvestigationTab caseData={selectedCase} scored={scored} {...investigation} />}
+              {currentTab === "portfolio" && <DataTableTab cases={cases} onSelect={(id) => { select(id); setActiveTab("overview"); }} />}
+              {currentTab === "dealers" && <DealerViewTab portfolio={dealerPortfolio} />}
+              {currentTab === "funding" && <FundingViewTab portfolio={dealerPortfolio} />}
+              {currentTab === "public_record" && profile.publicRecord && <PublicRecordTab profile={profile} />}
+              {currentTab === "network" && <NetworkTab cases={cases} />}
+              {currentTab === "economics" && <EconomicsTab cases={cases} config={config} />}
+              {currentTab === "validation" && <ValidationTab />}
             </div>
           </div>
           </div>
