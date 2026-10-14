@@ -121,7 +121,7 @@ check("geography exclusion: region, zip code, persona, age and regime do not cha
   }
 });
 
-check("SOLAR_PRIME over 2,000 applications at seed 42: mean FICO 748 ± 5, no score value above 2% of cases", () => {
+check("SOLAR_PRIME over 2,000 applications at seed 42: approved-only mean FICO 748 ± 5, no score value above 2% of all applications", () => {
   for (const [profile, cfg] of Object.entries(PROFILES)) {
     const counts = { APPROVE: 0, REVIEW: 0, DECLINE: 0 };
     const conflicts = { [DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE]: 0, [DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE]: 0 };
@@ -147,7 +147,8 @@ check("SOLAR_PRIME over 2,000 applications at seed 42: mean FICO 748 ± 5, no sc
     };
   }
   const solar = mix.SOLAR_PRIME;
-  assert.ok(Math.abs(solar.comparison.allMean - 748) <= 5, `SOLAR_PRIME mean FICO ${solar.comparison.allMean.toFixed(1)}`);
+  // Sunlight's 748 describes financed borrowers, so the target is the mean of approved applications.
+  assert.ok(Math.abs(solar.comparison.approvedMean - 748) <= 5, `SOLAR_PRIME approved-only mean FICO ${solar.comparison.approvedMean.toFixed(1)}`);
   assert.ok(solar.modeShare < 0.02, `SOLAR_PRIME score ${solar.modeValue} holds ${(100 * solar.modeShare).toFixed(2)}% of cases`);
 });
 
@@ -170,8 +171,8 @@ check("disagreement callouts: only integrity APPROVE + credit DECLINE, and integ
 
 check("riskSummary matches the documented format", () => {
   const line = riskSummary(assessCredit(handBuilt({ fico: 682, expected: "APPROVE" })));
-  assert.equal(line, "Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Model: APPROVE");
-  const format = /^Borrower: FICO (\d+|n\/a), DTI (\d+%( \(partial\))?|n\/a), Student \$[\d,]+\/mo, Fraud: (None|Review), Policy: (APPROVE|(REVIEW|DECLINE) - .+) \| Model: (APPROVE|REVIEW|DECLINE|n\/a)$/;
+  assert.equal(line, "Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Integrity: APPROVE");
+  const format = /^Borrower: FICO (\d+|n\/a), DTI (\d+%( \(partial\))?|n\/a), Student \$[\d,]+\/mo, Fraud: (None|Review), Policy: (APPROVE|(REVIEW|DECLINE) - .+) \| Integrity: (APPROVE|REVIEW|DECLINE|n\/a)$/;
   for (let i = 0; i < 200; i++) {
     const s = riskSummary(assessCredit(generateBlendedCase(i, PROFILES.SOLAR_PRIME, 42)));
     assert.match(s, format);

@@ -236,7 +236,7 @@ export function BenchmarkPanel({ cases, baseConfig, profile }) {
         </table>
         <p style={{ ...styles.note, marginTop: 10, marginBottom: 0 }}>
           Benchmark: average FICO of {BENCHMARK_FICO} across all solar borrowers financed through Sunlight Financial's platform as of December 31, 2022, from its{" "}
-          <a href={SUNLIGHT_10K_URL} target="_blank" rel="noreferrer">FY2022 Form 10-K</a>. The 10-K figure describes financed borrowers, so the approved-only row is the like-for-like comparison; the all-applications row describes the calibrated application stream. This is a single public benchmark. No loan-level Sunlight tape is public, so every other distribution in the solar profile remains uncalibrated.
+          <a href={SUNLIGHT_10K_URL} target="_blank" rel="noreferrer">FY2022 Form 10-K</a>. The 10-K figure describes financed borrowers, so the approved-only row is the like-for-like comparison and the solar profile's calibration target; the all-applications row describes the application stream, including applicants the credit policy declines. This is a single public benchmark. No loan-level Sunlight tape is public, so every other distribution in the solar profile remains uncalibrated.
         </p>
       </div>
     </details>

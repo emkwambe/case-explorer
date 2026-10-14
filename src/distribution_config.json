@@ -570,7 +570,7 @@
   "presets": {
     "SOLAR_PRIME": {
       "label": "Solar prime (calibrated)",
-      "description": "Prime solar application stream calibrated so all applications average FICO 748 (Sunlight Financial FY2022 Form 10-K: average FICO of all solar borrowers financed through its platform as of December 31, 2022). The regime mix is mostly PRIME with a small SUBPRIME share; the SUBPRIME 680 cap is lifted and the PRIME 640 floor is neutralised so no score value piles up at a clamp. There is no generator floor: the credit policy (FICO below 660 declines) is the floor, so sub-650 applicants exist and are declined. Other distributions keep their defaults and are uncalibrated.",
+      "description": "Prime solar application stream calibrated so the applications approved under the current credit policy average FICO 748, the like-for-like comparison with Sunlight Financial's FY2022 Form 10-K figure (average FICO of all solar borrowers financed through its platform as of December 31, 2022). Only the credit score base mean and SD are tuned for this target. The regime mix is mostly PRIME with a small SUBPRIME share; the SUBPRIME 680 cap is lifted and the PRIME 640 floor is neutralised so no score value piles up at a clamp. There is no generator floor: the credit policy (FICO below 660 declines) is the floor, so sub-650 applicants exist and are declined. Other distributions keep their defaults and are uncalibrated.",
       "benchmark_avg_fico": 748,
       "overrides": {
         "regimes": {
@@ -586,7 +586,7 @@
         },
         "credit": {
           "score_base": {
-            "mean": 770,
+            "mean": 755,
             "stddev": 30,
             "min": 300
           }

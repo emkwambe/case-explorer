@@ -190,8 +190,9 @@ export function assessCredit(caseObj, policy = CREDIT_POLICY) {
 
 /**
  * One-line summary, for example:
- *   Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Model: APPROVE
- * The " - <reasons>" part is omitted on APPROVE; several reasons are joined with "; ".
+ *   Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Integrity: APPROVE
+ * "Integrity" is the generator's integrity-check decision. The " - <reasons>" part is omitted on
+ * APPROVE; several reasons are joined with "; ".
  */
 export function riskSummary(a) {
   const fico = a.fico ?? "n/a";
@@ -199,13 +200,13 @@ export function riskSummary(a) {
   const student = `$${Math.round(a.studentPayment).toLocaleString("en-US")}/mo`;
   const fraud = a.fraudFlag === "REVIEW" ? "Review" : "None";
   const policy = a.reasons.length ? `${a.policyDecision} - ${a.reasons.join("; ")}` : a.policyDecision;
-  return `Borrower: FICO ${fico}, DTI ${dti}, Student ${student}, Fraud: ${fraud}, Policy: ${policy} | Model: ${a.generatorDecision ?? "n/a"}`;
+  return `Borrower: FICO ${fico}, DTI ${dti}, Student ${student}, Fraud: ${fraud}, Policy: ${policy} | Integrity: ${a.generatorDecision ?? "n/a"}`;
 }
 
 /**
  * Mean claimed FICO over all applications and over the cases the credit policy approves.
  * Sunlight's 10-K figure describes financed borrowers, so the approved-only mean is the
- * like-for-like comparison; the all-applications mean describes the calibrated stream.
+ * like-for-like comparison and the SOLAR_PRIME calibration target.
  */
 export function ficoComparison(cases, policy = CREDIT_POLICY) {
   const mean = (xs) => (xs.length ? xs.reduce((s, v) => s + v, 0) / xs.length : null);
