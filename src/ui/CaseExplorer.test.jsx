@@ -241,15 +241,19 @@ describe("Dealer View", () => {
     ...solar,
     defaults: { ...solar.defaults, dealerView: { ...solar.defaults.dealerView, portfolio: { count: 300, seed: 42 } } }
   });
-  const REGISTRY = [PROFILES.find((p) => p.id === "MORTGAGE"), SMALL_SOLAR];
+  // Small portfolios keep the UI tests fast; MORTGAGE still has no case studies.
+  const mortgage = PROFILES.find((p) => p.id === "MORTGAGE");
+  const SMALL_MORTGAGE = Object.freeze({ ...mortgage, defaults: { ...mortgage.defaults, dealerView: { portfolio: { count: 300, seed: 42 } } } });
+  const REGISTRY = [SMALL_MORTGAGE, SMALL_SOLAR];
 
   it("generates the portfolio, shows computed alerts and a labelled dealer-failure scenario", async () => {
     render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
     await openTab("Dealer View");
     expect(screen.getByTestId("synthetic-label")).toHaveTextContent("Synthetic data");
     expect(screen.getByTestId("dealer-model-note")).toHaveTextContent(/simulated public-record signal/);
-    expect(screen.getByLabelText("Dealer portfolio profile")).toHaveValue("SOLAR_PRIME");
-    expect(screen.queryByTestId("dealer-case-study")).not.toBeInTheDocument();
+    expect(screen.getByTestId("dealer-profile")).toHaveTextContent("Solar prime (calibrated)");
+    expect(screen.queryByTestId("case-study-hint")).not.toBeInTheDocument();
     await userEvent.click(screen.getByTestId("generate-10k"));
     const table = await screen.findByTestId("dealer-table", {}, { timeout: 30000 });
     expect(within(table).getAllByRole("row").length).toBe(51);
@@ -278,6 +282,20 @@ describe("Dealer View", () => {
     expect(screen.getByTestId("dealer-simulated-label")).toHaveTextContent("strength 0");
     expect(screen.queryByTestId("dealer-failure-result")).not.toBeInTheDocument();
     expect(screen.getByTestId("compliance-footer")).toBeInTheDocument();
+  }, 60000);
+
+  it("follows the header profile: Mortgage shows a hint and no case study, and a portfolio from another profile is stale", async () => {
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await openTab("Dealer View");
+    expect(screen.getByTestId("dealer-profile")).toHaveTextContent("Mortgage (default)");
+    expect(screen.queryByTestId("dealer-case-study")).not.toBeInTheDocument();
+    expect(screen.getByTestId("case-study-hint")).toHaveTextContent("Switch to Solar prime to see the sourced");
+    await userEvent.click(screen.getByTestId("generate-10k"));
+    await screen.findByTestId("dealer-table", {}, { timeout: 30000 });
+    expect(screen.getByText(/Mortgage \(default\) · seed 42/)).toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    expect(screen.getByTestId("dealer-stale")).toHaveTextContent("generated under Mortgage (default)");
+    expect(screen.queryByTestId("dealer-table")).not.toBeInTheDocument();
   }, 60000);
 
   it("shows the case-study panel only for an active profile with entries, with exactly two linked facts", async () => {

@@ -18,3 +18,16 @@ None of these packages is in the browser bundle or the API server's runtime depe
 
 - The nested `qs` can only be cleared with a major upgrade of a Stryker dependency: `typed-rest-client` 2.x to 3.x, which `@stryker-mutator/core` 10.0.0 pins. It needs a Stryker release that moves to `typed-rest-client` 3.x, or an override that has been tested against Stryker.
 - The `vitest` advisory is fixed in 4.1.11, a patch release inside the `^4.1.10` range, but a plain `npm audit fix` does not apply it. Clearing it needs an explicit `npm update vitest @vitest/coverage-v8` and a full test run.
+
+## Credit Risk Mode UI below the mutation-testing break threshold
+
+Last measured 2026-10-14 with a scoped Stryker run over `src/creditRisk.js` and `src/ui/credit/**` (vitest runner, thresholds 60 / 70 / 85).
+
+| File | Mutation score |
+|---|---|
+| `src/creditRisk.js` | 90.16% |
+| `src/ui/credit/useCreditAssessments.js` | 68.42% |
+| `src/ui/credit/CreditRisk.jsx` | 22.08% |
+| Scope total | 56.33% (below the break threshold of 60) |
+
+The policy logic itself is well covered; the gap is the React component. Most surviving `CreditRisk.jsx` mutants are style strings, placeholder text and conditional rendering that the UI tests do not assert on. Closing it needs rendering-level assertions for the sidebar, portfolio strip and benchmark panel. Excluding style strings from mutation would raise the number without testing anything, so it has not been done. Mutation testing runs in CI only on manual dispatch, so this does not block a push.

@@ -125,6 +125,8 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
       id: "installer_risk",
       panel: "dealerView",
       title: "Case study: Sunlight Financial and installer risk",
+      // Shown in the Dealer View when another profile is active.
+      hint: "Switch to Solar prime to see the sourced Sunlight case study",
       facts: [
         { date: "2022-09-28", text: "Sunlight said one of its largest installers was winding down its operations and expected to impair $30–33 million of advances to that installer; its next three largest partner advances were $10 million, $7 million and $5 million.", source: SUNLIGHT_PR_2022_09_28 },
         { date: "2022-11-22", text: "Nine state attorneys general wrote to five solar lenders, including Sunlight Financial and Cross River Bank, about Pink Energy customers, asking them to suspend loan payments and interest for consumers whose systems were never installed or do not work properly, until an investigation can be completed.", source: AG_LETTER_2022_11_22 }

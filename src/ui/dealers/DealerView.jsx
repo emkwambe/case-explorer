@@ -7,7 +7,7 @@ import React, { useMemo, useState } from "react";
 import { styles, money, pct } from "../theme.js";
 import { MetricCard, Th, Callout } from "../components/primitives.jsx";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
-import { aggregateDealers, portfolioAlerts, simulateDealerFailure, simulateLoans, withDealerEffect, signalVsNoise } from "../../dealers.js";
+import { aggregateDealers, portfolioAlerts, simulateDealerFailure, simulateLoans, withDealerEffect, signalVsNoise, dealerSettings } from "../../dealers.js";
 
 const RATING_COLORS = { RED: "#b91c1c", YELLOW: "#b45309", GREEN: "#047857", INSUFFICIENT_DATA: "#475569" };
 const RATING_LABELS = { RED: "Red", YELLOW: "Yellow", GREEN: "Green", INSUFFICIENT_DATA: "Insufficient data" };
@@ -79,8 +79,6 @@ function CaseStudyPanels({ caseStudies }) {
 
 export function DealerViewTab({ portfolio }) {
   const { registry, profile: activeProfile } = useActiveProfile();
-  const defaultProfileId = registry.some((p) => p.id === "SOLAR_PRIME") ? "SOLAR_PRIME" : activeProfile.id;
-  const [portfolioProfileId, setPortfolioProfileId] = useState(defaultProfileId);
   const [stateFilter, setStateFilter] = useState("ALL");
   const [sortConfig, setSortConfig] = useState({ key: "exposure", direction: "desc" });
   const [failure, setFailure] = useState(null);
@@ -106,15 +104,22 @@ export function DealerViewTab({ portfolio }) {
   }, [rows, stateFilter, sortConfig]);
   const onSort = (key) => setSortConfig((s) => ({ key, direction: s.key === key && s.direction === "desc" ? "asc" : "desc" }));
   const caseStudies = activeProfile.caseStudies.filter((cs) => cs.panel === "dealerView");
+  // When the active profile has no case study, point to profiles that do (their own hint text).
+  const hints = caseStudies.length ? [] : registry
+    .filter((p) => p.id !== activeProfile.id)
+    .flatMap((p) => p.caseStudies.filter((cs) => cs.panel === "dealerView" && cs.hint).map((cs) => cs.hint));
+  // The portfolio always belongs to the header's active profile; one built under another profile is stale.
+  const ready = status === "done" && portfolioProfile?.id === activeProfile.id;
+  const stale = status === "done" && !ready;
 
   const startGeneration = () => {
     setFailure(null);
     setStrengthChoice(null);
-    generate(registry.find((p) => p.id === portfolioProfileId));
+    generate(activeProfile);
   };
   const changeStrength = (value) => { setStrengthChoice(value); setFailure(null); };
   const failDealer = (dealerId) => setFailure(simulateDealerFailure({ loans, dealers }, dealerId, settings.dealerFailure));
-  const count = settings?.portfolio.count;
+  const count = dealerSettings(activeProfile.defaults?.dealerView).portfolio.count;
   const topAdvances = settings?.network.topAdvances;
   const sizing = settings?.loanAmount;
   const ratedCount = rows.filter((r) => r.rating !== "INSUFFICIENT_DATA").length;
@@ -124,12 +129,7 @@ export function DealerViewTab({ portfolio }) {
     <div data-testid="dealer-view">
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 12 }}>
         <span style={{ ...styles.chip, background: "#111827", color: "#f8fafc", border: "1px solid #111827" }} data-testid="synthetic-label">Synthetic data</span>
-        <label style={{ fontSize: 13, color: "#475569", display: "flex", alignItems: "center", gap: 6 }}>
-          Portfolio profile:
-          <select value={portfolioProfileId} onChange={(e) => setPortfolioProfileId(e.target.value)} style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Dealer portfolio profile">
-            {registry.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-          </select>
-        </label>
+        <span style={{ fontSize: 13, color: "#475569" }} data-testid="dealer-profile">Profile: {activeProfile.label}</span>
         <button style={{ ...styles.btnPrimary, width: "auto", marginBottom: 0, padding: "8px 14px" }} onClick={startGeneration} disabled={status === "running"} data-testid="generate-10k">
           Generate 10k portfolio
         </button>
@@ -138,10 +138,10 @@ export function DealerViewTab({ portfolio }) {
             Generating… {Math.round(progress * 100)}%
           </span>
         )}
-        {status === "done" && (
+        {ready && (
           <span style={{ fontSize: 13, color: "#475569" }}>{loans.length.toLocaleString("en-US")} loans · {portfolioProfile.label} · seed {settings.portfolio.seed}</span>
         )}
-        {status === "done" && (
+        {ready && (
           <label style={{ fontSize: 13, color: "#475569", display: "flex", alignItems: "center", gap: 6 }}>
             Dealer effect strength:
             <select value={strength} onChange={(e) => changeStrength(Number(e.target.value))} style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Dealer effect strength">
@@ -153,16 +153,22 @@ export function DealerViewTab({ portfolio }) {
       </div>
 
       <p style={styles.note} data-testid="dealer-model-note">
-        Model: each synthetic loan is assigned to a fictional dealer, and its 30+ DPD path is a logistic monthly hazard over {settings?.performance.monthsOnBook ?? 18} months on true FICO, true back-end DTI, fraud and a hidden dealer quality whose effect strength is set by assumption; expected loss is PD × (1 − recovery) × loan amount, and loan amounts come from the mortgage-sized generator. The lien signal is a simulated public-record signal; a real build would read the NC Secretary of State's UCC records.
+        Model: each synthetic loan is assigned to a fictional dealer, and its 30+ DPD path is a logistic monthly hazard over {settings?.performance.monthsOnBook ?? 18} months on true FICO, true back-end DTI, fraud and a hidden dealer quality whose effect strength is set by assumption; expected loss is PD × (1 − recovery) × loan amount, with loan amounts from the profile's loan sizing when it has one and otherwise from the generator's mortgage-sized applications. The lien signal is a simulated public-record signal; a real build would read the NC Secretary of State's UCC records.
       </p>
 
-      {status !== "done" && (
+      {stale && (
+        <Callout tone="warn">
+          <span data-testid="dealer-stale">The portfolio was generated under {portfolioProfile.label}. Generate again to see {activeProfile.label}.</span>
+        </Callout>
+      )}
+
+      {!ready && !stale && (
         <Callout tone="info">
           Generate the portfolio to see dealer ratings, concentration alerts and the dealer-failure scenario{count ? ` (${count.toLocaleString("en-US")} applications)` : ""}.
         </Callout>
       )}
 
-      {status === "done" && (
+      {ready && (
         <>
           <p style={{ ...styles.note, fontWeight: 600, color: "#92400e" }} data-testid="dealer-simulated-label">
             Dealer metrics are {SIMULATED_LABEL} (strength {strength}). Ratings, delinquency, charge-offs and expected losses describe the model, not real dealers.
@@ -255,6 +261,7 @@ export function DealerViewTab({ portfolio }) {
       )}
 
       <CaseStudyPanels caseStudies={caseStudies} />
+      {hints.map((h) => <p key={h} style={{ ...styles.note, marginTop: 16 }} data-testid="case-study-hint">{h}</p>)}
     </div>
   );
 }
