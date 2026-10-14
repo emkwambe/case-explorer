@@ -95,29 +95,34 @@ function CaseExplorerShell() {
 
   return (
     <div style={styles.app} className="ce-app">
-      <header style={styles.header}>
-        <div style={{ flex: "1 1 320px" }}>
-          <h1 style={styles.title}>Case Explorer</h1>
-          <p style={styles.subtitle} data-testid="header-subtitle">
+      <header className="ce-header" data-testid="app-header">
+        <div className="ce-header-text">
+          <h1 className="ce-header-title">Case Explorer</h1>
+          <p className="ce-header-subtitle" data-testid="header-subtitle">
             {profile.subtitle ?? profile.label} · generator {GENERATOR_VERSION} · {cases.length} cases
-            ({lens}: {counts.APPROVE} approve, {counts.REVIEW} review, {counts.DECLINE} decline)
           </p>
+          <div className="ce-header-chips" data-testid="header-counts" aria-label={`Case counts by ${lens}`}>
+            <span className="ce-header-lens">{lens === "credit policy" ? "Credit policy" : "Integrity check"}</span>
+            <span className="ce-chip" data-testid="count-approve">Approve <strong>{counts.APPROVE}</strong></span>
+            <span className="ce-chip" data-testid="count-review">Review <strong>{counts.REVIEW}</strong></span>
+            <span className="ce-chip" data-testid="count-decline">Decline <strong>{counts.DECLINE}</strong></span>
+          </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569" }}>
-            Portfolio profile:
-            <select style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Portfolio profile" value={profileId} onChange={(e) => setProfileId(e.target.value)} data-testid="portfolio-profile">
+        <div className="ce-header-controls">
+          <label className="ce-header-field">
+            Portfolio profile
+            <select className="ce-header-select" aria-label="Portfolio profile" value={profileId} onChange={(e) => setProfileId(e.target.value)} data-testid="portfolio-profile">
               {registry.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
             </select>
           </label>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer" }}>
+          <label className="ce-header-toggle">
             <input type="checkbox" checked={creditMode} onChange={(e) => setCreditMode(e.target.checked)} data-testid="credit-risk-mode" />
             Credit Risk Mode
           </label>
+          <button type="button" className="ce-header-button" onClick={startTour} data-testid="start-tour">
+            Start guided walkthrough
+          </button>
         </div>
-        <button onClick={startTour} data-testid="start-tour" style={{ ...styles.btnPrimary, width: "auto", padding: "10px 18px", marginBottom: 0 }}>
-          Start guided walkthrough
-        </button>
       </header>
 
       {step && (

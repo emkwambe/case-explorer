@@ -440,9 +440,14 @@ describe("navigation and header", () => {
 
   it("header subtitle and counts follow the active profile; Solar prime opens on its own seeded mix", async () => {
     render(<CaseExplorer />);
-    expect(screen.getByTestId("header-subtitle")).toHaveTextContent(/^Mortgage risk simulation, fraud analytics and model validation · generator 2\.0\.0 · 12 cases \(integrity check: \d+ approve, \d+ review, \d+ decline\)$/);
+    expect(screen.getByTestId("header-subtitle")).toHaveTextContent(/^Mortgage risk simulation, fraud analytics and model validation · generator 2\.0\.0 · 12 cases$/);
+    expect(screen.getByTestId("header-counts")).toHaveTextContent(/^Integrity check\s*Approve \d+\s*Review \d+\s*Decline \d+$/);
     await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
-    expect(screen.getByTestId("header-subtitle")).toHaveTextContent("Prime solar lending: credit policy, dealer channel, funding stress and public record · generator 2.0.0 · 12 cases (credit policy: 6 approve, 4 review, 2 decline)");
+    expect(screen.getByTestId("header-subtitle")).toHaveTextContent("Prime solar lending: credit policy, dealer channel, funding stress and public record · generator 2.0.0 · 12 cases");
+    expect(screen.getByTestId("header-counts")).toHaveAttribute("aria-label", "Case counts by credit policy");
+    expect(screen.getByTestId("count-approve")).toHaveTextContent("Approve 6");
+    expect(screen.getByTestId("count-review")).toHaveTextContent("Review 4");
+    expect(screen.getByTestId("count-decline")).toHaveTextContent("Decline 2");
     const types = screen.getAllByTestId("case-card").map((c) => c.textContent);
     expect(types.filter((t) => /· None/.test(t)).length).toBe(8);
   });

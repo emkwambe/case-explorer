@@ -110,3 +110,171 @@ ul {
     width: 100%;
   }
 }
+
+/* Header band. Contrast on the lighter gradient end (#1D4ED8): white 6.7:1, subtitle at 85%
+   white 5.3:1, white on the 16% chip fill 4.8:1 — all WCAG AA for normal text. */
+.ce-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px 32px;
+  flex-wrap: wrap;
+  padding: 30px 32px;
+  background: linear-gradient(90deg, #0b3d91 0%, #1d4ed8 100%);
+  color: #ffffff;
+}
+
+.ce-header-text {
+  flex: 1 1 420px;
+  min-width: 0;
+}
+
+.ce-header-title {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.ce-header-subtitle {
+  margin: 8px 0 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ce-header-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.ce-header-lens {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  margin-right: 2px;
+}
+
+.ce-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.ce-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.ce-header-field,
+.ce-header-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.ce-header-toggle {
+  cursor: pointer;
+}
+
+.ce-header-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: #ffffff;
+}
+
+.ce-header-select {
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 13px;
+}
+
+/* The open list is drawn by the browser on a light surface: keep options dark. */
+.ce-header-select option {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.ce-header-button {
+  padding: 10px 18px;
+  border-radius: 6px;
+  border: 2px solid #ffffff;
+  background: transparent;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ce-header-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.ce-header-select:focus-visible,
+.ce-header-button:focus-visible,
+.ce-header-toggle input:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.ce-header-select:focus-visible,
+.ce-header-button:focus-visible {
+  box-shadow: 0 0 0 5px #0b3d91;
+}
+
+@media (max-width: 900px) {
+  .ce-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 28px 16px;
+  }
+
+  .ce-header-title {
+    font-size: 26px;
+  }
+
+  .ce-header-text {
+    flex-basis: auto;
+  }
+
+  .ce-header-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ce-header-field {
+    justify-content: space-between;
+  }
+
+  .ce-header-select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ce-header-button {
+    width: 100%;
+  }
+}
