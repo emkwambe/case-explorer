@@ -18,6 +18,7 @@ import { useCreditAssessments, CREDIT_DECISION_COLORS } from "./credit/useCredit
 import { DealerViewTab } from "./dealers/DealerView.jsx";
 import { useDealerPortfolio } from "./dealers/useDealerPortfolio.js";
 import { FundingViewTab } from "./funding/FundingView.jsx";
+import { PublicRecordTab } from "./publicRecord/PublicRecordView.jsx";
 
 const TABS = [
   { id: "overview", label: "Overview" },
@@ -34,6 +35,7 @@ const TABS = [
   { id: "portfolio", label: "Portfolio" },
   { id: "dealers", label: "Dealer View" },
   { id: "funding", label: "Funding & Rates" },
+  { id: "public_record", label: "Public record", needs: "publicRecord" },
   { id: "network", label: "Network" },
   { id: "economics", label: "Economics" },
   { id: "validation", label: "Validation" }
@@ -65,7 +67,9 @@ export default function CaseExplorer({ profileRegistry } = {}) {
 
 function CaseExplorerShell() {
   const library = useCaseLibrary();
-  const { registry, profileId, setProfileId } = useActiveProfile();
+  const { registry, profileId, setProfileId, profile } = useActiveProfile();
+  // Profile-specific tabs appear only when the active profile has the data they need.
+  const tabs = TABS.filter((t) => !t.needs || profile[t.needs]);
   const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config } = library;
   const [activeTab, setActiveTab] = useState("overview");
   const [tourStep, setTourStep] = useState(null);
@@ -179,7 +183,7 @@ function CaseExplorerShell() {
           {creditMode && <UnderwritingSidebar key={selectedCase.id} caseData={selectedCase} assessment={assessments.get(selectedCase.id)} />}
           <div style={styles.detail} className="ce-detail">
             <div style={styles.tabs} role="tablist">
-              {TABS.map((t) => (
+              {tabs.map((t) => (
                 <button
                   key={t.id} role="tab" aria-selected={activeTab === t.id} onClick={() => setActiveTab(t.id)}
                   style={{ ...styles.tab, borderBottom: activeTab === t.id ? "3px solid #2563eb" : "3px solid transparent", color: activeTab === t.id ? "#2563eb" : "#64748b", fontWeight: activeTab === t.id ? 600 : 400 }}
@@ -207,6 +211,7 @@ function CaseExplorerShell() {
               {activeTab === "portfolio" && <DataTableTab cases={cases} onSelect={(id) => { select(id); setActiveTab("overview"); }} />}
               {activeTab === "dealers" && <DealerViewTab portfolio={dealerPortfolio} />}
               {activeTab === "funding" && <FundingViewTab portfolio={dealerPortfolio} />}
+              {activeTab === "public_record" && profile.publicRecord && <PublicRecordTab profile={profile} />}
               {activeTab === "network" && <NetworkTab cases={cases} />}
               {activeTab === "economics" && <EconomicsTab cases={cases} config={config} />}
               {activeTab === "validation" && <ValidationTab />}

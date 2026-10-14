@@ -1,0 +1,3941 @@
+{
+  "builtFrom": {
+    "manifestGeneratedAt": "2026-10-14T22:12:15.416Z",
+    "rawHashes": {
+      "sec-companyfacts": "1ea398e68428cc020032b879758be6ac38afffc35c05f6629edb6b70f111cc18",
+      "fred-DFF": "2d3f1f50dc5effeb7d27d795228481a2b35856d4cf3ee0732cacab54f08a5798",
+      "fred-DGS10": "a7789b2b1ba3bf0535f02f12a6e994dffb999f87f8c7a20d4c6338ff828f48cd",
+      "filing-10q-2021q3": "0a6724018af5244ba80833767076180530e58fe7bb5ad190c954cd9176684049",
+      "filing-10k-2021": "187dd862b4044a579a28b5c51711179dddd620e9382dc58eece4117aa9381aa4",
+      "filing-10q-2022q1": "09b36ebf354679dd3e292366af0fbe1f421436fad8378951d029b8468d2791ef",
+      "filing-10q-2022q2": "7e34dea26b5e6f938c6974ab826ed925c6d5e3923f413c16a40213be5c43e410",
+      "filing-10q-2022q3": "abfb932951055addb4444ae10d13c42663cdf7e39feb1cfd72a026aaa106dbf5",
+      "filing-10k-2022": "dc2724772163a2bccfb473a484e960d872351c6f1ee9c74c673772e45d296836",
+      "filing-10q-2023q1": "a6f74581cd3365dcc5676272c05408831e19a4042f6feb41eca9a81cd5ddf5ad",
+      "filing-10q-2023q2": "3faabab72e415e2b9d413aa6e52c99d769d2c9cfc65bc801eaf0333cd7343adb"
+    },
+    "manualExtractions": "f40019cbbb48fb521c6355b93a78984d695decba72b5af70ff45a5a69d3a368c"
+  },
+  "quarters": [
+    {
+      "quarter": "2021Q1",
+      "periodEnd": "2021-03-31",
+      "metrics": {
+        "cash": null,
+        "totalAssets": null,
+        "totalLiabilities": null,
+        "equity": null,
+        "retainedEarnings": null,
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": null,
+        "revenue": {
+          "value": 24787000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": "2021-01-01",
+          "end": "2021-03-31",
+          "basis": "Predecessor",
+          "source": "xbrl"
+        },
+        "netIncome": {
+          "value": 2660000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": "2021-01-01",
+          "end": "2021-03-31",
+          "basis": "Predecessor",
+          "source": "xbrl"
+        },
+        "operatingIncome": {
+          "value": 7152000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": "2021-01-01",
+          "end": "2021-03-31",
+          "basis": "Predecessor",
+          "source": "xbrl"
+        },
+        "operatingCashFlow": {
+          "value": 10500000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": "2021-01-01",
+          "end": "2021-03-31",
+          "basis": "Predecessor",
+          "source": "xbrl"
+        },
+        "DFF": {
+          "value": 0.07688888888888902,
+          "observations": 90,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 1.335901639344262,
+          "observations": 61,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 581059,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended March 31, 2022 (accession 0001821850-22-000019)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000019/sunl-20220331.htm",
+          "page_or_section": "p. 47, MD&A, Key Performance Measures table (USD in thousands)",
+          "quoted_label": "Funded Loans(b) [Predecessor; For the Three Months Ended March 31, 2021 (prior-year comparative column)]",
+          "period": "2021Q1",
+          "line": 2,
+          "accession": "0001821850-22-000019"
+        },
+        "platform_fees": {
+          "value": 23662,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended March 31, 2022 (accession 0001821850-22-000019)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000019/sunl-20220331.htm",
+          "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+          "quoted_label": "Platform fees, net(a) [Predecessor; For the Three Months Ended March 31, 2021 (prior-year comparative column)]",
+          "period": "2021Q1",
+          "line": 24,
+          "accession": "0001821850-22-000019"
+        }
+      }
+    },
+    {
+      "quarter": "2021Q2",
+      "periodEnd": "2021-06-30",
+      "metrics": {
+        "cash": null,
+        "totalAssets": null,
+        "totalLiabilities": null,
+        "equity": null,
+        "retainedEarnings": null,
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": null,
+        "revenue": {
+          "value": 26203000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": "2021-04-01",
+          "end": "2021-06-30",
+          "basis": "Predecessor",
+          "source": "xbrl"
+        },
+        "netIncome": {
+          "value": 5243000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": "2021-04-01",
+          "end": "2021-06-30",
+          "basis": "Predecessor",
+          "source": "xbrl"
+        },
+        "operatingIncome": {
+          "value": 8797000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": "2021-04-01",
+          "end": "2021-06-30",
+          "basis": "Predecessor",
+          "source": "xbrl"
+        },
+        "operatingCashFlow": {
+          "value": 6606000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2021-01-01–2021-06-30 less 2021-01-01–2021-03-31",
+          "start": "2021-04-01",
+          "end": "2021-06-30",
+          "inputs": [
+            {
+              "value": 17106000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-22-000050",
+              "form": "10-Q",
+              "filed": "2022-08-15",
+              "fy": 2022,
+              "fp": "Q2",
+              "start": "2021-01-01",
+              "end": "2021-06-30",
+              "basis": "Predecessor",
+              "source": "xbrl"
+            },
+            {
+              "value": 10500000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-22-000019",
+              "form": "10-Q",
+              "filed": "2022-05-16",
+              "fy": 2022,
+              "fp": "Q1",
+              "start": "2021-01-01",
+              "end": "2021-03-31",
+              "basis": "Predecessor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "DFF": {
+          "value": 0.06824175824175815,
+          "observations": 91,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 1.59078125,
+          "observations": 64,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 666177,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended June 30, 2022 (accession 0001821850-22-000050)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm",
+          "page_or_section": "p. 48, MD&A, Key Performance Measures table (USD in thousands)",
+          "quoted_label": "Funded Loans(b) [Predecessor; For the Three Months Ended June 30, 2021 (prior-year comparative column)]",
+          "period": "2021Q2",
+          "line": 4,
+          "accession": "0001821850-22-000050"
+        },
+        "platform_fees": {
+          "value": 25112,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended June 30, 2022 (accession 0001821850-22-000050)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm",
+          "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+          "quoted_label": "Platform fees, net(a) [Predecessor; For the Three Months Ended June 30, 2021 (prior-year comparative column)]",
+          "period": "2021Q2",
+          "line": 26,
+          "accession": "0001821850-22-000050"
+        }
+      }
+    },
+    {
+      "quarter": "2021Q3",
+      "periodEnd": "2021-09-30",
+      "metrics": {
+        "cash": {
+          "value": 72786000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-21-000037",
+          "form": "10-Q/A",
+          "filed": "2021-11-19",
+          "fy": 2021,
+          "fp": "Q3",
+          "start": null,
+          "end": "2021-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 1232526000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-21-000037",
+          "form": "10-Q/A",
+          "filed": "2021-11-19",
+          "fy": 2021,
+          "fp": "Q3",
+          "start": null,
+          "end": "2021-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 130881000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-21-000037",
+          "form": "10-Q/A",
+          "filed": "2021-11-19",
+          "fy": 2021,
+          "fp": "Q3",
+          "start": null,
+          "end": "2021-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 1101645000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": null,
+          "end": "2021-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -37789000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-21-000037",
+          "form": "10-Q/A",
+          "filed": "2021-11-19",
+          "fy": 2021,
+          "fp": "Q3",
+          "start": null,
+          "end": "2021-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": {
+          "value": 20613000,
+          "unit": "USD",
+          "concept": "LineOfCredit",
+          "accn": "0001821850-21-000037",
+          "form": "10-Q/A",
+          "filed": "2021-11-19",
+          "fy": 2021,
+          "fp": "Q3",
+          "start": null,
+          "end": "2021-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "revenue": {
+          "stubs": {
+            "predecessor": {
+              "value": 2074000,
+              "unit": "USD",
+              "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-01",
+              "end": "2021-07-09",
+              "basis": "Predecessor",
+              "source": "xbrl",
+              "label": "Predecessor, July 1–9, 2021"
+            },
+            "successor": {
+              "value": 26520000,
+              "unit": "USD",
+              "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl",
+              "label": "Successor, July 10–September 30, 2021"
+            }
+          }
+        },
+        "netIncome": {
+          "stubs": {
+            "predecessor": {
+              "value": -1772000,
+              "unit": "USD",
+              "concept": "NetIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-01",
+              "end": "2021-07-09",
+              "basis": "Predecessor",
+              "source": "xbrl",
+              "label": "Predecessor, July 1–9, 2021"
+            },
+            "successor": {
+              "value": -11323000,
+              "unit": "USD",
+              "concept": "NetIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl",
+              "label": "Successor, July 10–September 30, 2021"
+            }
+          }
+        },
+        "operatingIncome": {
+          "stubs": {
+            "predecessor": {
+              "value": 93000,
+              "unit": "USD",
+              "concept": "OperatingIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-01",
+              "end": "2021-07-09",
+              "basis": "Predecessor",
+              "source": "xbrl",
+              "label": "Predecessor, July 1–9, 2021"
+            },
+            "successor": {
+              "value": -36730000,
+              "unit": "USD",
+              "concept": "OperatingIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl",
+              "label": "Successor, July 10–September 30, 2021"
+            }
+          }
+        },
+        "operatingCashFlow": {
+          "stubs": {
+            "predecessor": null,
+            "successor": {
+              "value": -47921000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl",
+              "label": "Successor, July 10–September 30, 2021"
+            }
+          }
+        },
+        "DFF": {
+          "value": 0.09,
+          "observations": 92,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 1.32484375,
+          "observations": 64,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "stubs": {
+            "predecessor": {
+              "value": 62268,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2021 (accession 0001821850-21-000026)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm",
+              "page_or_section": "p. 46, MD&A, Key Performance Measures table (in thousands)",
+              "quoted_label": "Funded Loans [Predecessor; For the Period July 1, 2021 to July 9, 2021]",
+              "period": "2021Q3-PRED",
+              "line": 9,
+              "accession": "0001821850-21-000026",
+              "restatements": [
+                {
+                  "value": 62268,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+                  "page_or_section": "p. 52, MD&A, Key Performance Measures table (USD in thousands)",
+                  "quoted_label": "Funded Loans(d) [Predecessor; For the Period July 1, 2021 to July 9, 2021 (prior-year comparative column)]",
+                  "period": "2021Q3-PRED",
+                  "line": 19,
+                  "accession": "0001821850-22-000073",
+                  "differs": false
+                }
+              ],
+              "label": "Predecessor, July 1–9, 2021"
+            },
+            "successor": {
+              "value": 577197,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2021 (accession 0001821850-21-000026)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm",
+              "page_or_section": "p. 46, MD&A, Key Performance Measures table (in thousands)",
+              "quoted_label": "Funded Loans [Successor; For the Period July 10, 2021 to September 30, 2021]",
+              "period": "2021Q3-SUCC",
+              "line": 8,
+              "accession": "0001821850-21-000026",
+              "restatements": [
+                {
+                  "value": 577197,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+                  "page_or_section": "p. 52, MD&A, Key Performance Measures table (USD in thousands)",
+                  "quoted_label": "Funded Loans(d) [Successor; For the Period July 10, 2021 to September 30, 2021 (prior-year comparative column)]",
+                  "period": "2021Q3-SUCC",
+                  "line": 18,
+                  "accession": "0001821850-22-000073",
+                  "differs": false
+                }
+              ],
+              "label": "Successor, July 10–September 30, 2021"
+            }
+          }
+        },
+        "platform_fees": {
+          "stubs": {
+            "predecessor": {
+              "value": 1983,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2021 (accession 0001821850-21-000026)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm",
+              "page_or_section": "p. 14, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [Predecessor; For the Period July 1, 2021 to July 9, 2021]",
+              "period": "2021Q3-PRED",
+              "line": 31,
+              "accession": "0001821850-21-000026",
+              "restatements": [
+                {
+                  "value": 1983,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+                  "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+                  "quoted_label": "Platform fees, net(a) [Predecessor; For the Period July 1, 2021 to July 9, 2021 (prior-year comparative column)]",
+                  "period": "2021Q3-PRED",
+                  "line": 41,
+                  "accession": "0001821850-22-000073",
+                  "differs": false
+                }
+              ],
+              "label": "Predecessor, July 1–9, 2021"
+            },
+            "successor": {
+              "value": 24159,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2021 (accession 0001821850-21-000026)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm",
+              "page_or_section": "p. 14, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [Successor; For the Period July 10, 2021 to September 30, 2021]",
+              "period": "2021Q3-SUCC",
+              "line": 30,
+              "accession": "0001821850-21-000026",
+              "restatements": [
+                {
+                  "value": 24159,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+                  "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+                  "quoted_label": "Platform fees, net(a) [Successor; For the Period July 10, 2021 to September 30, 2021 (prior-year comparative column)]",
+                  "period": "2021Q3-SUCC",
+                  "line": 40,
+                  "accession": "0001821850-22-000073",
+                  "differs": false
+                }
+              ],
+              "label": "Successor, July 10–September 30, 2021"
+            }
+          }
+        }
+      }
+    },
+    {
+      "quarter": "2021Q4",
+      "periodEnd": "2021-12-31",
+      "metrics": {
+        "cash": {
+          "value": 91882000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-23-000025",
+          "form": "10-K",
+          "filed": "2023-05-04",
+          "fy": 2022,
+          "fp": "FY",
+          "start": null,
+          "end": "2021-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 1002247000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-23-000025",
+          "form": "10-K",
+          "filed": "2023-05-04",
+          "fy": 2022,
+          "fp": "FY",
+          "start": null,
+          "end": "2021-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 123284000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-23-000025",
+          "form": "10-K",
+          "filed": "2023-05-04",
+          "fy": 2022,
+          "fp": "FY",
+          "start": null,
+          "end": "2021-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 878963000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2021-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -186022000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-23-000025",
+          "form": "10-K",
+          "filed": "2023-05-04",
+          "fy": 2022,
+          "fp": "FY",
+          "start": null,
+          "end": "2021-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": {
+          "value": 20613000,
+          "unit": "USD",
+          "concept": "LineOfCredit",
+          "accn": "0001821850-23-000025",
+          "form": "10-K",
+          "filed": "2023-05-04",
+          "fy": 2022,
+          "fp": "FY",
+          "start": null,
+          "end": "2021-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "revenue": {
+          "value": 35154000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2021-07-10–2021-12-31 less 2021-07-10–2021-09-30",
+          "start": "2021-10-01",
+          "end": "2021-12-31",
+          "inputs": [
+            {
+              "value": 61674000,
+              "unit": "USD",
+              "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2021-07-10",
+              "end": "2021-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": 26520000,
+              "unit": "USD",
+              "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "netIncome": {
+          "value": -148233000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2021-07-10–2021-12-31 less 2021-07-10–2021-09-30",
+          "start": "2021-10-01",
+          "end": "2021-12-31",
+          "inputs": [
+            {
+              "value": -159556000,
+              "unit": "USD",
+              "concept": "NetIncomeLoss",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2021-07-10",
+              "end": "2021-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -11323000,
+              "unit": "USD",
+              "concept": "NetIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "operatingIncome": {
+          "value": -236279000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2021-07-10–2021-12-31 less 2021-07-10–2021-09-30",
+          "start": "2021-10-01",
+          "end": "2021-12-31",
+          "inputs": [
+            {
+              "value": -273009000,
+              "unit": "USD",
+              "concept": "OperatingIncomeLoss",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2021-07-10",
+              "end": "2021-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -36730000,
+              "unit": "USD",
+              "concept": "OperatingIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "operatingCashFlow": {
+          "value": 29356000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2021-07-10–2021-12-31 less 2021-07-10–2021-09-30",
+          "start": "2021-10-01",
+          "end": "2021-12-31",
+          "inputs": [
+            {
+              "value": -18565000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2021-07-10",
+              "end": "2021-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -47921000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2021-07-10",
+              "end": "2021-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "DFF": {
+          "value": 0.0794565217391305,
+          "observations": 92,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 1.5333870967741936,
+          "observations": 62,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 637557,
+          "unit": "USD thousands",
+          "source": "manual",
+          "derived": true,
+          "method": "2021SUCC-FY less 2021Q3-SUCC",
+          "inputs": [
+            {
+              "value": 1214754,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-K for the year ended December 31, 2021 (accession 0001821850-22-000004)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000004/sunl-20211231.htm",
+              "page_or_section": "p. 38, MD&A, Key Performance Measures table (in thousands)",
+              "quoted_label": "Funded Loans [Successor; For the Period July 10, 2021 to December 31, 2021]",
+              "period": "2021SUCC-FY",
+              "line": 13,
+              "accession": "0001821850-22-000004",
+              "restatements": [
+                {
+                  "value": 1214754,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-K for the year ended December 31, 2022 (accession 0001821850-23-000025)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm",
+                  "page_or_section": "p. 47, MD&A, Key Performance Measures table (USD in thousands)",
+                  "quoted_label": "Funded Loans(c) [Successor; For the Period July 10, 2021 to December 31, 2021 (prior-year comparative column)]",
+                  "period": "2021SUCC-FY",
+                  "line": 20,
+                  "accession": "0001821850-23-000025",
+                  "differs": false
+                }
+              ]
+            },
+            {
+              "value": 577197,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2021 (accession 0001821850-21-000026)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm",
+              "page_or_section": "p. 46, MD&A, Key Performance Measures table (in thousands)",
+              "quoted_label": "Funded Loans [Successor; For the Period July 10, 2021 to September 30, 2021]",
+              "period": "2021Q3-SUCC",
+              "line": 8,
+              "accession": "0001821850-21-000026",
+              "restatements": [
+                {
+                  "value": 577197,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+                  "page_or_section": "p. 52, MD&A, Key Performance Measures table (USD in thousands)",
+                  "quoted_label": "Funded Loans(d) [Successor; For the Period July 10, 2021 to September 30, 2021 (prior-year comparative column)]",
+                  "period": "2021Q3-SUCC",
+                  "line": 18,
+                  "accession": "0001821850-22-000073",
+                  "differs": false
+                }
+              ]
+            }
+          ]
+        },
+        "platform_fees": {
+          "value": 32624,
+          "unit": "USD thousands",
+          "source": "manual",
+          "derived": true,
+          "method": "2021SUCC-FY less 2021Q3-SUCC",
+          "inputs": [
+            {
+              "value": 56783,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-K for the year ended December 31, 2021 (accession 0001821850-22-000004)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000004/sunl-20211231.htm",
+              "page_or_section": "p. 77, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [Successor; For the Period July 10, 2021 to December 31, 2021]",
+              "period": "2021SUCC-FY",
+              "line": 35,
+              "accession": "0001821850-22-000004",
+              "restatements": [
+                {
+                  "value": 56783,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-K for the year ended December 31, 2022 (accession 0001821850-23-000025)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm",
+                  "page_or_section": "p. 89, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+                  "quoted_label": "Platform fees, net(a) [Successor; For the Period July 10, 2021 to December 31, 2021 (prior-year comparative column)]",
+                  "period": "2021SUCC-FY",
+                  "line": 43,
+                  "accession": "0001821850-23-000025",
+                  "differs": false
+                }
+              ]
+            },
+            {
+              "value": 24159,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2021 (accession 0001821850-21-000026)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm",
+              "page_or_section": "p. 14, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [Successor; For the Period July 10, 2021 to September 30, 2021]",
+              "period": "2021Q3-SUCC",
+              "line": 30,
+              "accession": "0001821850-21-000026",
+              "restatements": [
+                {
+                  "value": 24159,
+                  "unit": "USD thousands",
+                  "source": "manual",
+                  "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+                  "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+                  "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+                  "quoted_label": "Platform fees, net(a) [Successor; For the Period July 10, 2021 to September 30, 2021 (prior-year comparative column)]",
+                  "period": "2021Q3-SUCC",
+                  "line": 40,
+                  "accession": "0001821850-22-000073",
+                  "differs": false
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "quarter": "2022Q1",
+      "periodEnd": "2022-03-31",
+      "metrics": {
+        "cash": {
+          "value": 69574000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": null,
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 978575000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": null,
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 120492000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": null,
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 858083000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -199758000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": null,
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": {
+          "value": 20613000,
+          "unit": "USD",
+          "concept": "LineOfCredit",
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "filed": "2022-05-16",
+          "fy": 2022,
+          "fp": "Q1",
+          "start": null,
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "revenue": {
+          "value": 28231000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2022-01-01",
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "netIncome": {
+          "value": -13974000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2022-01-01",
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingIncome": {
+          "value": -21608000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2022-01-01",
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingCashFlow": {
+          "value": -21130000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2022-01-01",
+          "end": "2022-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "DFF": {
+          "value": 0.1214444444444445,
+          "observations": 90,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 1.9511290322580639,
+          "observations": 62,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 592831,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended March 31, 2022 (accession 0001821850-22-000019)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000019/sunl-20220331.htm",
+          "page_or_section": "p. 47, MD&A, Key Performance Measures table (USD in thousands)",
+          "quoted_label": "Funded Loans(b) [Successor(a); For the Three Months Ended March 31, 2022]",
+          "period": "2022Q1",
+          "line": 3,
+          "accession": "0001821850-22-000019",
+          "restatements": [
+            {
+              "value": 592831,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended March 31, 2023 (accession 0001821850-23-000043)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000043/sunl-20230331.htm",
+              "page_or_section": "p. 47, MD&A, Key Performance Measures table (USD in thousands)",
+              "quoted_label": "Funded Loans(a) [For the Three Months Ended March 31, 2022 (prior-year comparative column)]",
+              "period": "2022Q1",
+              "line": 21,
+              "accession": "0001821850-23-000043",
+              "differs": false
+            }
+          ]
+        },
+        "platform_fees": {
+          "value": 26154,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended March 31, 2022 (accession 0001821850-22-000019)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000019/sunl-20220331.htm",
+          "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+          "quoted_label": "Platform fees, net(a) [Successor; For the Three Months Ended March 31, 2022]",
+          "period": "2022Q1",
+          "line": 25,
+          "accession": "0001821850-22-000019",
+          "restatements": [
+            {
+              "value": 26154,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended March 31, 2023 (accession 0001821850-23-000043)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000043/sunl-20230331.htm",
+              "page_or_section": "p. 14, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [For the Three Months Ended March 31, 2022 (prior-year comparative column)]",
+              "period": "2022Q1",
+              "line": 44,
+              "accession": "0001821850-23-000043",
+              "differs": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "quarter": "2022Q2",
+      "periodEnd": "2022-06-30",
+      "metrics": {
+        "cash": {
+          "value": 68913000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 971379000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 107711000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 863668000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -195642000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": {
+          "value": 20613000,
+          "unit": "USD",
+          "concept": "LineOfCredit",
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "filed": "2022-08-15",
+          "fy": 2022,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "revenue": {
+          "value": 29590000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": "2022-04-01",
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "netIncome": {
+          "value": 4116000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": "2022-04-01",
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingIncome": {
+          "value": -10587000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": "2022-04-01",
+          "end": "2022-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingCashFlow": {
+          "value": 3130000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2022-01-01–2022-06-30 less 2022-01-01–2022-03-31",
+          "start": "2022-04-01",
+          "end": "2022-06-30",
+          "inputs": [
+            {
+              "value": -18000000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-23-000064",
+              "form": "10-Q",
+              "filed": "2023-08-09",
+              "fy": 2023,
+              "fp": "Q2",
+              "start": "2022-01-01",
+              "end": "2022-06-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -21130000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-23-000043",
+              "form": "10-Q",
+              "filed": "2023-05-15",
+              "fy": 2023,
+              "fp": "Q1",
+              "start": "2022-01-01",
+              "end": "2022-03-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "DFF": {
+          "value": 0.7668131868131859,
+          "observations": 91,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 2.9325806451612904,
+          "observations": 62,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 716351,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended June 30, 2022 (accession 0001821850-22-000050)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm",
+          "page_or_section": "p. 48, MD&A, Key Performance Measures table (USD in thousands)",
+          "quoted_label": "Funded Loans(b) [Successor(a); For the Three Months Ended June 30, 2022]",
+          "period": "2022Q2",
+          "line": 6,
+          "accession": "0001821850-22-000050",
+          "restatements": [
+            {
+              "value": 716351,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended June 30, 2023 (accession 0001821850-23-000064)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm",
+              "page_or_section": "p. 55, MD&A, Key Performance Measures table (USD in thousands)",
+              "quoted_label": "Funded Loans(a) [For the Three Months Ended June 30, 2022 (prior-year comparative column)]",
+              "period": "2022Q2",
+              "line": 22,
+              "accession": "0001821850-23-000064",
+              "differs": false
+            }
+          ]
+        },
+        "platform_fees": {
+          "value": 27873,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended June 30, 2022 (accession 0001821850-22-000050)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm",
+          "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+          "quoted_label": "Platform fees, net(a) [Successor; For the Three Months Ended June 30, 2022]",
+          "period": "2022Q2",
+          "line": 28,
+          "accession": "0001821850-22-000050",
+          "restatements": [
+            {
+              "value": 27873,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended June 30, 2023 (accession 0001821850-23-000064)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm",
+              "page_or_section": "p. 17, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [heading; unlabelled subtotal of 'Platform fees' and 'Platform fees from affiliate'; For the Three Months Ended June 30, 2022 (prior-year comparative column)]",
+              "period": "2022Q2",
+              "line": 45,
+              "accession": "0001821850-23-000064",
+              "differs": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "quarter": "2022Q3",
+      "periodEnd": "2022-09-30",
+      "metrics": {
+        "cash": {
+          "value": 70569000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": null,
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 553566000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": null,
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 109417000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": null,
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 444149000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": null,
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -459706000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": null,
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": {
+          "value": 20613000,
+          "unit": "USD",
+          "concept": "LineOfCredit",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": null,
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "revenue": {
+          "value": 33265000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": "2022-07-01",
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "netIncome": {
+          "value": -264064000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": "2022-07-01",
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingIncome": {
+          "value": -425503000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "filed": "2022-11-14",
+          "fy": 2022,
+          "fp": "Q3",
+          "start": "2022-07-01",
+          "end": "2022-09-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingCashFlow": {
+          "value": 10863000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2022-01-01–2022-09-30 less 2022-01-01–2022-06-30",
+          "start": "2022-07-01",
+          "end": "2022-09-30",
+          "inputs": [
+            {
+              "value": -7137000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2022-01-01",
+              "end": "2022-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -18000000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-23-000064",
+              "form": "10-Q",
+              "filed": "2023-08-09",
+              "fy": 2023,
+              "fp": "Q2",
+              "start": "2022-01-01",
+              "end": "2022-06-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "DFF": {
+          "value": 2.1829347826086987,
+          "observations": 92,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 3.10109375,
+          "observations": 64,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 834735,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+          "page_or_section": "p. 52, MD&A, Key Performance Measures table (USD in thousands)",
+          "quoted_label": "Funded Loans(d) [Successor(a); For the Three Months Ended September 30, 2022]",
+          "period": "2022Q3",
+          "line": 11,
+          "accession": "0001821850-22-000073"
+        },
+        "platform_fees": {
+          "value": 31446,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+          "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+          "quoted_label": "Platform fees, net(a) [Successor; For the Three Months Ended September 30, 2022]",
+          "period": "2022Q3",
+          "line": 33,
+          "accession": "0001821850-22-000073"
+        }
+      }
+    },
+    {
+      "quarter": "2022Q4",
+      "periodEnd": "2022-12-31",
+      "metrics": {
+        "cash": {
+          "value": 47515000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 452195000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 83868000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 368327000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -501635000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2022-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": {
+          "value": 20613000,
+          "unit": "USD",
+          "concept": "LineOfCredit",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": null,
+          "end": "2022-12-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "revenue": {
+          "value": 7420000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2022-01-01–2022-12-31 less 2022-01-01–2022-09-30",
+          "start": "2022-10-01",
+          "end": "2022-12-31",
+          "inputs": [
+            {
+              "value": 98506000,
+              "unit": "USD",
+              "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2022-01-01",
+              "end": "2022-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": 91086000,
+              "unit": "USD",
+              "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2022-01-01",
+              "end": "2022-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "netIncome": {
+          "value": -41929000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2022-01-01–2022-12-31 less 2022-01-01–2022-09-30",
+          "start": "2022-10-01",
+          "end": "2022-12-31",
+          "inputs": [
+            {
+              "value": -315851000,
+              "unit": "USD",
+              "concept": "NetIncomeLoss",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2022-01-01",
+              "end": "2022-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -273922000,
+              "unit": "USD",
+              "concept": "NetIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2022-01-01",
+              "end": "2022-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "operatingIncome": {
+          "value": -101398000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2022-01-01–2022-12-31 less 2022-01-01–2022-09-30",
+          "start": "2022-10-01",
+          "end": "2022-12-31",
+          "inputs": [
+            {
+              "value": -559096000,
+              "unit": "USD",
+              "concept": "OperatingIncomeLoss",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2022-01-01",
+              "end": "2022-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -457698000,
+              "unit": "USD",
+              "concept": "OperatingIncomeLoss",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2022-01-01",
+              "end": "2022-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "operatingCashFlow": {
+          "value": -18502000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2022-01-01–2022-12-31 less 2022-01-01–2022-09-30",
+          "start": "2022-10-01",
+          "end": "2022-12-31",
+          "inputs": [
+            {
+              "value": -25639000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-23-000025",
+              "form": "10-K",
+              "filed": "2023-05-04",
+              "fy": 2022,
+              "fp": "FY",
+              "start": "2022-01-01",
+              "end": "2022-12-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": -7137000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-22-000073",
+              "form": "10-Q",
+              "filed": "2022-11-14",
+              "fy": 2022,
+              "fp": "Q3",
+              "start": "2022-01-01",
+              "end": "2022-09-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "DFF": {
+          "value": 3.653369565217392,
+          "observations": 92,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 3.8267213114754086,
+          "observations": 61,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 752320,
+          "unit": "USD thousands",
+          "source": "manual",
+          "derived": true,
+          "method": "2022FY less 2022YTDQ3",
+          "inputs": [
+            {
+              "value": 2896238,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-K for the year ended December 31, 2022 (accession 0001821850-23-000025)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm",
+              "page_or_section": "p. 47, MD&A, Key Performance Measures table (USD in thousands)",
+              "quoted_label": "Funded Loans(c) [Successor(a); For the Year Ended December 31, 2022]",
+              "period": "2022FY",
+              "line": 14,
+              "accession": "0001821850-23-000025"
+            },
+            {
+              "value": 2143918,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+              "page_or_section": "p. 52, MD&A, Key Performance Measures table (USD in thousands)",
+              "quoted_label": "Funded Loans(d) [Successor(a); For the Nine Months Ended September 30, 2022]",
+              "period": "2022YTDQ3",
+              "line": 12,
+              "accession": "0001821850-22-000073"
+            }
+          ]
+        },
+        "platform_fees": {
+          "value": 4685,
+          "unit": "USD thousands",
+          "source": "manual",
+          "derived": true,
+          "method": "2022FY less 2022YTDQ3",
+          "inputs": [
+            {
+              "value": 90158,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-K for the year ended December 31, 2022 (accession 0001821850-23-000025)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm",
+              "page_or_section": "p. 89, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [Successor; For the Year Ended December 31, 2022]",
+              "period": "2022FY",
+              "line": 36,
+              "accession": "0001821850-23-000025"
+            },
+            {
+              "value": 85473,
+              "unit": "USD thousands",
+              "source": "manual",
+              "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+              "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+              "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+              "quoted_label": "Platform fees, net(a) [Successor; For the Nine Months Ended September 30, 2022]",
+              "period": "2022YTDQ3",
+              "line": 34,
+              "accession": "0001821850-22-000073"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "quarter": "2023Q1",
+      "periodEnd": "2023-03-31",
+      "metrics": {
+        "cash": {
+          "value": 75518000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": null,
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 450425000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": null,
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 113785000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": null,
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 336640000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -524285000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": null,
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": {
+          "value": 7694000,
+          "unit": "USD",
+          "concept": "LineOfCredit",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": null,
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "revenue": {
+          "value": 20465000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2023-01-01",
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "netIncome": {
+          "value": -22947000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2023-01-01",
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingIncome": {
+          "value": -37164000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2023-01-01",
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingCashFlow": {
+          "value": 43961000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "filed": "2023-05-15",
+          "fy": 2023,
+          "fp": "Q1",
+          "start": "2023-01-01",
+          "end": "2023-03-31",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "DFF": {
+          "value": 4.514555555555554,
+          "observations": 90,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 3.6462903225806436,
+          "observations": 62,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 627354,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended March 31, 2023 (accession 0001821850-23-000043)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000043/sunl-20230331.htm",
+          "page_or_section": "p. 47, MD&A, Key Performance Measures table (USD in thousands)",
+          "quoted_label": "Funded Loans(a) [For the Three Months Ended March 31, 2023]",
+          "period": "2023Q1",
+          "line": 15,
+          "accession": "0001821850-23-000043"
+        },
+        "platform_fees": {
+          "value": 17909,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended March 31, 2023 (accession 0001821850-23-000043)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000043/sunl-20230331.htm",
+          "page_or_section": "p. 14, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+          "quoted_label": "Platform fees, net(a) [For the Three Months Ended March 31, 2023]",
+          "period": "2023Q1",
+          "line": 37,
+          "accession": "0001821850-23-000043"
+        }
+      }
+    },
+    {
+      "quarter": "2023Q2",
+      "periodEnd": "2023-06-30",
+      "metrics": {
+        "cash": {
+          "value": 80147000,
+          "unit": "USD",
+          "concept": "CashAndCashEquivalentsAtCarryingValue",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalAssets": {
+          "value": 434779000,
+          "unit": "USD",
+          "concept": "Assets",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "totalLiabilities": {
+          "value": 175799000,
+          "unit": "USD",
+          "concept": "Liabilities",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "equity": {
+          "value": 258980000,
+          "unit": "USD",
+          "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "retainedEarnings": {
+          "value": -578942000,
+          "unit": "USD",
+          "concept": "RetainedEarningsAccumulatedDeficit",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": null,
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "currentAssets": null,
+        "currentLiabilities": null,
+        "debt": null,
+        "revenue": {
+          "value": -29627000,
+          "unit": "USD",
+          "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": "2023-04-01",
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "netIncome": {
+          "value": -54657000,
+          "unit": "USD",
+          "concept": "NetIncomeLoss",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": "2023-04-01",
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingIncome": {
+          "value": -76924000,
+          "unit": "USD",
+          "concept": "OperatingIncomeLoss",
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "filed": "2023-08-09",
+          "fy": 2023,
+          "fp": "Q2",
+          "start": "2023-04-01",
+          "end": "2023-06-30",
+          "basis": "Successor",
+          "source": "xbrl"
+        },
+        "operatingCashFlow": {
+          "value": 12190000,
+          "unit": "USD",
+          "concept": "NetCashProvidedByUsedInOperatingActivities",
+          "source": "xbrl",
+          "derived": true,
+          "method": "2023-01-01–2023-06-30 less 2023-01-01–2023-03-31",
+          "start": "2023-04-01",
+          "end": "2023-06-30",
+          "inputs": [
+            {
+              "value": 56151000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-23-000064",
+              "form": "10-Q",
+              "filed": "2023-08-09",
+              "fy": 2023,
+              "fp": "Q2",
+              "start": "2023-01-01",
+              "end": "2023-06-30",
+              "basis": "Successor",
+              "source": "xbrl"
+            },
+            {
+              "value": 43961000,
+              "unit": "USD",
+              "concept": "NetCashProvidedByUsedInOperatingActivities",
+              "accn": "0001821850-23-000043",
+              "form": "10-Q",
+              "filed": "2023-05-15",
+              "fy": 2023,
+              "fp": "Q1",
+              "start": "2023-01-01",
+              "end": "2023-03-31",
+              "basis": "Successor",
+              "source": "xbrl"
+            }
+          ]
+        },
+        "DFF": {
+          "value": 4.988131868131866,
+          "observations": 91,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DFF",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "DGS10": {
+          "value": 3.595714285714286,
+          "observations": 63,
+          "unit": "percent",
+          "source": "fred",
+          "series": "DGS10",
+          "method": "simple average of daily observations in the quarter"
+        },
+        "funded_volume": {
+          "value": 452745,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended June 30, 2023 (accession 0001821850-23-000064)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm",
+          "page_or_section": "p. 55, MD&A, Key Performance Measures table (USD in thousands)",
+          "quoted_label": "Funded Loans(a) [For the Three Months Ended June 30, 2023]",
+          "period": "2023Q2",
+          "line": 16,
+          "accession": "0001821850-23-000064"
+        },
+        "platform_fees": {
+          "value": -30898,
+          "unit": "USD thousands",
+          "source": "manual",
+          "document": "Form 10-Q for the quarter ended June 30, 2023 (accession 0001821850-23-000064)",
+          "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm",
+          "page_or_section": "p. 17, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure); printed as (30,898)",
+          "quoted_label": "Platform fees, net(a) [heading; unlabelled subtotal of the rows 'Platform fees' and 'Platform fees from affiliate'; For the Three Months Ended June 30, 2023]",
+          "period": "2023Q2",
+          "line": 38,
+          "accession": "0001821850-23-000064"
+        }
+      }
+    }
+  ],
+  "gaps": [
+    {
+      "metric": "cash",
+      "source": "xbrl",
+      "concept": "CashAndCashEquivalentsAtCarryingValue",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "cash",
+      "source": "xbrl",
+      "concept": "CashAndCashEquivalentsAtCarryingValue",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "totalAssets",
+      "source": "xbrl",
+      "concept": "Assets",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "totalAssets",
+      "source": "xbrl",
+      "concept": "Assets",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "totalLiabilities",
+      "source": "xbrl",
+      "concept": "Liabilities",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "totalLiabilities",
+      "source": "xbrl",
+      "concept": "Liabilities",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "equity",
+      "source": "xbrl",
+      "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "equity",
+      "source": "xbrl",
+      "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "retainedEarnings",
+      "source": "xbrl",
+      "concept": "RetainedEarningsAccumulatedDeficit",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "retainedEarnings",
+      "source": "xbrl",
+      "concept": "RetainedEarningsAccumulatedDeficit",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2021Q3",
+      "detail": "No balance at 2021-09-30"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2021Q4",
+      "detail": "No balance at 2021-12-31"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2022Q1",
+      "detail": "No balance at 2022-03-31"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2022Q2",
+      "detail": "No balance at 2022-06-30"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2022Q3",
+      "detail": "No balance at 2022-09-30"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2022Q4",
+      "detail": "No balance at 2022-12-31"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2023Q1",
+      "detail": "No balance at 2023-03-31"
+    },
+    {
+      "metric": "currentAssets",
+      "source": "xbrl",
+      "concept": "AssetsCurrent",
+      "quarter": "2023Q2",
+      "detail": "No balance at 2023-06-30"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2021Q3",
+      "detail": "No balance at 2021-09-30"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2021Q4",
+      "detail": "No balance at 2021-12-31"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2022Q1",
+      "detail": "No balance at 2022-03-31"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2022Q2",
+      "detail": "No balance at 2022-06-30"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2022Q3",
+      "detail": "No balance at 2022-09-30"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2022Q4",
+      "detail": "No balance at 2022-12-31"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2023Q1",
+      "detail": "No balance at 2023-03-31"
+    },
+    {
+      "metric": "currentLiabilities",
+      "source": "xbrl",
+      "concept": "LiabilitiesCurrent",
+      "quarter": "2023Q2",
+      "detail": "No balance at 2023-06-30"
+    },
+    {
+      "metric": "debt",
+      "source": "xbrl",
+      "concept": "LineOfCredit",
+      "quarter": "2021Q1",
+      "detail": "No balance at 2021-03-31"
+    },
+    {
+      "metric": "debt",
+      "source": "xbrl",
+      "concept": "LineOfCredit",
+      "quarter": "2021Q2",
+      "detail": "No balance at 2021-06-30"
+    },
+    {
+      "metric": "debt",
+      "source": "xbrl",
+      "concept": "LineOfCredit",
+      "quarter": "2023Q2",
+      "detail": "No balance at 2023-06-30"
+    },
+    {
+      "metric": "operatingCashFlow",
+      "source": "xbrl",
+      "concept": "NetCashProvidedByUsedInOperatingActivities",
+      "quarter": "2021Q3",
+      "detail": "Predecessor stub (July 1–9, 2021) not reported"
+    }
+  ],
+  "eda": {
+    "xbrl": {
+      "entityName": "Sunlight Financial Holdings Inc.",
+      "cik": 1821850,
+      "taxonomies": [
+        "dei",
+        "us-gaap"
+      ],
+      "conceptCount": 312,
+      "factCount": 3544,
+      "filings": [
+        {
+          "accn": "0001213900-21-014758",
+          "form": "10-K",
+          "fy": 2020,
+          "fp": "FY",
+          "filed": "2021-03-11",
+          "preMergerRegistrant": true
+        },
+        {
+          "accn": "0001564590-21-029320",
+          "form": "10-Q",
+          "fy": 2021,
+          "fp": "Q1",
+          "filed": "2021-05-21",
+          "preMergerRegistrant": true
+        },
+        {
+          "accn": "0001213900-21-042745",
+          "form": "10-Q",
+          "fy": 2021,
+          "fp": "Q2",
+          "filed": "2021-08-16",
+          "preMergerRegistrant": true
+        },
+        {
+          "accn": "0001821850-21-000026",
+          "form": "10-Q",
+          "fy": 2021,
+          "fp": "Q3",
+          "filed": "2021-11-15",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-21-000037",
+          "form": "10-Q/A",
+          "fy": 2021,
+          "fp": "Q3",
+          "filed": "2021-11-19",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-22-000004",
+          "form": "10-K",
+          "fy": 2021,
+          "fp": "FY",
+          "filed": "2022-03-29",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-22-000019",
+          "form": "10-Q",
+          "fy": 2022,
+          "fp": "Q1",
+          "filed": "2022-05-16",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-22-000050",
+          "form": "10-Q",
+          "fy": 2022,
+          "fp": "Q2",
+          "filed": "2022-08-15",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-22-000073",
+          "form": "10-Q",
+          "fy": 2022,
+          "fp": "Q3",
+          "filed": "2022-11-14",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-23-000025",
+          "form": "10-K",
+          "fy": 2022,
+          "fp": "FY",
+          "filed": "2023-05-04",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-23-000043",
+          "form": "10-Q",
+          "fy": 2023,
+          "fp": "Q1",
+          "filed": "2023-05-15",
+          "preMergerRegistrant": false
+        },
+        {
+          "accn": "0001821850-23-000064",
+          "form": "10-Q",
+          "fy": 2023,
+          "fp": "Q2",
+          "filed": "2023-08-09",
+          "preMergerRegistrant": false
+        }
+      ],
+      "excludedFilings": [
+        "0001213900-21-014758",
+        "0001564590-21-029320",
+        "0001213900-21-042745"
+      ]
+    },
+    "fred": {
+      "DFF": {
+        "header": [
+          "observation_date",
+          "DFF"
+        ],
+        "observations": 26403,
+        "missingMarkedDot": 0,
+        "firstDate": "1954-07-01",
+        "lastDate": "2026-10-13"
+      },
+      "DGS10": {
+        "header": [
+          "observation_date",
+          "DGS10"
+        ],
+        "observations": 16180,
+        "missingMarkedDot": 721,
+        "firstDate": "1962-01-02",
+        "lastDate": "2026-10-13"
+      }
+    },
+    "manual": {
+      "rows": 45,
+      "metrics": [
+        "funded_volume",
+        "platform_fees"
+      ],
+      "documents": 8
+    },
+    "dedupe": {
+      "cash": {
+        "concept": "CashAndCashEquivalentsAtCarryingValue",
+        "rawFacts": 23,
+        "excludedPreMergerRegistrant": 5,
+        "removedSameFiling": 1,
+        "removedAcrossFilings": 8,
+        "periodsReportedMoreThanOnce": 4,
+        "keptFacts": 9
+      },
+      "totalAssets": {
+        "concept": "Assets",
+        "rawFacts": 23,
+        "excludedPreMergerRegistrant": 5,
+        "removedSameFiling": 1,
+        "removedAcrossFilings": 8,
+        "periodsReportedMoreThanOnce": 4,
+        "keptFacts": 9
+      },
+      "totalLiabilities": {
+        "concept": "Liabilities",
+        "rawFacts": 23,
+        "excludedPreMergerRegistrant": 5,
+        "removedSameFiling": 1,
+        "removedAcrossFilings": 8,
+        "periodsReportedMoreThanOnce": 4,
+        "keptFacts": 9
+      },
+      "equity": {
+        "concept": "StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest",
+        "rawFacts": 29,
+        "excludedPreMergerRegistrant": 0,
+        "removedSameFiling": 9,
+        "removedAcrossFilings": 11,
+        "periodsReportedMoreThanOnce": 7,
+        "keptFacts": 9
+      },
+      "retainedEarnings": {
+        "concept": "RetainedEarningsAccumulatedDeficit",
+        "rawFacts": 23,
+        "excludedPreMergerRegistrant": 5,
+        "removedSameFiling": 1,
+        "removedAcrossFilings": 8,
+        "periodsReportedMoreThanOnce": 4,
+        "keptFacts": 9
+      },
+      "currentAssets": {
+        "concept": "AssetsCurrent",
+        "rawFacts": 5,
+        "excludedPreMergerRegistrant": 5,
+        "removedSameFiling": 0,
+        "removedAcrossFilings": 0,
+        "periodsReportedMoreThanOnce": 0,
+        "keptFacts": 0
+      },
+      "currentLiabilities": {
+        "concept": "LiabilitiesCurrent",
+        "rawFacts": 5,
+        "excludedPreMergerRegistrant": 5,
+        "removedSameFiling": 0,
+        "removedAcrossFilings": 0,
+        "periodsReportedMoreThanOnce": 0,
+        "keptFacts": 0
+      },
+      "debt": {
+        "concept": "LineOfCredit",
+        "rawFacts": 16,
+        "excludedPreMergerRegistrant": 0,
+        "removedSameFiling": 1,
+        "removedAcrossFilings": 7,
+        "periodsReportedMoreThanOnce": 4,
+        "keptFacts": 8
+      },
+      "revenue": {
+        "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "rawFacts": 33,
+        "excludedPreMergerRegistrant": 0,
+        "removedSameFiling": 8,
+        "removedAcrossFilings": 6,
+        "periodsReportedMoreThanOnce": 5,
+        "keptFacts": 19
+      },
+      "netIncome": {
+        "concept": "NetIncomeLoss",
+        "rawFacts": 37,
+        "excludedPreMergerRegistrant": 4,
+        "removedSameFiling": 8,
+        "removedAcrossFilings": 6,
+        "periodsReportedMoreThanOnce": 5,
+        "keptFacts": 19
+      },
+      "operatingIncome": {
+        "concept": "OperatingIncomeLoss",
+        "rawFacts": 37,
+        "excludedPreMergerRegistrant": 4,
+        "removedSameFiling": 8,
+        "removedAcrossFilings": 6,
+        "periodsReportedMoreThanOnce": 5,
+        "keptFacts": 19
+      },
+      "operatingCashFlow": {
+        "concept": "NetCashProvidedByUsedInOperatingActivities",
+        "rawFacts": 26,
+        "excludedPreMergerRegistrant": 3,
+        "removedSameFiling": 6,
+        "removedAcrossFilings": 4,
+        "periodsReportedMoreThanOnce": 3,
+        "keptFacts": 13
+      }
+    },
+    "coverage": [
+      {
+        "quarter": "2021Q1",
+        "reported": 8,
+        "derived": 0,
+        "stubs": 0,
+        "missing": 8
+      },
+      {
+        "quarter": "2021Q2",
+        "reported": 7,
+        "derived": 1,
+        "stubs": 0,
+        "missing": 8
+      },
+      {
+        "quarter": "2021Q3",
+        "reported": 8,
+        "derived": 0,
+        "stubs": 6,
+        "missing": 2
+      },
+      {
+        "quarter": "2021Q4",
+        "reported": 8,
+        "derived": 6,
+        "stubs": 0,
+        "missing": 2
+      },
+      {
+        "quarter": "2022Q1",
+        "reported": 14,
+        "derived": 0,
+        "stubs": 0,
+        "missing": 2
+      },
+      {
+        "quarter": "2022Q2",
+        "reported": 13,
+        "derived": 1,
+        "stubs": 0,
+        "missing": 2
+      },
+      {
+        "quarter": "2022Q3",
+        "reported": 13,
+        "derived": 1,
+        "stubs": 0,
+        "missing": 2
+      },
+      {
+        "quarter": "2022Q4",
+        "reported": 8,
+        "derived": 6,
+        "stubs": 0,
+        "missing": 2
+      },
+      {
+        "quarter": "2023Q1",
+        "reported": 14,
+        "derived": 0,
+        "stubs": 0,
+        "missing": 2
+      },
+      {
+        "quarter": "2023Q2",
+        "reported": 12,
+        "derived": 1,
+        "stubs": 0,
+        "missing": 3
+      }
+    ]
+  },
+  "reconciliation": [
+    {
+      "metric": "revenue",
+      "source": "xbrl",
+      "window": "2021 first half (Predecessor)",
+      "parts": [
+        {
+          "quarter": "2021Q1",
+          "value": 24787000,
+          "derived": false
+        },
+        {
+          "quarter": "2021Q2",
+          "value": 26203000,
+          "derived": false
+        }
+      ],
+      "sum": 50990000,
+      "filed": {
+        "value": 50990000,
+        "unit": "USD",
+        "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "accn": "0001821850-22-000050",
+        "form": "10-Q",
+        "filed": "2022-08-15",
+        "fy": 2022,
+        "fp": "Q2",
+        "start": "2021-01-01",
+        "end": "2021-06-30",
+        "basis": "Predecessor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "revenue",
+      "source": "xbrl",
+      "window": "2022 nine months",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": 28231000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 29590000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 33265000,
+          "derived": false
+        }
+      ],
+      "sum": 91086000,
+      "filed": {
+        "value": 91086000,
+        "unit": "USD",
+        "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "accn": "0001821850-22-000073",
+        "form": "10-Q",
+        "filed": "2022-11-14",
+        "fy": 2022,
+        "fp": "Q3",
+        "start": "2022-01-01",
+        "end": "2022-09-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "revenue",
+      "source": "xbrl",
+      "window": "2022 full year",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": 28231000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 29590000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 33265000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q4",
+          "value": 7420000,
+          "derived": true
+        }
+      ],
+      "sum": 98506000,
+      "filed": {
+        "value": 98506000,
+        "unit": "USD",
+        "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "accn": "0001821850-23-000025",
+        "form": "10-K",
+        "filed": "2023-05-04",
+        "fy": 2022,
+        "fp": "FY",
+        "start": "2022-01-01",
+        "end": "2022-12-31",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "revenue",
+      "source": "xbrl",
+      "window": "2023 first half",
+      "parts": [
+        {
+          "quarter": "2023Q1",
+          "value": 20465000,
+          "derived": false
+        },
+        {
+          "quarter": "2023Q2",
+          "value": -29627000,
+          "derived": false
+        }
+      ],
+      "sum": -9162000,
+      "filed": {
+        "value": -9162000,
+        "unit": "USD",
+        "concept": "RevenueFromContractWithCustomerExcludingAssessedTax",
+        "accn": "0001821850-23-000064",
+        "form": "10-Q",
+        "filed": "2023-08-09",
+        "fy": 2023,
+        "fp": "Q2",
+        "start": "2023-01-01",
+        "end": "2023-06-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "netIncome",
+      "source": "xbrl",
+      "window": "2021 first half (Predecessor)",
+      "parts": [
+        {
+          "quarter": "2021Q1",
+          "value": 2660000,
+          "derived": false
+        },
+        {
+          "quarter": "2021Q2",
+          "value": 5243000,
+          "derived": false
+        }
+      ],
+      "sum": 7903000,
+      "filed": {
+        "value": 7903000,
+        "unit": "USD",
+        "concept": "NetIncomeLoss",
+        "accn": "0001821850-22-000050",
+        "form": "10-Q",
+        "filed": "2022-08-15",
+        "fy": 2022,
+        "fp": "Q2",
+        "start": "2021-01-01",
+        "end": "2021-06-30",
+        "basis": "Predecessor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "netIncome",
+      "source": "xbrl",
+      "window": "2022 nine months",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": -13974000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 4116000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": -264064000,
+          "derived": false
+        }
+      ],
+      "sum": -273922000,
+      "filed": {
+        "value": -273922000,
+        "unit": "USD",
+        "concept": "NetIncomeLoss",
+        "accn": "0001821850-22-000073",
+        "form": "10-Q",
+        "filed": "2022-11-14",
+        "fy": 2022,
+        "fp": "Q3",
+        "start": "2022-01-01",
+        "end": "2022-09-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "netIncome",
+      "source": "xbrl",
+      "window": "2022 full year",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": -13974000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 4116000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": -264064000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q4",
+          "value": -41929000,
+          "derived": true
+        }
+      ],
+      "sum": -315851000,
+      "filed": {
+        "value": -315851000,
+        "unit": "USD",
+        "concept": "NetIncomeLoss",
+        "accn": "0001821850-23-000025",
+        "form": "10-K",
+        "filed": "2023-05-04",
+        "fy": 2022,
+        "fp": "FY",
+        "start": "2022-01-01",
+        "end": "2022-12-31",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "netIncome",
+      "source": "xbrl",
+      "window": "2023 first half",
+      "parts": [
+        {
+          "quarter": "2023Q1",
+          "value": -22947000,
+          "derived": false
+        },
+        {
+          "quarter": "2023Q2",
+          "value": -54657000,
+          "derived": false
+        }
+      ],
+      "sum": -77604000,
+      "filed": {
+        "value": -77604000,
+        "unit": "USD",
+        "concept": "NetIncomeLoss",
+        "accn": "0001821850-23-000064",
+        "form": "10-Q",
+        "filed": "2023-08-09",
+        "fy": 2023,
+        "fp": "Q2",
+        "start": "2023-01-01",
+        "end": "2023-06-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "operatingIncome",
+      "source": "xbrl",
+      "window": "2021 first half (Predecessor)",
+      "parts": [
+        {
+          "quarter": "2021Q1",
+          "value": 7152000,
+          "derived": false
+        },
+        {
+          "quarter": "2021Q2",
+          "value": 8797000,
+          "derived": false
+        }
+      ],
+      "sum": 15949000,
+      "filed": {
+        "value": 15949000,
+        "unit": "USD",
+        "concept": "OperatingIncomeLoss",
+        "accn": "0001821850-22-000050",
+        "form": "10-Q",
+        "filed": "2022-08-15",
+        "fy": 2022,
+        "fp": "Q2",
+        "start": "2021-01-01",
+        "end": "2021-06-30",
+        "basis": "Predecessor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "operatingIncome",
+      "source": "xbrl",
+      "window": "2022 nine months",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": -21608000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": -10587000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": -425503000,
+          "derived": false
+        }
+      ],
+      "sum": -457698000,
+      "filed": {
+        "value": -457698000,
+        "unit": "USD",
+        "concept": "OperatingIncomeLoss",
+        "accn": "0001821850-22-000073",
+        "form": "10-Q",
+        "filed": "2022-11-14",
+        "fy": 2022,
+        "fp": "Q3",
+        "start": "2022-01-01",
+        "end": "2022-09-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "operatingIncome",
+      "source": "xbrl",
+      "window": "2022 full year",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": -21608000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": -10587000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": -425503000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q4",
+          "value": -101398000,
+          "derived": true
+        }
+      ],
+      "sum": -559096000,
+      "filed": {
+        "value": -559096000,
+        "unit": "USD",
+        "concept": "OperatingIncomeLoss",
+        "accn": "0001821850-23-000025",
+        "form": "10-K",
+        "filed": "2023-05-04",
+        "fy": 2022,
+        "fp": "FY",
+        "start": "2022-01-01",
+        "end": "2022-12-31",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "operatingIncome",
+      "source": "xbrl",
+      "window": "2023 first half",
+      "parts": [
+        {
+          "quarter": "2023Q1",
+          "value": -37164000,
+          "derived": false
+        },
+        {
+          "quarter": "2023Q2",
+          "value": -76924000,
+          "derived": false
+        }
+      ],
+      "sum": -114088000,
+      "filed": {
+        "value": -114088000,
+        "unit": "USD",
+        "concept": "OperatingIncomeLoss",
+        "accn": "0001821850-23-000064",
+        "form": "10-Q",
+        "filed": "2023-08-09",
+        "fy": 2023,
+        "fp": "Q2",
+        "start": "2023-01-01",
+        "end": "2023-06-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "operatingCashFlow",
+      "source": "xbrl",
+      "window": "2021 first half (Predecessor)",
+      "parts": [
+        {
+          "quarter": "2021Q1",
+          "value": 10500000,
+          "derived": false
+        },
+        {
+          "quarter": "2021Q2",
+          "value": 6606000,
+          "derived": true
+        }
+      ],
+      "sum": 17106000,
+      "filed": {
+        "value": 17106000,
+        "unit": "USD",
+        "concept": "NetCashProvidedByUsedInOperatingActivities",
+        "accn": "0001821850-22-000050",
+        "form": "10-Q",
+        "filed": "2022-08-15",
+        "fy": 2022,
+        "fp": "Q2",
+        "start": "2021-01-01",
+        "end": "2021-06-30",
+        "basis": "Predecessor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "operatingCashFlow",
+      "source": "xbrl",
+      "window": "2022 nine months",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": -21130000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 3130000,
+          "derived": true
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 10863000,
+          "derived": true
+        }
+      ],
+      "sum": -7137000,
+      "filed": {
+        "value": -7137000,
+        "unit": "USD",
+        "concept": "NetCashProvidedByUsedInOperatingActivities",
+        "accn": "0001821850-22-000073",
+        "form": "10-Q",
+        "filed": "2022-11-14",
+        "fy": 2022,
+        "fp": "Q3",
+        "start": "2022-01-01",
+        "end": "2022-09-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "operatingCashFlow",
+      "source": "xbrl",
+      "window": "2022 full year",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": -21130000,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 3130000,
+          "derived": true
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 10863000,
+          "derived": true
+        },
+        {
+          "quarter": "2022Q4",
+          "value": -18502000,
+          "derived": true
+        }
+      ],
+      "sum": -25639000,
+      "filed": {
+        "value": -25639000,
+        "unit": "USD",
+        "concept": "NetCashProvidedByUsedInOperatingActivities",
+        "accn": "0001821850-23-000025",
+        "form": "10-K",
+        "filed": "2023-05-04",
+        "fy": 2022,
+        "fp": "FY",
+        "start": "2022-01-01",
+        "end": "2022-12-31",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "operatingCashFlow",
+      "source": "xbrl",
+      "window": "2023 first half",
+      "parts": [
+        {
+          "quarter": "2023Q1",
+          "value": 43961000,
+          "derived": false
+        },
+        {
+          "quarter": "2023Q2",
+          "value": 12190000,
+          "derived": true
+        }
+      ],
+      "sum": 56151000,
+      "filed": {
+        "value": 56151000,
+        "unit": "USD",
+        "concept": "NetCashProvidedByUsedInOperatingActivities",
+        "accn": "0001821850-23-000064",
+        "form": "10-Q",
+        "filed": "2023-08-09",
+        "fy": 2023,
+        "fp": "Q2",
+        "start": "2023-01-01",
+        "end": "2023-06-30",
+        "basis": "Successor",
+        "source": "xbrl"
+      },
+      "difference": 0,
+      "tolerance": 100000,
+      "unit": "USD",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "funded_volume",
+      "source": "manual",
+      "window": "2021 first half (Predecessor)",
+      "parts": [
+        {
+          "quarter": "2021Q1",
+          "value": 581059,
+          "derived": false
+        },
+        {
+          "quarter": "2021Q2",
+          "value": 666177,
+          "derived": false
+        }
+      ],
+      "sum": 1247236,
+      "filed": {
+        "value": 1247236,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-Q for the quarter ended June 30, 2022 (accession 0001821850-22-000050)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm",
+        "page_or_section": "p. 48, MD&A, Key Performance Measures table (USD in thousands)",
+        "quoted_label": "Funded Loans(b) [Predecessor; For the Six Months Ended June 30, 2021 (prior-year comparative column)]",
+        "period": "2021YTDQ2",
+        "line": 5,
+        "accession": "0001821850-22-000050"
+      },
+      "difference": 0,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "funded_volume",
+      "source": "manual",
+      "window": "2022 nine months",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": 592831,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 716351,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 834735,
+          "derived": false
+        }
+      ],
+      "sum": 2143917,
+      "filed": {
+        "value": 2143918,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+        "page_or_section": "p. 52, MD&A, Key Performance Measures table (USD in thousands)",
+        "quoted_label": "Funded Loans(d) [Successor(a); For the Nine Months Ended September 30, 2022]",
+        "period": "2022YTDQ3",
+        "line": 12,
+        "accession": "0001821850-22-000073"
+      },
+      "difference": -1,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "funded_volume",
+      "source": "manual",
+      "window": "2022 full year",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": 592831,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 716351,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 834735,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q4",
+          "value": 752320,
+          "derived": true
+        }
+      ],
+      "sum": 2896237,
+      "filed": {
+        "value": 2896238,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-K for the year ended December 31, 2022 (accession 0001821850-23-000025)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm",
+        "page_or_section": "p. 47, MD&A, Key Performance Measures table (USD in thousands)",
+        "quoted_label": "Funded Loans(c) [Successor(a); For the Year Ended December 31, 2022]",
+        "period": "2022FY",
+        "line": 14,
+        "accession": "0001821850-23-000025"
+      },
+      "difference": -1,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "funded_volume",
+      "source": "manual",
+      "window": "2023 first half",
+      "parts": [
+        {
+          "quarter": "2023Q1",
+          "value": 627354,
+          "derived": false
+        },
+        {
+          "quarter": "2023Q2",
+          "value": 452745,
+          "derived": false
+        }
+      ],
+      "sum": 1080099,
+      "filed": {
+        "value": 1080099,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-Q for the quarter ended June 30, 2023 (accession 0001821850-23-000064)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm",
+        "page_or_section": "p. 55, MD&A, Key Performance Measures table (USD in thousands)",
+        "quoted_label": "Funded Loans(a) [For the Six Months Ended June 30, 2023]",
+        "period": "2023YTDQ2",
+        "line": 17,
+        "accession": "0001821850-23-000064"
+      },
+      "difference": 0,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "platform_fees",
+      "source": "manual",
+      "window": "2021 first half (Predecessor)",
+      "parts": [
+        {
+          "quarter": "2021Q1",
+          "value": 23662,
+          "derived": false
+        },
+        {
+          "quarter": "2021Q2",
+          "value": 25112,
+          "derived": false
+        }
+      ],
+      "sum": 48774,
+      "filed": {
+        "value": 48774,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-Q for the quarter ended June 30, 2022 (accession 0001821850-22-000050)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm",
+        "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+        "quoted_label": "Platform fees, net(a) [Predecessor; For the Six Months Ended June 30, 2021 (prior-year comparative column)]",
+        "period": "2021YTDQ2",
+        "line": 27,
+        "accession": "0001821850-22-000050"
+      },
+      "difference": 0,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "platform_fees",
+      "source": "manual",
+      "window": "2022 nine months",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": 26154,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 27873,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 31446,
+          "derived": false
+        }
+      ],
+      "sum": 85473,
+      "filed": {
+        "value": 85473,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-Q for the quarter ended September 30, 2022 (accession 0001821850-22-000073)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+        "page_or_section": "p. 15, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+        "quoted_label": "Platform fees, net(a) [Successor; For the Nine Months Ended September 30, 2022]",
+        "period": "2022YTDQ3",
+        "line": 34,
+        "accession": "0001821850-22-000073"
+      },
+      "difference": 0,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": true,
+      "status": "match"
+    },
+    {
+      "metric": "platform_fees",
+      "source": "manual",
+      "window": "2022 full year",
+      "parts": [
+        {
+          "quarter": "2022Q1",
+          "value": 26154,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q2",
+          "value": 27873,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q3",
+          "value": 31446,
+          "derived": false
+        },
+        {
+          "quarter": "2022Q4",
+          "value": 4685,
+          "derived": true
+        }
+      ],
+      "sum": 90158,
+      "filed": {
+        "value": 90158,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-K for the year ended December 31, 2022 (accession 0001821850-23-000025)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm",
+        "page_or_section": "p. 89, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure)",
+        "quoted_label": "Platform fees, net(a) [Successor; For the Year Ended December 31, 2022]",
+        "period": "2022FY",
+        "line": 36,
+        "accession": "0001821850-23-000025"
+      },
+      "difference": 0,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": false,
+      "status": "match"
+    },
+    {
+      "metric": "platform_fees",
+      "source": "manual",
+      "window": "2023 first half",
+      "parts": [
+        {
+          "quarter": "2023Q1",
+          "value": 17909,
+          "derived": false
+        },
+        {
+          "quarter": "2023Q2",
+          "value": -30898,
+          "derived": false
+        }
+      ],
+      "sum": -12989,
+      "filed": {
+        "value": -12989,
+        "unit": "USD thousands",
+        "source": "manual",
+        "document": "Form 10-Q for the quarter ended June 30, 2023 (accession 0001821850-23-000064)",
+        "accession_or_url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm",
+        "page_or_section": "p. 17, Notes to the financial statements, Income Recognition table (USD thousands per inline XBRL scale=3 on the figure); printed as (12,989)",
+        "quoted_label": "Platform fees, net(a) [heading; unlabelled subtotal of the rows 'Platform fees' and 'Platform fees from affiliate'; For the Six Months Ended June 30, 2023]",
+        "period": "2023YTDQ2",
+        "line": 39,
+        "accession": "0001821850-23-000064"
+      },
+      "difference": 0,
+      "tolerance": 100,
+      "unit": "USD thousands",
+      "independent": true,
+      "status": "match"
+    }
+  ]
+}

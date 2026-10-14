@@ -1,0 +1,116 @@
+{
+  "generatedAt": "2026-10-14T22:12:15.416Z",
+  "userAgent": "Mpingo Systems [contact email redacted]",
+  "sources": [
+    {
+      "id": "sec-companyfacts",
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001821850.json",
+      "file": "raw/sec-companyfacts-1821850.json",
+      "committed": true,
+      "bytes": 611056,
+      "sha256": "1ea398e68428cc020032b879758be6ac38afffc35c05f6629edb6b70f111cc18",
+      "retrievedAt": "2026-10-14T22:12:11.261Z",
+      "contentType": "application/json"
+    },
+    {
+      "id": "fred-DFF",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DFF",
+      "file": "raw/fred-DFF.csv",
+      "committed": true,
+      "bytes": 424283,
+      "sha256": "2d3f1f50dc5effeb7d27d795228481a2b35856d4cf3ee0732cacab54f08a5798",
+      "retrievedAt": "2026-10-14T22:12:11.919Z",
+      "contentType": "application/csv"
+    },
+    {
+      "id": "fred-DGS10",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10",
+      "file": "raw/fred-DGS10.csv",
+      "committed": true,
+      "bytes": 269043,
+      "sha256": "a7789b2b1ba3bf0535f02f12a6e994dffb999f87f8c7a20d4c6338ff828f48cd",
+      "retrievedAt": "2026-10-14T22:12:12.520Z",
+      "contentType": "application/csv"
+    },
+    {
+      "id": "filing-10q-2021q3",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm",
+      "file": "raw/filings/10q-2021q3.htm",
+      "committed": false,
+      "bytes": 3468770,
+      "sha256": "0a6724018af5244ba80833767076180530e58fe7bb5ad190c954cd9176684049",
+      "retrievedAt": "2026-10-14T22:12:13.300Z",
+      "contentType": "text/html"
+    },
+    {
+      "id": "filing-10k-2021",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000004/sunl-20211231.htm",
+      "file": "raw/filings/10k-2021.htm",
+      "committed": false,
+      "bytes": 3422800,
+      "sha256": "187dd862b4044a579a28b5c51711179dddd620e9382dc58eece4117aa9381aa4",
+      "retrievedAt": "2026-10-14T22:12:13.547Z",
+      "contentType": "text/html"
+    },
+    {
+      "id": "filing-10q-2022q1",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000019/sunl-20220331.htm",
+      "file": "raw/filings/10q-2022q1.htm",
+      "committed": false,
+      "bytes": 2727177,
+      "sha256": "09b36ebf354679dd3e292366af0fbe1f421436fad8378951d029b8468d2791ef",
+      "retrievedAt": "2026-10-14T22:12:13.924Z",
+      "contentType": "text/html"
+    },
+    {
+      "id": "filing-10q-2022q2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm",
+      "file": "raw/filings/10q-2022q2.htm",
+      "committed": false,
+      "bytes": 3255073,
+      "sha256": "7e34dea26b5e6f938c6974ab826ed925c6d5e3923f413c16a40213be5c43e410",
+      "retrievedAt": "2026-10-14T22:12:14.068Z",
+      "contentType": "text/html"
+    },
+    {
+      "id": "filing-10q-2022q3",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm",
+      "file": "raw/filings/10q-2022q3.htm",
+      "committed": false,
+      "bytes": 3949852,
+      "sha256": "abfb932951055addb4444ae10d13c42663cdf7e39feb1cfd72a026aaa106dbf5",
+      "retrievedAt": "2026-10-14T22:12:14.489Z",
+      "contentType": "text/html"
+    },
+    {
+      "id": "filing-10k-2022",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm",
+      "file": "raw/filings/10k-2022.htm",
+      "committed": false,
+      "bytes": 4116969,
+      "sha256": "dc2724772163a2bccfb473a484e960d872351c6f1ee9c74c673772e45d296836",
+      "retrievedAt": "2026-10-14T22:12:14.984Z",
+      "contentType": "text/html"
+    },
+    {
+      "id": "filing-10q-2023q1",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000043/sunl-20230331.htm",
+      "file": "raw/filings/10q-2023q1.htm",
+      "committed": false,
+      "bytes": 2875394,
+      "sha256": "a6f74581cd3365dcc5676272c05408831e19a4042f6feb41eca9a81cd5ddf5ad",
+      "retrievedAt": "2026-10-14T22:12:15.208Z",
+      "contentType": "text/html"
+    },
+    {
+      "id": "filing-10q-2023q2",
+      "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm",
+      "file": "raw/filings/10q-2023q2.htm",
+      "committed": false,
+      "bytes": 3091572,
+      "sha256": "3faabab72e415e2b9d413aa6e52c99d769d2c9cfc65bc801eaf0333cd7343adb",
+      "retrievedAt": "2026-10-14T22:12:15.415Z",
+      "contentType": "text/html"
+    }
+  ]
+}

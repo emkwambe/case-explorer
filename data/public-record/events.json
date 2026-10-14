@@ -1,0 +1,61 @@
+{
+  "note": "Dated events for the public-record timeline. Only facts already checked against the cited source.",
+  "events": [
+    {
+      "id": "installer-wind-down",
+      "date": "2022-09-28",
+      "dateLabel": "Sep 28, 2022",
+      "title": "Largest-installer wind-down",
+      "detail": "Sunlight said one of its largest installers was winding down its operations and expected to impair $30–33 million of advances to that installer.",
+      "source": { "label": "Sunlight Financial press release, September 28, 2022", "url": "https://www.stocktitan.net/news/SUNL/sunlight-financial-announces-impact-to-full-year-2022-etzvsxyoia9a.html" }
+    },
+    {
+      "id": "attorneys-general-letter",
+      "date": "2022-11-22",
+      "dateLabel": "Nov 22, 2022",
+      "title": "State attorneys general letter",
+      "detail": "Nine state attorneys general wrote to five solar lenders, including Sunlight Financial and Cross River Bank, about Pink Energy customers whose systems were never installed or do not work properly.",
+      "source": { "label": "State attorneys general letter to solar lenders, November 22, 2022", "url": "https://ncdoj.gov/wp-content/uploads/2022/11/Attorney-General-Letter-To-Solar-Lenders.pdf" }
+    },
+    {
+      "id": "negative-platform-fees-q4-2022",
+      "date": "2022-12-31",
+      "dateLabel": "Q4 2022",
+      "title": "Negative platform fees",
+      "detail": "Sunlight recognized $22.7 million in negative platform fees in the three months ended December 31, 2022.",
+      "source": { "label": "Sunlight Financial FY2022 Form 10-K", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm" }
+    },
+    {
+      "id": "covenant-and-loan-cap",
+      "date": "2022-12-31",
+      "dateLabel": "Dec 31, 2022",
+      "title": "EBITDA requirement missed; loan cap exceeded",
+      "detail": "Sunlight did not meet the EBITDA requirement of its SVB revolving facility, and the Bank Partner's funded but unsold loans exceeded the loan cap in the Bank Partner agreements.",
+      "source": { "label": "Sunlight Financial FY2022 Form 10-K", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm" }
+    },
+    {
+      "id": "facilities-restructured",
+      "date": "2023-04-25",
+      "dateLabel": "Apr 25, 2023",
+      "title": "Facilities restructured",
+      "detail": "Sunlight entered amended Bank Partner agreements and a new secured term loan, and the SVB facility was repaid and terminated.",
+      "source": { "label": "Sunlight Financial FY2022 Form 10-K", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm" }
+    },
+    {
+      "id": "chapter-11",
+      "date": "2023-10-30",
+      "dateLabel": "Oct 30, 2023",
+      "title": "Chapter 11 filed",
+      "detail": "Sunlight filed Chapter 11 petitions in the United States Bankruptcy Court for the District of Delaware.",
+      "source": { "label": "Sunlight Financial Form 8-K (Chapter 11)", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923112707/tm2329469d1_8k.htm" }
+    },
+    {
+      "id": "emergence",
+      "date": "2023-12-07",
+      "dateLabel": "Dec 7, 2023",
+      "title": "Emergence from Chapter 11",
+      "detail": "Sunlight completed its Chapter 11 restructuring; a consortium including affiliates of Greenbacker Capital Management, Sunstone Credit and IGS Ventures, together with Cross River Bank, owns 100% of the company.",
+      "source": { "label": "Sunlight Financial emergence press release, December 7, 2023", "url": "https://www.sec.gov/Archives/edgar/data/0001821850/000110465923124299/tm2332394d1_ex99-1.htm" }
+    }
+  ]
+}

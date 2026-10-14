@@ -15,6 +15,7 @@
     "test:credit": "node scripts/credit-risk.test.mjs",
     "test:dealers": "node scripts/dealers.test.mjs",
     "test:funding": "node scripts/funding.test.mjs",
+    "test:public-record": "node scripts/public-record.test.mjs",
     "smoke": "node scripts/smoke.mjs",
     "start": "node src/server.js",
     "start:dev": "node --env-file=.env src/server.js",

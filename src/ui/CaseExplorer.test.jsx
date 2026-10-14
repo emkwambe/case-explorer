@@ -362,3 +362,44 @@ describe("Funding & Rates", () => {
     expect(screen.queryByTestId("panel-pricing-lag")).not.toBeInTheDocument();
   });
 });
+
+describe("Public record", () => {
+  it("is shown only when the active profile has public-record data", async () => {
+    render(<CaseExplorer />);
+    expect(screen.queryByRole("tab", { name: "Public record" })).not.toBeInTheDocument();
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    expect(screen.getByRole("tab", { name: "Public record" })).toBeInTheDocument();
+  });
+
+  it("renders the analyses from the snapshot, with lineage on values and no request to SEC or FRED", async () => {
+    render(<CaseExplorer />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    await openTab("Public record");
+    await screen.findByTestId("public-record-view", {}, { timeout: 10000 });
+
+    // Lineage: a manual figure shows its filing, page and quoted label.
+    const table = screen.getByTestId("unit-economics-table");
+    await userEvent.click(within(table).getByRole("button", { name: "$716.4M" }));
+    const lineage = screen.getByTestId("lineage");
+    expect(lineage).toHaveTextContent("Form 10-Q for the quarter ended June 30, 2022");
+    expect(lineage).toHaveTextContent("p. 48, MD&A, Key Performance Measures table");
+    expect(lineage).toHaveTextContent("Funded Loans(b) [Successor(a); For the Three Months Ended June 30, 2022]");
+    // A FRED value and a computed value.
+    await userEvent.click(within(table).getAllByRole("button", { name: /%$/ })[0]);
+    expect(screen.getByTestId("lineage")).toHaveTextContent(/Computed: platform fees ÷ funded loans|FRED series/);
+
+    expect(screen.getByTestId("break-badge")).toHaveTextContent("presentation break");
+    expect(screen.getByTestId("break-note")).toHaveTextContent(/Platform fees from affiliate/);
+    expect(screen.getByTestId("correlation")).toHaveTextContent(/n = 9 quarters/);
+    expect(screen.getByTestId("correlation")).toHaveTextContent(/not causal/);
+    expect(screen.getByTestId("backtest-sentence")).toHaveTextContent("Z″ could not be computed for any quarter from the public data");
+    expect(screen.getByTestId("runway-status-2022Q1")).toHaveTextContent("insufficient data");
+    expect(within(screen.getByTestId("manifest-table")).getAllByRole("row")).toHaveLength(12);
+    expect(screen.getByTestId("gaps-list")).toHaveTextContent("contractor_advances");
+    expect(screen.getByTestId("eda-raw")).toHaveTextContent(/pre-merger reports/);
+    expect(screen.getByTestId("compliance-footer")).toBeInTheDocument();
+
+    const urls = globalThis.fetch.mock.calls.map((c) => String(c[0]));
+    expect(urls.filter((u) => /sec\.gov|stlouisfed\.org/.test(u))).toEqual([]);
+  }, 30000);
+});

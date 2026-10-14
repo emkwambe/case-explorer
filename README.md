@@ -108,6 +108,131 @@ Three views look at a point-of-sale lender's risk through the active **lender pr
 
 **Data provenance.** Every borrower, dealer, loan outcome and portfolio is synthetic. The only real-world inputs are cited public documents: Sunlight Financial's FY2022 Form 10-K and SEC filings, a September 2022 press release, and a November 2022 letter from state attorneys general. Each fact and default input is tagged in the app as either *disclosed*, with a link to its source, or an *assumption*. Real company names appear only in `src/profiles/`, and a test enforces this.
 
+**Public record** (tab, Solar prime profile). This tab uses real data rather than synthetic data: Sunlight Financial's SEC filings and Federal Reserve rate data, pinned at build time. It has three analyses:
+- **Rates vs unit economics:** take rate against the fed funds rate.
+- **Liquidity and covenants:** a cash runway timeline with sourced events.
+- **Distress-score backtest:** Altman Z″.
+
+Every value links to the filing, page and label it came from.
+
+### Public record: data provenance
+
+<!-- public-record:start -->
+_Generated from `data/public-record/` by `node scripts/public-record/provenance-md.mjs --write`. Do not edit by hand._
+
+**Company:** Sunlight Financial Holdings Inc. (CIK 1821850). Sunlight became the public registrant on July 9, 2021, when it combined with Spartan Acquisition Corp. II. Figures for periods before July 10, 2021 are the Predecessor's (Sunlight Financial LLC) and come from comparative columns in later filings; the third quarter of 2021 is shown as two stubs (Predecessor July 1–9, Successor July 10–September 30) and never combined. The SPAC's own pre-merger filings are excluded.
+
+**How the data was obtained.** `scripts/fetch-public-record.mjs` was run once by hand, never in CI. It made at most four requests a second and stopped on any non-200 response.
+- Run on 2026-10-14 with the User-Agent `Mpingo Systems [contact email redacted]`. The contact email is masked in every committed file.
+- The browser never calls SEC or FRED; the app reads only the committed snapshot.
+
+| Source | Endpoint | Retrieved (UTC) | SHA-256 | Bytes | In repository |
+|---|---|---|---|---|---|
+| sec-companyfacts | https://data.sec.gov/api/xbrl/companyfacts/CIK0001821850.json | 2026-10-14 22:12:11 | `1ea398e68428cc020032b879758be6ac38afffc35c05f6629edb6b70f111cc18` | 611,056 | yes |
+| fred-DFF | https://fred.stlouisfed.org/graph/fredgraph.csv?id=DFF | 2026-10-14 22:12:11 | `2d3f1f50dc5effeb7d27d795228481a2b35856d4cf3ee0732cacab54f08a5798` | 424,283 | yes |
+| fred-DGS10 | https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10 | 2026-10-14 22:12:12 | `a7789b2b1ba3bf0535f02f12a6e994dffb999f87f8c7a20d4c6338ff828f48cd` | 269,043 | yes |
+| filing-10q-2021q3 | https://www.sec.gov/Archives/edgar/data/1821850/000182185021000026/sunl-20210930.htm | 2026-10-14 22:12:13 | `0a6724018af5244ba80833767076180530e58fe7bb5ad190c954cd9176684049` | 3,468,770 | no (hash recorded) |
+| filing-10k-2021 | https://www.sec.gov/Archives/edgar/data/1821850/000182185022000004/sunl-20211231.htm | 2026-10-14 22:12:13 | `187dd862b4044a579a28b5c51711179dddd620e9382dc58eece4117aa9381aa4` | 3,422,800 | no (hash recorded) |
+| filing-10q-2022q1 | https://www.sec.gov/Archives/edgar/data/1821850/000182185022000019/sunl-20220331.htm | 2026-10-14 22:12:13 | `09b36ebf354679dd3e292366af0fbe1f421436fad8378951d029b8468d2791ef` | 2,727,177 | no (hash recorded) |
+| filing-10q-2022q2 | https://www.sec.gov/Archives/edgar/data/1821850/000182185022000050/sunl-20220630.htm | 2026-10-14 22:12:14 | `7e34dea26b5e6f938c6974ab826ed925c6d5e3923f413c16a40213be5c43e410` | 3,255,073 | no (hash recorded) |
+| filing-10q-2022q3 | https://www.sec.gov/Archives/edgar/data/1821850/000182185022000073/sunl-20220930.htm | 2026-10-14 22:12:14 | `abfb932951055addb4444ae10d13c42663cdf7e39feb1cfd72a026aaa106dbf5` | 3,949,852 | no (hash recorded) |
+| filing-10k-2022 | https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm | 2026-10-14 22:12:14 | `dc2724772163a2bccfb473a484e960d872351c6f1ee9c74c673772e45d296836` | 4,116,969 | no (hash recorded) |
+| filing-10q-2023q1 | https://www.sec.gov/Archives/edgar/data/1821850/000182185023000043/sunl-20230331.htm | 2026-10-14 22:12:15 | `a6f74581cd3365dcc5676272c05408831e19a4042f6feb41eca9a81cd5ddf5ad` | 2,875,394 | no (hash recorded) |
+| filing-10q-2023q2 | https://www.sec.gov/Archives/edgar/data/1821850/000182185023000064/sunl-20230630.htm | 2026-10-14 22:12:15 | `3faabab72e415e2b9d413aa6e52c99d769d2c9cfc65bc801eaf0333cd7343adb` | 3,091,572 | no (hash recorded) |
+
+- **XBRL:** Balance sheet (cash, total assets, total liabilities, equity, retained earnings, line of credit), revenue, net income, operating income and operating cash flow, from SEC XBRL company facts.
+- **Manual extraction:** Funded loans (MD&A key performance measures) and platform fees, net (revenue disaggregation in the notes), typed by hand from the 10-Q and 10-K filings with page references.
+- **FRED:** Effective federal funds rate (DFF) and 10-year Treasury constant-maturity yield (DGS10), daily, from FRED.
+
+**Before EDA.**
+- **XBRL company facts:** 312 concepts and 3,544 facts from 12 filings.
+- **Excluded:** 3 of those filings are the SPAC's own pre-merger reports (0001213900-21-014758, 0001564590-21-029320, 0001213900-21-042745).
+- **Duplicates:** most periods are reported more than once, because the same period appears again as a comparative in later 10-Qs and in the 10-K.
+- **FRED:** DFF has 26,403 daily observations (1954-07-01 to 2026-10-13, 0 missing). DGS10 has 16,180 (1962-01-02 to 2026-10-13, 721 days marked missing).
+
+| Metric | Concept | Raw facts | Pre-merger excluded | Duplicates in one filing | Duplicates across filings | Kept |
+|---|---|---|---|---|---|---|
+| cash | CashAndCashEquivalentsAtCarryingValue | 23 | 5 | 1 | 8 | 9 |
+| totalAssets | Assets | 23 | 5 | 1 | 8 | 9 |
+| totalLiabilities | Liabilities | 23 | 5 | 1 | 8 | 9 |
+| equity | StockholdersEquityIncludingPortionAttributableToNoncontrollingInterest | 29 | 0 | 9 | 11 | 9 |
+| retainedEarnings | RetainedEarningsAccumulatedDeficit | 23 | 5 | 1 | 8 | 9 |
+| currentAssets | AssetsCurrent | 5 | 5 | 0 | 0 | 0 |
+| currentLiabilities | LiabilitiesCurrent | 5 | 5 | 0 | 0 | 0 |
+| debt | LineOfCredit | 16 | 0 | 1 | 7 | 8 |
+| revenue | RevenueFromContractWithCustomerExcludingAssessedTax | 33 | 0 | 8 | 6 | 19 |
+| netIncome | NetIncomeLoss | 37 | 4 | 8 | 6 | 19 |
+| operatingIncome | OperatingIncomeLoss | 37 | 4 | 8 | 6 | 19 |
+| operatingCashFlow | NetCashProvidedByUsedInOperatingActivities | 26 | 3 | 6 | 4 | 13 |
+
+**Gaps (36).** None was filled with an estimate.
+
+- cash: Q1 2021, Q2 2021
+- totalAssets: Q1 2021, Q2 2021
+- totalLiabilities: Q1 2021, Q2 2021
+- equity: Q1 2021, Q2 2021
+- retainedEarnings: Q1 2021, Q2 2021
+- currentAssets: Q1 2021, Q2 2021, Q3 2021, Q4 2021, Q1 2022, Q2 2022, Q3 2022, Q4 2022, Q1 2023, Q2 2023
+- currentLiabilities: Q1 2021, Q2 2021, Q3 2021, Q4 2021, Q1 2022, Q2 2022, Q3 2022, Q4 2022, Q1 2023, Q2 2023
+- debt: Q1 2021, Q2 2021, Q2 2023
+- operatingCashFlow: Q3 2021
+- contractor_advances: all quarters (Not extracted: no balance labelled as contractor advances was identified in the filings; left as a gap.)
+- adjusted_ebitda: all quarters (Optional; not extracted from the filings.)
+
+**After EDA.**
+- **Table:** 10 quarterly rows (Q1 2021 to Q2 2023).
+- **Deduplication:** facts are deduplicated by (concept, period start, period end, form, fiscal period), keeping the latest filed. Then they are deduplicated by (concept, period start, period end) across filings, again keeping the latest filed.
+- **Derived quarters:** a quarter not filed on its own is derived as year-to-date minus the previous year-to-date (Q4 = full year minus nine months). It is marked derived and cites both filings. No derivation crosses the July 2021 Predecessor/Successor break.
+- **FRED:** each series is the simple mean of the daily observations dated in the quarter.
+- **Restatements:** manual figures use each quarter's own 10-Q or 10-K, and later restatements are listed with the value.
+
+- **Presentation break, platform_fees, Q2 2023:** From the Q2 2023 10-Q, "Platform fees, net" is a heading over two rows, "Platform fees" and "Platform fees from affiliate", with an unlabelled subtotal. The subtotal is used. Earlier filings print one "Platform fees, net" line whose footnote says it includes affiliate fees, and the same 10-Q's subtotal for Q2 2022 ($27,873k) equals the Q2 2022 10-Q's single line, so the subtotal is the comparable figure. The presentation changes here.
+
+| Quarter | Reported | Derived | Stubs | Missing |
+|---|---|---|---|---|
+| Q1 2021 | 8 | 0 | 0 | 8 |
+| Q2 2021 | 7 | 1 | 0 | 8 |
+| Q3 2021 | 8 | 0 | 6 | 2 |
+| Q4 2021 | 8 | 6 | 0 | 2 |
+| Q1 2022 | 14 | 0 | 0 | 2 |
+| Q2 2022 | 13 | 1 | 0 | 2 |
+| Q3 2022 | 13 | 1 | 0 | 2 |
+| Q4 2022 | 8 | 6 | 0 | 2 |
+| Q1 2023 | 14 | 0 | 0 | 2 |
+| Q2 2023 | 12 | 1 | 0 | 3 |
+
+**Reconciliation.** The sum of each window's quarters is compared with the filed year-to-date figure, within $0.1M. A window that includes a derived quarter matches by construction and is marked as not independent.
+
+| Metric | Source | Window | Result | Difference | Check |
+|---|---|---|---|---|---|
+| revenue | xbrl | 2021 first half (Predecessor) | match | 0 USD | independent |
+| revenue | xbrl | 2022 nine months | match | 0 USD | independent |
+| revenue | xbrl | 2022 full year | match | 0 USD | not independent |
+| revenue | xbrl | 2023 first half | match | 0 USD | independent |
+| netIncome | xbrl | 2021 first half (Predecessor) | match | 0 USD | independent |
+| netIncome | xbrl | 2022 nine months | match | 0 USD | independent |
+| netIncome | xbrl | 2022 full year | match | 0 USD | not independent |
+| netIncome | xbrl | 2023 first half | match | 0 USD | independent |
+| operatingIncome | xbrl | 2021 first half (Predecessor) | match | 0 USD | independent |
+| operatingIncome | xbrl | 2022 nine months | match | 0 USD | independent |
+| operatingIncome | xbrl | 2022 full year | match | 0 USD | not independent |
+| operatingIncome | xbrl | 2023 first half | match | 0 USD | independent |
+| operatingCashFlow | xbrl | 2021 first half (Predecessor) | match | 0 USD | not independent |
+| operatingCashFlow | xbrl | 2022 nine months | match | 0 USD | not independent |
+| operatingCashFlow | xbrl | 2022 full year | match | 0 USD | not independent |
+| operatingCashFlow | xbrl | 2023 first half | match | 0 USD | not independent |
+| funded_volume | manual | 2021 first half (Predecessor) | match | 0 USD thousands | independent |
+| funded_volume | manual | 2022 nine months | match | -1 USD thousands | independent |
+| funded_volume | manual | 2022 full year | match | -1 USD thousands | not independent |
+| funded_volume | manual | 2023 first half | match | 0 USD thousands | independent |
+| platform_fees | manual | 2021 first half (Predecessor) | match | 0 USD thousands | independent |
+| platform_fees | manual | 2022 nine months | match | 0 USD thousands | independent |
+| platform_fees | manual | 2022 full year | match | 0 USD thousands | not independent |
+| platform_fees | manual | 2023 first half | match | 0 USD thousands | independent |
+
+**What the data cannot support:** Loan-level performance (defaults, delinquency, prepayment by loan); Vintage curves; Dealer-level data; Anything after June 30, 2023 (no later periodic filings).
+<!-- public-record:end -->
+
 **What the app is not.** It is not a consumer report, not a credit decision tool and not a model of any lender's actual current book or terms. Dealer metrics are simulated under a set dealer-effect assumption and are not evidence about real dealers. No fair-lending or disparate-impact testing is claimed for synthetic data. Every page carries a compliance footer: *Demo only · Synthetic data · Not a consumer report · Not for credit decisions · Educational portfolio project*.
 
 ---
