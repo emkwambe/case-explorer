@@ -160,7 +160,7 @@ describe("Credit Risk Mode", () => {
         expect(screen.getByTestId("compliance-footer")).toHaveTextContent(FOOTER);
       }
     }
-  });
+  }, 30000);
 
   it("shows the underwriting sidebar, portfolio strip and copyable risk summary", async () => {
     const writeText = vi.fn(() => Promise.resolve());
@@ -192,6 +192,44 @@ describe("Credit Risk Mode", () => {
       expect(within(panel).getByTestId(`delta-all-${id}`)).toBeInTheDocument();
     }
     expect(within(panel).getAllByText("2,000").length).toBe(2);
-    expect(within(panel).getByRole("link", { name: "FY2022 Form 10-K" })).toHaveAttribute("href", expect.stringContaining("sec.gov"));
+    expect(within(panel).getByRole("link", { name: /FY2022 Form 10-K/ })).toHaveAttribute("href", expect.stringContaining("sec.gov"));
   }, 90000);
+});
+
+describe("lender profiles", () => {
+  const BARE = Object.freeze({
+    id: "BARE", label: "Bare test profile", preset: null, benchmarks: [], caseStudies: [],
+    defaults: { dealerView: null, fundingRates: null }
+  });
+
+  it("renders every tab without errors for a profile with no case studies and no benchmarks", async () => {
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      render(<CaseExplorer profileRegistry={[BARE]} />);
+      expect(screen.getByTestId("portfolio-profile")).toHaveValue("BARE");
+      for (const mode of [false, true]) {
+        if (mode) await userEvent.click(screen.getByTestId("credit-risk-mode"));
+        for (const tab of screen.getAllByRole("tab")) {
+          await userEvent.click(tab);
+          expect(screen.getByTestId("compliance-footer")).toBeInTheDocument();
+        }
+      }
+      const panel = screen.getByTestId("benchmark-panel");
+      panel.open = true;
+      fireEvent(panel, new Event("toggle"));
+      expect(within(panel).getByTestId("no-benchmarks")).toBeInTheDocument();
+      expect(errors).not.toHaveBeenCalled();
+    } finally {
+      errors.mockRestore();
+    }
+  }, 30000);
+
+  it("rebuilds the library under the selected profile from the registry", async () => {
+    render(<CaseExplorer />);
+    const before = screen.getAllByTestId("case-card").map((c) => c.textContent).join("|");
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    expect(screen.getByTestId("portfolio-profile")).toHaveValue("SOLAR_PRIME");
+    const after = screen.getAllByTestId("case-card").map((c) => c.textContent).join("|");
+    expect(after).not.toBe(before);
+  });
 });

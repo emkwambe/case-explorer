@@ -34,31 +34,6 @@ export const ADVERSE_ACTION = Object.freeze({
   FRAUD_REVIEW: "Unable to verify information provided"
 });
 
-export const PORTFOLIO_PROFILES = Object.freeze([
-  { id: "MORTGAGE", label: "Mortgage (default)" },
-  { id: "SOLAR_PRIME", label: "Solar prime (calibrated)" }
-]);
-
-function isPlainObject(v) {
-  return v !== null && typeof v === "object" && !Array.isArray(v);
-}
-
-function deepMerge(base, overrides) {
-  const out = { ...base };
-  for (const [k, v] of Object.entries(overrides)) {
-    out[k] = isPlainObject(v) && isPlainObject(base[k]) ? deepMerge(base[k], v) : v;
-  }
-  return out;
-}
-
-/** Config for a portfolio profile: the defaults with the preset's overrides merged on top. */
-export function applyProfile(config, profileId) {
-  const preset = config.presets?.[profileId];
-  if (!profileId || profileId === "MORTGAGE") return config;
-  if (!preset) throw new Error(`Unknown portfolio profile: ${profileId}`);
-  return deepMerge(config, preset.overrides ?? {});
-}
-
 /**
  * Back-end DTI = (non-housing monthly obligations + current monthly housing payment) / (salary / 12).
  *
@@ -205,8 +180,8 @@ export function riskSummary(a) {
 
 /**
  * Mean claimed FICO over all applications and over the cases the credit policy approves.
- * Sunlight's 10-K figure describes financed borrowers, so the approved-only mean is the
- * like-for-like comparison and the SOLAR_PRIME calibration target.
+ * A public benchmark that describes financed borrowers is compared with the approved-only mean;
+ * see the `compareTo` field of each benchmark in src/profiles/.
  */
 export function ficoComparison(cases, policy = CREDIT_POLICY) {
   const mean = (xs) => (xs.length ? xs.reduce((s, v) => s + v, 0) / xs.length : null);

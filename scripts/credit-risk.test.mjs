@@ -8,7 +8,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateBlendedCase } from "../src/generator.js";
-import { CREDIT_POLICY, ADVERSE_ACTION, DISAGREEMENT, applyProfile, assessCredit, backEndDti, riskSummary, ficoComparison } from "../src/creditRisk.js";
+import { CREDIT_POLICY, ADVERSE_ACTION, DISAGREEMENT, assessCredit, backEndDti, riskSummary, ficoComparison } from "../src/creditRisk.js";
+import { applyProfile, getProfile } from "../src/profiles/index.js";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BASE = JSON.parse(fs.readFileSync(path.join(root, "src", "distribution_config.json"), "utf8"));
@@ -147,8 +148,10 @@ check("SOLAR_PRIME over 2,000 applications at seed 42: approved-only mean FICO 7
     };
   }
   const solar = mix.SOLAR_PRIME;
-  // Sunlight's 748 describes financed borrowers, so the target is the mean of approved applications.
-  assert.ok(Math.abs(solar.comparison.approvedMean - 748) <= 5, `SOLAR_PRIME approved-only mean FICO ${solar.comparison.approvedMean.toFixed(1)}`);
+  // The profile's benchmark describes financed borrowers, so the target is the mean of approved applications.
+  const target = getProfile("SOLAR_PRIME").benchmarks.find((b) => b.metric === "avg_fico");
+  assert.equal(target.compareTo, "approved");
+  assert.ok(Math.abs(solar.comparison.approvedMean - target.value) <= 5, `SOLAR_PRIME approved-only mean FICO ${solar.comparison.approvedMean.toFixed(1)}`);
   assert.ok(solar.modeShare < 0.02, `SOLAR_PRIME score ${solar.modeValue} holds ${(100 * solar.modeShare).toFixed(2)}% of cases`);
 });
 

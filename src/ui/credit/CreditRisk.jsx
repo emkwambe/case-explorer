@@ -3,13 +3,12 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { styles, money } from "../theme.js";
-import { backEndDti, riskSummary, ficoComparison, PORTFOLIO_PROFILES, DISAGREEMENT } from "../../creditRisk.js";
+import { backEndDti, riskSummary, ficoComparison, DISAGREEMENT } from "../../creditRisk.js";
+import { useActiveProfile } from "../../profiles/activeProfile.js";
 import { CREDIT_DECISION_COLORS, COMPLIANCE_TEXT, REFERENCE_SIZE, REFERENCE_SEED, profileReference } from "./useCreditAssessments.js";
 
 const FLAG_COLORS = { high: "#b91c1c", watch: "#b45309" };
 
-const SUNLIGHT_10K_URL = "https://www.sec.gov/Archives/edgar/data/1821850/000182185023000025/sunl-20221231.htm";
-const BENCHMARK_FICO = 748;
 
 export function ComplianceFooter() {
   return (
@@ -186,58 +185,77 @@ export function PortfolioStrip({ assessments }) {
 const delta = (v) => (v === null ? "—" : `${v >= 0 ? "+" : ""}${v.toFixed(1)}`);
 const fmtMean = (v) => (v === null ? "—" : v.toFixed(1));
 
-function ComparisonRows({ id, label, comparison }) {
-  return (
-    <>
-      <tr>
-        <td style={styles.td}>{label}: all applications</td>
-        <td style={styles.td}>{comparison.n.toLocaleString("en-US")}</td>
-        <td style={styles.td}>{fmtMean(comparison.allMean)}</td>
-        <td style={styles.td} data-testid={`delta-all-${id}`}>{delta(comparison.allMean === null ? null : comparison.allMean - BENCHMARK_FICO)}</td>
+function ComparisonRows({ id, label, comparison, target }) {
+  const rows = [
+    ["all", "all applications", comparison.n, comparison.allMean],
+    ["approved", "approved under credit policy", comparison.approvedN, comparison.approvedMean]
+  ];
+  return rows.map(([key, what, n, mean]) => {
+    const likeForLike = key === target.compareTo;
+    return (
+      <tr key={key}>
+        <td style={styles.td}>{likeForLike ? <strong>{label}: {what}</strong> : `${label}: ${what}`}</td>
+        <td style={styles.td}>{n.toLocaleString("en-US")}</td>
+        <td style={styles.td}>{fmtMean(mean)}</td>
+        <td style={styles.td} data-testid={`delta-${key}-${id}`}>{delta(mean === null ? null : mean - target.value)}</td>
       </tr>
-      <tr>
-        <td style={styles.td}><strong>{label}: approved under credit policy</strong></td>
-        <td style={styles.td}>{comparison.approvedN.toLocaleString("en-US")}</td>
-        <td style={styles.td}>{fmtMean(comparison.approvedMean)}</td>
-        <td style={styles.td} data-testid={`delta-approved-${id}`}>{delta(comparison.approvedMean === null ? null : comparison.approvedMean - BENCHMARK_FICO)}</td>
-      </tr>
-    </>
-  );
+    );
+  });
 }
 
-export function BenchmarkPanel({ cases, baseConfig, profile }) {
+/**
+ * Compares synthetic FICO with every average-FICO benchmark in the profile registry: the loaded
+ * portfolio plus a cached 2,000-case reference stream per registered profile. All text about the
+ * benchmark (population, source, caveats) comes from the profile that owns it.
+ */
+export function BenchmarkPanel({ cases, baseConfig }) {
+  const { registry, profile } = useActiveProfile();
   const [open, setOpen] = useState(false);
   const [reference, setReference] = useState(null);
   const loaded = useMemo(() => ficoComparison(cases), [cases]);
+  const benchmarks = useMemo(
+    () => registry.flatMap((p) => p.benchmarks.filter((b) => b.metric === "avg_fico").map((b) => ({ ...b, owner: p }))),
+    [registry]
+  );
 
   // Reference streams are generated once per profile (2,000 cases each) and cached; the work is
   // deferred a tick so the panel opens and says it is computing before the main thread is busy.
   useEffect(() => {
-    if (!open || reference) return undefined;
-    const t = setTimeout(() => setReference(PORTFOLIO_PROFILES.map((p) => ({ ...p, comparison: profileReference(baseConfig, p.id) }))), 0);
+    if (!open || reference || benchmarks.length === 0) return undefined;
+    const t = setTimeout(() => setReference(registry.map((p) => ({ id: p.id, label: p.label, comparison: profileReference(baseConfig, p) }))), 0);
     return () => clearTimeout(t);
-  }, [open, reference, baseConfig]);
+  }, [open, reference, benchmarks.length, registry, baseConfig]);
 
-  const profileLabel = PORTFOLIO_PROFILES.find((p) => p.id === profile)?.label;
   return (
     <details className="ce-benchmark" data-testid="benchmark-panel" open={open} onToggle={(e) => setOpen(e.currentTarget.open)}>
       <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 13 }}>Synthetic vs public benchmark</summary>
       <div style={{ marginTop: 10, overflowX: "auto" }}>
-        <table style={styles.table}>
-          <thead>
-            <tr><th style={styles.th}>Population</th><th style={styles.th}>n</th><th style={styles.th}>Avg FICO</th><th style={styles.th}>vs {BENCHMARK_FICO}</th></tr>
-          </thead>
-          <tbody>
-            <ComparisonRows id="loaded" label={`Loaded portfolio (${profileLabel})`} comparison={loaded} />
-            {reference
-              ? reference.map((r) => <ComparisonRows key={r.id} id={r.id} label={`${r.label} reference, seed ${REFERENCE_SEED}`} comparison={r.comparison} />)
-              : <tr><td style={styles.td} colSpan={4}>{open ? `Computing reference streams (${REFERENCE_SIZE.toLocaleString("en-US")} applications per profile)…` : null}</td></tr>}
-          </tbody>
-        </table>
-        <p style={{ ...styles.note, marginTop: 10, marginBottom: 0 }}>
-          Benchmark: average FICO of {BENCHMARK_FICO} across all solar borrowers financed through Sunlight Financial's platform as of December 31, 2022, from its{" "}
-          <a href={SUNLIGHT_10K_URL} target="_blank" rel="noreferrer">FY2022 Form 10-K</a>. The 10-K figure describes financed borrowers, so the approved-only row is the like-for-like comparison and the solar profile's calibration target; the all-applications row describes the application stream, including applicants the credit policy declines. This is a single public benchmark. No loan-level Sunlight tape is public, so every other distribution in the solar profile remains uncalibrated.
-        </p>
+        {benchmarks.length === 0 && (
+          <p style={{ ...styles.note, marginBottom: 0 }} data-testid="no-benchmarks">No public benchmark is configured for the registered lender profiles.</p>
+        )}
+        {benchmarks.map((b) => (
+          <div key={`${b.owner.id}-${b.id}`} style={{ marginBottom: 12 }}>
+            <table style={styles.table}>
+              <thead>
+                <tr><th style={styles.th}>Population</th><th style={styles.th}>n</th><th style={styles.th}>Avg FICO</th><th style={styles.th}>vs {b.value}</th></tr>
+              </thead>
+              <tbody>
+                <ComparisonRows id="loaded" label={`Loaded portfolio (${profile.label})`} comparison={loaded} target={b} />
+                {reference
+                  ? reference.map((r) => <ComparisonRows key={r.id} id={r.id} label={`${r.label} reference, seed ${REFERENCE_SEED}`} comparison={r.comparison} target={b} />)
+                  : <tr><td style={styles.td} colSpan={4}>{open ? `Computing reference streams (${REFERENCE_SIZE.toLocaleString("en-US")} applications per profile)…` : null}</td></tr>}
+              </tbody>
+            </table>
+            <p style={{ ...styles.note, marginTop: 10, marginBottom: 0 }}>
+              Benchmark: {b.population} ({b.value}), from the{" "}
+              <a href={b.source.url} target="_blank" rel="noreferrer">{b.source.label}</a>.
+              {b.compareTo === "approved"
+                ? " The figure describes financed borrowers, so the approved-only rows (bold) are the like-for-like comparison; all-application rows include applicants the credit policy declines."
+                : " The all-application rows (bold) are the like-for-like comparison."}
+              {b.note ? ` ${b.note}` : ""}
+            </p>
+          </div>
+        ))}
       </div>
     </details>
   );

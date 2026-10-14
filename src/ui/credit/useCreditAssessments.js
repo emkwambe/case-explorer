@@ -1,7 +1,8 @@
 // src/ui/credit/useCreditAssessments.js — Credit policy assessments for the loaded library.
 
 import { useMemo } from "react";
-import { assessCredit, applyProfile, ficoComparison } from "../../creditRisk.js";
+import { assessCredit, ficoComparison } from "../../creditRisk.js";
+import { applyProfile } from "../../profiles/index.js";
 import { generateBlendedCase } from "../../generator.js";
 
 export const CREDIT_DECISION_COLORS = { APPROVE: "#047857", REVIEW: "#b45309", DECLINE: "#b91c1c" };
@@ -25,11 +26,11 @@ const referenceCache = new Map();
  * FICO comparison for a profile's reference stream: 2,000 blended applications at seed 42,
  * the same sample `npm run test:credit` reports. Computed once per profile and cached.
  */
-export function profileReference(baseConfig, profileId) {
-  if (!referenceCache.has(profileId)) {
-    const cfg = applyProfile(baseConfig, profileId);
+export function profileReference(baseConfig, profile) {
+  if (!referenceCache.has(profile)) {
+    const cfg = applyProfile(baseConfig, profile);
     const sample = Array.from({ length: REFERENCE_SIZE }, (_, i) => generateBlendedCase(i, cfg, REFERENCE_SEED));
-    referenceCache.set(profileId, ficoComparison(sample));
+    referenceCache.set(profile, ficoComparison(sample));
   }
-  return referenceCache.get(profileId);
+  return referenceCache.get(profile);
 }

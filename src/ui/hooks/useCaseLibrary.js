@@ -3,10 +3,11 @@
 // The initial library is generated deterministically from a fixed seed, so the demo opens on
 // the same cases for every reviewer without shipping a stale JSON fixture.
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CONFIG from "../../distribution_config.json";
 import { generateCase, generateBlendedCase } from "../../generator.js";
-import { applyProfile } from "../../creditRisk.js";
+import { applyProfile } from "../../profiles/index.js";
+import { useActiveProfile } from "../../profiles/activeProfile.js";
 
 export const DEMO_SEED = "demo-2026";
 export const DEMO_AS_OF = "2026-01-15";
@@ -26,11 +27,11 @@ export function buildInitialCases(config = demoConfig) {
 }
 
 export function useCaseLibrary() {
-  const [profile, setProfileState] = useState("MORTGAGE");
+  const { profile } = useActiveProfile();
   const config = useMemo(() => applyProfile(demoConfig, profile), [profile]);
-  const initial = useMemo(() => buildInitialCases(), []);
-  const [cases, setCases] = useState(initial);
-  const [selectedId, setSelectedId] = useState(initial[0].id);
+  // The opening library is built once for the profile active at mount; profile switches rebuild it below.
+  const [cases, setCases] = useState(() => buildInitialCases(config));
+  const [selectedId, setSelectedId] = useState(() => cases[0].id);
   const [genConfig, setGenConfig] = useState({ corruptionType: "MIXED", severity: "HIGH", count: 10, seed: "", adversarial: false });
 
   const selectedCase = useMemo(() => cases.find((c) => c.id === selectedId) ?? cases[0], [cases, selectedId]);
@@ -62,13 +63,15 @@ export function useCaseLibrary() {
   const select = useCallback((id) => setSelectedId(id), []);
   const reset = useCallback(() => { const fresh = buildInitialCases(config); setCases(fresh); setSelectedId(fresh[0].id); }, [config]);
 
-  /** Switching the portfolio profile regenerates the opening library under that profile. */
-  const setProfile = useCallback((next) => {
-    const fresh = buildInitialCases(applyProfile(demoConfig, next));
-    setProfileState(next);
+  // Switching the active lender profile regenerates the opening library under that profile.
+  const libraryProfile = useRef(profile.id);
+  useEffect(() => {
+    if (libraryProfile.current === profile.id) return;
+    libraryProfile.current = profile.id;
+    const fresh = buildInitialCases(config);
     setCases(fresh);
     setSelectedId(fresh[0].id);
-  }, []);
+  }, [profile.id, config]);
 
-  return { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, addCases, reset, config, profile, setProfile };
+  return { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, addCases, reset, config };
 }

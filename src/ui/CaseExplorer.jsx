@@ -11,7 +11,7 @@ import { OutcomeTab } from "./tabs/outcomeTab.jsx";
 import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/analyticsTabs.jsx";
 import { TOUR_STEPS } from "./demo/tour.js";
 import { GENERATOR_VERSION } from "../core/case.js";
-import { PORTFOLIO_PROFILES } from "../creditRisk.js";
+import { ActiveProfileProvider, useActiveProfile } from "../profiles/activeProfile.js";
 import { demoConfig } from "./hooks/useCaseLibrary.js";
 import { UnderwritingSidebar, PortfolioStrip, BenchmarkPanel, ComplianceFooter } from "./credit/CreditRisk.jsx";
 import { useCreditAssessments, CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
@@ -49,9 +49,19 @@ const SCENARIOS = [
   ["INCOHERENT", "Incoherent world (data-quality control)"]
 ];
 
-export default function CaseExplorer() {
+/** `profileRegistry` replaces the lender profile registry, for example in tests. */
+export default function CaseExplorer({ profileRegistry } = {}) {
+  return (
+    <ActiveProfileProvider registry={profileRegistry}>
+      <CaseExplorerShell />
+    </ActiveProfileProvider>
+  );
+}
+
+function CaseExplorerShell() {
   const library = useCaseLibrary();
-  const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config, profile, setProfile } = library;
+  const { registry, profileId, setProfileId } = useActiveProfile();
+  const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config } = library;
   const [activeTab, setActiveTab] = useState("overview");
   const [tourStep, setTourStep] = useState(null);
   const [creditMode, setCreditMode] = useState(false);
@@ -93,8 +103,8 @@ export default function CaseExplorer() {
         </div>
         <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569" }}>
           Portfolio profile:
-          <select style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Portfolio profile" value={profile} onChange={(e) => setProfile(e.target.value)} data-testid="portfolio-profile">
-            {PORTFOLIO_PROFILES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
+          <select style={{ ...styles.select, width: "auto", marginBottom: 0 }} aria-label="Portfolio profile" value={profileId} onChange={(e) => setProfileId(e.target.value)} data-testid="portfolio-profile">
+            {registry.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
           </select>
         </label>
         <button onClick={startTour} data-testid="start-tour" style={{ ...styles.btnPrimary, width: "auto", padding: "10px 18px", marginBottom: 0 }}>
@@ -156,7 +166,7 @@ export default function CaseExplorer() {
           {creditMode && (
             <div style={{ marginBottom: 14 }}>
               <PortfolioStrip assessments={assessments} />
-              <BenchmarkPanel cases={cases} baseConfig={demoConfig} profile={profile} />
+              <BenchmarkPanel cases={cases} baseConfig={demoConfig} />
             </div>
           )}
           <div className="ce-credit-layout">
