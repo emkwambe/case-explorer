@@ -30,20 +30,24 @@ def underwriting_outcomes(
     approved_fraud = approve & y
     declined_clean = decline & ~y
     friction = (review | decline) & ~y
+    # Counts as Python ints: a numpy integer divided by max(1, <numpy integer>) does not type-check.
+    n_approved = int(approve.sum())
+    n_clean = int((~y).sum())
+    n_fraud = int(y.sum())
     return {
         "approval_rate": float(approve.mean()),
         "manual_review_rate": float(review.mean()),
         "decline_rate": float(decline.mean()),
-        "bad_rate_proxy": float(approved_fraud.sum() / max(1, approve.sum())),
+        "bad_rate_proxy": float(approved_fraud.sum() / max(1, n_approved)),
         "expected_loss_proxy": float((loan[approved_fraud] * params.loss_given_fraud).sum()),
         "expected_loss_per_approved_loan": float(
-            (loan[approved_fraud] * params.loss_given_fraud).sum() / max(1, approve.sum())
+            (loan[approved_fraud] * params.loss_given_fraud).sum() / max(1, n_approved)
         ),
-        "false_decline_rate": float(declined_clean.sum() / max(1, (~y).sum())),
+        "false_decline_rate": float(declined_clean.sum() / max(1, n_clean)),
         "review_workload_count": int(review.sum()),
         "review_workload_hours": float(review.sum() * params.minutes_per_review / 60.0),
-        "customer_friction_proxy": float(friction.sum() / max(1, (~y).sum())),
-        "fraud_captured_rate": float((y & ~approve).sum() / max(1, y.sum())),
+        "customer_friction_proxy": float(friction.sum() / max(1, n_clean)),
+        "fraud_captured_rate": float((y & ~approve).sum() / max(1, n_fraud)),
         "n": int(n),
         "params": params.__dict__,
     }
