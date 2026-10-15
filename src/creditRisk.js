@@ -75,7 +75,7 @@ export const DISAGREEMENT = Object.freeze({
 const INTEGRITY_FRAUD_CATEGORIES = new Set([REASON_CATEGORIES.FRAUD_INDICATOR, REASON_CATEGORIES.VERIFICATION_FAILURE]);
 
 /** Integrity-check reason codes that point at fraud or failed verification, not at credit quality. */
-function integrityFraudCodes(label) {
+export function integrityFraudCodes(label) {
   return (label?.reason_codes ?? []).filter((code) => INTEGRITY_FRAUD_CATEGORIES.has(REASON_CODES[code]?.category));
 }
 

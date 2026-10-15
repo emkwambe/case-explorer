@@ -12,6 +12,8 @@ import { TOUR_STEPS } from "./demo/tour.js";
 import { scoreCase } from "../decisioning/index.js";
 import { PROFILES } from "../profiles/index.js";
 import { TAB_GROUPS } from "./navigation.js";
+import { CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
+import { REASON_CODES } from "../decisioning/reason-codes/catalog.js";
 
 // The artifact hook fetches published JSON; in tests there is no server.
 beforeEach(() => {
@@ -448,8 +450,11 @@ describe("navigation and header", () => {
     expect(screen.getByTestId("count-approve")).toHaveTextContent("Approve 6");
     expect(screen.getByTestId("count-review")).toHaveTextContent("Review 4");
     expect(screen.getByTestId("count-decline")).toHaveTextContent("Decline 2");
-    const types = screen.getAllByTestId("case-card").map((c) => c.textContent);
-    expect(types.filter((t) => /· None/.test(t)).length).toBe(8);
+    // The opening mix: 8 clean cases of 12, read from the Portfolio table's Scenario column.
+    await openTab("Portfolio");
+    const scenarios = within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => r.children[1].textContent);
+    expect(scenarios).toHaveLength(12);
+    expect(scenarios.filter((t) => t === "None")).toHaveLength(8);
   });
 
   it("explains alignment badges and colours timeline dots by event family", async () => {
@@ -461,5 +466,75 @@ describe("navigation and header", () => {
     const families = [...document.querySelectorAll("[data-family]")].map((d) => d.getAttribute("data-family"));
     expect(families.length).toBeGreaterThan(0);
     expect(families).toContain("employment");
+  });
+});
+
+describe("case cards follow the profile lens", () => {
+  const rgb = (hex) => `rgb(${[1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(", ")})`;
+
+  it("under Solar prime, the header counts equal the cards' rendered statuses, and card colours match the decision", async () => {
+    render(<CaseExplorer />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    const cards = screen.getAllByTestId("case-card");
+    const rendered = { Approve: 0, Review: 0, Decline: 0 };
+    for (const card of cards) {
+      const status = within(card).getByTestId("card-status").textContent;
+      rendered[status]++;
+      const decision = card.getAttribute("data-status");
+      expect({ Approve: "APPROVE", Review: "REVIEW", Decline: "DECLINE" }[status]).toBe(decision);
+      expect(card.style.borderLeft).toContain(rgb(CREDIT_DECISION_COLORS[decision]));
+      expect(within(card).getByTestId("card-status").style.background).toBe(rgb(CREDIT_DECISION_COLORS[decision]));
+    }
+    const chip = (id) => Number(screen.getByTestId(id).textContent.match(/\d+/)[0]);
+    expect({ Approve: chip("count-approve"), Review: chip("count-review"), Decline: chip("count-decline") }).toEqual(rendered);
+    expect(rendered.Approve + rendered.Review + rendered.Decline).toBe(cards.length);
+  });
+
+  it("shows the top reason, and the integrity badge only for fraud indicators or verification failures", async () => {
+    render(<CaseExplorer />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    for (const card of screen.getAllByTestId("case-card")) {
+      const decision = card.getAttribute("data-status");
+      const reason = within(card).getByTestId("card-reason").textContent;
+      if (decision === "APPROVE") expect(reason).toBe("Meets credit policy");
+      else expect(reason).toMatch(/^(FICO \d+ below 660|High DTI \d+%|Elevated DTI \d+%|Liquidity risk: checking \$[\d,]+|Fraud review: .+)$/);
+      const badge = within(card).queryByTestId("card-integrity");
+      if (badge) expect(badge.textContent).toMatch(/^Integrity: (review|decline)$/);
+    }
+    // The integrity badge appears only for fraud-indicator or verification-failure codes.
+    const badges = screen.getAllByTestId("card-integrity");
+    expect(badges).toHaveLength(4);
+    for (const b of badges) {
+      const codes = b.getAttribute("data-codes").split(",");
+      expect(codes.length).toBeGreaterThan(0);
+      for (const code of codes) expect(["FRAUD_INDICATOR", "VERIFICATION_FAILURE"]).toContain(REASON_CODES[code].category);
+    }
+    // A credit-only integrity review (elevated DTI) carries no badge.
+    const elevated = screen.getAllByTestId("case-card").find((c) => /^Elevated DTI \d+%$/.test(within(c).getByTestId("card-reason").textContent));
+    expect(within(elevated).queryByTestId("card-integrity")).not.toBeInTheDocument();
+    expect(screen.getAllByTestId("card-reason").some((r) => /^Elevated DTI \d+%$/.test(r.textContent))).toBe(true);
+  });
+
+  it("keeps the fraud and alignment-led card under Mortgage", () => {
+    render(<CaseExplorer />);
+    const card = screen.getAllByTestId("case-card")[0];
+    expect(card.getAttribute("data-status")).toBeNull();
+    expect(within(card).queryByTestId("card-status")).not.toBeInTheDocument();
+    expect(card.textContent).toMatch(/A\d/);
+    expect(card.textContent).toMatch(/APPROVE|MANUAL_REVIEW|DECLINE/);
+  });
+});
+
+describe("integrity detail in the Decision tab", () => {
+  it("lists the integrity check's reason codes, including benign ones that carry no card badge", async () => {
+    render(<CaseExplorer />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    const elevated = screen.getAllByTestId("case-card").find((c) => /^Elevated DTI \d+%$/.test(within(c).getByTestId("card-reason").textContent));
+    expect(within(elevated).queryByTestId("card-integrity")).not.toBeInTheDocument();
+    await userEvent.click(elevated);
+    await openTab("Decision");
+    const detail = screen.getByTestId("integrity-detail");
+    expect(detail).toHaveTextContent(/^Integrity check \(generator\): manual review/);
+    expect(detail).toHaveTextContent("Elevated Dti");
   });
 });

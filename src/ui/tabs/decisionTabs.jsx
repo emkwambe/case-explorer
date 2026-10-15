@@ -26,6 +26,18 @@ export function DecisionTab({ caseData, scored }) {
         </div>
       </div>
 
+      <div style={{ ...styles.note, marginTop: -6 }} data-testid="integrity-detail">
+        <strong>Integrity check (generator):</strong> {caseData.label.expected_outcome.replace(/_/g, " ").toLowerCase()}
+        {caseData.label.reason ? ` — ${caseData.label.reason}` : ""}
+        {caseData.label.reason_codes?.length > 0 && (
+          <span>
+            {" · "}{caseData.label.reason_codes.map((code) => (
+              <Chip key={code} color={CATEGORY_COLORS[REASON_CODES[code]?.category] ?? "#64748b"} title={REASON_CODES[code]?.category ? titleCase(REASON_CODES[code].category) : undefined}>{titleCase(code)}</Chip>
+            )).reduce((acc, el, i) => (i ? [...acc, " ", el] : [el]), [])}
+          </span>
+        )}
+      </div>
+
       <div style={styles.grid2}>
         <Panel title="Underwriting factors (permitted inputs only)">
           <div style={styles.tableContainer}>

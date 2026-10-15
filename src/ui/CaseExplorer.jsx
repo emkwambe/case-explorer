@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from "react";
 import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase } from "./theme.js";
-import { CaseCard, Chip } from "./components/primitives.jsx";
+import { CaseCard, CreditCaseCard, Chip } from "./components/primitives.jsx";
 import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
 import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks/useCaseAnalysis.js";
 import { OverviewTab, TimelineTab, AlignmentTab, TruthGraphTab, EvidenceTab, MetadataTab } from "./tabs/caseTabs.jsx";
@@ -20,7 +20,6 @@ import { useDealerPortfolio } from "./dealers/useDealerPortfolio.js";
 import { FundingViewTab } from "./funding/FundingView.jsx";
 import { PublicRecordTab } from "./publicRecord/PublicRecordView.jsx";
 import { TAB_GROUPS, visibleTabs, groupOfTab } from "./navigation.js";
-import { assessCredit } from "../creditRisk.js";
 
 const SCENARIOS = [
   ["MIXED", "Realistic mix (blended portfolio)"],
@@ -53,7 +52,10 @@ function CaseExplorerShell() {
   const [activeTab, setActiveTab] = useState("overview");
   const [tourStep, setTourStep] = useState(null);
   const [creditMode, setCreditMode] = useState(false);
-  const assessments = useCreditAssessments(cases, creditMode);
+  // One set of credit assessments feeds the cards, the header counts and Credit Risk Mode, so they
+  // cannot disagree. Computed when Credit Risk Mode is on or the profile uses the credit lens.
+  const creditLens = profile.headerLens === "credit";
+  const assessments = useCreditAssessments(cases, creditMode || creditLens);
   const dealerPortfolio = useDealerPortfolio(demoConfig);
 
   const scored = useScoredCase(selectedCase, config);
@@ -87,11 +89,11 @@ function CaseExplorerShell() {
   const counts = useMemo(() => {
     const byOutcome = { APPROVE: 0, REVIEW: 0, DECLINE: 0 };
     for (const c of cases) {
-      const outcome = profile.headerLens === "credit" ? assessCredit(c).policyDecision : c.label.expected_outcome === "MANUAL_REVIEW" ? "REVIEW" : c.label.expected_outcome;
+      const outcome = creditLens ? assessments.get(c.id).policyDecision : c.label.expected_outcome === "MANUAL_REVIEW" ? "REVIEW" : c.label.expected_outcome;
       byOutcome[outcome] = (byOutcome[outcome] ?? 0) + 1;
     }
     return byOutcome;
-  }, [cases, profile.headerLens]);
+  }, [cases, creditLens, assessments]);
 
   return (
     <div style={styles.app} className="ce-app">
@@ -147,7 +149,9 @@ function CaseExplorerShell() {
           <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Case library</div>
           <div style={{ flex: 1, minHeight: 120, overflowY: "auto" }} className="ce-case-list">
             {cases.slice().reverse().map((c) => (
-              <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
+              creditLens
+                ? <CreditCaseCard key={c.id} caseData={c} selected={c.id === selectedId} assessment={assessments.get(c.id)} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
+                : <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
             ))}
           </div>
           <details style={styles.generatorPanel} data-testid="generator-panel">
