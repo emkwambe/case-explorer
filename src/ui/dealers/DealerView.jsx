@@ -21,7 +21,7 @@ const COLUMNS = [
 ];
 
 function AssumptionTag({ status }) {
-  return <span style={{ ...styles.chip, background: "white", color: "#92400e", border: "1px solid #d97706", marginLeft: 6, fontSize: 11 }}>{status}</span>;
+  return <>{" "}<span style={{ ...styles.chip, background: "white", color: "#92400e", border: "1px solid #d97706", marginLeft: 6, fontSize: 11 }}>{status}</span></>;
 }
 
 const flagged = (r) => `${r.RED} RED, ${r.YELLOW} YELLOW of ${r.rated} rated`;
@@ -85,7 +85,7 @@ export function DealerViewTab({ portfolio }) {
   const [failure, setFailure] = useState(null);
   const [strengthChoice, setStrengthChoice] = useState(null);
 
-  const { status, progress, inputs, dealers, settings: profileSettings, profile: portfolioProfile, generate, setLastFailure } = portfolio;
+  const { status, progress, inputs, applications, dealers, settings: profileSettings, profile: portfolioProfile, generate, setLastFailure } = portfolio;
   const defaultStrength = profileSettings?.dealerEffect.strength ?? 1;
   const strength = strengthChoice ?? defaultStrength;
   const settings = useMemo(() => (profileSettings ? withDealerEffect(profileSettings, strength) : null), [profileSettings, strength]);
@@ -156,6 +156,11 @@ export function DealerViewTab({ portfolio }) {
           </label>
         )}
       </div>
+      {ready && (
+        <p style={{ fontSize: 13, color: "#475569", margin: "-4px 0 12px" }} data-testid="funded-only">
+          Funded loans only (credit policy APPROVE) · {applications.toLocaleString("en-US")} applications generated
+        </p>
+      )}
 
       <p style={styles.note} data-testid="dealer-model-note">
         Model: each synthetic loan is assigned to a fictional dealer, and its 30+ DPD path is a logistic monthly hazard over {settings?.performance.monthsOnBook ?? 18} months on true FICO, true back-end DTI, fraud and a hidden dealer quality whose effect strength is set by assumption; expected loss is PD × (1 − recovery) × loan amount, with loan amounts from the profile's loan sizing when it has one and otherwise from the generator's mortgage-sized applications. The lien signal is a simulated public-record signal; a real build would read the NC Secretary of State's UCC records.
@@ -169,7 +174,7 @@ export function DealerViewTab({ portfolio }) {
 
       {!ready && !stale && (
         <Callout tone="info">
-          Generate the portfolio to see dealer ratings, concentration alerts and the dealer-failure scenario{count ? ` (${count.toLocaleString("en-US")} applications)` : ""}.
+          Generate the portfolio to see dealer ratings, concentration alerts and the dealer-failure scenario{count ? ` (${count.toLocaleString("en-US")} funded loans)` : ""}.
         </Callout>
       )}
 

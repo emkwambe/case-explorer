@@ -14,13 +14,16 @@
 //     `signalVsNoise` reports how many dealers the rating flags at the set strength and at 0.
 //   * A dealer is rated by a one-sided binomial test of its 30+ DPD count against the portfolio
 //     rate, so a rating only fires when the excess is unlikely to be chance.
+//   * The portfolio is the funded book: only applications the credit policy approves become
+//     loans (`isFundedLoan`). Declined and review applications are never funded, so they carry
+//     no exposure and no loan outcome.
 //   * Nothing here is lender-specific. Lender defaults (failure assumptions, portfolio size,
 //     disclosed advance amounts) come from a profile's `defaults.dealerView` and override
 //     DEALER_DEFAULTS through `dealerSettings`.
 
 import { createRng } from "./utils/prng.js";
 import { randomBeta, randomLognormal } from "./utils/distributions.js";
-import { caseDti } from "./creditRisk.js";
+import { assessCredit, caseDti } from "./creditRisk.js";
 import { unitHash, loanAmount } from "./loanSizing.js";
 
 export { loanAmount };
@@ -82,6 +85,7 @@ export const DEALER_DEFAULTS = Object.freeze({
     pdMultiplier: { value: 3, status: "assumption" },
     baseRecovery: { value: 0.15, status: "assumption" }
   },
+  // `count` funded loans; applications are generated in seed order until that many are approved.
   portfolio: { count: 10000, seed: 42 },
   // Loan amount (exposure at default). null uses the generated case's application.loan_amount;
   // a profile can set a clipped lognormal: { median, sigma, min, max } with value/status entries.
@@ -187,6 +191,11 @@ export function buildDealerNetwork(network = DEALER_DEFAULTS.network) {
 
 export const DEALER_CONFIG = buildDealerNetwork();
 
+
+/** True when the credit policy approves the application, so it is funded and enters the dealer book. */
+export function isFundedLoan(caseObj, profile = undefined) {
+  return assessCredit(caseObj, profile).policyDecision === "APPROVE";
+}
 
 /** The case facts the dealer simulation needs. Uses world truth: this simulates outcomes, it does not decide. */
 export function loanInputs(caseObj, sizing = null, profile = undefined) {

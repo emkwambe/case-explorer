@@ -5,7 +5,7 @@
 // they verify the simulation does what it was told (quality matters at the default strength and
 // stops mattering at 0). They are not evidence that dealer quality predicts real loan losses.
 // Prints the quintile 30+ DPD rates and the signal-vs-noise false-flag counts for the
-// 10,000-case SOLAR_PRIME portfolio at seed 42.
+// 10,000-loan SOLAR_PRIME funded book (credit-policy APPROVE only) at seed 42.
 
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -13,9 +13,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateBlendedCase } from "../src/generator.js";
 import { applyProfile, getProfile } from "../src/profiles/index.js";
+import { assessCredit } from "../src/creditRisk.js";
 import {
   DEALER_CONFIG, DEALER_DEFAULTS, buildDealerNetwork, assignDealer, simulatePerformance, monthlyHazard, dealerSignals,
-  loanInputs, loanAmount, buildLoan, simulateLoans, aggregateDealers, portfolioAlerts, simulateDealerFailure, rateDealer,
+  isFundedLoan, loanInputs, loanAmount, buildLoan, simulateLoans, aggregateDealers, portfolioAlerts, simulateDealerFailure, rateDealer,
   binomialUpperTail, dealerSettings, withDealerEffect, signalVsNoise
 } from "../src/dealers.js";
 
@@ -37,7 +38,13 @@ const settings = dealerSettings(solar.defaults.dealerView);
 const dealers = buildDealerNetwork(settings.network);
 const { count, seed } = settings.portfolio;
 const solarConfig = applyProfile(CONFIG, solar);
-const cases = Array.from({ length: count }, (_, i) => generateBlendedCase(i, solarConfig, seed));
+// The funded book: applications in seed order, keeping credit-policy APPROVE loans.
+const cases = [];
+let applications = 0;
+for (; cases.length < count; applications++) {
+  const c = generateBlendedCase(applications, solarConfig, seed);
+  if (isFundedLoan(c, solar)) cases.push(c);
+}
 const inputs = cases.map((c) => loanInputs(c, settings.loanAmount, solar));
 const loans = simulateLoans(inputs, dealers, settings);
 const rows = aggregateDealers(loans, dealers, settings);
@@ -88,6 +95,15 @@ check("SOLAR_PRIME top-four advances follow the disclosed amounts; the rest stay
   assert.equal(DEALER_DEFAULTS.network.topAdvances, null);
   // Only advances change: volume, quality and assignment are identical to the default network.
   assert.deepEqual(dealers.map((d) => [d.id, d.quality, d.volumeWeight]), DEALER_CONFIG.map((d) => [d.id, d.quality, d.volumeWeight]));
+});
+
+check("the portfolio is the funded book: 10,000 credit-policy APPROVE loans, none declined or in review", () => {
+  assert.equal(cases.length, 10_000);
+  assert.ok(cases.every((c) => assessCredit(c, solar).policyDecision === "APPROVE"));
+  assert.ok(applications > count, `applications ${applications}`);
+  assert.equal(isFundedLoan(generateBlendedCase(applications - 1, solarConfig, seed), solar), true);
+  const firstNotFunded = Array.from({ length: 200 }, (_, i) => generateBlendedCase(i, solarConfig, seed)).find((c) => !isFundedLoan(c, solar));
+  assert.ok(firstNotFunded && !cases.some((c) => c.id === firstNotFunded.id));
 });
 
 check("dealer assignment and loan simulation are deterministic", () => {

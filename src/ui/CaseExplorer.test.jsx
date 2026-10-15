@@ -329,6 +329,7 @@ describe("Dealer View", () => {
     const table = await screen.findByTestId("dealer-table", {}, { timeout: 30000 });
     expect(within(table).getAllByRole("row").length).toBe(51);
     expect(screen.getByText(/300 loans/)).toBeInTheDocument();
+    expect(screen.getByTestId("funded-only")).toHaveTextContent(/^Funded loans only \(credit policy APPROVE\) · [\d,]+ applications generated$/);
     await userEvent.click(within(table).getAllByRole("button", { name: "Fail this dealer" })[0]);
     const result = screen.getByTestId("dealer-failure-result");
     expect(result).toHaveTextContent(/Advance write-off/);
@@ -339,6 +340,7 @@ describe("Dealer View", () => {
     expect(table).toHaveTextContent("simulated — dealer effect is a set assumption");
     expect(screen.getByTestId("advance-source")).toHaveTextContent("$30,000,000, $10,000,000, $7,000,000, $5,000,000");
     expect(screen.getByTestId("loan-amount-source")).toHaveTextContent(/\$10,000 to \$150,000 \(disclosed/);
+    expect(screen.getByTestId("loan-amount-source").textContent).toContain("median $40,700 assumption and σ 0.5 assumption");
     expect(screen.getByTestId("exposure-note")).toHaveTextContent("Simulated 10,000-loan sample; advance-to-loan ratios are not comparable to");
     expect(screen.getByTestId("loan-amount-source")).toHaveTextContent(/Calibration target: mean loan amount \$46,000 \(disclosed; Item 7/);
     expect(screen.getByTestId("rating-method")).toHaveTextContent(/one-sided binomial test/);
