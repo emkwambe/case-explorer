@@ -14,6 +14,7 @@ import { PROFILES, getProfile, applyProfile } from "../profiles/index.js";
 import { TAB_GROUPS } from "./navigation.js";
 import { CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
 import { REASON_CODES } from "../decisioning/reason-codes/catalog.js";
+import { caseDti } from "../creditRisk.js";
 
 // The artifact hook fetches published JSON; in tests there is no server.
 beforeEach(() => {
@@ -221,7 +222,33 @@ describe("Credit Risk Mode", () => {
     expect(comparison.getByText("Current housing /mo")).toBeInTheDocument();
     expect(comparison.getByText("Proposed solar payment /mo")).toBeInTheDocument();
     expect(comparison.getByText("Back-end DTI (incl. proposed solar payment)")).toBeInTheDocument();
-    expect(screen.getByText(/^\$[\d,]+ at 2\.99% for 25 years · \$[\d,]+\/mo$/)).toBeInTheDocument();
+    expect(within(screen.getByTestId("proposed-solar-loan")).getByText("2.99% / 25 years")).toBeInTheDocument();
+  });
+
+  it("under Solar prime hides mortgage-application fields and shows the proposed solar loan; Mortgage is unchanged", async () => {
+    render(<CaseExplorer />);
+    const kvLabels = () => within(screen.getByRole("heading", { name: "Applicant" }).parentElement).queryAllByText(/^(Loan|Proposed PITI)$/);
+    // Mortgage: the generator's application fields, no solar block, no note, factors unlabelled.
+    expect(kvLabels()).toHaveLength(2);
+    expect(screen.queryByTestId("proposed-solar-loan")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("solar-generator-note")).not.toBeInTheDocument();
+    await openTab("Decision");
+    expect(screen.getByText("Underwriting factors (permitted inputs only)")).toBeInTheDocument();
+
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    await openTab("Overview");
+    expect(kvLabels()).toHaveLength(0);
+    expect(screen.getByTestId("solar-generator-note")).toHaveTextContent("Borrower profiles reuse the mortgage generator; mortgage-specific application fields are hidden.");
+    const solar = getProfile("SOLAR_PRIME");
+    const selected = buildInitialCases(applyProfile(demoConfig, solar), solar.openingLibrary)[0];
+    const loan = caseDti(selected, solar).proposedLoan;
+    const block = within(screen.getByTestId("proposed-solar-loan"));
+    expect(block.getByText(`$${loan.amount.toLocaleString()}`)).toBeInTheDocument();
+    expect(block.getByText("2.99% / 25 years")).toBeInTheDocument();
+    expect(block.getByText(`$${Math.round(loan.monthlyPayment).toLocaleString()}/mo`)).toBeInTheDocument();
+    expect(screen.queryByText(`$${selected.application.loan_amount.toLocaleString()}`)).not.toBeInTheDocument();
+    await openTab("Decision");
+    expect(screen.getByText("Integrity model (mortgage-based generator): underwriting factors (permitted inputs only)")).toBeInTheDocument();
   });
 
   it("compares all-application and approved-only FICO with the 10-K benchmark for both profiles", async () => {

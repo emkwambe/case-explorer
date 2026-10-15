@@ -64,7 +64,8 @@ export function ComparisonRow({ label, truth, pres }) {
   );
 }
 
-export function CaseCard({ caseData, selected, onClick, accentColor }) {
+/** `loanAmount` replaces the generator's mortgage amount, for example with a profile's solar loan. */
+export function CaseCard({ caseData, selected, onClick, accentColor, loanAmount }) {
   const { applicant, label } = caseData;
   return (
     <div
@@ -76,7 +77,7 @@ export function CaseCard({ caseData, selected, onClick, accentColor }) {
         <strong>{applicant.name}</strong>
         <Badge color={ALIGNMENT_COLORS[label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[label.alignment_level]}>{label.alignment_level}</Badge>
       </div>
-      <div style={styles.cardMeta}>Age {applicant.age} · ${caseData.application.loan_amount.toLocaleString()} · {scenarioLabel(caseData.meta?.corruption_type)}</div>
+      <div style={styles.cardMeta}>Age {applicant.age} · ${(loanAmount ?? caseData.application.loan_amount).toLocaleString()} · {scenarioLabel(caseData.meta?.corruption_type)}</div>
       <div style={styles.cardOutcome}>
         <span style={{ color: FRAUD_COLORS[label.fraud_risk_level], fontWeight: 600 }}>{label.expected_outcome}</span>
         <span style={styles.cardDifficulty}>{label.difficulty}</span>

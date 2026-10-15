@@ -12,7 +12,8 @@ import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/an
 import { TOUR_STEPS } from "./demo/tour.js";
 import { GENERATOR_VERSION } from "../core/case.js";
 import { ActiveProfileProvider, useActiveProfile } from "../profiles/activeProfile.js";
-import { profileIdFromSearch } from "../profiles/index.js";
+import { profileIdFromSearch, showsSolarLoan } from "../profiles/index.js";
+import { proposedSolarLoan } from "../creditRisk.js";
 import { demoConfig } from "./hooks/useCaseLibrary.js";
 import { UnderwritingSidebar, PortfolioStrip, BenchmarkPanel, ComplianceFooter } from "./credit/CreditRisk.jsx";
 import { useCreditAssessments, CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
@@ -162,7 +163,7 @@ function CaseExplorerShell() {
             {cases.slice().reverse().map((c) => (
               creditLens
                 ? <CreditCaseCard key={c.id} caseData={c} selected={c.id === selectedId} assessment={assessments.get(c.id)} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
-                : <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
+                : <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} loanAmount={showsSolarLoan(profile) ? proposedSolarLoan(c, profile)?.amount : undefined} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
             ))}
           </div>
           <details style={styles.generatorPanel} data-testid="generator-panel">

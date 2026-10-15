@@ -17,6 +17,11 @@ export function getProfile(id, registry = PROFILES) {
   return profile;
 }
 
+/** True when the profile shows a solar loan instead of the generator's mortgage application. */
+export function showsSolarLoan(profile) {
+  return profile?.application?.kind === "SOLAR_LOAN";
+}
+
 /** URL form of a profile id: SOLAR_PRIME is "solar-prime". */
 export function profileSlug(id) {
   return String(id).toLowerCase().replace(/_/g, "-");

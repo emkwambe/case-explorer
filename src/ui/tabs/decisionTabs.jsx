@@ -7,12 +7,15 @@ import { download } from "../components/download.js";
 import { REASON_CODES } from "../../decisioning/reason-codes/catalog.js";
 import { getRule } from "../../decisioning/fraud-rules/rules.js";
 import { artifactUrl, useArtifact } from "../hooks/useArtifacts.js";
+import { useActiveProfile } from "../../profiles/activeProfile.js";
+import { showsSolarLoan } from "../../profiles/index.js";
 
 // The integrity check underwrites its own way (verified income, proposed mortgage PITI), which can
 // differ from the credit policy's profile DTI; the label says so.
 const FACTOR_LABELS = { backend_dti_pct: "Back-end DTI % (integrity check: verified income, proposed PITI)" };
 
 export function DecisionTab({ caseData, scored }) {
+  const { profile } = useActiveProfile();
   if (!scored) return null;
   const { decision, alerts, versions } = scored;
   const agrees = decision.outcome === caseData.label.expected_outcome;
@@ -43,7 +46,7 @@ export function DecisionTab({ caseData, scored }) {
       </div>
 
       <div style={styles.grid2}>
-        <Panel title="Underwriting factors (permitted inputs only)">
+        <Panel title={showsSolarLoan(profile) ? "Integrity model (mortgage-based generator): underwriting factors (permitted inputs only)" : "Underwriting factors (permitted inputs only)"}>
           <div style={styles.tableContainer}>
             <table style={styles.table}>
               <thead><tr>{["Factor", "Value", "Approve", "Review", "Status"].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>

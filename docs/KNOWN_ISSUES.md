@@ -31,3 +31,9 @@ Last measured 2026-10-14 with a scoped Stryker run over `src/creditRisk.js` and 
 | Scope total | 56.33% (below the break threshold of 60) |
 
 The policy logic itself is well covered; the gap is the React component. Most surviving `CreditRisk.jsx` mutants are style strings, placeholder text and conditional rendering that the UI tests do not assert on. Closing it needs rendering-level assertions for the sidebar, portfolio strip and benchmark panel. Excluding style strings from mutation would raise the number without testing anything, so it has not been done. Mutation testing runs in CI only on manual dispatch, so this does not block a push.
+
+## Solar prime borrowers come from the mortgage generator
+
+Under the Solar prime profile, Borrower profiles reuse the mortgage generator; mortgage-specific application fields are hidden. The Overview shows a "Proposed solar loan" block instead: the case's seeded loan amount from the profile's loan-amount distribution, at the profile's default 2.99% coupon and 25-year term, with the monthly payment the credit policy's DTI uses. The generator's integrity check (the Decision tab's underwriting factors, labelled "Integrity model (mortgage-based generator)") still underwrites the mortgage application, so it can disagree with the solar credit policy for reasons that come from the mortgage, not the solar loan.
+
+**Planned fix.** A full solar borrower generator: applicants, applications and the integrity check generated for a solar loan, so no mortgage field is produced and nothing needs hiding.

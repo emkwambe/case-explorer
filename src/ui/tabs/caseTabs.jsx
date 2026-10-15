@@ -4,8 +4,9 @@
 import React from "react";
 import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, OUTCOME_ICONS, eventFamily, money, pct, titleCase, scenarioLabel } from "../theme.js";
 import { MetricCard, Panel, KV, Badge, ComparisonRow, CitationList, Callout } from "../components/primitives.jsx";
-import { caseDti, DTI_BASIS } from "../../creditRisk.js";
+import { caseDti } from "../../creditRisk.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
+import { showsSolarLoan } from "../../profiles/index.js";
 
 export function OverviewTab({ caseData }) {
   const { profile } = useActiveProfile();
@@ -15,7 +16,10 @@ export function OverviewTab({ caseData }) {
   // Back-end DTI under the active profile's definition (see caseDti), the same figure the credit policy uses.
   const tDti = caseDti(caseData, profile, "truth");
   const pDti = caseDti(caseData, profile, "presentation");
-  const solar = pDti.basis === DTI_BASIS.CURRENT_HOUSING_PLUS_SOLAR_LOAN;
+  // Under a solar profile the generator's mortgage-application fields are hidden and the proposed
+  // solar loan (amount, coupon, term and payment from the profile, via caseDti) is shown instead.
+  const solar = showsSolarLoan(profile);
+  const solarLoan = solar ? pDti.proposedLoan : null;
   const meta = caseData.application_metadata;
   return (
     <div>
@@ -25,7 +29,9 @@ export function OverviewTab({ caseData }) {
         <MetricCard title="Expected Outcome" value={label.expected_outcome} color={OUTCOME_COLORS[label.expected_outcome]} icon={OUTCOME_ICONS[label.expected_outcome]} />
         <MetricCard title="Scenario" value={scenarioLabel(caseData.meta?.corruption_type)} color="#64748b" subtitle={`${caseData.meta?.severity} severity · ${label.difficulty}`} />
       </div>
+      {solar && profile.application?.note && <div style={{ ...styles.note, marginTop: -4 }} data-testid="solar-generator-note">{profile.application.note}</div>}
       <div style={styles.grid2}>
+        <div>
         <Panel title="Applicant">
           <KV label="Name">{applicant.name}</KV>
           <KV label="Age">{applicant.age}</KV>
@@ -33,13 +39,21 @@ export function OverviewTab({ caseData }) {
           <KV label="Persona">{titleCase(t.persona)}</KV>
           <KV label="Population regime">{titleCase(t.regime)}</KV>
           <KV label="Market">{titleCase(t.region)} (COL index {t.cost_of_living_index})</KV>
-          <KV label="Loan">{money(application.loan_amount)} · {titleCase(application.purpose)}</KV>
-          {solar
-            ? <KV label="Proposed solar loan">{money(pDti.proposedLoan?.amount)} at {((pDti.proposedLoan?.coupon ?? 0) * 100).toFixed(2)}% for {pDti.proposedLoan?.termYears} years · {money(pDti.proposedPayment)}/mo</KV>
-            : <KV label="Proposed PITI">{money(t.monthly_mortgage_payment)}/mo</KV>}
+          {!solar && <KV label="Loan">{money(application.loan_amount)} · {titleCase(application.purpose)}</KV>}
+          {!solar && <KV label="Proposed PITI">{money(t.monthly_mortgage_payment)}/mo</KV>}
           {meta && <KV label="Submitted">{new Date(meta.submitted).toLocaleString()}</KV>}
           <KV label="Seed" mono>{caseData.meta?.seed ?? "unseeded"}</KV>
         </Panel>
+        {solarLoan && (
+          <div data-testid="proposed-solar-loan">
+            <Panel title="Proposed solar loan" style={{ marginTop: 16 }}>
+              <KV label="Amount">{money(solarLoan.amount)}</KV>
+              <KV label="Rate / term">{(solarLoan.coupon * 100).toFixed(2)}% / {solarLoan.termYears} years</KV>
+              <KV label="Monthly payment">{money(solarLoan.monthlyPayment)}/mo</KV>
+            </Panel>
+          </div>
+        )}
+        </div>
         <Panel title="World truth → claimed truth">
           <ComparisonRow label="Employer" truth={t.employer} pres={p.employer} />
           <ComparisonRow label="Salary" truth={money(t.salary)} pres={money(p.salary)} />
