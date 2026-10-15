@@ -43,3 +43,7 @@ reports/
 
 # Filing documents used for manual extraction: hashed in the manifest, not committed
 data/public-record/raw/filings/
+
+.vercel
+.env*
+!.env.example
