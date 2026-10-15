@@ -116,3 +116,5 @@ export const styles = {
 export const money = (n) => (n === null || n === undefined || Number.isNaN(n) ? "—" : `$${Math.round(n).toLocaleString()}`);
 export const pct = (n, d = 1) => (n === null || n === undefined || Number.isNaN(n) ? "—" : `${(n * 100).toFixed(d)}%`);
 export const titleCase = (s) => String(s ?? "").replace(/_/g, " ").toLowerCase().replace(/(^|\s)\w/g, (m) => m.toUpperCase());
+/** Display name of a case's scenario (fraud typology); a case with no corruption is a clean application. */
+export const scenarioLabel = (type) => (!type || type === "NONE" ? "Clean application" : titleCase(type));

@@ -10,7 +10,7 @@ import CaseExplorer from "./CaseExplorer.jsx";
 import { buildInitialCases, demoConfig } from "./hooks/useCaseLibrary.js";
 import { TOUR_STEPS } from "./demo/tour.js";
 import { scoreCase } from "../decisioning/index.js";
-import { PROFILES } from "../profiles/index.js";
+import { PROFILES, getProfile, applyProfile } from "../profiles/index.js";
 import { TAB_GROUPS } from "./navigation.js";
 import { CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
 import { REASON_CODES } from "../decisioning/reason-codes/catalog.js";
@@ -199,6 +199,29 @@ describe("Credit Risk Mode", () => {
     expect(await screen.findByText("Copied")).toBeInTheDocument();
     await userEvent.click(screen.getByTestId("show-ground-truth"));
     expect(screen.getByTestId("ground-truth-comparison")).toBeInTheDocument();
+  });
+
+  it("shows one labelled back-end DTI in the Underwriting Decision panel, the World truth table and the comparison, per profile", async () => {
+    render(<CaseExplorer />);
+    await userEvent.click(screen.getByTestId("credit-risk-mode"));
+    for (const [id, label] of [["MORTGAGE", "Back-end DTI (incl. proposed PITI)"], ["SOLAR_PRIME", "Back-end DTI (incl. proposed solar payment)"]]) {
+      await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), id);
+      for (const card of screen.getAllByTestId("case-card")) {
+        await userEvent.click(card);
+        const panel = screen.getByTestId("sidebar-dti").textContent;
+        expect(panel).toMatch(/^\d+\.\d%$/);
+        expect(screen.getByText(`${label} (claimed)`)).toBeInTheDocument();
+        // World truth -> claimed row on the Overview tab: label, truth, arrow, claimed.
+        const row = screen.getByText(label, { selector: "span" }).parentElement;
+        expect(row.children[3].textContent).toBe(panel);
+      }
+    }
+    await userEvent.click(screen.getByTestId("show-ground-truth"));
+    const comparison = within(screen.getByTestId("ground-truth-comparison"));
+    expect(comparison.getByText("Current housing /mo")).toBeInTheDocument();
+    expect(comparison.getByText("Proposed solar payment /mo")).toBeInTheDocument();
+    expect(comparison.getByText("Back-end DTI (incl. proposed solar payment)")).toBeInTheDocument();
+    expect(screen.getByText(/^\$[\d,]+ at 2\.99% for 25 years · \$[\d,]+\/mo$/)).toBeInTheDocument();
   });
 
   it("compares all-application and approved-only FICO with the 10-K benchmark for both profiles", async () => {
@@ -454,7 +477,40 @@ describe("navigation and header", () => {
     await openTab("Portfolio");
     const scenarios = within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => r.children[1].textContent);
     expect(scenarios).toHaveLength(12);
-    expect(scenarios.filter((t) => t === "None")).toHaveLength(8);
+    expect(scenarios.filter((t) => t === "Clean application")).toHaveLength(8);
+    expect(scenarios).not.toContain("None");
+  });
+
+  it("selects the profile from ?profile= on load and keeps the default otherwise", () => {
+    try {
+      for (const [query, expected] of [["?profile=solar-prime", "SOLAR_PRIME"], ["?profile=mortgage", "MORTGAGE"], ["?profile=unknown", "MORTGAGE"], ["", "MORTGAGE"]]) {
+        window.history.replaceState(null, "", `/${query}`);
+        render(<CaseExplorer />);
+        expect(screen.getByTestId("portfolio-profile")).toHaveValue(expected);
+        cleanup();
+      }
+    } finally {
+      window.history.replaceState(null, "", "/");
+    }
+  });
+
+  it("labels a case with no fraud typology as a clean application in cards and the case header", () => {
+    render(<CaseExplorer />);
+    const clean = screen.getAllByTestId("case-card").filter((c) => c.textContent.includes("Clean application"));
+    expect(clean.length).toBeGreaterThan(0);
+    for (const c of screen.getAllByTestId("case-card")) expect(c.textContent).not.toMatch(/·\s*None\b/);
+    // The opening case is a clean application.
+    expect(screen.getByText(/^Clean application · case-gen-0-/)).toBeInTheDocument();
+  });
+
+  it("starts the case list at the top, including after a profile switch", async () => {
+    render(<CaseExplorer />);
+    const list = screen.getByTestId("case-list");
+    expect(list.scrollTop).toBe(0);
+    list.scrollTop = 400;
+    expect(list.scrollTop).toBe(400);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    expect(screen.getByTestId("case-list").scrollTop).toBe(0);
   });
 
   it("explains alignment badges and colours timeline dots by event family", async () => {
@@ -529,7 +585,10 @@ describe("integrity detail in the Decision tab", () => {
   it("lists the integrity check's reason codes, including benign ones that carry no card badge", async () => {
     render(<CaseExplorer />);
     await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
-    const elevated = screen.getAllByTestId("case-card").find((c) => /^Elevated DTI \d+%$/.test(within(c).getByTestId("card-reason").textContent));
+    // The newest case first, as in the list, whose integrity check cites the benign ELEVATED_DTI code.
+    const solar = getProfile("SOLAR_PRIME");
+    const target = buildInitialCases(applyProfile(demoConfig, solar), solar.openingLibrary).reverse().find((c) => c.label.reason_codes.includes("ELEVATED_DTI"));
+    const elevated = screen.getAllByTestId("case-card").find((c) => c.textContent.startsWith(target.applicant.name) && /^Elevated DTI \d+%$/.test(within(c).getByTestId("card-reason").textContent));
     expect(within(elevated).queryByTestId("card-integrity")).not.toBeInTheDocument();
     await userEvent.click(elevated);
     await openTab("Decision");

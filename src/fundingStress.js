@@ -13,6 +13,15 @@
 const smmFromCpr = (cpr) => 1 - Math.pow(1 - cpr, 1 / 12);
 
 /**
+ * Level monthly payment that amortises `principal` over `months` at an annual `coupon`. The one
+ * amortisation formula in the app: the loan pricers below and the solar DTI both use it.
+ */
+export function levelPayment(principal, coupon, months) {
+  const rc = coupon / 12;
+  return rc === 0 ? principal / months : (principal * rc) / (1 - Math.pow(1 + rc, -months));
+}
+
+/**
  * Prices a level-payment, monthly-amortising loan of $100 principal at an annual investor yield,
  * with an optional constant prepayment rate (CPR). Returns the price, the weighted-average life
  * in years, and the modified duration in years.
@@ -24,7 +33,7 @@ export function loanPrice({ coupon, termYears, yieldRate, cpr = 0 }) {
   let balance = 100, pv = 0, pvTime = 0, principalTime = 0;
   for (let t = 1; t <= n && balance > 1e-12; t++) {
     const remaining = n - t + 1;
-    const payment = rc === 0 ? balance / remaining : (balance * rc) / (1 - Math.pow(1 + rc, -remaining));
+    const payment = levelPayment(balance, coupon, remaining);
     const interest = balance * rc;
     const scheduled = payment - interest;
     const prepaid = (balance - scheduled) * smm;
@@ -43,8 +52,8 @@ export function loanPrice({ coupon, termYears, yieldRate, cpr = 0 }) {
 /** Closed-form price of a level-payment loan with no prepayment, for $100 principal. */
 export function annuityPrice({ coupon, termYears, yieldRate }) {
   const n = Math.round(termYears * 12);
-  const rc = coupon / 12, ry = yieldRate / 12;
-  const payment = rc === 0 ? 100 / n : (100 * rc) / (1 - Math.pow(1 + rc, -n));
+  const ry = yieldRate / 12;
+  const payment = levelPayment(100, coupon, n);
   return ry === 0 ? payment * n : (payment * (1 - Math.pow(1 + ry, -n))) / ry;
 }
 

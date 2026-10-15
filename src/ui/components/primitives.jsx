@@ -1,6 +1,6 @@
 // src/ui/components/primitives.jsx — Small presentational building blocks.
 import React from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, titleCase } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, titleCase, scenarioLabel } from "../theme.js";
 import { CREDIT_DECISION_COLORS, CREDIT_DECISION_LABELS, cardReason, integrityBadge } from "../credit/useCreditAssessments.js";
 
 export function MetricCard({ title, value, color, subtitle, icon }) {
@@ -76,7 +76,7 @@ export function CaseCard({ caseData, selected, onClick, accentColor }) {
         <strong>{applicant.name}</strong>
         <Badge color={ALIGNMENT_COLORS[label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[label.alignment_level]}>{label.alignment_level}</Badge>
       </div>
-      <div style={styles.cardMeta}>Age {applicant.age} · ${caseData.application.loan_amount.toLocaleString()} · {titleCase(caseData.meta?.corruption_type ?? "none")}</div>
+      <div style={styles.cardMeta}>Age {applicant.age} · ${caseData.application.loan_amount.toLocaleString()} · {scenarioLabel(caseData.meta?.corruption_type)}</div>
       <div style={styles.cardOutcome}>
         <span style={{ color: FRAUD_COLORS[label.fraud_risk_level], fontWeight: 600 }}>{label.expected_outcome}</span>
         <span style={styles.cardDifficulty}>{label.difficulty}</span>

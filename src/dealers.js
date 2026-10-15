@@ -19,8 +19,11 @@
 //     DEALER_DEFAULTS through `dealerSettings`.
 
 import { createRng } from "./utils/prng.js";
-import { randomBeta, randomLognormal, inverseNormalCDF } from "./utils/distributions.js";
-import { backEndDti } from "./creditRisk.js";
+import { randomBeta, randomLognormal } from "./utils/distributions.js";
+import { caseDti } from "./creditRisk.js";
+import { unitHash, loanAmount } from "./loanSizing.js";
+
+export { loanAmount };
 import { isFraudCase } from "./ml/decision_features.js";
 
 export const DEALER_DEFAULTS = Object.freeze({
@@ -109,10 +112,6 @@ const sigmoid = (x) => 1 / (1 + Math.exp(-x));
 const pad2 = (n) => String(n).padStart(2, "0");
 const sum = (xs) => xs.reduce((s, v) => s + v, 0);
 
-function unitHash(str) {
-  return createRng(str).random();
-}
-
 /**
  * Distributes `remaining` over dealers in proportion to their simulated advances, with no dealer
  * above `cap` (the smallest fixed top advance), so the fixed amounts stay the largest.
@@ -188,24 +187,14 @@ export function buildDealerNetwork(network = DEALER_DEFAULTS.network) {
 
 export const DEALER_CONFIG = buildDealerNetwork();
 
-/**
- * Loan amount for a case: the generated application amount, or, when settings give a loan-amount
- * distribution, a clipped lognormal draw seeded from the case ID (rounded to $100).
- */
-export function loanAmount(caseObj, sizing = null) {
-  if (!sizing) return caseObj.application?.loan_amount ?? 0;
-  const u = Math.min(1 - 1e-12, Math.max(1e-12, unitHash(`loan-amount-${caseObj.id}`)));
-  const raw = sizing.median.value * Math.exp(sizing.sigma.value * inverseNormalCDF(u));
-  return Math.round(Math.min(sizing.max.value, Math.max(sizing.min.value, raw)) / 100) * 100;
-}
 
 /** The case facts the dealer simulation needs. Uses world truth: this simulates outcomes, it does not decide. */
-export function loanInputs(caseObj, sizing = null) {
+export function loanInputs(caseObj, sizing = null, profile = undefined) {
   const truth = caseObj.truth?.current_state ?? {};
   return {
     id: caseObj.id,
     fico: Number.isFinite(truth.credit_score) ? truth.credit_score : null,
-    dti: backEndDti(truth).dti,
+    dti: caseDti(caseObj, profile, "truth").dti,
     fraud: isFraudCase(caseObj),
     ead: loanAmount(caseObj, sizing)
   };
@@ -270,8 +259,8 @@ export function simulateLoans(inputs, dealers = DEALER_CONFIG, settings = DEALER
   return inputs.map((input) => simulateLoan(input, dealers, settings));
 }
 
-export function buildLoan(caseObj, dealers = DEALER_CONFIG, settings = DEALER_DEFAULTS) {
-  return simulateLoan(loanInputs(caseObj, settings.loanAmount), dealers, settings);
+export function buildLoan(caseObj, dealers = DEALER_CONFIG, settings = DEALER_DEFAULTS, profile = undefined) {
+  return simulateLoan(loanInputs(caseObj, settings.loanAmount, profile), dealers, settings);
 }
 
 const expectedLoss = (loans, recoveryOf, pdOf) => loans.reduce((s, l) => s + pdOf(l) * (1 - recoveryOf(l)) * l.ead, 0);

@@ -3,7 +3,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { styles, money } from "../theme.js";
-import { backEndDti, riskSummary, ficoComparison, DISAGREEMENT } from "../../creditRisk.js";
+import { caseDti, dtiDefinition, riskSummary, ficoComparison, DISAGREEMENT, DTI_BASIS } from "../../creditRisk.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
 import { CREDIT_DECISION_COLORS, COMPLIANCE_TEXT, REFERENCE_SIZE, REFERENCE_SEED, profileReference } from "./useCreditAssessments.js";
 
@@ -22,21 +22,26 @@ function sumStudent(events = []) {
   return events.filter((e) => e?.type === "LIABILITY_OPENED" && e.type_detail === "STUDENT_LOAN").reduce((s, e) => s + (Number(e.payment) || 0), 0);
 }
 
-const fmtPct = (v) => (v === null || v === undefined ? "—" : `${Math.round(v * 100)}%`);
+// DTI shows one decimal everywhere, matching the World truth table on the Overview tab.
+const fmtPct = (v) => (v === null || v === undefined ? "—" : `${(v * 100).toFixed(1)}%`);
 
 function GroundTruthComparison({ caseData }) {
+  const { profile } = useActiveProfile();
   const claimed = caseData.presentation?.current_state ?? {};
   const truth = caseData.truth?.current_state ?? {};
-  const cDti = backEndDti(claimed);
-  const tDti = backEndDti(truth);
+  const cDti = caseDti(caseData, profile, "presentation");
+  const tDti = caseDti(caseData, profile, "truth");
+  const housingRows = cDti.basis === DTI_BASIS.CURRENT_HOUSING_PLUS_SOLAR_LOAN
+    ? [["Current housing /mo", money(cDti.currentHousing), money(tDti.currentHousing)], ["Proposed solar payment /mo", money(cDti.proposedPayment), money(tDti.proposedPayment)]]
+    : [["Proposed PITI /mo", money(cDti.proposedPayment), money(tDti.proposedPayment)]];
   const rows = [
     ["FICO", claimed.credit_score ?? "—", truth.credit_score ?? "—"],
     ["Salary", money(claimed.salary), money(truth.salary)],
     ["Non-housing debt /mo", money(claimed.monthly_obligations), money(truth.monthly_obligations)],
-    ["Housing payment /mo", money(cDti.housingPayment), money(tDti.housingPayment)],
+    ...housingRows,
     ["Student loans /mo", money(sumStudent(caseData.presentation?.events)), money(sumStudent(caseData.truth?.events))],
     ["Checking", money(claimed.checking_balance), money(truth.checking_balance)],
-    ["Back-end DTI", fmtPct(cDti.dti), fmtPct(tDti.dti)]
+    [cDti.label, fmtPct(cDti.dti), fmtPct(tDti.dti)]
   ];
   return (
     <table style={{ ...styles.table, marginTop: 8 }} data-testid="ground-truth-comparison">
@@ -95,6 +100,7 @@ function CopySummaryButton({ text }) {
 }
 
 export function UnderwritingSidebar({ caseData, assessment }) {
+  const { profile } = useActiveProfile();
   const [showTruth, setShowTruth] = useState(false);
   if (!assessment) return null;
   const color = CREDIT_DECISION_COLORS[assessment.policyDecision];
@@ -133,7 +139,7 @@ export function UnderwritingSidebar({ caseData, assessment }) {
 
       <div style={styles.kvRow}><span>Integrity check</span><strong>{assessment.generatorDecision ?? "—"}</strong></div>
       <div style={styles.kvRow}><span>FICO (claimed)</span><strong>{assessment.fico ?? "—"}</strong></div>
-      <div style={styles.kvRow}><span>Back-end DTI (claimed)</span><strong>{fmtPct(assessment.dti)}{assessment.dtiPartial ? " (partial)" : ""}</strong></div>
+      <div style={styles.kvRow}><span>{dtiDefinition(profile).label} (claimed)</span><strong data-testid="sidebar-dti">{fmtPct(assessment.dti)}{assessment.dtiPartial ? " (partial)" : ""}</strong></div>
       <div style={styles.kvRow}><span>Student loans</span><strong>{money(assessment.studentPayment)}/mo</strong></div>
       <div style={{ ...styles.kvRow, marginBottom: 12 }}><span>Checking (claimed)</span><strong>{money(assessment.checking)}</strong></div>
 
@@ -212,7 +218,7 @@ export function BenchmarkPanel({ cases, baseConfig }) {
   const { registry, profile } = useActiveProfile();
   const [open, setOpen] = useState(false);
   const [reference, setReference] = useState(null);
-  const loaded = useMemo(() => ficoComparison(cases), [cases]);
+  const loaded = useMemo(() => ficoComparison(cases, profile), [cases, profile]);
   const benchmarks = useMemo(
     () => registry.flatMap((p) => p.benchmarks.filter((b) => b.metric === "avg_fico").map((b) => ({ ...b, owner: p }))),
     [registry]

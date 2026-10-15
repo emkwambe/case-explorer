@@ -18,6 +18,9 @@
 import { extractDecisionView } from "./ml/decision_features.js";
 import { runFraudRules } from "./decisioning/fraud-rules/rules.js";
 import { REASON_CODES, REASON_CATEGORIES } from "./decisioning/reason-codes/catalog.js";
+import { DEFAULT_PROFILE_ID, getProfile } from "./profiles/index.js";
+import { loanAmount } from "./loanSizing.js";
+import { levelPayment } from "./fundingStress.js";
 
 export const CREDIT_POLICY = Object.freeze({
   ficoDecline: 660,
@@ -34,24 +37,74 @@ export const ADVERSE_ACTION = Object.freeze({
   FRAUD_REVIEW: "Unable to verify information provided"
 });
 
-/**
- * Back-end DTI = (non-housing monthly obligations + current monthly housing payment) / (salary / 12).
- *
- * The housing payment is the `monthly_payment` of the most recent `housing_history` entry. If no
- * housing payment is available the ratio falls back to non-housing obligations only and is
- * marked `partial: true`. Returns `dti: null` when there is no positive income to divide by.
- */
-export function backEndDti(state = {}) {
-  const nonHousing = Number(state.monthly_obligations) || 0;
-  const monthlyIncome = (Number(state.salary) || 0) / 12;
-  const history = Array.isArray(state.housing_history) ? state.housing_history : [];
+// How back-end DTI is built for a profile: the payment added is the one being underwritten.
+export const DTI_BASIS = Object.freeze({
+  // A purchase or refinance mortgage: the proposed PITI replaces the current housing payment.
+  PROPOSED_PITI: "PROPOSED_PITI",
+  // A solar loan added on top of the home's existing housing cost.
+  CURRENT_HOUSING_PLUS_SOLAR_LOAN: "CURRENT_HOUSING_PLUS_SOLAR_LOAN"
+});
+
+const DEFAULT_DTI = Object.freeze({ basis: DTI_BASIS.PROPOSED_PITI, label: "Back-end DTI (incl. proposed PITI)" });
+
+/** The DTI definition a profile underwrites with (its `dti` field; proposed PITI when absent). */
+export function dtiDefinition(profile) {
+  return profile?.dti ?? DEFAULT_DTI;
+}
+
+/** Latest `housing_history` entry with a monthly payment: the applicant's current rent or mortgage. */
+function currentHousingPayment(state) {
+  const history = Array.isArray(state?.housing_history) ? state.housing_history : [];
   const withPayment = history
     .filter((h) => Number.isFinite(h?.monthly_payment))
     .sort((a, b) => String(a.t ?? "").localeCompare(String(b.t ?? "")));
-  const housingPayment = withPayment.length ? withPayment[withPayment.length - 1].monthly_payment : null;
-  const partial = housingPayment === null;
-  const dti = monthlyIncome > 0 ? (nonHousing + (housingPayment ?? 0)) / monthlyIncome : null;
-  return { dti, partial, nonHousing, housingPayment, monthlyIncome };
+  return withPayment.length ? withPayment[withPayment.length - 1].monthly_payment : null;
+}
+
+/**
+ * The proposed solar loan for a case: the amount from the profile's loan-amount distribution,
+ * seeded by the case ID (the same amount the Dealer View uses), amortised at the profile's default
+ * coupon and term with the funding engine's level-payment formula.
+ */
+export function proposedSolarLoan(caseObj, profile) {
+  const sizing = profile?.defaults?.dealerView?.loanAmount;
+  const rates = profile?.defaults?.fundingRates;
+  if (!sizing || !rates) return null;
+  const amount = loanAmount(caseObj, sizing);
+  const coupon = rates.coupon.value;
+  const termYears = rates.termYears.value;
+  return { amount, coupon, termYears, monthlyPayment: levelPayment(amount, coupon, Math.round(termYears * 12)) };
+}
+
+/**
+ * Back-end DTI of one layer of a case (`presentation` for claimed values, `truth` for world truth)
+ * under a profile's definition, over gross monthly income (salary / 12):
+ *
+ *   PROPOSED_PITI                    (non-housing obligations + proposed PITI) / income
+ *   CURRENT_HOUSING_PLUS_SOLAR_LOAN  (non-housing obligations + current housing payment
+ *                                     + proposed solar loan payment) / income
+ *
+ * The proposed PITI is the case's `monthly_mortgage_payment`; the current housing payment is the
+ * latest `housing_history` payment. A missing housing component is left out and the ratio marked
+ * `partial: true`. `dti` is null when there is no positive income to divide by.
+ */
+export function caseDti(caseObj, profile = getProfile(DEFAULT_PROFILE_ID), layer = "presentation") {
+  const def = dtiDefinition(profile);
+  const state = caseObj?.[layer]?.current_state ?? {};
+  const nonHousing = Number(state.monthly_obligations) || 0;
+  const monthlyIncome = (Number(state.salary) || 0) / 12;
+  let currentHousing = null, proposedPayment = null, proposedLoan = null, partial;
+  if (def.basis === DTI_BASIS.CURRENT_HOUSING_PLUS_SOLAR_LOAN) {
+    currentHousing = currentHousingPayment(state);
+    proposedLoan = proposedSolarLoan(caseObj, profile);
+    proposedPayment = proposedLoan?.monthlyPayment ?? null;
+    partial = currentHousing === null || proposedPayment === null;
+  } else {
+    proposedPayment = Number.isFinite(state.monthly_mortgage_payment) ? state.monthly_mortgage_payment : null;
+    partial = proposedPayment === null;
+  }
+  const dti = monthlyIncome > 0 ? (nonHousing + (currentHousing ?? 0) + (proposedPayment ?? 0)) / monthlyIncome : null;
+  return { dti, partial, basis: def.basis, label: def.label, nonHousing, currentHousing, proposedPayment, proposedLoan, monthlyIncome };
 }
 
 function studentLoanPayment(events = []) {
@@ -85,11 +138,11 @@ function normaliseDecision(outcome) {
 
 const pct = (v) => `${Math.round(v * 100)}%`;
 
-/** Score a case against the credit policy using claimed values only. */
-export function assessCredit(caseObj, policy = CREDIT_POLICY) {
+/** Score a case against the credit policy using claimed values only, with the profile's DTI definition. */
+export function assessCredit(caseObj, profile = getProfile(DEFAULT_PROFILE_ID), policy = CREDIT_POLICY) {
   const claimed = caseObj?.presentation?.current_state ?? {};
   const fico = Number.isFinite(claimed.credit_score) ? claimed.credit_score : null;
-  const { dti, partial: dtiPartial } = backEndDti(claimed);
+  const { dti, partial: dtiPartial } = caseDti(caseObj, profile, "presentation");
   const studentPayment = studentLoanPayment(caseObj?.presentation?.events);
   const checking = Number.isFinite(claimed.checking_balance) ? claimed.checking_balance : null;
   const fraudAlerts = visibleFraudAlerts(caseObj);
@@ -183,14 +236,14 @@ export function riskSummary(a) {
  * A public benchmark that describes financed borrowers is compared with the approved-only mean;
  * see the `compareTo` field of each benchmark in src/profiles/.
  */
-export function ficoComparison(cases, policy = CREDIT_POLICY) {
+export function ficoComparison(cases, profile = getProfile(DEFAULT_PROFILE_ID), policy = CREDIT_POLICY) {
   const mean = (xs) => (xs.length ? xs.reduce((s, v) => s + v, 0) / xs.length : null);
   const all = [], approved = [];
   for (const c of cases) {
     const fico = c?.presentation?.current_state?.credit_score;
     if (!Number.isFinite(fico)) continue;
     all.push(fico);
-    if (assessCredit(c, policy).policyDecision === "APPROVE") approved.push(fico);
+    if (assessCredit(c, profile, policy).policyDecision === "APPROVE") approved.push(fico);
   }
   return { n: all.length, allMean: mean(all), approvedN: approved.length, approvedMean: mean(approved) };
 }

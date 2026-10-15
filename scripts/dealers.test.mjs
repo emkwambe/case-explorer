@@ -38,7 +38,7 @@ const dealers = buildDealerNetwork(settings.network);
 const { count, seed } = settings.portfolio;
 const solarConfig = applyProfile(CONFIG, solar);
 const cases = Array.from({ length: count }, (_, i) => generateBlendedCase(i, solarConfig, seed));
-const inputs = cases.map((c) => loanInputs(c, settings.loanAmount));
+const inputs = cases.map((c) => loanInputs(c, settings.loanAmount, solar));
 const loans = simulateLoans(inputs, dealers, settings);
 const rows = aggregateDealers(loans, dealers, settings);
 const quality = new Map(dealers.map((d) => [d.id, d.quality]));
@@ -95,7 +95,7 @@ check("dealer assignment and loan simulation are deterministic", () => {
     assert.equal(assignDealer(c, dealers).id, assignDealer(structuredClone(c), dealers).id);
     assert.equal(assignDealer(c, dealers, settings.assignment).id, loans.find((l) => l.id === c.id).dealerId);
   }
-  assert.deepEqual(cases.slice(0, 200).map((c) => buildLoan(c, dealers, settings)), loans.slice(0, 200));
+  assert.deepEqual(cases.slice(0, 200).map((c) => buildLoan(c, dealers, settings, solar)), loans.slice(0, 200));
 });
 
 check("construction check: fraud cases are steered toward low-quality dealers only when strength > 0", () => {

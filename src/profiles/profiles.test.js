@@ -5,7 +5,7 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PROFILES, DEFAULT_PROFILE_ID, getProfile, applyProfile, profileProblems } from "./index.js";
+import { PROFILES, DEFAULT_PROFILE_ID, getProfile, applyProfile, profileProblems, profileSlug, profileIdFromSearch } from "./index.js";
 import CONFIG from "../distribution_config.json";
 
 const SRC = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -48,5 +48,19 @@ describe("lender profile registry", () => {
       for (const name of REAL_NAMES) if (text.includes(name.toLowerCase())) offenders.push(`${path.relative(SRC, file)}: ${name}`);
     }
     expect(offenders).toEqual([]);
+  });
+});
+
+describe("profile from the URL", () => {
+  it("maps ?profile= slugs to profile ids and ignores anything else", () => {
+    expect(profileSlug("SOLAR_PRIME")).toBe("solar-prime");
+    expect(profileIdFromSearch("?profile=solar-prime")).toBe("SOLAR_PRIME");
+    expect(profileIdFromSearch("?profile=Solar_Prime")).toBe("SOLAR_PRIME");
+    expect(profileIdFromSearch("?profile=mortgage&tab=x")).toBe("MORTGAGE");
+    expect(profileIdFromSearch("?profile=unknown")).toBeNull();
+    expect(profileIdFromSearch("?profile=")).toBeNull();
+    expect(profileIdFromSearch("")).toBeNull();
+    expect(profileIdFromSearch(undefined)).toBeNull();
+    expect(profileIdFromSearch("?profile=solar-prime", [getProfile("MORTGAGE")])).toBeNull();
   });
 });

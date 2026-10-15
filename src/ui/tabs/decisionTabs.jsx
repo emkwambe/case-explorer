@@ -8,6 +8,10 @@ import { REASON_CODES } from "../../decisioning/reason-codes/catalog.js";
 import { getRule } from "../../decisioning/fraud-rules/rules.js";
 import { artifactUrl, useArtifact } from "../hooks/useArtifacts.js";
 
+// The integrity check underwrites its own way (verified income, proposed mortgage PITI), which can
+// differ from the credit policy's profile DTI; the label says so.
+const FACTOR_LABELS = { backend_dti_pct: "Back-end DTI % (integrity check: verified income, proposed PITI)" };
+
 export function DecisionTab({ caseData, scored }) {
   if (!scored) return null;
   const { decision, alerts, versions } = scored;
@@ -46,7 +50,7 @@ export function DecisionTab({ caseData, scored }) {
               <tbody>
                 {decision.factors.map((f) => (
                   <tr key={f.factor} title={f.source}>
-                    <td style={styles.td}>{titleCase(f.factor)}</td>
+                    <td style={styles.td}>{FACTOR_LABELS[f.factor] ?? titleCase(f.factor)}</td>
                     <td style={styles.td}><strong>{f.value}</strong></td>
                     <td style={styles.td}>{f.approve_max !== undefined ? `≤ ${f.approve_max}` : `≥ ${f.approve_min}`}</td>
                     <td style={styles.td}>{f.review_max !== undefined ? `≤ ${f.review_max}` : `≥ ${f.review_min}`}</td>

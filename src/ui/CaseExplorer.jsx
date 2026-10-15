@@ -1,7 +1,7 @@
 // src/ui/CaseExplorer.jsx — Application shell: case library, tab routing and the guided tour.
 
-import React, { useCallback, useMemo, useState } from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase } from "./theme.js";
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase, scenarioLabel } from "./theme.js";
 import { CaseCard, CreditCaseCard, Chip } from "./components/primitives.jsx";
 import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
 import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks/useCaseAnalysis.js";
@@ -12,6 +12,7 @@ import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/an
 import { TOUR_STEPS } from "./demo/tour.js";
 import { GENERATOR_VERSION } from "../core/case.js";
 import { ActiveProfileProvider, useActiveProfile } from "../profiles/activeProfile.js";
+import { profileIdFromSearch } from "../profiles/index.js";
 import { demoConfig } from "./hooks/useCaseLibrary.js";
 import { UnderwritingSidebar, PortfolioStrip, BenchmarkPanel, ComplianceFooter } from "./credit/CreditRisk.jsx";
 import { useCreditAssessments, CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
@@ -36,10 +37,14 @@ const SCENARIOS = [
   ["INCOHERENT", "Incoherent world (data-quality control)"]
 ];
 
-/** `profileRegistry` replaces the lender profile registry, for example in tests. */
+/**
+ * `profileRegistry` replaces the lender profile registry, for example in tests. `?profile=solar-prime`
+ * or `?profile=mortgage` in the page URL selects the profile on load; otherwise the default applies.
+ */
 export default function CaseExplorer({ profileRegistry } = {}) {
+  const [initialProfileId] = useState(() => (typeof window === "undefined" ? null : profileIdFromSearch(window.location.search, profileRegistry)));
   return (
-    <ActiveProfileProvider registry={profileRegistry}>
+    <ActiveProfileProvider registry={profileRegistry} initialProfileId={initialProfileId ?? undefined}>
       <CaseExplorerShell />
     </ActiveProfileProvider>
   );
@@ -47,6 +52,12 @@ export default function CaseExplorer({ profileRegistry } = {}) {
 
 function CaseExplorerShell() {
   const library = useCaseLibrary();
+  // The list shows the newest case first. Whenever the library changes (load, profile switch, reset
+  // or new cases) it starts scrolled to the top rather than keeping the previous list's position.
+  const caseListRef = useRef(null);
+  useLayoutEffect(() => {
+    if (caseListRef.current) caseListRef.current.scrollTop = 0;
+  }, [library.cases]);
   const { registry, profileId, setProfileId, profile } = useActiveProfile();
   const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config } = library;
   const [activeTab, setActiveTab] = useState("overview");
@@ -55,7 +66,7 @@ function CaseExplorerShell() {
   // One set of credit assessments feeds the cards, the header counts and Credit Risk Mode, so they
   // cannot disagree. Computed when Credit Risk Mode is on or the profile uses the credit lens.
   const creditLens = profile.headerLens === "credit";
-  const assessments = useCreditAssessments(cases, creditMode || creditLens);
+  const assessments = useCreditAssessments(cases, creditMode || creditLens, profile);
   const dealerPortfolio = useDealerPortfolio(demoConfig);
 
   const scored = useScoredCase(selectedCase, config);
@@ -147,7 +158,7 @@ function CaseExplorerShell() {
       <div style={styles.layout} className="ce-layout">
         <aside style={styles.sidebar} className="ce-library">
           <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Case library</div>
-          <div style={{ flex: 1, minHeight: 120, overflowY: "auto" }} className="ce-case-list">
+          <div ref={caseListRef} style={{ flex: 1, minHeight: 120, overflowY: "auto" }} className="ce-case-list" data-testid="case-list">
             {cases.slice().reverse().map((c) => (
               creditLens
                 ? <CreditCaseCard key={c.id} caseData={c} selected={c.id === selectedId} assessment={assessments.get(c.id)} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
@@ -205,7 +216,7 @@ function CaseExplorerShell() {
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
                 <Chip color={ALIGNMENT_COLORS[selectedCase.label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[selectedCase.label.alignment_level]}>{selectedCase.label.alignment_level}</Chip>
                 <strong>{selectedCase.applicant.name}</strong>
-                <span style={{ color: "#64748b", fontSize: 13 }}>{titleCase(selectedCase.meta?.corruption_type)} · {selectedCase.id}</span>
+                <span style={{ color: "#64748b", fontSize: 13 }}>{scenarioLabel(selectedCase.meta?.corruption_type)} · {selectedCase.id}</span>
               </div>
 
               {currentTab === "overview" && <OverviewTab caseData={selectedCase} />}

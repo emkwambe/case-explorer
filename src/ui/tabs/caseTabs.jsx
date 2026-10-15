@@ -2,13 +2,20 @@
 // ground-truth graph, evidence and application metadata.
 
 import React from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, OUTCOME_ICONS, eventFamily, money, pct, titleCase } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, OUTCOME_ICONS, eventFamily, money, pct, titleCase, scenarioLabel } from "../theme.js";
 import { MetricCard, Panel, KV, Badge, ComparisonRow, CitationList, Callout } from "../components/primitives.jsx";
+import { caseDti, DTI_BASIS } from "../../creditRisk.js";
+import { useActiveProfile } from "../../profiles/activeProfile.js";
 
 export function OverviewTab({ caseData }) {
+  const { profile } = useActiveProfile();
   const { applicant, application, truth, presentation, label, audit_attributes: audit } = caseData;
   const t = truth.current_state;
   const p = presentation.current_state;
+  // Back-end DTI under the active profile's definition (see caseDti), the same figure the credit policy uses.
+  const tDti = caseDti(caseData, profile, "truth");
+  const pDti = caseDti(caseData, profile, "presentation");
+  const solar = pDti.basis === DTI_BASIS.CURRENT_HOUSING_PLUS_SOLAR_LOAN;
   const meta = caseData.application_metadata;
   return (
     <div>
@@ -16,7 +23,7 @@ export function OverviewTab({ caseData }) {
         <MetricCard title="Alignment Level" value={label.alignment_level} color={ALIGNMENT_COLORS[label.alignment_level]} subtitle={titleCase(label.case_coherence_status)} />
         <MetricCard title="Fraud Risk" value={label.fraud_risk_level} color={FRAUD_COLORS[label.fraud_risk_level]} />
         <MetricCard title="Expected Outcome" value={label.expected_outcome} color={OUTCOME_COLORS[label.expected_outcome]} icon={OUTCOME_ICONS[label.expected_outcome]} />
-        <MetricCard title="Scenario" value={titleCase(caseData.meta?.corruption_type)} color="#64748b" subtitle={`${caseData.meta?.severity} severity · ${label.difficulty}`} />
+        <MetricCard title="Scenario" value={scenarioLabel(caseData.meta?.corruption_type)} color="#64748b" subtitle={`${caseData.meta?.severity} severity · ${label.difficulty}`} />
       </div>
       <div style={styles.grid2}>
         <Panel title="Applicant">
@@ -27,7 +34,9 @@ export function OverviewTab({ caseData }) {
           <KV label="Population regime">{titleCase(t.regime)}</KV>
           <KV label="Market">{titleCase(t.region)} (COL index {t.cost_of_living_index})</KV>
           <KV label="Loan">{money(application.loan_amount)} · {titleCase(application.purpose)}</KV>
-          <KV label="Proposed PITI">{money(t.monthly_mortgage_payment)}/mo</KV>
+          {solar
+            ? <KV label="Proposed solar loan">{money(pDti.proposedLoan?.amount)} at {((pDti.proposedLoan?.coupon ?? 0) * 100).toFixed(2)}% for {pDti.proposedLoan?.termYears} years · {money(pDti.proposedPayment)}/mo</KV>
+            : <KV label="Proposed PITI">{money(t.monthly_mortgage_payment)}/mo</KV>}
           {meta && <KV label="Submitted">{new Date(meta.submitted).toLocaleString()}</KV>}
           <KV label="Seed" mono>{caseData.meta?.seed ?? "unseeded"}</KV>
         </Panel>
@@ -37,7 +46,7 @@ export function OverviewTab({ caseData }) {
           <ComparisonRow label="Checking" truth={money(t.checking_balance)} pres={money(p.checking_balance)} />
           <ComparisonRow label="Obligations" truth={`${money(t.monthly_obligations)}/mo`} pres={`${money(p.monthly_obligations)}/mo`} />
           <ComparisonRow label="Tenure" truth={`${t.tenure_months} mo`} pres={`${p.tenure_months} mo`} />
-          <ComparisonRow label="Back-end DTI" truth={pct(t.backend_dti)} pres={pct(p.backend_dti)} />
+          <ComparisonRow label={pDti.label} truth={pct(tDti.dti)} pres={pct(pDti.dti)} />
           <div style={{ ...styles.note, marginTop: 12, marginBottom: 0 }}>
             World truth is never visible to the rules, the model or the underwriting policy. It exists only to label the case and to score detection.
           </div>

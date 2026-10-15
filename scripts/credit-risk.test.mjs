@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateBlendedCase } from "../src/generator.js";
-import { CREDIT_POLICY, ADVERSE_ACTION, DISAGREEMENT, assessCredit, backEndDti, riskSummary, ficoComparison } from "../src/creditRisk.js";
+import { CREDIT_POLICY, ADVERSE_ACTION, DISAGREEMENT, assessCredit, caseDti, riskSummary, ficoComparison } from "../src/creditRisk.js";
 import { applyProfile, getProfile } from "../src/profiles/index.js";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -33,9 +33,11 @@ function handBuilt({ fico = 720, salary = 120000, obligations = 1000, housing = 
       events: studentPayment ? [{ t: "2021-07-14", type: "LIABILITY_OPENED", type_detail: "STUDENT_LOAN", payment: studentPayment }] : [],
       current_state: {
         credit_score: fico, salary, monthly_obligations: obligations, checking_balance: checking,
-        housing_history: housing === null ? [] : [
+        ...(housing === null ? {} : { monthly_mortgage_payment: housing }),
+        // Current rent differs from the proposed payment: DTI must ignore it.
+        housing_history: [
           { t: "2019-02-01", type: "ADDRESS_CHANGE", type_detail: "RENTED", monthly_payment: 900 },
-          { t: "2023-04-14", type: "ADDRESS_CHANGE", type_detail: "RENTED", monthly_payment: housing }
+          { t: "2023-04-14", type: "ADDRESS_CHANGE", type_detail: "RENTED", monthly_payment: 1500 }
         ],
         region: "MEDIUM_COST", zip_code: "75708", persona: "STABLE_PROFESSIONAL", regime: "PRIME"
       }
@@ -72,15 +74,15 @@ for (const [profile, cfg] of Object.entries(PROFILES)) {
   check(`assessCredit never throws across 500 seeded cases (${profile})`, () => {
     for (let i = 0; i < 500; i++) {
       const c = generateBlendedCase(i, cfg, `credit-${profile}`);
-      assert.doesNotThrow(() => riskSummary(assessCredit(c)), `case ${i} (${profile})`);
+      assert.doesNotThrow(() => riskSummary(assessCredit(c, getProfile(profile))), `case ${i} (${profile})`);
     }
   });
 }
 
 check("every DECLINE carries a high-severity reason with adverse-action wording", () => {
-  for (const cfg of Object.values(PROFILES)) {
+  for (const [profile, cfg] of Object.entries(PROFILES)) {
     for (let i = 0; i < 500; i++) {
-      const a = assessCredit(generateBlendedCase(i, cfg, 42));
+      const a = assessCredit(generateBlendedCase(i, cfg, 42), getProfile(profile));
       if (a.policyDecision !== "DECLINE") continue;
       assert.ok(a.flags.some((f) => f.severity === "high" && ADVERSE_WORDING.has(f.adverseActionReason)), `DECLINE without adverse-action reason: ${riskSummary(a)}`);
       assert.ok(a.reasons.length > 0 && a.reasons.every((r) => ADVERSE_WORDING.has(r)));
@@ -88,13 +90,14 @@ check("every DECLINE carries a high-severity reason with adverse-action wording"
   }
 });
 
-check("backEndDti matches a hand-built example", () => {
-  // (1,000 non-housing + 3,300 latest rent) / (120,000 / 12) = 4,300 / 10,000 = 0.43
-  const r = backEndDti(handBuilt().presentation.current_state);
-  assert.equal(r.housingPayment, 3300);
+check("caseDti matches a hand-built example (Mortgage: proposed PITI)", () => {
+  // (1,000 non-housing + 3,300 proposed PITI) / (120,000 / 12) = 4,300 / 10,000 = 0.43; the 1,500 current rent is ignored
+  const r = caseDti(handBuilt());
+  assert.equal(r.proposedPayment, 3300);
+  assert.equal(r.currentHousing, null);
   assert.equal(r.partial, false);
   assert.ok(Math.abs(r.dti - 0.43) < 1e-12, `dti ${r.dti}`);
-  const partial = backEndDti(handBuilt({ housing: null }).presentation.current_state);
+  const partial = caseDti(handBuilt({ housing: null }));
   assert.equal(partial.partial, true);
   assert.ok(Math.abs(partial.dti - 0.1) < 1e-12, `partial dti ${partial.dti}`);
 });
@@ -112,12 +115,12 @@ check("FICO 682 with DTI 0.43 is REVIEW; FICO 640 is DECLINE", () => {
 check("geography exclusion: region, zip code, persona, age and regime do not change assessCredit", () => {
   const hb = handBuilt({ fico: 682 });
   assert.deepEqual(assessCredit(withProxiesChanged(hb)), assessCredit(hb));
-  for (const cfg of Object.values(PROFILES)) {
+  for (const [profile, cfg] of Object.entries(PROFILES)) {
     for (let i = 0; i < 200; i++) {
       const c = generateBlendedCase(i, cfg, "geo");
       const changed = withProxiesChanged(c);
       assert.notEqual(changed.presentation.current_state.region, c.presentation.current_state.region);
-      assert.deepEqual(assessCredit(changed), assessCredit(c), `case ${i}`);
+      assert.deepEqual(assessCredit(changed, getProfile(profile)), assessCredit(c, getProfile(profile)), `case ${i}`);
     }
   }
 });
@@ -132,7 +135,7 @@ check("SOLAR_PRIME over 2,000 applications at seed 42: approved-only mean FICO 7
       const c = generateBlendedCase(i, cfg, 42);
       cases.push(c);
       scores.push(c.presentation.current_state.credit_score);
-      const a = assessCredit(c);
+      const a = assessCredit(c, getProfile(profile));
       counts[a.policyDecision]++;
       if (a.disagreement) conflicts[a.disagreement.kind]++;
     }
@@ -141,7 +144,7 @@ check("SOLAR_PRIME over 2,000 applications at seed 42: approved-only mean FICO 7
     const [modeValue, modeCount] = [...freq.entries()].sort((a, b) => b[1] - a[1])[0];
     const sorted = [...scores].sort((a, b) => a - b);
     mix[profile] = {
-      n, counts, conflicts, comparison: ficoComparison(cases),
+      n, counts, conflicts, comparison: ficoComparison(cases, getProfile(profile)),
       modeValue, modeShare: modeCount / n,
       p5: sorted[Math.floor(0.05 * n)],
       below660: scores.filter((v) => v < CREDIT_POLICY.ficoDecline).length / n
@@ -177,7 +180,7 @@ check("riskSummary matches the documented format", () => {
   assert.equal(line, "Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Integrity: APPROVE");
   const format = /^Borrower: FICO (\d+|n\/a), DTI (\d+%( \(partial\))?|n\/a), Student \$[\d,]+\/mo, Fraud: (None|Review), Policy: (APPROVE|(REVIEW|DECLINE) - .+) \| Integrity: (APPROVE|REVIEW|DECLINE|n\/a)$/;
   for (let i = 0; i < 200; i++) {
-    const s = riskSummary(assessCredit(generateBlendedCase(i, PROFILES.SOLAR_PRIME, 42)));
+    const s = riskSummary(assessCredit(generateBlendedCase(i, PROFILES.SOLAR_PRIME, 42), getProfile("SOLAR_PRIME")));
     assert.match(s, format);
   }
 });

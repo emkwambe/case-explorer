@@ -5,6 +5,8 @@ export const MORTGAGE_PROFILE = Object.freeze({
   label: "Mortgage (default)",
   description: "The generator's default mortgage application stream. No calibration preset and no public benchmark.",
   subtitle: "Mortgage risk simulation, fraud analytics and model validation",
+  // Purchase or refinance mortgage: back-end DTI adds the proposed PITI (see caseDti in creditRisk.js).
+  dti: Object.freeze({ basis: "PROPOSED_PITI", label: "Back-end DTI (incl. proposed PITI)" }),
   // Header counts use the generator's integrity check.
   headerLens: "integrity",
   // The opening library is the fraud-typology showcase used by the guided walkthrough.

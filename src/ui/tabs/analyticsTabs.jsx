@@ -1,7 +1,7 @@
 // src/ui/tabs/analyticsTabs.jsx — Portfolio-level tabs: data table, network, economics, validation.
 
 import React, { useMemo, useState } from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, money, pct, titleCase } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, money, pct, titleCase, scenarioLabel } from "../theme.js";
 import { MetricCard, Panel, Badge, Chip, Th, Callout } from "../components/primitives.jsx";
 import { download } from "../components/download.js";
 import { scoreCase } from "../../decisioning/index.js";
@@ -11,8 +11,11 @@ import { injectFraudRings } from "../../simulation/rings.js";
 import { isFraudCase, extractDecisionFeatures, decisionRowsToCsv } from "../../ml/decision_features.js";
 import { casesToCsv } from "../../ml/features.js";
 import { useArtifact, artifactUrl } from "../hooks/useArtifacts.js";
+import { caseDti, dtiDefinition } from "../../creditRisk.js";
+import { useActiveProfile } from "../../profiles/activeProfile.js";
 
 export function DataTableTab({ cases, onSelect }) {
+  const { profile } = useActiveProfile();
   const [sortConfig, setSortConfig] = useState({ key: "applicant.name", direction: "asc" });
   const [filterText, setFilterText] = useState("");
 
@@ -24,10 +27,11 @@ export function DataTableTab({ cases, onSelect }) {
         c.applicant.name.toLowerCase().includes(q) ||
         c.application.purpose.toLowerCase().includes(q) ||
         String(c.meta?.corruption_type ?? "").toLowerCase().includes(q) ||
+        scenarioLabel(c.meta?.corruption_type).toLowerCase().includes(q) ||
         String(c.label.expected_outcome).toLowerCase().includes(q));
     }
     const read = (c, key) => {
-      if (key === "dti") return c.truth.current_state?.backend_dti ?? 0;
+      if (key === "dti") return caseDti(c, profile, "truth").dti ?? 0;
       if (key === "salary") return c.truth.current_state?.salary ?? 0;
       if (key === "credit_score") return c.truth.current_state?.credit_score ?? 0;
       if (key === "scenario") return c.meta?.corruption_type ?? "";
@@ -40,7 +44,7 @@ export function DataTableTab({ cases, onSelect }) {
       return 0;
     });
     return items;
-  }, [cases, sortConfig, filterText]);
+  }, [cases, sortConfig, filterText, profile]);
 
   const requestSort = (key) => setSortConfig((s) => ({ key, direction: s.key === key && s.direction === "asc" ? "desc" : "asc" }));
 
@@ -65,7 +69,7 @@ export function DataTableTab({ cases, onSelect }) {
             <Th label="Scenario" sortKey="scenario" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Loan" sortKey="application.loan_amount" sortConfig={sortConfig} onSort={requestSort} numeric />
             <Th label="Salary" sortKey="salary" sortConfig={sortConfig} onSort={requestSort} numeric />
-            <Th label="Back-end DTI" sortKey="dti" sortConfig={sortConfig} onSort={requestSort} numeric />
+            <Th label={`${dtiDefinition(profile).label}, truth`} sortKey="dti" sortConfig={sortConfig} onSort={requestSort} numeric />
             <Th label="Credit" sortKey="credit_score" sortConfig={sortConfig} onSort={requestSort} numeric />
             <Th label="Align" sortKey="label.alignment_level" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Outcome" sortKey="label.expected_outcome" sortConfig={sortConfig} onSort={requestSort} />
@@ -76,10 +80,10 @@ export function DataTableTab({ cases, onSelect }) {
             {rows.map((c) => (
               <tr key={c.id} style={{ ...styles.tableRow, cursor: "pointer" }} onClick={() => onSelect?.(c.id)}>
                 <td style={styles.td}><strong>{c.applicant.name}</strong></td>
-                <td style={styles.td}>{titleCase(c.meta?.corruption_type)}</td>
+                <td style={styles.td}>{scenarioLabel(c.meta?.corruption_type)}</td>
                 <td style={{ ...styles.td, ...styles.num }}>{money(c.application.loan_amount)}</td>
                 <td style={{ ...styles.td, ...styles.num }}>{money(c.truth.current_state?.salary)}</td>
-                <td style={{ ...styles.td, ...styles.num }}>{pct(c.truth.current_state?.backend_dti)}</td>
+                <td style={{ ...styles.td, ...styles.num }}>{pct(caseDti(c, profile, "truth").dti)}</td>
                 <td style={{ ...styles.td, ...styles.num }}>{c.truth.current_state?.credit_score}</td>
                 <td style={styles.td}><Badge color={ALIGNMENT_COLORS[c.label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[c.label.alignment_level]}>{c.label.alignment_level}</Badge></td>
                 <td style={styles.td}><span style={{ color: OUTCOME_COLORS[c.label.expected_outcome], fontWeight: 600 }}>{c.label.expected_outcome}</span></td>

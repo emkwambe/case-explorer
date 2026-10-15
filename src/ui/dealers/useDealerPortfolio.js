@@ -36,7 +36,7 @@ export function useDealerPortfolio(baseConfig) {
       if (cancelled) return;
       const deadline = performance.now() + SLICE_MS;
       while (i < count && performance.now() < deadline) {
-        inputs.push(loanInputs(generateBlendedCase(i, config, seed), settings.loanAmount));
+        inputs.push(loanInputs(generateBlendedCase(i, config, seed), settings.loanAmount, profile));
         i++;
       }
       if (i < count) {

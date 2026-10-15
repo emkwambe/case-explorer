@@ -17,6 +17,27 @@ export function getProfile(id, registry = PROFILES) {
   return profile;
 }
 
+/** URL form of a profile id: SOLAR_PRIME is "solar-prime". */
+export function profileSlug(id) {
+  return String(id).toLowerCase().replace(/_/g, "-");
+}
+
+/**
+ * Profile id named by a `?profile=` query string (for example `?profile=solar-prime`), or null when
+ * the parameter is absent or names no profile in the registry, so the default applies.
+ */
+export function profileIdFromSearch(search, registry = PROFILES) {
+  let slug;
+  try {
+    slug = new URLSearchParams(search ?? "").get("profile");
+  } catch {
+    return null;
+  }
+  if (!slug) return null;
+  const wanted = slug.trim().toLowerCase().replace(/_/g, "-");
+  return registry.find((p) => profileSlug(p.id) === wanted)?.id ?? null;
+}
+
 function isPlainObject(v) {
   return v !== null && typeof v === "object" && !Array.isArray(v);
 }

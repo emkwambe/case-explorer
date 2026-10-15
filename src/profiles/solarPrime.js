@@ -8,6 +8,10 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
   id: "SOLAR_PRIME",
   label: "Solar prime (calibrated)",
   subtitle: "Prime solar lending: credit policy, dealer channel, funding stress and public record",
+  // A solar loan sits on top of the home's existing housing cost: back-end DTI adds the current
+  // housing payment and the proposed solar loan payment (the case's loan amount from
+  // defaults.dealerView.loanAmount, amortised at defaults.fundingRates coupon and term).
+  dti: Object.freeze({ basis: "CURRENT_HOUSING_PLUS_SOLAR_LOAN", label: "Back-end DTI (incl. proposed solar payment)" }),
   // Header counts use the credit policy.
   headerLens: "credit",
   // The opening library is the first applications of the profile's own seeded stream, so it shows

@@ -48,13 +48,13 @@ export function integrityBadge(a, label) {
 
 export const COMPLIANCE_TEXT = "Demo only · Synthetic data · Not a consumer report · Not for credit decisions · Educational portfolio project";
 
-/** Assess every loaded case once per library change; empty while Credit Risk Mode is off. */
-export function useCreditAssessments(cases, enabled) {
+/** Assess every loaded case once per library change under the active profile; empty while Credit Risk Mode is off. */
+export function useCreditAssessments(cases, enabled, profile) {
   return useMemo(() => {
     const byId = new Map();
-    if (enabled) for (const c of cases) byId.set(c.id, assessCredit(c));
+    if (enabled) for (const c of cases) byId.set(c.id, assessCredit(c, profile));
     return byId;
-  }, [cases, enabled]);
+  }, [cases, enabled, profile]);
 }
 
 export const REFERENCE_SIZE = 2000;
@@ -69,7 +69,7 @@ export function profileReference(baseConfig, profile) {
   if (!referenceCache.has(profile)) {
     const cfg = applyProfile(baseConfig, profile);
     const sample = Array.from({ length: REFERENCE_SIZE }, (_, i) => generateBlendedCase(i, cfg, REFERENCE_SEED));
-    referenceCache.set(profile, ficoComparison(sample));
+    referenceCache.set(profile, ficoComparison(sample, profile));
   }
   return referenceCache.get(profile);
 }

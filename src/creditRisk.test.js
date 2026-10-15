@@ -6,14 +6,17 @@ import { describe, it, expect } from "vitest";
 import { generateBlendedCase, generateCase } from "./generator.js";
 import CONFIG_BASE from "./distribution_config.json";
 import {
-  CREDIT_POLICY, ADVERSE_ACTION, DISAGREEMENT, assessCredit, backEndDti, riskSummary, ficoComparison
+  CREDIT_POLICY, ADVERSE_ACTION, DISAGREEMENT, DTI_BASIS, assessCredit, caseDti, proposedSolarLoan, riskSummary, ficoComparison
 } from "./creditRisk.js";
-import { applyProfile } from "./profiles/index.js";
+import { applyProfile, getProfile } from "./profiles/index.js";
+import { levelPayment } from "./fundingStress.js";
+import { loanAmount } from "./dealers.js";
 
 const CONFIG = { ...CONFIG_BASE, generation: { ...CONFIG_BASE.generation, as_of_date: "2026-01-15" } };
 const SOLAR = applyProfile(CONFIG, "SOLAR_PRIME");
 
-// Salary 120,000 gives a monthly income of exactly 10,000, so DTI = (obligations + housing) / 10,000.
+// Salary 120,000 gives a monthly income of exactly 10,000, so DTI = (obligations + proposed PITI) / 10,000.
+// The current rent in housing_history differs from the proposed payment so tests catch the wrong one.
 function handBuilt({ fico = 720, obligations = 1000, housing = 1000, checking = 5000, studentPayments = [320], expected = "APPROVE", reasonCodes = [], history } = {}) {
   return {
     id: "case-hand-built",
@@ -22,10 +25,11 @@ function handBuilt({ fico = 720, obligations = 1000, housing = 1000, checking = 
       events: studentPayments.map((payment, i) => ({ t: `2021-0${i + 1}-01`, type: "LIABILITY_OPENED", type_detail: "STUDENT_LOAN", payment })),
       current_state: {
         credit_score: fico, salary: 120000, monthly_obligations: obligations, checking_balance: checking,
-        housing_history: history ?? (housing === null ? [] : [
+        ...(housing === null ? {} : { monthly_mortgage_payment: housing }),
+        housing_history: history ?? [
           { t: "2019-02-01", type: "ADDRESS_CHANGE", monthly_payment: 900 },
-          { t: "2023-04-14", type: "ADDRESS_CHANGE", monthly_payment: housing }
-        ]),
+          { t: "2023-04-14", type: "ADDRESS_CHANGE", monthly_payment: 1500 }
+        ],
         region: "MEDIUM_COST", zip_code: "75708", persona: "STABLE_PROFESSIONAL", regime: "PRIME"
       }
     },
@@ -43,32 +47,82 @@ function fraudCase(overrides) {
   const s = c.presentation.current_state;
   const monthly = s.salary / 12;
   Object.assign(s, { credit_score: 720, checking_balance: 5000, monthly_obligations: Math.round(monthly * 0.05) });
-  s.housing_history = [{ t: "2023-01-01", type: "ADDRESS_CHANGE", monthly_payment: Math.round(monthly * 0.1) }];
+  s.monthly_mortgage_payment = Math.round(monthly * 0.1);
   if (overrides) overrides(s, monthly);
   return c;
 }
 
-describe("backEndDti", () => {
-  it("adds the latest housing payment to non-housing obligations over monthly gross income", () => {
-    const r = backEndDti(handBuilt({ obligations: 1000, housing: 3300 }).presentation.current_state);
-    expect(r).toEqual({ dti: 0.43, partial: false, nonHousing: 1000, housingPayment: 3300, monthlyIncome: 10000 });
+const MORTGAGE = getProfile("MORTGAGE");
+const SOLAR_PROFILE = getProfile("SOLAR_PRIME");
+const onlyState = (state) => ({ id: "case-state-only", presentation: { current_state: state } });
+
+describe("caseDti under the Mortgage profile (proposed PITI)", () => {
+  it("adds the proposed PITI to non-housing obligations over monthly gross income", () => {
+    const r = caseDti(handBuilt({ obligations: 1000, housing: 3300 }), MORTGAGE);
+    expect(r).toMatchObject({ dti: 0.43, partial: false, basis: DTI_BASIS.PROPOSED_PITI, label: "Back-end DTI (incl. proposed PITI)", nonHousing: 1000, currentHousing: null, proposedPayment: 3300, proposedLoan: null, monthlyIncome: 10000 });
+    // Mortgage is the default profile.
+    expect(caseDti(handBuilt({ obligations: 1000, housing: 3300 }))).toEqual(r);
   });
 
-  it("uses the most recent entry by date even when history is out of order", () => {
-    const history = [
-      { t: "2023-04-14", monthly_payment: 2000 },
-      { t: "2019-02-01", monthly_payment: 500 },
-      { t: "2021-06-01", monthly_payment: 800 },
-      { t: "2024-01-01" }
-    ];
-    expect(backEndDti(handBuilt({ obligations: 0, history }).presentation.current_state).housingPayment).toBe(2000);
+  it("ignores the current rent or mortgage in housing_history", () => {
+    const history = [{ t: "2023-04-14", monthly_payment: 9000 }];
+    expect(caseDti(handBuilt({ obligations: 0, housing: 2000, history }), MORTGAGE)).toMatchObject({ dti: 0.2, proposedPayment: 2000 });
+    expect(caseDti(handBuilt({ obligations: 0, housing: null, history }), MORTGAGE)).toMatchObject({ dti: 0, proposedPayment: null, partial: true });
   });
 
-  it("marks the ratio partial without a housing payment and returns null without income", () => {
-    expect(backEndDti(handBuilt({ obligations: 1000, housing: null }).presentation.current_state)).toMatchObject({ dti: 0.1, partial: true, housingPayment: null });
-    expect(backEndDti({ salary: 0, monthly_obligations: 500 }).dti).toBeNull();
-    expect(backEndDti({ salary: 120000 })).toMatchObject({ dti: 0, nonHousing: 0, partial: true });
-    expect(backEndDti(undefined)).toMatchObject({ dti: null, partial: true, monthlyIncome: 0 });
+  it("matches the generator's backend_dti on generated cases, claimed and true", () => {
+    for (let i = 0; i < 50; i++) {
+      const c = generateBlendedCase(i, CONFIG, "dti-identity");
+      for (const layer of ["presentation", "truth"]) {
+        expect(caseDti(c, MORTGAGE, layer).dti).toBeCloseTo(c[layer].current_state.backend_dti, 12);
+      }
+    }
+  });
+
+  it("marks the ratio partial without a proposed payment and returns null without income", () => {
+    expect(caseDti(handBuilt({ obligations: 1000, housing: null }), MORTGAGE)).toMatchObject({ dti: 0.1, partial: true, proposedPayment: null });
+    expect(caseDti(onlyState({ salary: 0, monthly_obligations: 500 })).dti).toBeNull();
+    expect(caseDti(onlyState({ salary: 120000 }))).toMatchObject({ dti: 0, nonHousing: 0, partial: true });
+    expect(caseDti(undefined)).toMatchObject({ dti: null, partial: true, monthlyIncome: 0 });
+  });
+});
+
+describe("caseDti under the Solar prime profile (current housing + proposed solar payment)", () => {
+  const sizing = SOLAR_PROFILE.defaults.dealerView.loanAmount;
+  const { coupon, termYears } = SOLAR_PROFILE.defaults.fundingRates;
+
+  it("prices the proposed solar loan from the case's seeded loan amount, default coupon and term", () => {
+    const c = handBuilt({ obligations: 1000, housing: 3300 });
+    const loan = proposedSolarLoan(c, SOLAR_PROFILE);
+    expect(loan.amount).toBe(loanAmount(c, sizing));
+    expect(loan).toMatchObject({ coupon: coupon.value, termYears: termYears.value });
+    expect(loan.monthlyPayment).toBe(levelPayment(loan.amount, coupon.value, termYears.value * 12));
+    // Hand check: a $10,000 loan at 2.99% over 300 months pays $47.37 a month.
+    expect(levelPayment(10_000, 0.0299, 300)).toBeCloseTo(47.37, 2);
+  });
+
+  it("adds non-housing obligations, the current housing payment and the solar payment, ignoring the proposed PITI", () => {
+    const c = handBuilt({ obligations: 1000, housing: 3300 });
+    const r = caseDti(c, SOLAR_PROFILE);
+    const solar = proposedSolarLoan(c, SOLAR_PROFILE).monthlyPayment;
+    expect(r).toMatchObject({ basis: DTI_BASIS.CURRENT_HOUSING_PLUS_SOLAR_LOAN, label: "Back-end DTI (incl. proposed solar payment)", nonHousing: 1000, currentHousing: 1500, proposedPayment: solar, partial: false });
+    expect(r.dti).toBeCloseTo((1000 + 1500 + solar) / 10000, 12);
+  });
+
+  it("uses the latest housing payment by date and is partial without one", () => {
+    const history = [{ t: "2023-04-14", monthly_payment: 2000 }, { t: "2019-02-01", monthly_payment: 500 }, { t: "2024-01-01" }];
+    expect(caseDti(handBuilt({ obligations: 0, history }), SOLAR_PROFILE).currentHousing).toBe(2000);
+    const none = caseDti(handBuilt({ obligations: 0, history: [] }), SOLAR_PROFILE);
+    expect(none).toMatchObject({ currentHousing: null, partial: true });
+    expect(none.dti).toBeCloseTo(none.proposedPayment / 10000, 12);
+  });
+
+  it("uses the same loan amount for claimed and true values, and the assessment uses the profile's DTI", () => {
+    for (let i = 0; i < 30; i++) {
+      const c = generateBlendedCase(i, SOLAR, "dti-solar");
+      expect(caseDti(c, SOLAR_PROFILE, "truth").proposedPayment).toBe(caseDti(c, SOLAR_PROFILE, "presentation").proposedPayment);
+      expect(assessCredit(c, SOLAR_PROFILE).dti).toBe(caseDti(c, SOLAR_PROFILE).dti);
+    }
   });
 });
 
@@ -152,7 +206,7 @@ describe("credit policy flags alone and in combination", () => {
 
     const fraudAndWatch = assessCredit(fraudCase((s, monthly) => {
       s.monthly_obligations = Math.round(monthly * 0.21);
-      s.housing_history[0].monthly_payment = Math.round(monthly * 0.21);
+      s.monthly_mortgage_payment = Math.round(monthly * 0.21);
       s.checking_balance = 500;
     }));
     expect(codes(fraudAndWatch)).toEqual(["ELEVATED_DTI", "LIQUIDITY_RISK", "FRAUD_REVIEW"]);
@@ -172,7 +226,7 @@ describe("credit policy flags alone and in combination", () => {
 
   it("accepts a custom policy", () => {
     const strict = { ...CREDIT_POLICY, ficoDecline: 700 };
-    expect(assessCredit(handBuilt({ fico: 690 }), strict).policyDecision).toBe("DECLINE");
+    expect(assessCredit(handBuilt({ fico: 690 }), MORTGAGE, strict).policyDecision).toBe("DECLINE");
     expect(assessCredit(handBuilt({ fico: 690 })).policyDecision).toBe("APPROVE");
   });
 });
@@ -236,9 +290,9 @@ describe("credit assessment outputs", () => {
 describe("credit policy over generated cases", () => {
   it("never throws, and every DECLINE carries adverse-action wording", () => {
     const wording = new Set(Object.values(ADVERSE_ACTION));
-    for (const cfg of [CONFIG, SOLAR]) {
+    for (const [cfg, profile] of [[CONFIG, MORTGAGE], [SOLAR, SOLAR_PROFILE]]) {
       for (let i = 0; i < 150; i++) {
-        const a = assessCredit(generateBlendedCase(i, cfg, "credit-vitest"));
+        const a = assessCredit(generateBlendedCase(i, cfg, "credit-vitest"), profile);
         expect(() => riskSummary(a)).not.toThrow();
         if (a.policyDecision === "DECLINE") expect(a.reasons.every((r) => wording.has(r))).toBe(true);
       }
@@ -258,14 +312,14 @@ describe("credit policy over generated cases", () => {
       const c = generateBlendedCase(i, SOLAR, "credit-geo");
       const k = structuredClone(c);
       for (const o of [k.applicant, k.truth?.demographics, k.truth?.current_state, k.presentation?.current_state]) swap(o);
-      expect(assessCredit(k)).toEqual(assessCredit(c));
+      expect(assessCredit(k, SOLAR_PROFILE)).toEqual(assessCredit(c, SOLAR_PROFILE));
     }
   });
 
   it("compares FICO on all applications and on approved applications", () => {
     const cases = [handBuilt({ fico: 700 }), handBuilt({ fico: 640 }), handBuilt({ fico: 800 }), { presentation: { current_state: {} } }];
     expect(ficoComparison(cases)).toEqual({ n: 3, allMean: (700 + 640 + 800) / 3, approvedN: 2, approvedMean: 750 });
-    expect(ficoComparison(cases, { ...CREDIT_POLICY, ficoDecline: 750 })).toMatchObject({ approvedN: 1, approvedMean: 800 });
+    expect(ficoComparison(cases, MORTGAGE, { ...CREDIT_POLICY, ficoDecline: 750 })).toMatchObject({ approvedN: 1, approvedMean: 800 });
     expect(ficoComparison([])).toEqual({ n: 0, allMean: null, approvedN: 0, approvedMean: null });
   });
 });
