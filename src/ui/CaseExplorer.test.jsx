@@ -10,15 +10,18 @@ import CaseExplorer from "./CaseExplorer.jsx";
 import { buildInitialCases, demoConfig } from "./hooks/useCaseLibrary.js";
 import { TOUR_STEPS } from "./demo/tour.js";
 import { scoreCase } from "../decisioning/index.js";
-import { PROFILES, getProfile, applyProfile } from "../profiles/index.js";
+import { PROFILES, DEFAULT_PROFILE_ID, getProfile, applyProfile } from "../profiles/index.js";
 import { TAB_GROUPS } from "./navigation.js";
 import { CREDIT_DECISION_COLORS } from "./credit/useCreditAssessments.js";
 import { REASON_CODES } from "../decisioning/reason-codes/catalog.js";
 import { caseDti } from "../creditRisk.js";
 
-// The artifact hook fetches published JSON; in tests there is no server.
+// The artifact hook fetches published JSON; in tests there is no server. These tests were written
+// for the Mortgage opening library, so each one opens with ?profile=mortgage; the bare-URL default
+// (Solar prime) has its own test under "navigation and header".
 beforeEach(() => {
   cleanup();
+  window.history.replaceState(null, "", "/?profile=mortgage");
   vi.stubGlobal("fetch", vi.fn(() => Promise.resolve({ ok: false, status: 404 })));
   window.URL.createObjectURL = vi.fn(() => "blob:test");
   window.URL.revokeObjectURL = vi.fn();
@@ -468,7 +471,16 @@ describe("Public record", () => {
     expect(screen.getByTestId("break-note")).toHaveTextContent(/Platform fees from affiliate/);
     expect(screen.getByTestId("correlation")).toHaveTextContent(/n = 9 quarters/);
     expect(screen.getByTestId("correlation")).toHaveTextContent(/not causal/);
-    expect(screen.getByTestId("backtest-sentence")).toHaveTextContent("Z″ could not be computed for any quarter from the public data");
+    // Leverage and liquidity: computed values carry lineage; gaps are named, never filled.
+    expect(screen.getByTestId("leverage-cell-cashToOutflow-2022Q4")).toHaveTextContent(/^\d+\.\d quarters$/);
+    expect(screen.getByTestId("leverage-cell-cashToOutflow-2021Q3")).toHaveTextContent("insufficient data");
+    expect(screen.getByTestId("leverage-cell-cashToOutflow-2023Q1")).toHaveTextContent("not burning");
+    expect(screen.getByTestId("leverage-cell-liabilitiesToAssets-2021Q1")).toHaveTextContent("insufficient data");
+    expect(screen.getByTestId("leverage-gaps")).toHaveTextContent(/Q3 2021 · Cash ÷ quarterly operating outflow · insufficient data: operating cash flow filed only as Predecessor and Successor stubs/);
+    await userEvent.click(screen.getByTestId("leverage-liabilitiesToAssets-2022Q4"));
+    expect(screen.getByTestId("lineage")).toHaveTextContent("Computed: total liabilities ÷ total assets at quarter end");
+    expect(screen.getByTestId("lineage")).toHaveTextContent("us-gaap:Liabilities");
+    expect(screen.queryByText(/Z″/)).not.toBeInTheDocument();
     expect(screen.getByTestId("runway-status-2022Q1")).toHaveTextContent("insufficient data");
     expect(within(screen.getByTestId("manifest-table")).getAllByRole("row")).toHaveLength(12);
     expect(screen.getByTestId("gaps-list")).toHaveTextContent("contractor_advances");
@@ -511,17 +523,20 @@ describe("navigation and header", () => {
     expect(scenarios).not.toContain("None");
   });
 
-  it("selects the profile from ?profile= on load and keeps the default otherwise", () => {
-    try {
-      for (const [query, expected] of [["?profile=solar-prime", "SOLAR_PRIME"], ["?profile=mortgage", "MORTGAGE"], ["?profile=unknown", "MORTGAGE"], ["", "MORTGAGE"]]) {
-        window.history.replaceState(null, "", `/${query}`);
-        render(<CaseExplorer />);
-        expect(screen.getByTestId("portfolio-profile")).toHaveValue(expected);
-        cleanup();
-      }
-    } finally {
-      window.history.replaceState(null, "", "/");
+  it("opens on Solar prime at the bare URL, selects the profile from ?profile=, and keeps Mortgage reachable", async () => {
+    for (const [query, expected] of [["", "SOLAR_PRIME"], ["?profile=unknown", "SOLAR_PRIME"], ["?profile=solar-prime", "SOLAR_PRIME"], ["?profile=mortgage", "MORTGAGE"]]) {
+      window.history.replaceState(null, "", `/${query}`);
+      render(<CaseExplorer />);
+      expect(screen.getByTestId("portfolio-profile")).toHaveValue(expected);
+      cleanup();
     }
+    // From the default, Mortgage stays available in the selector.
+    window.history.replaceState(null, "", "/");
+    render(<CaseExplorer />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "MORTGAGE");
+    expect(screen.getByTestId("header-subtitle")).toHaveTextContent(/^Mortgage risk simulation/);
+    // The engine's fallback profile is unchanged.
+    expect(DEFAULT_PROFILE_ID).toBe("MORTGAGE");
   });
 
   it("labels a case with no fraud typology as a clean application in cards and the case header", () => {

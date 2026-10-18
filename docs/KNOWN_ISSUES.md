@@ -43,3 +43,9 @@ Under the Solar prime profile, Borrower profiles reuse the mortgage generator; m
 `npm run capture:findings` (scripts/capture-findings.mjs) builds the app, generates the seed-42 funded portfolio in headless Chromium and writes the seven Findings PNGs and their captions to `docs/findings/`. It runs only on demand: no CI job runs it, so the committed images can fall behind the app until someone re-runs the script. The script needs Playwright's Chromium on the machine (`npx playwright install chromium`) and takes a few minutes, most of it the 10,000-loan portfolio.
 
 **Later option.** A manually dispatched CI job that installs Chromium, runs the capture and uploads the images as a build artifact, so a mismatch shows up without a local run.
+
+## The phone-width check runs by hand, not in CI
+
+`npm run check:mobile` (scripts/check-mobile.mjs) opens Findings, Public record, Dealer View, Funding & Rates and the case views with Credit Risk Mode at 375px in headless Chromium. It fails on page-level horizontal scrolling, on a chart wider than its frame, and on chart text below 8px. Screenshots go to a temporary directory outside the repository. Like the Findings capture, nothing runs it automatically, so a layout regression on phones shows up only when someone runs it.
+
+**Charts scroll sideways on phones.** Below 700px each chart keeps a 600px minimum width inside its own scroll frame, so its text stays readable; the right-hand part of a chart is reached by swiping. Wide tables already work the same way. A narrower drawing with thinned axis labels would avoid the swipe and is a later option.

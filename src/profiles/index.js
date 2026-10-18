@@ -9,7 +9,11 @@ import { MORTGAGE_PROFILE } from "./mortgage.js";
 import { SOLAR_PRIME_PROFILE } from "./solarPrime.js";
 
 export const PROFILES = Object.freeze([MORTGAGE_PROFILE, SOLAR_PRIME_PROFILE]);
+// The engine's fallback when a function is called without a profile. It stays on Mortgage so no
+// engine output moves when the app's opening profile changes.
 export const DEFAULT_PROFILE_ID = MORTGAGE_PROFILE.id;
+// The profile the app opens on when the URL has no `?profile=` parameter.
+export const APP_DEFAULT_PROFILE_ID = SOLAR_PRIME_PROFILE.id;
 
 export function getProfile(id, registry = PROFILES) {
   const profile = registry.find((p) => p.id === id);

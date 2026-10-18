@@ -1,8 +1,21 @@
 # Case Explorer
 
-**Mortgage risk simulation, fraud analytics and model validation lab.**
+**Credit risk lab for consumer lending: synthetic applications with known ground truth, a point-of-sale solar credit lab, and a public-record case study.**
 
-Lenders cannot share real mortgage applications, so the analytics that decide them are hard to build, test and defend. Case Explorer generates realistic mortgage cases with known ground truth, then runs the full model lifecycle over them: train and compare risk models, validate decisioning and fraud rules, test fairness, monitor drift, and produce audit-ready evidence.
+**Live site:** https://case-explorer-orpin.vercel.app (opens on the Solar prime profile; `?profile=mortgage` opens the Mortgage profile). **Findings brief:** [`docs/findings/`](docs/findings/README.md).
+
+Lenders cannot share real applications, so the analytics that decide them are hard to build, test and defend. Case Explorer generates realistic cases with known ground truth and runs the full model lifecycle over them. Its views:
+
+- **Lender profiles** (`src/profiles/`), chosen in the header. **Solar prime**, the default, is a point-of-sale solar lender calibrated to one public lender's filings. **Mortgage** has no calibration.
+- **Case** views: world truth, claimed values, evidence, the integrity check, the decision and the simulated outcome for each case. Credit Risk Mode adds a credit-policy overlay with adverse-action reasons.
+- **Portfolio** views: fairness, investigation, network analytics, decision economics and validation.
+- **Credit lab** views, all under Solar prime:
+  - **Dealer View**: installer-channel risk over a synthetic 10,000-loan funded book.
+  - **Funding & Rates**: pricing lag, backbook and liquidity.
+  - **Public record**: real SEC and FRED data. Every value links to its source.
+  - **Findings**: three findings, each tied to its evidence, and a one-page printable brief.
+
+Borrowers, dealers and portfolios are synthetic; only the public-record facts are real, and each one is sourced.
 
 <p align="center">
   <img src="docs/images/architecture.svg" alt="Case Explorer architecture: generation, decisioning, evaluation, governance and delivery layers" width="900">
@@ -96,7 +109,7 @@ Fairness reports **WARN** by design. Counterfactual invariance is exact and the 
 
 ## Credit analysis mode
 
-Three views look at a point-of-sale lender's risk through the active **lender profile**, chosen in the header (`src/profiles/`). The default Mortgage profile has no calibration, benchmarks or case studies. The Solar prime profile is calibrated against one public lender's filings.
+Three views look at a point-of-sale lender's risk through the active **lender profile**, chosen in the header (`src/profiles/`). The Solar prime profile, which the app opens on, is calibrated against one public lender's filings. The Mortgage profile has no calibration, benchmarks or case studies, and stays the engine's fallback when a function is called without a profile.
 
 | View | What it shows |
 |---|---|
@@ -111,7 +124,9 @@ Three views look at a point-of-sale lender's risk through the active **lender pr
 **Public record** (tab, Solar prime profile). This tab uses real data rather than synthetic data: Sunlight Financial's SEC filings and Federal Reserve rate data, pinned at build time. It has three analyses:
 - **Rates vs unit economics:** take rate against the fed funds rate.
 - **Liquidity and covenants:** a cash runway timeline with sourced events.
-- **Distress-score backtest:** Altman Z″.
+- **Leverage and liquidity:** total liabilities ÷ total assets, cash ÷ total liabilities, and cash ÷ quarterly operating outflow, for the quarters the filings support. Gaps are listed, never estimated.
+
+The **Findings** tab (Solar prime profile) states three findings, each with its evidence, and prints as a one-page brief. The captured images are in [`docs/findings/`](docs/findings/README.md).
 
 Every value links to the filing, page and label it came from.
 

@@ -11,7 +11,7 @@ import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { normalise, readManualExtractions, isPreMergerRegistrantFact, quarterInfo, regime } from "./public-record/normalise.mjs";
-import { liquidityRunway, trailingFour, zDoublePrime, altmanZDoublePrime, firstDistressQuarter, backtestSentence, unitEconomics, pearson, INSUFFICIENT } from "../src/profiles/sunlight/publicRecord.js";
+import { liquidityRunway, trailingFour, leverageLiquidity, leverageGaps, unitEconomics, pearson, INSUFFICIENT } from "../src/profiles/sunlight/publicRecord.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = path.join(ROOT, "data", "public-record");
@@ -168,24 +168,54 @@ check("reconciliation: quarters sum to the filed year-to-date figure within $0.1
   assert.equal(fv.filed.value, 2143918);
 });
 
-check("altmanZDoublePrime matches a hand-calculated example", () => {
-  // WC 20, TA 100, RE −30, TTM EBIT −10, equity 40, TL 60:
-  // 6.56(0.2) + 3.26(−0.3) + 6.72(−0.1) + 1.05(40/60) = 1.312 − 0.978 − 0.672 + 0.7 = 0.362 → distress.
-  const r = zDoublePrime({ workingCapital: 20, totalAssets: 100, retainedEarnings: -30, ebitTtm: -10, bookEquity: 40, totalLiabilities: 60 });
-  close(r.z, 0.362, 1e-12);
-  assert.equal(r.zone, "distress");
-  close(r.components.x4.contribution, 0.7, 1e-12);
-  assert.equal(zDoublePrime({ workingCapital: 50, totalAssets: 100, retainedEarnings: 20, ebitTtm: 10, bookEquity: 60, totalLiabilities: 40 }).zone, "safe");
-  assert.equal(zDoublePrime({ workingCapital: 10, totalAssets: 100, retainedEarnings: 10, ebitTtm: 5, bookEquity: 30, totalLiabilities: 70 }).zone, "grey");
-  const mk = (q, m) => ({ quarter: q, metrics: m });
-  const v = (value) => ({ value, source: "xbrl" });
-  const rows = ["2022Q1", "2022Q2", "2022Q3", "2022Q4"].map((q) => mk(q, { currentAssets: v(30), currentLiabilities: v(10), totalAssets: v(100), retainedEarnings: v(-30), equity: v(40), totalLiabilities: v(60), operatingIncome: v(-2.5) }));
-  const scored = altmanZDoublePrime(rows);
-  close(scored[3].z, 0.362, 1e-12);
-  assert.equal(scored[0].status, INSUFFICIENT);
-  assert.equal(firstDistressQuarter(scored), "2022Q4");
-  assert.match(backtestSentence(scored), /first entered the distress zone in Q4 2022, 4 quarters before the quarter of the October 30, 2023 Chapter 11 filing/);
-  assert.match(backtestSentence(altmanZDoublePrime(rows.map((r) => mk(r.quarter, { ...r.metrics, currentAssets: null })))), /could not be computed for any quarter/);
+check("leverageLiquidity matches a hand-calculated example", () => {
+  // TL 60, TA 200, cash 30, operating cash flow −12:
+  // 60 ÷ 200 = 0.3; 30 ÷ 60 = 0.5; 30 ÷ 12 = 2.5 quarters of outflow.
+  const v = (value) => ({ value, unit: "USD", source: "xbrl" });
+  const [r] = leverageLiquidity([{ quarter: "2022Q1", metrics: { totalLiabilities: v(60), totalAssets: v(200), cash: v(30), operatingCashFlow: v(-12) } }]);
+  close(r.liabilitiesToAssets.value, 0.3, 1e-12);
+  close(r.cashToLiabilities.value, 0.5, 1e-12);
+  close(r.cashToOutflow.value, 2.5, 1e-12);
+  assert.deepEqual(r.cashToOutflow.inputs.map((m) => m.value), [30, -12]);
+  assert.deepEqual(leverageGaps([r]), []);
+});
+
+check("leverageLiquidity gives insufficient data for a missing input, and not burning for a non-negative outflow", () => {
+  const v = (value) => ({ value, unit: "USD", source: "xbrl" });
+  const [noAssets, noCash, zeroOutflow, stubs] = leverageLiquidity([
+    { quarter: "2022Q1", metrics: { totalLiabilities: v(60), totalAssets: null, cash: v(30), operatingCashFlow: v(5) } },
+    { quarter: "2022Q2", metrics: { totalLiabilities: v(60), totalAssets: v(200), operatingCashFlow: v(-12) } },
+    { quarter: "2022Q3", metrics: { totalLiabilities: v(60), totalAssets: v(200), cash: v(30), operatingCashFlow: v(0) } },
+    { quarter: "2021Q3", metrics: { totalLiabilities: v(60), totalAssets: v(200), cash: v(30), operatingCashFlow: { stubs: { predecessor: v(-1), successor: v(-2) } } } }
+  ]);
+  assert.equal(noAssets.liabilitiesToAssets.value, null);
+  assert.equal(noAssets.liabilitiesToAssets.status, INSUFFICIENT);
+  assert.match(noAssets.liabilitiesToAssets.reason, /total assets not filed/);
+  assert.equal(noAssets.cashToOutflow.status, "not burning");
+  for (const k of ["cashToLiabilities", "cashToOutflow"]) assert.equal(noCash[k].status, INSUFFICIENT);
+  assert.equal(zeroOutflow.cashToOutflow.status, "not burning");
+  assert.equal(stubs.cashToOutflow.status, INSUFFICIENT);
+  assert.match(stubs.cashToOutflow.reason, /stubs, which are not combined/);
+  // Gaps: noAssets 2 (leverage, not burning), noCash 2, zeroOutflow 1, stubs 1.
+  assert.deepEqual(leverageGaps([noAssets, noCash, zeroOutflow, stubs]).map((g) => g.quarter), ["2022Q1", "2022Q1", "2022Q2", "2022Q2", "2022Q3", "2021Q3"]);
+});
+
+check("leverage and liquidity on the snapshot: computed only where the filings support it, every gap listed", () => {
+  const results = leverageLiquidity(quarterly.quarters);
+  const ok = (k) => results.filter((r) => r[k].status === "ok").map((r) => r.quarter);
+  const balanceQuarters = ["2021Q3", "2021Q4", "2022Q1", "2022Q2", "2022Q3", "2022Q4", "2023Q1", "2023Q2"];
+  assert.deepEqual(ok("liabilitiesToAssets"), balanceQuarters);
+  assert.deepEqual(ok("cashToLiabilities"), balanceQuarters);
+  assert.deepEqual(ok("cashToOutflow"), ["2022Q1", "2022Q4"]);
+  const by = (q) => results.find((r) => r.quarter === q);
+  assert.match(by("2021Q3").cashToOutflow.reason, /stubs, which are not combined/);
+  for (const q of ["2021Q4", "2022Q2", "2022Q3", "2023Q1", "2023Q2"]) assert.equal(by(q).cashToOutflow.status, "not burning", q);
+  for (const q of ["2021Q1", "2021Q2"]) for (const k of ["liabilitiesToAssets", "cashToLiabilities", "cashToOutflow"]) assert.equal(by(q)[k].status, INSUFFICIENT, `${q} ${k}`);
+  // Each computed value is exactly its filed inputs' quotient.
+  const q4 = by("2022Q4"), m = quarterly.quarters.find((r) => r.quarter === "2022Q4").metrics;
+  assert.equal(q4.cashToOutflow.value, m.cash.value / -m.operatingCashFlow.value);
+  assert.equal(q4.liabilitiesToAssets.value, m.totalLiabilities.value / m.totalAssets.value);
+  assert.equal(leverageGaps(results).length, results.length * 3 - 8 - 8 - 2);
 });
 
 check("liquidityRunway returns insufficient data, never a number, when burn is unavailable", () => {

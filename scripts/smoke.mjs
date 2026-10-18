@@ -3,10 +3,12 @@
 // Checks that the deployed page returns HTTP 200, finds its main bundle, confirms the bundle
 // contains each view and the compliance footer, then runs the four test scripts
 // (test:credit, test:dealers, test:funding and the vitest suite). Exits non-zero on any failure.
+// The bundle is only read as text, so which profile the app opens on is checked by the vitest
+// suite ("opens on Solar prime at the bare URL"), which this script runs.
 
 import { spawnSync } from "node:child_process";
 
-const REQUIRED_STRINGS = ["Credit Risk Mode", "Dealer View", "Funding & Rates", "Not a consumer report"];
+const REQUIRED_STRINGS = ["Credit Risk Mode", "Dealer View", "Funding & Rates", "Public record", "Findings", "Leverage and liquidity", "Not a consumer report"];
 const TEST_SCRIPTS = ["test:credit", "test:dealers", "test:funding", "test"];
 
 const url = process.env.SMOKE_URL;

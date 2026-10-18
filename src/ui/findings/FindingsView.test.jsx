@@ -15,8 +15,10 @@ import { generateBlendedCase } from "../../generator.js";
 import { breakEvenShockBps } from "../../fundingStress.js";
 import { buildDealerNetwork, dealerSettings, isFundedLoan, loanInputs, simulateLoans, withDealerEffect, aggregateDealers, simulateDealerFailure } from "../../dealers.js";
 
+// Each test opens on Mortgage and switches profiles itself, as it did when Mortgage was the default.
 beforeEach(() => {
   cleanup();
+  window.history.replaceState(null, "", "/?profile=mortgage");
   vi.stubGlobal("fetch", vi.fn(() => Promise.resolve({ ok: false, status: 404 })));
 });
 

@@ -18,6 +18,7 @@
     "test:public-record": "node scripts/public-record.test.mjs",
     "smoke": "node scripts/smoke.mjs",
     "capture:findings": "node scripts/capture-findings.mjs",
+    "check:mobile": "node scripts/check-mobile.mjs",
     "start": "node src/server.js",
     "start:dev": "node --env-file=.env src/server.js",
     "benchmark": "node scripts/benchmark.js --count 2000 --seed 42",

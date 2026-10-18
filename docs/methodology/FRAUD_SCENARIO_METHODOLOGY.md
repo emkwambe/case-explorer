@@ -207,7 +207,7 @@ Any type except BUST_OUT and INCOHERENT can instead be declined at step 3 for me
 
 ## Not yet implemented
 
-The roadmap in `docs/Case Explorer.md` lists the following typologies that have no mutation operator, rule or label path in the current generator:
+The archived planning memo [`docs/archive/Case Explorer.md`](../archive/Case%20Explorer.md) lists the following typologies that have no mutation operator, rule or label path in the current generator:
 
 | Typology | Status | Nearest existing coverage |
 |---|---|---|

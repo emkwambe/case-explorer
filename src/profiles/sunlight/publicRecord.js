@@ -79,71 +79,47 @@ export function liquidityRunway(rows) {
   });
 }
 
-export const Z_WEIGHTS = Object.freeze({ x1: 6.56, x2: 3.26, x3: 6.72, x4: 1.05 });
-export const Z_ZONES = Object.freeze({ safeAbove: 2.6, distressBelow: 1.1 });
-
-export function zZone(z) {
-  if (z > Z_ZONES.safeAbove) return "safe";
-  if (z < Z_ZONES.distressBelow) return "distress";
-  return "grey";
+/** A ratio of two filed balances with its inputs, or why it cannot be formed. Never estimated. */
+function balanceRatio(num, den, numName, denName) {
+  if (!num || !den) return { value: null, status: INSUFFICIENT, reason: `${[!num && numName, !den && denName].filter(Boolean).join(" and ")} not filed for the quarter` };
+  if (num.unit !== den.unit) return { value: null, status: INSUFFICIENT, reason: `${numName} and ${denName} are in different units` };
+  if (den.value === 0) return { value: null, status: INSUFFICIENT, reason: `${denName} is zero` };
+  return { value: num.value / den.value, status: "ok", inputs: [num, den] };
 }
 
-/** Altman Z″ from its inputs, with each component and its contribution. */
-export function zDoublePrime({ workingCapital, totalAssets, retainedEarnings, ebitTtm, bookEquity, totalLiabilities }) {
-  const x1 = workingCapital / totalAssets, x2 = retainedEarnings / totalAssets, x3 = ebitTtm / totalAssets, x4 = bookEquity / totalLiabilities;
-  const components = {
-    x1: { label: "Working capital ÷ total assets", value: x1, weight: Z_WEIGHTS.x1, contribution: Z_WEIGHTS.x1 * x1 },
-    x2: { label: "Retained earnings ÷ total assets", value: x2, weight: Z_WEIGHTS.x2, contribution: Z_WEIGHTS.x2 * x2 },
-    x3: { label: "TTM EBIT ÷ total assets", value: x3, weight: Z_WEIGHTS.x3, contribution: Z_WEIGHTS.x3 * x3 },
-    x4: { label: "Book equity ÷ total liabilities", value: x4, weight: Z_WEIGHTS.x4, contribution: Z_WEIGHTS.x4 * x4 }
-  };
-  const z = Object.values(components).reduce((s, c) => s + c.contribution, 0);
-  return { z, zone: zZone(z), components };
-}
-
-/** Quarterly Z″ (EBIT = operating income), or the inputs that are missing. */
-export function altmanZDoublePrime(rows) {
-  return rows.map((row, i) => {
-    const need = { currentAssets: metricOf(row, "currentAssets"), currentLiabilities: metricOf(row, "currentLiabilities"), totalAssets: metricOf(row, "totalAssets"), retainedEarnings: metricOf(row, "retainedEarnings"), equity: metricOf(row, "equity"), totalLiabilities: metricOf(row, "totalLiabilities") };
-    const ebit = trailingFour(rows, i, "operatingIncome");
-    const missing = Object.entries(need).filter(([, v]) => !v).map(([k]) => k);
-    if (ebit.value === null) missing.push(`TTM EBIT (${ebit.reason})`);
-    if (missing.length) return { quarter: row.quarter, status: INSUFFICIENT, missing, z: null, zone: null };
+/**
+ * Leverage and liquidity by quarter: total liabilities ÷ total assets, cash ÷ total liabilities, and
+ * cash ÷ the quarter's operating outflow (quarters of outflow the cash covers). A quarter whose
+ * operating cash flow is not negative is "not burning"; one filed only as Predecessor and Successor
+ * stubs is insufficient data, because the stubs are never combined.
+ */
+export function leverageLiquidity(rows) {
+  return rows.map((row) => {
+    const cash = metricOf(row, "cash"), liabilities = metricOf(row, "totalLiabilities"), assets = metricOf(row, "totalAssets");
+    const ocf = metricOf(row, "operatingCashFlow");
+    let cashToOutflow;
+    if (!cash) cashToOutflow = { value: null, status: INSUFFICIENT, reason: "cash not filed for the quarter" };
+    else if (row.metrics?.operatingCashFlow?.stubs) cashToOutflow = { value: null, status: INSUFFICIENT, reason: "operating cash flow filed only as Predecessor and Successor stubs, which are not combined" };
+    else if (!ocf) cashToOutflow = { value: null, status: INSUFFICIENT, reason: "operating cash flow not available for the quarter" };
+    else if (ocf.value >= 0) cashToOutflow = { value: null, status: "not burning", reason: "operating cash flow for the quarter is not negative" };
+    else if (cash.unit !== ocf.unit) cashToOutflow = { value: null, status: INSUFFICIENT, reason: "cash and operating cash flow are in different units" };
+    else cashToOutflow = { value: cash.value / -ocf.value, status: "ok", inputs: [cash, ocf] };
     return {
       quarter: row.quarter,
-      status: "ok",
-      ...zDoublePrime({
-        workingCapital: need.currentAssets.value - need.currentLiabilities.value,
-        totalAssets: need.totalAssets.value,
-        retainedEarnings: need.retainedEarnings.value,
-        ebitTtm: ebit.value,
-        bookEquity: need.equity.value,
-        totalLiabilities: need.totalLiabilities.value
-      }),
-      inputs: { ...need, ebitTtm: ebit }
+      liabilitiesToAssets: balanceRatio(liabilities, assets, "total liabilities", "total assets"),
+      cashToLiabilities: balanceRatio(cash, liabilities, "cash", "total liabilities"),
+      cashToOutflow
     };
   });
 }
 
-/** First quarter in the distress zone, or null. */
-export function firstDistressQuarter(scores) {
-  return scores.find((s) => s.zone === "distress")?.quarter ?? null;
-}
+export const LEVERAGE_RATIOS = Object.freeze([
+  { key: "liabilitiesToAssets", label: "Total liabilities ÷ total assets", computed: "total liabilities ÷ total assets at quarter end" },
+  { key: "cashToLiabilities", label: "Cash ÷ total liabilities", computed: "cash and cash equivalents ÷ total liabilities at quarter end" },
+  { key: "cashToOutflow", label: "Cash ÷ quarterly operating outflow", computed: "cash at quarter end ÷ −operating cash flow for the quarter" }
+]);
 
-const quarterEndMonthIndex = (code) => Number(code.slice(0, 4)) * 12 + Number(code.slice(5)) * 3;
-
-/** One sentence stating what the backtest found, whatever it is. */
-export function backtestSentence(scores, chapter11 = { date: "2023-10-30", label: "the October 30, 2023 Chapter 11 filing" }) {
-  const scored = scores.filter((s) => s.status === "ok");
-  if (scored.length === 0) {
-    return `Z″ could not be computed for any quarter from the public data, so the backtest cannot say whether the score warned before ${chapter11.label}.`;
-  }
-  const first = firstDistressQuarter(scores);
-  if (!first) {
-    return `Z″ was computed for ${scored.length} of ${scores.length} quarters and never entered the distress zone (below ${Z_ZONES.distressBelow}) before ${chapter11.label}.`;
-  }
-  const [y, m] = chapter11.date.split("-").map(Number);
-  const filingQuarterEnd = y * 12 + Math.ceil(m / 3) * 3;
-  const quartersBefore = (filingQuarterEnd - quarterEndMonthIndex(first)) / 3;
-  return `Z″ first entered the distress zone in Q${first.slice(5)} ${first.slice(0, 4)}, ${quartersBefore} quarter${quartersBefore === 1 ? "" : "s"} before the quarter of ${chapter11.label} (computed for ${scored.length} of ${scores.length} quarters).`;
+/** Every ratio and quarter that could not be computed, with the reason. */
+export function leverageGaps(results) {
+  return results.flatMap((r) => LEVERAGE_RATIOS.filter((d) => r[d.key].value === null).map((d) => ({ quarter: r.quarter, ratio: d.label, status: r[d.key].status, reason: r[d.key].reason })));
 }

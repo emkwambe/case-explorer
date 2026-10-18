@@ -2,6 +2,8 @@
 
 Case Explorer is a mortgage risk simulation, fraud analytics and model-validation lab. It has a JavaScript core (generation, decisioning, evaluation, API, UI) and a Python analytics workbench (model development, explainability, fairness, monitoring, governance).
 
+On top of that core sits a credit lab for consumer lending, driven by **lender profiles**: Solar prime is the default, and Mortgage stays the engine's fallback. The credit lab covers the credit policy, the Dealer View, Funding & Rates, a Public record tab built on pinned SEC and FRED snapshots, and a Findings tab. Browser code never calls SEC or FRED; it reads only the committed snapshots in `data/public-record/`.
+
 ![Architecture](images/architecture.svg)
 
 ## The two central rules
@@ -83,9 +85,14 @@ flowchart LR
 | `src/db/` | PostgreSQL store with migrations and immutability triggers, plus an interface-compatible in-memory store |
 | `src/api/` | Express app, controllers, services, middleware |
 | `src/observability/` | Metrics registry with Prometheus exposition |
-| `src/ui/` | React explorer: theme, primitives, hooks, tabs, guided tour |
+| `src/profiles/` | Lender profile registry (Mortgage, Solar prime): generator overrides, credit-policy inputs, benchmarks and sources. Real company names appear only here, and a source-grep test enforces it. `sunlight/` holds the public-record analyses and the Findings copy |
+| `src/creditRisk.js` | Credit policy, the single back-end DTI definition (`caseDti`), adverse-action reasons, and the comparison with the integrity check |
+| `src/dealers.js` | Synthetic dealers over the funded book, the binomial dealer rating, concentration, and dealer-failure loss |
+| `src/fundingStress.js` | Loan pricing, CPR, platform fee, break-even rate shock, backbook, liquidity path and expected loss |
+| `src/ui/` | React explorer: theme, primitives, hooks, tabs, guided tour, and the credit-lab views (`credit/`, `dealers/`, `funding/`, `publicRecord/`, `findings/`) |
+| `data/public-record/` | Pinned SEC XBRL and FRED snapshots with a hashed manifest, manual extractions with page references, and sourced events |
 | `analytics/` | Python workbench: datasets, feature policy, models, evaluation, explainability, fairness, monitoring, registry, pipeline |
-| `scripts/` | Benchmark, dataset builder, migrations, seed, README metrics, demo assets, copula calibration |
+| `scripts/` | Benchmark, dataset builder, migrations, seed, README metrics, demo assets, copula calibration, the manual public-record fetch, the credit-lab test scripts, the production smoke test, and the by-hand Playwright checks (`capture-findings.mjs`, `check-mobile.mjs`) |
 
 ## Data flow across runtimes
 

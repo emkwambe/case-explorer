@@ -279,6 +279,20 @@ ul {
   }
 }
 
+/* Charts are drawn 640 units wide and scale with their container, so on a phone their text would
+   shrink below a readable size. Below 700px a chart keeps a 600px minimum width (text at about
+   94% of its drawn size) and scrolls sideways inside its own frame; the page itself never does. */
+@media screen and (max-width: 700px) {
+  .ce-chart-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ce-chart-scroll > svg {
+    min-width: 600px;
+  }
+}
+
 /* Findings tab. Each finding is its text and figures beside its chart or table on wide screens,
    stacked below 1100px. */
 .ce-finding {

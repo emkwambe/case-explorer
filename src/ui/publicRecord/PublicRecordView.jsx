@@ -199,48 +199,37 @@ function LiquidityPanel({ record, select }) {
   );
 }
 
-function DistressPanel({ record, select }) {
-  const { altmanZDoublePrime, firstDistressQuarter, backtestSentence, Z_ZONES } = record.analyses;
-  const scores = useMemo(() => altmanZDoublePrime(record.quarterly.quarters), [record, altmanZDoublePrime]);
-  const scored = scores.filter((s) => s.status === "ok");
-  const [chosen, setChosen] = useState(null);
-  const current = scores.find((s) => s.quarter === chosen) ?? scored.at(-1) ?? null;
-  const sentence = backtestSentence(scores, record.chapter11);
+function LeveragePanel({ record, select }) {
+  const { leverageLiquidity, leverageGaps, LEVERAGE_RATIOS } = record.analyses;
+  const results = useMemo(() => leverageLiquidity(record.quarterly.quarters), [record, leverageLiquidity]);
+  const gaps = leverageGaps(results);
+  const show = (d, r) => {
+    const x = r[d.key];
+    if (x.value === null) return <span style={{ fontSize: 12, color: "#64748b" }}>{x.status}</span>;
+    const text = d.key === "cashToOutflow" ? `${x.value.toFixed(1)} quarters` : fmtPct(x.value, 1);
+    return <Val refData={{ computed: d.computed, inputs: x.inputs }} text={text} onSelect={(ref) => select(`${d.label.toLowerCase()}, ${qLabel(r.quarter)}`, ref)} testId={`leverage-${d.key}-${r.quarter}`} />;
+  };
   return (
-    <section style={{ ...styles.panel, marginBottom: 16 }} data-testid="panel-distress">
-      <h3 style={styles.panelTitle}>3. Distress-score backtest (Altman Z″)</h3>
-      <p style={{ fontSize: 14 }} data-testid="backtest-sentence"><strong>{sentence}</strong></p>
-      <p style={styles.note}>Z″ = 6.56·X1 + 3.26·X2 + 6.72·X3 + 1.05·X4 (X1 working capital ÷ total assets, X2 retained earnings ÷ total assets, X3 TTM EBIT ÷ total assets, X4 book equity ÷ total liabilities). Zones: safe above {Z_ZONES.safeAbove}, grey {Z_ZONES.distressBelow}–{Z_ZONES.safeAbove}, distress below {Z_ZONES.distressBelow}. Z″ was designed for non-manufacturing firms, not specifically for fintech platforms, and this is a retrospective test. EBIT is taken as operating income.</p>
-      {scored.length > 0 && (
-        <LineChart testId="chart-z" title="Z″ by quarter" xLabel="Quarter" yLabel="Z″" xTicks={scores.map((s, i) => ({ x: i, label: qLabel(s.quarter) }))}
-          points={scores.map((s, i) => ({ x: i, y: s.z, label: qLabel(s.quarter), s }))}
-          bands={[{ from: -100, to: Z_ZONES.distressBelow, label: "distress", fill: "#fee2e2" }, { from: Z_ZONES.distressBelow, to: Z_ZONES.safeAbove, label: "grey", fill: "#f1f5f9" }, { from: Z_ZONES.safeAbove, to: 100, label: "safe", fill: "#dcfce7" }]}
-          formatY={(v) => v.toFixed(2)} onPointClick={(p) => setChosen(p.s.quarter)} />
-      )}
-      {current && current.status === "ok" && (
-        <div data-testid="z-components">
-          <h4 style={{ fontSize: 13 }}>Components, {qLabel(current.quarter)} (Z″ {current.z.toFixed(2)}, {current.zone})</h4>
-          <ul style={{ fontSize: 13 }}>
-            {Object.entries(current.components).map(([k, c]) => <li key={k}>{c.label}: {c.value.toFixed(3)} × {c.weight} = {c.contribution.toFixed(3)}</li>)}
-          </ul>
-        </div>
-      )}
+    <section style={{ ...styles.panel, marginBottom: 16 }} data-testid="panel-leverage">
+      <h3 style={styles.panelTitle}>3. Leverage and liquidity</h3>
+      <p style={styles.note}>Ratios from the filed balance sheet and cash-flow statement, for the quarters that support them. The balance sheet is unclassified (no current assets or current liabilities are filed), so working-capital measures cannot be formed. Cash ÷ quarterly operating outflow is the number of quarters of that quarter's operating outflow the cash would cover; a quarter with non-negative operating cash flow is “not burning”.</p>
       <div style={styles.tableContainer}>
-        <table style={styles.table} data-testid="z-table">
-          <thead><tr>{["Quarter", "Z″", "Zone", "Missing inputs"].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>
+        <table style={styles.table} data-testid="leverage-table">
+          <thead><tr>{["Quarter", ...LEVERAGE_RATIOS.map((d) => d.label)].map((h, i) => <th key={h} style={i ? { ...styles.th, ...styles.num } : styles.th}>{h}</th>)}</tr></thead>
           <tbody>
-            {scores.map((s) => (
-              <tr key={s.quarter}>
-                <td style={styles.td}>{qLabel(s.quarter)}</td>
-                <td style={styles.td}>{s.z === null ? "insufficient data" : <Val refData={{ computed: "6.56·X1 + 3.26·X2 + 6.72·X3 + 1.05·X4", inputs: Object.values(s.inputs).filter(Boolean) }} text={s.z.toFixed(2)} onSelect={(x) => select(`Z″, ${qLabel(s.quarter)}`, x)} />}</td>
-                <td style={styles.td}>{s.zone ?? "—"}</td>
-                <td style={{ ...styles.td, fontSize: 12 }}>{s.missing?.join("; ") ?? "—"}</td>
+            {results.map((r) => (
+              <tr key={r.quarter}>
+                <td style={styles.td}>{qLabel(r.quarter)}</td>
+                {LEVERAGE_RATIOS.map((d) => <td key={d.key} style={{ ...styles.td, ...styles.num }} data-testid={`leverage-cell-${d.key}-${r.quarter}`}>{show(d, r)}</td>)}
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p style={{ ...styles.note, marginTop: 8 }}>First quarter in the distress zone: {firstDistressQuarter(scores) ? qLabel(firstDistressQuarter(scores)) : "none"}.</p>
+      <p style={{ fontSize: 13, margin: "10px 0 4px" }}><strong>Not computed ({gaps.length}), none estimated:</strong></p>
+      <ul style={{ fontSize: 12, lineHeight: 1.5 }} data-testid="leverage-gaps">
+        {gaps.map((g) => <li key={`${g.quarter}-${g.ratio}`}>{qLabel(g.quarter)} · {g.ratio} · {g.status}: {g.reason}</li>)}
+      </ul>
     </section>
   );
 }
@@ -345,7 +334,7 @@ export function PublicRecordTab({ profile }) {
       <LineagePanel selected={selected} onClose={() => setSelected(null)} />
       <UnitEconomicsPanel record={record} select={select} />
       <LiquidityPanel record={record} select={select} />
-      <DistressPanel record={record} select={select} />
+      <LeveragePanel record={record} select={select} />
       <ProvenancePanel record={record} />
     </div>
   );
