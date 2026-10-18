@@ -31,6 +31,7 @@ const TIMEOUT = 15_000;
 const PORTFOLIO_TIMEOUT = 180_000;
 
 class MissingTarget extends Error {}
+class CheckFailed extends Error {}
 
 /** Waits for a visible target; a missing one fails the run. */
 async function need(locator, name, timeout = TIMEOUT) {
@@ -45,6 +46,29 @@ async function need(locator, name, timeout = TIMEOUT) {
 async function openTab(page, section, tab) {
   await (await need(page.getByTestId(`section-${section}`), `section-${section}`)).click();
   await (await need(page.getByRole("tab", { name: tab, exact: true }), `tab "${tab}"`)).click();
+}
+
+/**
+ * Measures a chart's marker labels as rendered: fails when two overlap or one runs outside the
+ * chart's drawing area.
+ */
+async function checkMarkerLabels(chart, name) {
+  const problems = await chart.evaluate((fig) => {
+    const svg = fig.querySelector("svg");
+    const width = svg.viewBox.baseVal.width;
+    const boxes = [...svg.querySelectorAll("text[data-marker-label]")].map((t) => ({ label: t.textContent, b: t.getBBox() }));
+    const out = [];
+    for (const { label, b } of boxes) if (b.x < 0 || b.x + b.width > width) out.push(`"${label}" clips at the edge`);
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i].b, c = boxes[j].b;
+        if (a.x < c.x + c.width && c.x < a.x + a.width && a.y < c.y + c.height && c.y < a.y + a.height) out.push(`"${boxes[i].label}" overlaps "${boxes[j].label}"`);
+      }
+    }
+    return out;
+  });
+  if (problems.length) throw new CheckFailed(`${name} marker labels: ${problems.join("; ")}`);
+  console.log(`  ${name}: marker labels clear (no overlap, no clipping)`);
 }
 
 const text = async (page, testId) => ((await need(page.getByTestId(testId), testId)).textContent()).then((t) => t.trim());
@@ -98,6 +122,7 @@ try {
 
   await shot(view, "findings-overview.png");
   await shot(await need(page.getByTestId("findings-f1-chart"), "findings-f1-chart"), "f1-take-rate-and-fed-funds.png");
+  await checkMarkerLabels(await need(page.getByTestId("findings-chart-cash"), "findings-chart-cash"), "Findings cash chart");
   await shot(await need(page.getByTestId("findings-f3-chart"), "findings-f3-chart"), "f3-runway-timeline.png");
 
   // The printable brief: print the Findings tab and count the pages.
@@ -135,11 +160,12 @@ try {
 
   // Public record, data provenance panel.
   await openTab(page, "credit", "Public record");
+  await checkMarkerLabels(await need(page.getByTestId("panel-liquidity").getByTestId("chart-cash"), "Public record chart-cash", 30_000), "Public record cash chart");
   await shot(await need(page.getByTestId("panel-provenance"), "panel-provenance", 30_000), "provenance.png");
 
   const head = spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: ROOT, encoding: "utf8" }).stdout.trim();
   const dirty = spawnSync("git", ["status", "--porcelain", "--untracked-files=no"], { cwd: ROOT, encoding: "utf8" }).stdout.trim() !== "";
-  const commit = dirty ? `${head} plus uncommitted changes` : head;
+  const commit = dirty ? `${head}, plus the changes committed together with these images` : head;
   const captions = [
     ["findings-overview.png", "The Findings tab under Solar prime: question, data, method, three findings and limits.", "Computed in the app from the pinned public-record snapshot (data/public-record/) and the synthetic seed-42 funded portfolio."],
     ["f1-take-rate-and-fed-funds.png", `Take rate (platform fees ÷ funded loans) above the quarterly average fed funds rate, two panels on one quarter axis; correlation ${fig.corr} (n = ${fig.n} quarters), descriptive, not causal.`, "Funded loans and platform fees typed from Sunlight Financial's 10-Q and 10-K filings with page references (data/public-record/manual-extractions.csv); FRED series DFF."],
@@ -163,7 +189,7 @@ try {
   fs.writeFileSync(readmePath, readme, "utf8");
   written.push(readmePath);
 } catch (err) {
-  console.error(`capture: ${err instanceof MissingTarget ? err.message : err.stack ?? err}`);
+  console.error(`capture: ${(err instanceof MissingTarget || err instanceof CheckFailed) ? err.message : err.stack ?? err}`);
   exitCode = 1;
 } finally {
   await browser.close();

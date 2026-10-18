@@ -1,6 +1,8 @@
 # .vercelignore — upload only what the static site build needs (allowlist).
 #
-# Everything at the repository root is ignored, then the build inputs are re-included. This keeps
+# Everything at the repository root is ignored, then the build inputs are re-included. Directory
+# rules have no trailing slash: the Vercel CLI tests a directory's path without one, so a rule
+# like !/src/ never matches it and the whole directory is left out of the upload. This keeps
 # out, among others: data/public-record/raw/ (SEC and FRED raw snapshots and the eight filing
 # HTMLs in raw/filings/), reports/, analytics/data/ and the rest of analytics/, .stryker-tmp*/,
 # coverage/, dist/, any Python virtual environment (.venv/, venv/), docs/ (including docs/sprints/),
@@ -15,23 +17,23 @@
 !/.nvmrc
 
 # Application source and static files.
-!/src/
-!/public/
-/public/artifacts/
+!/src
+!/public
+/public/artifacts
 
 # Prebuild step: scripts/prepare_demo_assets.js copies the published artifacts into public/.
-!/scripts/
+!/scripts
 /scripts/*
 !/scripts/prepare_demo_assets.js
-!/artifacts/
-!/analytics/
+!/artifacts
+!/analytics
 /analytics/*
-!/analytics/artifacts/
+!/analytics/artifacts
 
 # The pinned public-record snapshot the Public record tab imports (raw files and filings excluded).
-!/data/
+!/data
 /data/*
-!/data/public-record/
+!/data/public-record
 /data/public-record/*
 !/data/public-record/sunlight-quarterly.json
 !/data/public-record/manifest.json

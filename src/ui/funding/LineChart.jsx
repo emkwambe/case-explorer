@@ -4,6 +4,7 @@
 
 import React, { useState } from "react";
 import { styles } from "../theme.js";
+import { layoutMarkerLabels } from "./markerLabels.js";
 
 const W = 640, H = 240, PAD = { top: 16, right: 20, bottom: 40, left: 64 };
 const SERIES = "#2563eb";
@@ -56,6 +57,7 @@ export function LineChart({ points, title, xLabel, yLabel, refLines = [], marker
     setHover(best);
   };
   const tipX = (x) => Math.min(sx(x) + 8, W - PAD.right - 170);
+  const labels = layoutMarkerLabels(markers, sx, W - PAD.right);
 
   return (
     <figure style={{ margin: "8px 0 0" }} data-testid={testId}>
@@ -95,7 +97,7 @@ export function LineChart({ points, title, xLabel, yLabel, refLines = [], marker
           <g key={`m${m.label}`}>
             <line x1={sx(m.x)} x2={sx(m.x)} y1={PAD.top} y2={H - PAD.bottom} stroke={MUTED} strokeWidth={1} strokeDasharray="2 3" />
             {Number.isFinite(m.y) && <circle cx={sx(m.x)} cy={sy(m.y)} r={5} fill={SERIES} stroke="white" strokeWidth={2} />}
-            <text x={sx(m.x) + 4} y={PAD.top + 12 + (m.y === undefined ? (i % 3) * 12 : 0)} fontSize={10} fill={INK}>{m.label}</text>
+            <text x={labels[i].x} y={PAD.top + 12 + labels[i].row * 14} textAnchor={labels[i].anchor} fontSize={10} fill={INK} data-marker-label="">{m.label}</text>
           </g>
         ))}
         {hover && (
