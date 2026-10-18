@@ -6,6 +6,12 @@
 import assert from "node:assert/strict";
 import { loanPrice, annuityPrice, platformFee, breakEvenShockBps, backbookImpact, liquidityPath, loanCapStatus, expectedLoss } from "../src/fundingStress.js";
 import { getProfile, PROFILES } from "../src/profiles/index.js";
+import { RATE_PATH_DEFAULTS, triangularHolding, flatPath, linearPath, pathFee, feeAtSaleFn, historicalPath, windowStarts, quantile, historicalWindows } from "../src/ratePaths.js";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 let passed = 0;
 function check(name, fn) {
@@ -159,9 +165,96 @@ check("defaults come from the profile, every input is tagged, history facts are 
   assert.ok(PROFILES.every((p) => p.defaults && "fundingRates" in p.defaults));
 });
 
+const holding = triangularHolding(RATE_PATH_DEFAULTS.holding);
+
+check("holding weights: triangular 30–90 days with mode 60, summing to 1", () => {
+  assert.deepEqual([RATE_PATH_DEFAULTS.holding.min, RATE_PATH_DEFAULTS.holding.mode, RATE_PATH_DEFAULTS.holding.max], [30, 60, 90]);
+  assert.equal(RATE_PATH_DEFAULTS.holding.status, "assumption");
+  close(holding.reduce((s, h) => s + h.p, 0), 1, 1e-12);
+  assert.equal(holding[0].days, 31);
+  assert.equal(holding.at(-1).days, 89);
+  const peak = holding.reduce((a, b) => (b.p > a.p ? b : a));
+  assert.equal(peak.days, 60);
+  // Symmetric about the mode; day 45 is half the density of day 60.
+  for (const h of holding) close(h.p, holding.find((x) => x.days === 120 - h.days).p, 1e-15);
+  close(holding.find((h) => h.days === 45).p, peak.p / 2, 1e-15);
+  for (const spec of [{ min: 10, mode: 10, max: 40 }, { min: 5, mode: 30, max: 30 }, { min: 7, mode: 7, max: 7 }]) close(triangularHolding(spec).reduce((s, h) => s + h.p, 0), 1, 1e-12);
+  assert.throws(() => triangularHolding({ min: 60, mode: 30, max: 90 }));
+});
+
+check("pathFee: a flat path equals platformFee with no shock; it is Σ p(t) × feeAtSale(path(t))", () => {
+  const flat = pathFee(feeParams, flatPath(), holding);
+  close(flat.expectedFeeAtSale, platformFee({ ...feeParams }).feeAtSale, 1e-12);
+  close(flat.feeAtApproval, platformFee({ ...feeParams }).feeAtApproval, 1e-12);
+  close(flat.expectedChange, 0, 1e-12);
+  // Two holding days by hand.
+  const two = [{ days: 30, p: 0.25 }, { days: 60, p: 0.75 }];
+  const path = (t) => (t === 30 ? 50 : 150);
+  const byHand = 0.25 * platformFee({ ...feeParams, rateShockBps: 50 }).feeAtSale + 0.75 * platformFee({ ...feeParams, rateShockBps: 150 }).feeAtSale;
+  close(pathFee(feeParams, path, two).expectedFeeAtSale, byHand, 1e-12);
+  close(pathFee(feeParams, path, two).expectedShockBps, 125, 1e-12);
+});
+
+check("straight-line paths are monotonic: a larger rise gives a lower expected fee, and each path falls over the hold", () => {
+  const fees = [-100, 0, 100, 200, 300].map((bps) => pathFee(feeParams, linearPath(bps), holding).expectedFeeAtSale);
+  for (let i = 1; i < fees.length; i++) assert.ok(fees[i] < fees[i - 1], `${fees}`);
+  const up = linearPath(200);
+  assert.equal(up(0), 0);
+  assert.equal(up(30), 100);
+  assert.equal(up(60), 200);
+  assert.equal(up(90), 200);
+  const fee = feeAtSaleFn(feeParams);
+  let previous = Infinity;
+  for (let t = 0; t <= 60; t += 5) {
+    assert.ok(fee(up(t)) < previous, `day ${t}`);
+    previous = fee(up(t));
+  }
+});
+
+const dailyFile = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "public-record", "dgs10-daily.json"), "utf8"));
+const obs = dailyFile.observations;
+
+check("historical 2022 windows: forward-looking from each business day, carried days never a start, P50/P95 nearest rank", () => {
+  const starts = windowStarts(obs, 2022);
+  assert.equal(starts.length, 249);
+  assert.ok(starts.every((s) => !s.carriedFrom));
+  assert.equal(starts[0].date, "2022-01-03");
+  assert.equal(starts.at(-1).date, "2022-12-30");
+  // 2022-01-03 (1.63%) + 30 days = 2022-02-02; + 60 = 2022-03-04; a weekend end reads the Friday before.
+  const p = historicalPath(obs, starts[0]);
+  const at = (d) => obs.find((o) => o.date === d).value;
+  close(p(30), Math.round((at("2022-02-02") - 1.63) * 10000) / 100, 1e-9);
+  close(p(60), Math.round((at("2022-03-04") - 1.63) * 10000) / 100, 1e-9);
+  const sat = historicalPath(obs, starts.find((s) => s.date === "2022-01-07"));
+  assert.equal(sat(1), 0); // ends on Saturday 2022-01-08, which reads Friday's observation
+  close(sat(3), Math.round((at("2022-01-10") - at("2022-01-07")) * 10000) / 100, 1e-9);
+  assert.equal(historicalPath(obs, starts.at(-1))(91 + 30), null); // past the end of the file
+  assert.equal(quantile([5, 1, 4, 2, 3], 0.5), 3);
+  assert.equal(quantile([5, 1, 4, 2, 3], 0.95), 5);
+  assert.equal(quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 0.95), 10);
+  assert.equal(quantile([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 0.05), 1);
+  const w = historicalWindows(obs, 2022, feeParams);
+  assert.deepEqual(w.fixed.map((x) => [x.days, x.windows]), [[30, 249], [60, 249], [90, 249]]);
+  assert.equal(w.weighted.windows, 249);
+  for (const x of w.fixed) {
+    assert.ok(x.p95Bps >= x.p50Bps);
+    close(x.feeAtP95, platformFee({ ...feeParams, rateShockBps: x.p95Bps }).feeAtSale, 1e-12);
+  }
+  assert.ok(w.weighted.feeP95 <= w.weighted.feeP50);
+  assert.equal(w.holidaysSkipped, 11);
+});
+
 const be = breakEvenShockBps(feeParams);
 const f0 = platformFee({ ...feeParams });
+
+check("unchanged: the single-shock break-even at the SOLAR_PRIME defaults is 112.8 bps", () => {
+  assert.equal(be.toFixed(1), "112.8");
+});
 console.log(`\n${passed} checks passed\n`);
 console.log(`SOLAR_PRIME defaults: coupon ${(d.coupon * 100).toFixed(2)}%, ${d.termYears}y, investor yield ${(d.investorYieldAtApproval * 100).toFixed(1)}%, dealer fee $${d.dealerFeePct}, CPR ${(d.cpr * 100).toFixed(0)}%`);
 console.log(`  price at approval $${f0.priceAtApproval.toFixed(2)}, fee at approval $${f0.feeAtApproval.toFixed(2)} per $100, modified duration ${f0.modDuration.toFixed(2)} yrs`);
 console.log(`  break-even shock ${be.toFixed(1)} bps`);
+const hw = historicalWindows(obs, 2022, feeParams);
+console.log(`  rate paths (holding ${RATE_PATH_DEFAULTS.holding.min}–${RATE_PATH_DEFAULTS.holding.max} days, mode ${RATE_PATH_DEFAULTS.holding.mode}): expected fee at sale per $100: ${[0, 100, 200, 300, -100].map((bps) => `${bps > 0 ? "+" : ""}${bps} bps $${pathFee(feeParams, linearPath(bps), holding).expectedFeeAtSale.toFixed(2)}`).join(", ")}`);
+for (const x of hw.fixed) console.log(`  2022 ${x.days}-day windows (${x.windows}): P50 +${x.p50Bps} bps, P95 +${x.p95Bps} bps, fee at P95 $${x.feeAtP95.toFixed(2)}, negative fee in ${(x.negativeShare * 100).toFixed(1)}%`);
+console.log(`  2022 holding-weighted (${hw.weighted.windows}): fee P50 $${hw.weighted.feeP50.toFixed(2)}, P95 $${hw.weighted.feeP95.toFixed(2)}, negative in ${(hw.weighted.negativeShare * 100).toFixed(1)}%`);

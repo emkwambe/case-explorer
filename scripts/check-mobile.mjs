@@ -2,7 +2,7 @@
 //
 // Builds the app, serves the build with `vite preview`, and opens ?profile=<slug> in headless
 // Chromium at 375×812 and 2× scale. It visits Findings (with the seed-42 funded portfolio
-// generated), Public record, Dealer View, Funding & Rates, and the case views with Credit Risk Mode
+// generated), Policy Sandbox, Public record, Dealer View, Funding & Rates (with the rate paths), and the case views with Credit Risk Mode
 // on (Overview and Decision, with the underwriting sidebar and the case list). On each it fails when
 // the page scrolls sideways or a chart is wider than its container or draws text outside itself,
 // and it saves a full-page screenshot. Screenshots go outside the repository. Run manually; there
@@ -137,6 +137,12 @@ try {
   await need(page.getByTestId("findings-dealer-table"), "findings-dealer-table (portfolio generation)", PORTFOLIO_TIMEOUT);
   await check("Findings", "findings.png");
 
+  // The pool comes from the same portfolio pass, so the sandbox is ready; a preset fills every panel.
+  await openTab(page, "credit", "Policy Sandbox");
+  await (await need(page.getByTestId("preset-dti50"), "preset-dti50")).click();
+  await need(page.getByTestId("swap-table"), "swap-table");
+  await check("Policy Sandbox", "policy-sandbox.png");
+
   await openTab(page, "credit", "Public record");
   await need(page.getByTestId("public-record-view"), "public-record-view", 30_000);
   await check("Public record", "public-record.png");
@@ -147,6 +153,7 @@ try {
 
   await openTab(page, "credit", "Funding & Rates");
   await need(page.getByTestId("panel-pricing-lag"), "panel-pricing-lag");
+  await need(page.getByTestId("historical-table"), "historical-table (rate paths)", 30_000);
   await check("Funding & Rates", "funding-rates.png");
 
   const toggle = await need(page.getByTestId("credit-risk-mode"), "credit-risk-mode");

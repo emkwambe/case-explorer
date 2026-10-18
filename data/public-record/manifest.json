@@ -112,5 +112,23 @@
       "retrievedAt": "2026-10-14T22:12:15.415Z",
       "contentType": "text/html"
     }
+  ],
+  "derived": [
+    {
+      "id": "dgs10-daily",
+      "file": "dgs10-daily.json",
+      "builtFrom": "raw/fred-DGS10.csv",
+      "builtFromSha256": "a7789b2b1ba3bf0535f02f12a6e994dffb999f87f8c7a20d4c6338ff828f48cd",
+      "bytes": 20886,
+      "sha256": "f86fe4c4b3031472d2b5d6d4f89783e78ac927014ac64bc5735c0e0de16ce0d9"
+    },
+    {
+      "id": "filing-excerpts-10k-2022",
+      "file": "filing-excerpts-10k-2022.json",
+      "builtFrom": "raw/filings/10k-2022.htm",
+      "builtFromSha256": "dc2724772163a2bccfb473a484e960d872351c6f1ee9c74c673772e45d296836",
+      "bytes": 12227,
+      "sha256": "6a1edfa5b718d4a5d4e82f578e104f373627f764440bd858e0d9dda511344270"
+    }
   ]
 }

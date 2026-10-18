@@ -4,7 +4,7 @@
 
 import React from "react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { render, screen, within, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, within, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CaseExplorer from "./CaseExplorer.jsx";
 import { buildInitialCases, demoConfig } from "./hooks/useCaseLibrary.js";
@@ -179,8 +179,8 @@ describe("Credit Risk Mode", () => {
       for (const mode of [false, true]) {
         if (screen.getByTestId("credit-risk-mode").checked !== mode) await userEvent.click(screen.getByTestId("credit-risk-mode"));
         const names = await allTabs();
-        // Solar prime adds the Public record and Findings tabs.
-        expect(names.length).toBe(profile === "SOLAR_PRIME" ? 19 : 17);
+        // Solar prime adds the Public record, Findings and Policy Sandbox tabs.
+        expect(names.length).toBe(profile === "SOLAR_PRIME" ? 20 : 17);
         for (const name of names) {
           await openTab(name);
           expect(screen.getByTestId("compliance-footer")).toHaveTextContent(FOOTER);
@@ -430,6 +430,42 @@ describe("Funding & Rates", () => {
     await userEvent.click(within(panel).getByTestId("apply-failure"));
     expect(within(panel).getByText("With last dealer failure")).toBeInTheDocument();
   }, 60000);
+
+  it("shows rate paths over the holding period and the 2022 windows from the build-time snapshot, beside the unchanged break-even", async () => {
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
+    await openTab("Funding & Rates");
+    const panel = screen.getByTestId("panel-rate-paths");
+    expect(within(panel).getByTestId("rate-paths-break-even")).toHaveTextContent("112.8 bps");
+    expect(screen.getByTestId("tile-break-even")).toHaveTextContent("112.8 bps");
+    // Flat path: the fee at approval; rises lower the fee, a fall raises it.
+    await waitFor(() => expect(within(panel).getByTestId("rate-path-flat-fee")).toHaveTextContent("$6.34"));
+    expect(within(panel).getByTestId("rate-path-up100-fee")).toHaveTextContent("$1.13");
+    expect(within(panel).getByTestId("rate-path-up200-fee")).toHaveTextContent("−$3.55");
+    expect(within(panel).getByTestId("rate-path-up300-fee")).toHaveTextContent("−$7.78");
+    expect(within(panel).getByTestId("rate-path-down100-fee")).toHaveTextContent("$12.16");
+    expect(within(panel).getAllByText("assumption").length).toBeGreaterThanOrEqual(1);
+    // Historical windows from the snapshot: no fetch to FRED.
+    await within(panel).findByTestId("historical-table", {}, { timeout: 10000 });
+    expect(within(panel).getByTestId("historical-60-p95")).toHaveTextContent("+116 bps");
+    expect(within(panel).getByTestId("historical-60-fee-p95")).toHaveTextContent("−$0.17");
+    expect(within(panel).getByTestId("historical-weighted-fee-p95")).toHaveTextContent("$0.30");
+    expect(within(panel).getByTestId("rate-paths-method")).toHaveTextContent("each of the 249 business days from 2022-01-03 to 2022-12-30 is a start date");
+    expect(within(panel).getByTestId("rate-paths-method")).toHaveTextContent("Missing days (market holidays) use the last prior observation, never interpolation");
+    expect(within(panel).getByTestId("rate-paths-source")).toHaveTextContent("raw/fred-DGS10.csv (SHA-256 a7789b2b1ba3…");
+    expect(within(panel).getByTestId("credit-spread-note")).toHaveTextContent("Treasury-only paths understate losses; credit spreads also widened in 2022.");
+    expect(globalThis.fetch.mock.calls.map((c) => String(c[0])).filter((u) => /stlouisfed\.org/.test(u))).toEqual([]);
+    // The profile's verbatim filing passages, each with its page and a source link.
+    const quotes = within(panel).getByTestId("rate-path-quotes");
+    expect(within(quotes).getByTestId("rate-path-quote-sale_timing")).toHaveTextContent("(180 days from origination for solar system loans and home improvement loans that have been on its Bank Partner’s balance sheet for greater than 12 months)");
+    expect(within(quotes).getByTestId("rate-path-quote-sale_timing")).toHaveTextContent("Item 1A (Risk Factors), p. 12");
+    expect(within(quotes).getByTestId("rate-path-quote-no_hedging")).toHaveTextContent("We do not currently have an interest rate risk hedging program");
+    expect(within(quotes).getByTestId("rate-path-quote-no_hedging")).toHaveTextContent("Item 1A (Risk Factors), p. 10");
+    expect(within(quotes).getAllByRole("link")).toHaveLength(2);
+    // An invalid holding range is refused, not computed.
+    fireEvent.change(within(panel).getByTestId("holding-min"), { target: { value: "70" } });
+    expect(await within(panel).findByTestId("holding-invalid")).toBeInTheDocument();
+  }, 30000);
 
   it("says Mortgage has no funding defaults and points to the profile that does", async () => {
     render(<CaseExplorer profileRegistry={REGISTRY} />);

@@ -30,7 +30,8 @@
 /analytics/*
 !/analytics/artifacts
 
-# The pinned public-record snapshot the Public record tab imports (raw files and filings excluded).
+# The pinned public-record snapshot the Public record tab imports (raw files, filings and the
+# filing page excerpt, which only the tests read, excluded).
 !/data
 /data/*
 !/data/public-record
@@ -38,6 +39,8 @@
 !/data/public-record/sunlight-quarterly.json
 !/data/public-record/manifest.json
 !/data/public-record/events.json
+# Daily 10-year Treasury yields for the Funding & Rates rate paths.
+!/data/public-record/dgs10-daily.json
 
 # Tests are not part of the build.
 /src/**/*.test.js

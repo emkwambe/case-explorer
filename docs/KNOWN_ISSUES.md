@@ -49,3 +49,16 @@ Under the Solar prime profile, Borrower profiles reuse the mortgage generator; m
 `npm run check:mobile` (scripts/check-mobile.mjs) opens Findings, Public record, Dealer View, Funding & Rates and the case views with Credit Risk Mode at 375px in headless Chromium. It fails on page-level horizontal scrolling, on a chart wider than its frame, and on chart text below 8px. Screenshots go to a temporary directory outside the repository. Like the Findings capture, nothing runs it automatically, so a layout regression on phones shows up only when someone runs it.
 
 **Charts scroll sideways on phones.** Below 700px each chart keeps a 600px minimum width inside its own scroll frame, so its text stays readable; the right-hand part of a chart is reached by swiping. Wide tables already work the same way. A narrower drawing with thinned axis labels would avoid the swipe and is a later option.
+
+## Policy Sandbox: what it does not model
+
+- Dealer ratings are not recomputed under the candidate policy. A rating depends on who is in the book, so a candidate's book would rate dealers differently; that is a later item.
+- The pool is fixed: the applications the baseline needed to fund 10,000 loans (18,674 at seed 42). A looser candidate funds more of those applications, never more applications.
+- Loan outcomes use the profile's default dealer-effect strength; a strength chosen in the Dealer View does not carry over.
+- Review counts as not funded, as in the baseline book. A real review queue approves some of its cases.
+- Swap-in performance is known here only because the data is synthetic. The conservative inferred view (swap-in PD × 1.5) is an assumption, not an estimate from data.
+- Fair-lending review is out of scope for synthetic data; the app makes no legal claims.
+
+## Rate paths are Treasury-only
+
+The rate paths move the 10-year Treasury yield only. Credit spreads also widened in 2022, so these paths understate the loss on a loan sold into that market. The holding time (triangular, 30 to 90 days, most likely 60) is an assumption. Historical windows start on each 2022 business day; market holidays take the last prior observation and are not start dates. P50 and P95 are nearest-rank percentiles across start dates.

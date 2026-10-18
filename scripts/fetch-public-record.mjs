@@ -7,14 +7,15 @@
 // Fetches SEC XBRL company facts, two FRED daily series and the periodic filings used for the
 // manual extractions, saves the raw bytes, records each
 // file's SHA-256 and retrieval time in the manifest, then normalises everything (with the manual
-// extractions) into data/public-record/sunlight-quarterly.json. The browser never calls SEC or FRED.
+// extractions) into data/public-record/sunlight-quarterly.json, plus the daily DGS10 window for the
+// rate paths into data/public-record/dgs10-daily.json. The browser never calls SEC or FRED.
 // The User-Agent is read from the environment; any email address in it is masked in the manifest.
 
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { normalise } from "./public-record/normalise.mjs";
+import { normalise, dailySeriesFile, DAILY_FILE, filingExcerptFile, EXCERPT_FILE, EXCERPT_PAGES } from "./public-record/normalise.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DIR = path.join(ROOT, "data", "public-record");
@@ -78,6 +79,37 @@ function build(manifest) {
   };
   fs.writeFileSync(path.join(DIR, "sunlight-quarterly.json"), JSON.stringify(out, null, 2) + "\n");
   console.log(`  wrote sunlight-quarterly.json: ${result.quarters.length} quarters, ${result.gaps.length} gaps`);
+  buildDaily(manifest, fred.DGS10);
+}
+
+// The daily DGS10 file for the rate-path windows. Its hash goes into the manifest's `derived` list,
+// separate from `sources`, so sunlight-quarterly.json (which records the source hashes) is unchanged.
+function buildDaily(manifest, dgs10Text) {
+  const source = manifest.sources.find((s) => s.id === "fred-DGS10");
+  const out = dailySeriesFile(dgs10Text, source);
+  const text = JSON.stringify(out, null, 2) + "\n";
+  fs.writeFileSync(path.join(DIR, DAILY_FILE), text);
+  const entry = { id: "dgs10-daily", file: DAILY_FILE, builtFrom: source.file, builtFromSha256: source.sha256, bytes: Buffer.byteLength(text), sha256: sha256(Buffer.from(text)) };
+  manifest.derived = [...(manifest.derived ?? []).filter((d) => d.id !== entry.id), entry];
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+  console.log(`  wrote ${DAILY_FILE}: ${out.observations.length} days, ${out.observations.filter((o) => o.carriedFrom).length} carried forward`);
+  buildExcerpts(manifest);
+}
+
+// The text of the 10-K pages the Funding & Rates quotes cite. Rebuilt only when the filing is
+// present locally (it is not committed); otherwise the committed excerpt and its entry stay as they are.
+function buildExcerpts(manifest) {
+  const source = manifest.sources.find((s) => s.id === "filing-10k-2022");
+  const file = path.join(DIR, source.file);
+  if (!fs.existsSync(file)) { console.log(`  ${EXCERPT_FILE}: filing not present locally, kept as committed`); return; }
+  const buf = fs.readFileSync(file);
+  if (sha256(buf) !== source.sha256) throw new Error(`${source.file} does not match its manifest hash; not rebuilding ${EXCERPT_FILE}`);
+  const text = JSON.stringify(filingExcerptFile(buf.toString("utf8"), source), null, 2) + "\n";
+  fs.writeFileSync(path.join(DIR, EXCERPT_FILE), text);
+  const entry = { id: "filing-excerpts-10k-2022", file: EXCERPT_FILE, builtFrom: source.file, builtFromSha256: source.sha256, bytes: Buffer.byteLength(text), sha256: sha256(Buffer.from(text)) };
+  manifest.derived = [...(manifest.derived ?? []).filter((d) => d.id !== entry.id), entry];
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
+  console.log(`  wrote ${EXCERPT_FILE}: pages ${EXCERPT_PAGES.join(", ")}`);
 }
 
 const normaliseOnly = process.argv.includes("--normalise-only");

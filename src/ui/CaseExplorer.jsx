@@ -22,6 +22,7 @@ import { useDealerPortfolio } from "./dealers/useDealerPortfolio.js";
 import { FundingViewTab } from "./funding/FundingView.jsx";
 import { PublicRecordTab } from "./publicRecord/PublicRecordView.jsx";
 import { FindingsTab } from "./findings/FindingsView.jsx";
+import { PolicySandboxTab } from "./sandbox/PolicySandboxView.jsx";
 import { TAB_GROUPS, visibleTabs, groupOfTab } from "./navigation.js";
 
 const SCENARIOS = [
@@ -237,6 +238,7 @@ function CaseExplorerShell() {
               {currentTab === "funding" && <FundingViewTab portfolio={dealerPortfolio} />}
               {currentTab === "public_record" && profile.publicRecord && <PublicRecordTab profile={profile} />}
               {currentTab === "findings" && profile.publicRecord && <FindingsTab profile={profile} portfolio={dealerPortfolio} onOpenTab={setActiveTab} />}
+              {currentTab === "policy_sandbox" && profile.policySandbox && <PolicySandboxTab profile={profile} portfolio={dealerPortfolio} />}
               {currentTab === "network" && <NetworkTab cases={cases} />}
               {currentTab === "economics" && <EconomicsTab cases={cases} config={config} />}
               {currentTab === "validation" && <ValidationTab />}

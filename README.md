@@ -11,9 +11,10 @@ Lenders cannot share real applications, so the analytics that decide them are ha
 - **Portfolio** views: fairness, investigation, network analytics, decision economics and validation.
 - **Credit lab** views, all under Solar prime:
   - **Dealer View**: installer-channel risk over a synthetic 10,000-loan funded book.
-  - **Funding & Rates**: pricing lag, backbook and liquidity.
+  - **Funding & Rates**: pricing lag, rate paths over the holding period (with 2022 Treasury windows), backbook and liquidity.
   - **Public record**: real SEC and FRED data. Every value links to its source.
   - **Findings**: three findings, each tied to its evidence, and a one-page printable brief.
+  - **Policy Sandbox**: the same applications scored under the current credit policy and a candidate policy: the swap set, the change in volume and expected loss, the dealer mix, and a one-page impact summary.
 
 Borrowers, dealers and portfolios are synthetic; only the public-record facts are real, and each one is sourced.
 
@@ -109,13 +110,14 @@ Fairness reports **WARN** by design. Counterfactual invariance is exact and the 
 
 ## Credit analysis mode
 
-Three views look at a point-of-sale lender's risk through the active **lender profile**, chosen in the header (`src/profiles/`). The Solar prime profile, which the app opens on, is calibrated against one public lender's filings. The Mortgage profile has no calibration, benchmarks or case studies, and stays the engine's fallback when a function is called without a profile.
+Four views look at a point-of-sale lender's risk through the active **lender profile**, chosen in the header (`src/profiles/`). The Solar prime profile, which the app opens on, is calibrated against one public lender's filings. The Mortgage profile has no calibration, benchmarks or case studies, and stays the engine's fallback when a function is called without a profile.
 
 | View | What it shows |
 |---|---|
 | **Credit Risk Mode** (toggle) | A credit policy overlay on claimed values: back-end DTI, FICO, liquidity and visible fraud alerts, with adverse-action reasons. Back-end DTI uses the payment the active profile underwrites, over gross monthly income: Mortgage adds the proposed PITI to non-housing obligations; Solar prime adds the current housing payment and the proposed solar loan payment (the case's seeded loan amount amortised at the profile's default coupon and term). Every DTI display uses that definition. It sits beside the generator's integrity check and flags the two disagreements that matter. |
 | **Dealer View** (tab) | Installer-channel risk over a 10,000-loan funded book (credit-policy APPROVE loans only): fictional dealers, a binomial dealer rating, concentration alerts, and a dealer-failure loss covering both contractor advances and asset-level losses. A signal-vs-noise panel shows how many dealers the rating flags when dealer quality has no effect at all. |
-| **Funding & Rates** (tab) | The pricing-lag channel: a fixed-rate loan priced at approval and sold later, the platform fee against the rate shock, the unsold backbook, a liquidity path with a minimum-liquidity covenant, the funding partner's loan cap, and portfolio expected loss. |
+| **Funding & Rates** (tab) | The pricing-lag channel: a fixed-rate loan priced at approval and sold later, the platform fee against the rate shock, the unsold backbook, a liquidity path with a minimum-liquidity covenant, the funding partner's loan cap, and portfolio expected loss. Rate paths move the yield over an uncertain holding time (triangular, 30 to 90 days, an assumption): straight-line rises and a fall, plus every 2022 business day's change in the 10-year Treasury yield over the next 30, 60 and 90 days, from the committed FRED snapshot. Treasury-only paths understate losses, because credit spreads also widened in 2022. |
+| **Policy Sandbox** (tab) | What happens if the credit policy changes. The pool is every application the baseline generated to fund its 10,000-loan book (18,674 at seed 42), scored under the baseline and a candidate policy: swap-ins (not funded → funded) and swap-outs, each cell's volume, presented credit quality and expected loss, the dealer mix, and a printable impact summary. Review counts as not funded, as in the book. Swap-in losses are shown as the synthetic truth and as a conservative inferred view (swap-in PD × 1.5, an assumption), because a real lender never observes how swap-ins would have performed. |
 
 **Calibration benchmark.** The Solar prime profile tunes only the credit score base so that applications approved under the current credit policy average a FICO of 748. That is the average reported for financed borrowers in Sunlight Financial's FY2022 Form 10-K. Loan amounts use the 10-K's disclosed $10,000–$150,000 range, with an assumed median chosen to match the disclosed $46,000 average solar loan balance. Every other distribution keeps the generator default and is uncalibrated.
 

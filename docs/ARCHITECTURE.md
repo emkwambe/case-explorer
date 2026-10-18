@@ -2,7 +2,7 @@
 
 Case Explorer is a mortgage risk simulation, fraud analytics and model-validation lab. It has a JavaScript core (generation, decisioning, evaluation, API, UI) and a Python analytics workbench (model development, explainability, fairness, monitoring, governance).
 
-On top of that core sits a credit lab for consumer lending, driven by **lender profiles**: Solar prime is the default, and Mortgage stays the engine's fallback. The credit lab covers the credit policy, the Dealer View, Funding & Rates, a Public record tab built on pinned SEC and FRED snapshots, and a Findings tab. Browser code never calls SEC or FRED; it reads only the committed snapshots in `data/public-record/`.
+On top of that core sits a credit lab for consumer lending, driven by **lender profiles**: Solar prime is the default, and Mortgage stays the engine's fallback. The credit lab covers the credit policy, the Dealer View, Funding & Rates, a Public record tab built on pinned SEC and FRED snapshots, a Findings tab, and a Policy Sandbox that scores the portfolio's application pool under a candidate credit policy. Browser code never calls SEC or FRED; it reads only the committed snapshots in `data/public-record/`.
 
 ![Architecture](images/architecture.svg)
 
@@ -89,8 +89,10 @@ flowchart LR
 | `src/creditRisk.js` | Credit policy, the single back-end DTI definition (`caseDti`), adverse-action reasons, and the comparison with the integrity check |
 | `src/dealers.js` | Synthetic dealers over the funded book, the binomial dealer rating, concentration, and dealer-failure loss |
 | `src/fundingStress.js` | Loan pricing, CPR, platform fee, break-even rate shock, backbook, liquidity path and expected loss |
+| `src/ratePaths.js` | Rate paths over an uncertain holding time (`pathFee`), triangular holding weights, and forward-looking historical yield windows; calls `platformFee` unchanged |
+| `src/policySandbox.js` | Policy Sandbox engine: pool records, `decide` (assessCredit's decision on cached fields), `swapSet` with both swap-in risk views, and the dealer mix |
 | `src/ui/` | React explorer: theme, primitives, hooks, tabs, guided tour, and the credit-lab views (`credit/`, `dealers/`, `funding/`, `publicRecord/`, `findings/`) |
-| `data/public-record/` | Pinned SEC XBRL and FRED snapshots with a hashed manifest, manual extractions with page references, and sourced events |
+| `data/public-record/` | Pinned SEC XBRL and FRED snapshots with a hashed manifest, manual extractions with page references, sourced events, and the daily DGS10 file for the rate paths (derived from the committed raw CSV; hashed under the manifest's `derived` list) |
 | `analytics/` | Python workbench: datasets, feature policy, models, evaluation, explainability, fairness, monitoring, registry, pipeline |
 | `scripts/` | Benchmark, dataset builder, migrations, seed, README metrics, demo assets, copula calibration, the manual public-record fetch, the credit-lab test scripts, the production smoke test, and the by-hand Playwright checks (`capture-findings.mjs`, `check-mobile.mjs`) |
 

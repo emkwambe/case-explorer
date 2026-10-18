@@ -380,3 +380,69 @@ ul {
     print-color-adjust: exact;
   }
 }
+
+/* Policy Sandbox. Text shown only on paper (the typed reason and stop bound) is hidden on screen. */
+.ce-print-only {
+  display: none;
+}
+
+/* Printing the Policy Sandbox gives the one-page impact summary only, by the same approach as the
+   Findings brief: no header, case library, navigation, controls or analysis panels; the compliance
+   footer stays, in the flow. Rules are scoped to a page showing the sandbox, so printing any other
+   tab, the Findings brief included, is unchanged. */
+@media print {
+  body:has(.ce-sandbox) {
+    background: #ffffff;
+  }
+
+  body:has(.ce-sandbox) .ce-header,
+  body:has(.ce-sandbox) .ce-library,
+  body:has(.ce-sandbox) .ce-nav,
+  body:has(.ce-sandbox) .ce-case-strip,
+  body:has(.ce-sandbox) .ce-credit-sidebar,
+  body:has(.ce-sandbox) .ce-portfolio-strip,
+  body:has(.ce-sandbox) .ce-benchmark,
+  body:has(.ce-sandbox) .ce-no-print {
+    display: none !important;
+  }
+
+  .ce-sandbox .ce-print-only {
+    display: inline;
+  }
+
+  body:has(.ce-sandbox) .ce-app {
+    padding-bottom: 0;
+  }
+
+  body:has(.ce-sandbox) .ce-layout,
+  body:has(.ce-sandbox) .ce-main,
+  body:has(.ce-sandbox) .ce-credit-layout,
+  body:has(.ce-sandbox) .ce-detail,
+  body:has(.ce-sandbox) .ce-tab-content {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  .ce-sandbox-summary {
+    border: none !important;
+    padding: 0 !important;
+    break-inside: avoid;
+  }
+
+  body:has(.ce-sandbox) .ce-footer {
+    position: static;
+    margin-top: 6px;
+    padding: 4px 8px;
+    font-size: 8pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

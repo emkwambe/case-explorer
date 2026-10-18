@@ -10,7 +10,8 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { normalise, readManualExtractions, isPreMergerRegistrantFact, quarterInfo, regime } from "./public-record/normalise.mjs";
+import { normalise, readManualExtractions, isPreMergerRegistrantFact, quarterInfo, regime, dailySeries, dailySeriesFile, DAILY_FILE, DAILY_WINDOW, filingText, filingExcerptFile, EXCERPT_FILE, EXCERPT_PAGES } from "./public-record/normalise.mjs";
+import { SUNLIGHT_RATE_PATH_QUOTES } from "../src/profiles/sunlight/filingQuotes.js";
 import { liquidityRunway, trailingFour, leverageLiquidity, leverageGaps, unitEconomics, pearson, INSUFFICIENT } from "../src/profiles/sunlight/publicRecord.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -53,7 +54,7 @@ check("every hash in the manifest matches the bytes of its raw file", () => {
 check("no email address is stored in the manifest or the snapshot", () => {
   const email = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/;
   assert.match(manifest.userAgent, /\[contact email redacted\]/);
-  for (const f of ["manifest.json", "sunlight-quarterly.json", "events.json", "manual-extractions.csv"]) {
+  for (const f of ["manifest.json", "sunlight-quarterly.json", "events.json", "manual-extractions.csv", DAILY_FILE, EXCERPT_FILE]) {
     assert.doesNotMatch(fs.readFileSync(path.join(DIR, f), "utf8"), email, f);
   }
 });
@@ -67,6 +68,89 @@ check("the normalised snapshot is reproducible from the raw files and the manual
   assert.deepEqual(rebuilt.quarters, quarterly.quarters);
   assert.deepEqual(rebuilt.gaps, quarterly.gaps);
   assert.deepEqual(rebuilt.reconciliation, quarterly.reconciliation);
+});
+
+check("the daily DGS10 file is reproducible from the committed raw CSV and hashed in the manifest; sunlight-quarterly.json does not depend on it", () => {
+  const source = manifest.sources.find((x) => x.id === "fred-DGS10");
+  const raw = fs.readFileSync(path.join(DIR, source.file), "utf8");
+  const text = fs.readFileSync(path.join(DIR, DAILY_FILE), "utf8");
+  assert.equal(text, JSON.stringify(dailySeriesFile(raw, source), null, 2) + "\n");
+  const entry = manifest.derived.find((d) => d.id === "dgs10-daily");
+  assert.equal(entry.file, DAILY_FILE);
+  assert.equal(entry.builtFrom, source.file);
+  assert.equal(entry.builtFromSha256, source.sha256);
+  assert.equal(entry.bytes, Buffer.byteLength(text));
+  assert.equal(entry.sha256, crypto.createHash("sha256").update(text).digest("hex"));
+  // The quarterly snapshot records only the source hashes, which the derived list does not touch.
+  assert.deepEqual(quarterly.builtFrom.rawHashes, Object.fromEntries(manifest.sources.map((x) => [x.id, x.sha256])));
+  assert.equal(quarterly.builtFrom.manifestGeneratedAt, manifest.generatedAt);
+});
+
+check("daily DGS10: every 2022 start plus 90 days is covered; a missing day takes the last prior observation, never an interpolation", () => {
+  const daily = readJson(DAILY_FILE);
+  const obs = daily.observations;
+  assert.deepEqual(daily.window, { from: DAILY_WINDOW.from, to: DAILY_WINDOW.to });
+  assert.equal(obs[0].date, "2022-01-03");
+  assert.ok(obs.at(-1).date >= "2023-03-30", obs.at(-1).date); // 2022-12-30 + 90 days
+  for (let i = 1; i < obs.length; i++) assert.ok(obs[i].date > obs[i - 1].date);
+  const rawRows = new Map(fs.readFileSync(path.join(DIR, "raw/fred-DGS10.csv"), "utf8").trim().split(/\r?\n/).slice(1).map((l) => l.split(",")));
+  let carried = 0;
+  for (let i = 0; i < obs.length; i++) {
+    const o = obs[i], rawValue = rawRows.get(o.date);
+    if (o.carriedFrom) {
+      carried++;
+      assert.ok(rawValue === "" || rawValue === ".", `${o.date} is carried but has a raw value`);
+      assert.equal(o.value, Number(rawRows.get(o.carriedFrom)), o.date);
+      assert.equal(o.value, obs[i - 1].value, `${o.date} must repeat the previous day`);
+    } else {
+      assert.equal(o.value, Number(rawValue), o.date);
+    }
+  }
+  assert.equal(obs.filter((o) => o.date.startsWith("2022-") && !o.carriedFrom).length, 249);
+  assert.equal(carried, 14);
+  // A gap is filled by the last value before it, not a value between its neighbours.
+  const csv = "observation_date,DGS10\n2022-01-03,1.00\n2022-01-04,\n2022-01-05,.\n2022-01-06,2.00";
+  assert.deepEqual(dailySeries(csv, { from: "2022-01-01", to: "2022-01-31" }).map((o) => [o.date, o.value, o.carriedFrom ?? null]),
+    [["2022-01-03", 1, null], ["2022-01-04", 1, "2022-01-03"], ["2022-01-05", 1, "2022-01-03"], ["2022-01-06", 2, null]]);
+});
+
+check("the rate-path quotes appear word for word on their cited pages, from the committed and hashed 10-K page excerpt", () => {
+  const entry = manifest.sources.find((s) => s.id === "filing-10k-2022");
+  const file = path.join(DIR, entry.file);
+  const norm = (s) => filingText(s);
+  // The 2022 sale-timing wording is never shortened to a flat limit: its exception clause is kept.
+  const timing = SUNLIGHT_RATE_PATH_QUOTES.quotes.find((q) => q.id === "sale_timing");
+  assert.match(timing.text, /180 days from origination for solar system loans and home improvement loans that have been on its Bank Partner’s balance sheet for greater than 12 months/);
+  assert.match(timing.text, /initially 360 days from origination, reducing to 210 days from origination on the 181st day/);
+  for (const q of SUNLIGHT_RATE_PATH_QUOTES.quotes) {
+    assert.equal(q.source.url, entry.url, q.id);
+    assert.match(q.citation, /^Item 1A \(Risk Factors\), p\. \d+,/, q.id);
+  }
+  // The committed excerpt: its hash is in the manifest's derived list, tied to the filing's hash.
+  const excerptText = fs.readFileSync(path.join(DIR, EXCERPT_FILE), "utf8");
+  const derived = manifest.derived.find((d) => d.id === "filing-excerpts-10k-2022");
+  assert.equal(derived.file, EXCERPT_FILE);
+  assert.equal(derived.builtFromSha256, entry.sha256);
+  assert.equal(derived.sha256, crypto.createHash("sha256").update(excerptText).digest("hex"));
+  assert.equal(derived.bytes, Buffer.byteLength(excerptText));
+  const excerpt = JSON.parse(excerptText);
+  assert.equal(excerpt.builtFrom.sha256, entry.sha256);
+  assert.deepEqual(excerpt.pages.map((p) => p.page), [...EXCERPT_PAGES]);
+  for (const q of SUNLIGHT_RATE_PATH_QUOTES.quotes) {
+    const cited = Number(q.citation.match(/p\. (\d+)/)[1]);
+    const page = excerpt.pages.find((p) => p.page === cited);
+    assert.ok(page, `${q.id}: cited page ${cited} is not in the excerpt`);
+    assert.ok(page.text.includes(norm(q.text)), `${q.id}: not found word for word on p. ${cited}`);
+  }
+  // Where the filing itself is present, the excerpt must rebuild from it exactly.
+  if (fs.existsSync(file)) {
+    const buf = fs.readFileSync(file);
+    assert.equal(crypto.createHash("sha256").update(buf).digest("hex"), entry.sha256);
+    assert.equal(excerptText, JSON.stringify(filingExcerptFile(buf.toString("utf8"), entry), null, 2) + "\n");
+    console.log("        excerpt rebuilt from the local filing and matched");
+  } else {
+    console.log("        filing not present locally; quotes checked against the committed excerpt only");
+  }
 });
 
 function assertSourced(m, where) {

@@ -1,15 +1,16 @@
 // src/ui/funding/FundingView.jsx — Funding & Rates tab: pricing lag, backbook and liquidity,
-// credit loss, and the active profile's sourced history. Every number is computed by
+// rate paths over the holding period, credit loss, and the active profile's sourced history. Every number is computed by
 // src/fundingStress.js; every default, source and historical fact comes from the active lender
 // profile, so this component names no lender.
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { styles, money, pct } from "../theme.js";
 import { MetricCard, Callout } from "../components/primitives.jsx";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
 import { platformFee, breakEvenShockBps, backbookImpact, liquidityPath, loanCapStatus, expectedLoss } from "../../fundingStress.js";
 import { simulateLoans, withDealerEffect } from "../../dealers.js";
 import { LineChart } from "./LineChart.jsx";
+import { RATE_PATH_DEFAULTS, triangularHolding, flatPath, linearPath, pathFee, feeAtSaleFn, historicalWindows } from "../../ratePaths.js";
 
 const ANALYSIS = "The model shows why a long, low-coupon, fixed-rate loan priced at approval but sold later is highly sensitive to rate moves during the hold period.";
 const SHOCK_GRID = Array.from({ length: 41 }, (_, i) => i * 10);
@@ -59,6 +60,146 @@ function NumberInput({ label, entry, value, onChange, step = 1, format, testId }
 const pctFmt = (v, d = 2) => `${(v * 100).toFixed(d)}%`;
 const per100 = (v) => `${v < 0 ? "−" : ""}$${Math.abs(v).toFixed(2)}`;
 const signedMoney = (v) => (v < 0 ? `−${money(-v)}` : money(v));
+const bpsFmt = (v) => (v === null ? "—" : `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v).toFixed(0)} bps`);
+const CREDIT_SPREAD_NOTE = "Treasury-only paths understate losses; credit spreads also widened in 2022.";
+
+function useDebounced(value, ms) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), ms);
+    return () => clearTimeout(t);
+  }, [value, ms]);
+  return debounced;
+}
+
+const SCENARIO_PATHS = [
+  { id: "flat", label: "Flat", detail: "no move", path: flatPath() },
+  ...[100, 200, 300].map((bps) => ({ id: `up${bps}`, label: `+${bps} bps`, detail: `straight line over ${RATE_PATH_DEFAULTS.rampDays} days, then held`, path: linearPath(bps) })),
+  { id: "down100", label: "−100 bps", detail: `straight line over ${RATE_PATH_DEFAULTS.rampDays} days, then held`, path: linearPath(-100) }
+];
+
+/** Rate paths over an uncertain holding time, with historical windows when the profile has them. */
+function RatePathsPanel({ feeParams, breakEven, profile }) {
+  const [holdingInput, setHoldingInput] = useState({ min: RATE_PATH_DEFAULTS.holding.min, mode: RATE_PATH_DEFAULTS.holding.mode, max: RATE_PATH_DEFAULTS.holding.max });
+  const [history, setHistory] = useState(null);
+  const source = profile.ratePathHistory ?? null;
+  useEffect(() => {
+    let live = true;
+    setHistory(null);
+    source?.load().then((h) => live && setHistory(h)).catch(() => live && setHistory({ error: true }));
+    return () => { live = false; };
+  }, [source]);
+  const params = useDebounced(feeParams, 150);
+  const h = useDebounced(holdingInput, 150);
+  const holdingValid = h.min >= 1 && h.min <= h.mode && h.mode <= h.max && h.max <= 365;
+  const holding = useMemo(() => (holdingValid ? triangularHolding(h) : null), [holdingValid, h]);
+  const scenarios = useMemo(() => {
+    if (!holding) return [];
+    const fee = feeAtSaleFn(params);
+    return SCENARIO_PATHS.map((s) => ({ ...s, ...pathFee(params, s.path, holding, fee) }));
+  }, [params, holding]);
+  const windows = useMemo(
+    () => (history?.observations && holding ? historicalWindows(history.observations, source.year, params, { holding }) : null),
+    [history, holding, params, source]
+  );
+  const setH = (key) => (e) => setHoldingInput((x) => ({ ...x, [key]: Number(e.target.value) }));
+  const cell = { ...styles.td, ...styles.num };
+
+  return (
+    <section style={{ ...styles.panel, marginBottom: 16 }} data-testid="panel-rate-paths">
+      <h3 style={styles.panelTitle}>Rate paths during the hold</h3>
+      <p style={{ ...styles.note, fontSize: 12 }}>
+        The single shock above moves the investor yield once. Here the yield follows a path while the loan waits to be sold, and the sale date itself is uncertain: the expected fee at sale is Σ p(t) × fee at sale(path(t)) over holding days t, with the pricing inputs above. Single-shock break-even for comparison: <strong data-testid="rate-paths-break-even">{breakEven === null ? ">1,000 bps" : `${breakEven.toFixed(1)} bps`}</strong>.
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", fontSize: 13, marginBottom: 10 }} data-testid="holding-inputs">
+        <span>Holding time (days), triangular<StatusTag entry={RATE_PATH_DEFAULTS.holding} />:</span>
+        {["min", "mode", "max"].map((k) => (
+          <label key={k} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {k === "mode" ? "most likely" : k}
+            <input type="number" min={1} max={365} value={holdingInput[k]} onChange={setH(k)} style={{ width: 64, padding: "3px 6px" }} aria-label={`Holding days ${k === "mode" ? "most likely" : k}`} data-testid={`holding-${k}`} />
+          </label>
+        ))}
+      </div>
+      {!holdingValid && <Callout tone="warn"><span data-testid="holding-invalid">Holding days need 1 ≤ min ≤ most likely ≤ max ≤ 365.</span></Callout>}
+      {holdingValid && (
+        <div style={styles.tableContainer}>
+          <table style={styles.table} data-testid="rate-paths-table">
+            <thead><tr>{["Path", "Expected move over the hold", "Expected fee at sale", "Change from approval"].map((x, i) => <th key={x} style={i ? { ...styles.th, ...styles.num } : styles.th}>{x}</th>)}</tr></thead>
+            <tbody>
+              {scenarios.map((s) => (
+                <tr key={s.id} data-testid={`rate-path-${s.id}`}>
+                  <td style={styles.td}><strong>{s.label}</strong> <span style={{ color: "#64748b", fontSize: 12 }}>{s.detail}</span></td>
+                  <td style={cell}>{bpsFmt(s.expectedShockBps)}</td>
+                  <td style={{ ...cell, color: s.expectedFeeAtSale < 0 ? "#b91c1c" : "#047857", fontWeight: 600 }} data-testid={`rate-path-${s.id}-fee`}>{per100(s.expectedFeeAtSale)}</td>
+                  <td style={cell}>{per100(s.expectedChange)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {source && holdingValid && (
+        <div style={{ marginTop: 14 }} data-testid="rate-paths-historical">
+          <h4 style={{ fontSize: 14, margin: "0 0 6px" }}>Historical {source.year}: {source.label}</h4>
+          {!history && <p style={styles.note}>Loading the daily yield snapshot…</p>}
+          {history?.error && <Callout tone="bad">The daily yield snapshot could not be loaded.</Callout>}
+          {windows && (
+            <>
+              <p style={{ ...styles.note, fontSize: 12 }} data-testid="rate-paths-method">
+                Forward-looking windows: each of the {windows.starts} business days from {windows.firstStart} to {windows.lastStart} is a start date, and the window is the yield change over the next 30, 60 or 90 calendar days, so the last windows run into {source.year + 1}. Missing days (market holidays) use the last prior observation, never interpolation, and the {windows.holidaysSkipped} holidays in {source.year} are not start dates. P50 and P95 are nearest-rank percentiles across start dates; the fee at P95 is the fee at the 95th-percentile rise.
+              </p>
+              <div style={styles.tableContainer}>
+                <table style={styles.table} data-testid="historical-table">
+                  <thead><tr>{["Window", "Start dates", "P50 move", "P95 move", "Fee at P50", "Fee at P95", "Windows with a negative fee"].map((x, i) => <th key={x} style={i ? { ...styles.th, ...styles.num } : styles.th}>{x}</th>)}</tr></thead>
+                  <tbody>
+                    {windows.fixed.map((w) => (
+                      <tr key={w.days} data-testid={`historical-${w.days}`}>
+                        <td style={styles.td}>{w.days} days</td>
+                        <td style={cell}>{w.windows}</td>
+                        <td style={cell}>{bpsFmt(w.p50Bps)}</td>
+                        <td style={cell} data-testid={`historical-${w.days}-p95`}>{bpsFmt(w.p95Bps)}</td>
+                        <td style={cell}>{per100(w.feeAtP50)}</td>
+                        <td style={{ ...cell, color: w.feeAtP95 < 0 ? "#b91c1c" : undefined }} data-testid={`historical-${w.days}-fee-p95`}>{per100(w.feeAtP95)}</td>
+                        <td style={cell}>{pct(w.negativeShare, 1)}</td>
+                      </tr>
+                    ))}
+                    <tr data-testid="historical-weighted">
+                      <td style={styles.td}>Holding-weighted ({h.min}–{h.max} days, most likely {h.mode})</td>
+                      <td style={cell}>{windows.weighted.windows}</td>
+                      <td style={cell}>—</td>
+                      <td style={cell}>—</td>
+                      <td style={cell}>{per100(windows.weighted.feeP50)}</td>
+                      <td style={{ ...cell, color: windows.weighted.feeP95 < 0 ? "#b91c1c" : undefined }} data-testid="historical-weighted-fee-p95">{per100(windows.weighted.feeP95)}</td>
+                      <td style={cell}>{pct(windows.weighted.negativeShare, 1)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p style={{ fontSize: 12, color: "#475569", margin: "8px 0 0" }} data-testid="rate-paths-source">
+                Source: <a href={history.url} target="_blank" rel="noreferrer">FRED {history.series}</a>, {history.description}; built at build time from the committed raw file {history.builtFrom.file} (SHA-256 {history.builtFrom.sha256.slice(0, 12)}…, retrieved {history.builtFrom.retrievedAt.slice(0, 10)}){history.manifestEntry ? `; the derived file is hashed in the manifest (SHA-256 ${history.manifestEntry.sha256.slice(0, 12)}…)` : ""}. The browser never calls FRED.
+              </p>
+            </>
+          )}
+        </div>
+      )}
+      <p style={{ ...styles.note, fontWeight: 600, color: "#92400e", margin: "10px 0 0" }} data-testid="credit-spread-note">{CREDIT_SPREAD_NOTE}</p>
+      {profile.ratePathQuotes && (
+        <details style={{ marginTop: 12 }} data-testid="rate-path-quotes">
+          <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 13 }}>{profile.ratePathQuotes.title}</summary>
+          {profile.ratePathQuotes.quotes.map((q) => (
+            <figure key={q.id} style={{ margin: "10px 0 0" }} data-testid={`rate-path-quote-${q.id}`}>
+              <figcaption style={{ fontSize: 12, fontWeight: 600, color: "#334155" }}>{q.topic}</figcaption>
+              <blockquote style={{ margin: "4px 0", padding: "6px 10px", borderLeft: "3px solid #cbd5e1", fontSize: 13, lineHeight: 1.5, color: "#0f172a" }}>“{q.text}”</blockquote>
+              <p style={{ fontSize: 12, color: "#475569", margin: 0 }}>
+                {q.citation}. <a href={q.source.url} target="_blank" rel="noreferrer">Source: {q.source.label}</a>
+              </p>
+            </figure>
+          ))}
+        </details>
+      )}
+    </section>
+  );
+}
 
 function FundingModel({ defaults, portfolio, profile, history }) {
   const initial = useMemo(() => Object.fromEntries(Object.entries(defaults).map(([k, v]) => [k, v.value])), [defaults]);
@@ -136,6 +277,8 @@ function FundingModel({ defaults, portfolio, profile, history }) {
           formatX={(v) => `${Math.round(v)}`} formatY={(v) => per100(v)}
         />
       </section>
+
+      <RatePathsPanel feeParams={feeParams} breakEven={breakEven} profile={profile} />
 
       <section style={{ ...styles.panel, marginBottom: 16 }} data-testid="panel-liquidity">
         <h3 style={styles.panelTitle}>B. Backbook and liquidity</h3>

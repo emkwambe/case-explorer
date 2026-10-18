@@ -180,6 +180,83 @@ export function parseFredCsv(text) {
   return { header, rows, missing };
 }
 
+// Daily DGS10 for the rate-path windows: every 2022 start date plus 90 calendar days.
+export const DAILY_WINDOW = Object.freeze({ series: "DGS10", from: "2022-01-01", to: "2023-03-31" });
+
+/**
+ * Daily observations of a FRED graph CSV between `from` and `to` (inclusive), one per row the CSV
+ * lists. A missing day ("." or empty) takes the last prior observation and records which date it
+ * came from in `carriedFrom`; nothing is interpolated. Rows before the first observation are dropped.
+ */
+export function dailySeries(text, { from, to }) {
+  const lines = text.trim().split(/\r?\n/).slice(1);
+  const observations = [];
+  let last = null;
+  for (const line of lines) {
+    const [date, raw] = line.split(",");
+    const missing = raw === "." || raw === "" || raw === undefined;
+    if (!missing) last = { date, value: Number(raw) };
+    if (date < from || date > to || !last) continue;
+    observations.push(missing ? { date, value: last.value, carriedFrom: last.date } : { date, value: last.value });
+  }
+  return observations;
+}
+
+export const DAILY_FILE = "dgs10-daily.json";
+
+/** The daily DGS10 file: the window's observations with the raw source they were built from. */
+export function dailySeriesFile(text, source) {
+  const observations = dailySeries(text, DAILY_WINDOW);
+  return {
+    series: DAILY_WINDOW.series,
+    description: "10-year Treasury constant-maturity yield, percent, daily (FRED DGS10)",
+    url: "https://fred.stlouisfed.org/series/DGS10",
+    builtFrom: { file: source.file, sha256: source.sha256, retrievedAt: source.retrievedAt },
+    window: { from: DAILY_WINDOW.from, to: DAILY_WINDOW.to },
+    method: "One row per day the FRED file lists. A missing day takes the last prior observation (carriedFrom names its date); nothing is interpolated.",
+    observations
+  };
+}
+
+// Text of the 10-K pages that the Funding & Rates quotes cite, committed so the quote check runs
+// without the (uncommitted) filing.
+export const EXCERPT_FILE = "filing-excerpts-10k-2022.json";
+export const EXCERPT_PAGES = Object.freeze([10, 12]);
+
+/** Plain text of filing HTML: tags dropped, common entities decoded, curly quotes made straight, spaces collapsed. */
+export function filingText(html) {
+  return html.replace(/<[^>]+>/g, " ").replace(/&#160;|&nbsp;/g, " ").replace(/&#8217;|&#8216;/g, "'").replace(/&#8220;|&#8221;/g, '"')
+    .replace(/&amp;/g, "&").replace(/&#\d+;/g, " ").replace(/[’‘]/g, "'").replace(/[“”]/g, '"').replace(/\s+/g, " ").trim();
+}
+
+/**
+ * The filing's pages, split at its page breaks, each with the page number printed in its footer
+ * (null when the page has none) and its plain text.
+ */
+export function filingPages(html) {
+  const breaks = [...html.matchAll(/page-break-after:\s*always/g)].map((m) => m.index);
+  return breaks.map((b, i) => {
+    const page = html.slice(i ? breaks[i - 1] : 0, b);
+    return { page: Number(page.match(/>(\d{1,3})<\/span><\/div><\/div><\/div><hr[^>]*$/)?.[1]) || null, text: filingText(page) };
+  });
+}
+
+/** The excerpt file: the cited pages' text and the hashed filing they come from. */
+export function filingExcerptFile(html, source, pages = EXCERPT_PAGES) {
+  const all = filingPages(html);
+  return {
+    document: "Sunlight Financial FY2022 Form 10-K",
+    url: source.url,
+    builtFrom: { file: source.file, sha256: source.sha256 },
+    method: "Each page's text between the filing's page breaks, with tags removed and spacing collapsed; page numbers are the printed footers.",
+    pages: pages.map((n) => {
+      const p = all.find((x) => x.page === n);
+      if (!p) throw new Error(`page ${n} not found in the filing`);
+      return p;
+    })
+  };
+}
+
 /** Simple average of the daily observations dated inside each quarter. */
 export function quarterAverages(rows) {
   const out = {};

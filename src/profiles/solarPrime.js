@@ -4,6 +4,7 @@
 import { SUNLIGHT_10K_FY2022, SUNLIGHT_PR_2022_09_28 } from "./sunlight/sources.js";
 import { SUNLIGHT_CASE_STUDIES } from "./sunlight/caseStudies.js";
 import { SUNLIGHT_FINDINGS } from "./sunlight/findings.js";
+import { SUNLIGHT_RATE_PATH_QUOTES } from "./sunlight/filingQuotes.js";
 
 export const SOLAR_PRIME_PROFILE = Object.freeze({
   id: "SOLAR_PRIME",
@@ -132,5 +133,18 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
   }),
 
   // Copy for the Findings tab, which is shown with the Public record tab.
-  findings: SUNLIGHT_FINDINGS
+  findings: SUNLIGHT_FINDINGS,
+
+  // The Policy Sandbox tab scores the shared portfolio's application pool under a candidate policy.
+  policySandbox: true,
+
+  // Daily 10-year Treasury yields for the historical rate paths in Funding & Rates, from the same
+  // pinned snapshot. Loaded on demand, like the public record.
+  ratePathHistory: Object.freeze({
+    year: 2022,
+    label: "10-year Treasury yield (FRED DGS10)",
+    load: () => import("./sunlight/ratePathData.js").then((m) => m.DGS10_DAILY)
+  }),
+  // Verbatim 10-K passages on the hold before sale and on hedging, shown with the rate paths.
+  ratePathQuotes: SUNLIGHT_RATE_PATH_QUOTES
 });

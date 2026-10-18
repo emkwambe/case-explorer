@@ -17,5 +17,7 @@ export const MORTGAGE_PROFILE = Object.freeze({
   // No defaults are defined for the Dealer View or Funding & Rates tabs; a tab reading a null
   // default should say it is not configured for this profile rather than invent inputs.
   defaults: { dealerView: null, fundingRates: null },
-  caseStudies: []
+  caseStudies: [],
+  // No Policy Sandbox yet: the tab is shown only for profiles that turn it on.
+  policySandbox: false
 });
