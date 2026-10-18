@@ -1,6 +1,6 @@
 # Findings images
 
-Captured by `npm run capture:findings` (scripts/capture-findings.mjs) from the app built at commit f70d1bd, profile `solar-prime`, at 1280×800 and 2× scale. The dealer figures come from the synthetic funded portfolio generated with seed 42 before capture, so they match the numbers on the Findings tab. Borrowers and dealers are synthetic; only the public-record facts are real, and each one is sourced in the app.
+Captured by `npm run capture:findings` (scripts/capture-findings.mjs) from the app built at commit f70d1bd (`provenance.png` was re-captured at 95de38f; its content is unchanged, the earlier image differed only by a 1–2 px text shift; the other six images are unchanged from f70d1bd), profile `solar-prime`, at 1280×800 and 2× scale. The dealer figures come from the synthetic funded portfolio generated with seed 42 before capture, so they match the numbers on the Findings tab. Borrowers and dealers are synthetic; only the public-record facts are real, and each one is sourced in the app.
 
 | Image | Caption | Source |
 |---|---|---|
