@@ -37,3 +37,9 @@ The policy logic itself is well covered; the gap is the React component. Most su
 Under the Solar prime profile, Borrower profiles reuse the mortgage generator; mortgage-specific application fields are hidden. The Overview shows a "Proposed solar loan" block instead: the case's seeded loan amount from the profile's loan-amount distribution, at the profile's default 2.99% coupon and 25-year term, with the monthly payment the credit policy's DTI uses. The generator's integrity check (the Decision tab's underwriting factors, labelled "Integrity model (mortgage-based generator)") still underwrites the mortgage application, so it can disagree with the solar credit policy for reasons that come from the mortgage, not the solar loan.
 
 **Planned fix.** A full solar borrower generator: applicants, applications and the integrity check generated for a solar loan, so no mortgage field is produced and nothing needs hiding.
+
+## Findings images are captured manually, not in CI
+
+`npm run capture:findings` (scripts/capture-findings.mjs) builds the app, generates the seed-42 funded portfolio in headless Chromium and writes the seven Findings PNGs and their captions to `docs/findings/`. It runs only on demand: no CI job runs it, so the committed images can fall behind the app until someone re-runs the script. The script needs Playwright's Chromium on the machine (`npx playwright install chromium`) and takes a few minutes, most of it the 10,000-loan portfolio.
+
+**Later option.** A manually dispatched CI job that installs Chromium, runs the capture and uploads the images as a build artifact, so a mismatch shows up without a local run.

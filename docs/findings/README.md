@@ -1,0 +1,13 @@
+# Findings images
+
+Captured by `npm run capture:findings` (scripts/capture-findings.mjs) from the app built at commit dc40862 plus uncommitted changes, profile `solar-prime`, at 1280×800 and 2× scale. The dealer figures come from the synthetic funded portfolio generated with seed 42 before capture, so they match the numbers on the Findings tab. Borrowers and dealers are synthetic; only the public-record facts are real, and each one is sourced in the app.
+
+| Image | Caption | Source |
+|---|---|---|
+| `findings-overview.png` | The Findings tab under Solar prime: question, data, method, three findings and limits. | Computed in the app from the pinned public-record snapshot (data/public-record/) and the synthetic seed-42 funded portfolio. |
+| `f1-take-rate-and-fed-funds.png` | Take rate (platform fees ÷ funded loans) above the quarterly average fed funds rate, two panels on one quarter axis; correlation -0.75 (n = 9 quarters), descriptive, not causal. | Funded loans and platform fees typed from Sunlight Financial's 10-Q and 10-K filings with page references (data/public-record/manual-extractions.csv); FRED series DFF. |
+| `f1-break-even.png` | Funding & Rates pricing-lag panel at the Solar prime default inputs; break-even rate shock 112.8 bps (Findings shows 112.8 bps). | src/fundingStress.js; inputs from src/profiles/solarPrime.js, each tagged as an assumption or a disclosed range from the FY2022 Form 10-K. |
+| `f2-dealer-table.png` | Dealer View table, top ten dealers by loan exposure, with 30+ DPD, p-values and ratings. | Synthetic 10,000-loan funded book (seed 42) from src/dealers.js; dealers are fictional IDs and every metric is simulated under a set dealer-effect strength. |
+| `f2-fail-nc19.png` | Failure scenario for Dealer NC-19 (Wilmington), the synthetic dealer holding the largest advance (30.0% of all advances, rated Green): change in expected loss $736,241. | simulateDealerFailure in src/dealers.js over the synthetic book; the largest advance is sized to Sunlight Financial's September 28, 2022 press release. |
+| `f3-runway-timeline.png` | Cash at quarter end with dated events; runway 22.2 months at Q4 2022, the last quarter where it can be computed; Chapter 11 filed Oct 30, 2023, 10.0 months later. | SEC XBRL cash and operating cash flow (data/public-record/sunlight-quarterly.json); each event's source is in data/public-record/events.json. |
+| `provenance.png` | Data provenance panel: sources and hashes, deduplication, gaps and reconciliation. | data/public-record/manifest.json and data/public-record/sunlight-quarterly.json. |

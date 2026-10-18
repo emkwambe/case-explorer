@@ -278,3 +278,91 @@ ul {
     width: 100%;
   }
 }
+
+/* Findings tab. Each finding is its text and figures beside its chart or table on wide screens,
+   stacked below 1100px. */
+.ce-finding {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px 20px;
+}
+
+@media (min-width: 1100px) {
+  .ce-finding {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  }
+}
+
+/* Printing the Findings tab gives a one-page brief: no header, case library, navigation or
+   controls; the compliance footer stays, in the flow; the page is scaled to fit one sheet. Rules
+   are scoped to a page showing the Findings tab, so printing any other tab is unchanged. */
+@media print {
+  @page {
+    size: letter;
+    margin: 0.35in;
+  }
+
+  body:has(.ce-findings) {
+    background: #ffffff;
+  }
+
+  body:has(.ce-findings) .ce-header,
+  body:has(.ce-findings) .ce-library,
+  body:has(.ce-findings) .ce-nav,
+  body:has(.ce-findings) .ce-case-strip,
+  body:has(.ce-findings) .ce-credit-sidebar,
+  body:has(.ce-findings) .ce-portfolio-strip,
+  body:has(.ce-findings) .ce-benchmark,
+  body:has(.ce-findings) .ce-no-print,
+  .ce-findings details,
+  .ce-findings .ce-findings-evidence {
+    display: none !important;
+  }
+
+  body:has(.ce-findings) .ce-app {
+    padding-bottom: 0;
+  }
+
+  body:has(.ce-findings) .ce-layout,
+  body:has(.ce-findings) .ce-main,
+  body:has(.ce-findings) .ce-credit-layout,
+  body:has(.ce-findings) .ce-detail,
+  body:has(.ce-findings) .ce-tab-content {
+    display: block !important;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  .ce-findings {
+    zoom: 0.52;
+  }
+
+  .ce-finding {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    break-inside: avoid;
+  }
+
+  .ce-findings figure svg {
+    max-width: 520px !important;
+  }
+
+  .ce-findings-events {
+    columns: 2;
+  }
+
+  body:has(.ce-findings) .ce-footer {
+    position: static;
+    margin-top: 6px;
+    padding: 4px 8px;
+    font-size: 8pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

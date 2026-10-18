@@ -36,7 +36,8 @@ export const TAB_GROUPS = Object.freeze([
       { id: "dealers", label: "Dealer View" },
       { id: "funding", label: "Funding & Rates" },
       // Shown only when the active profile has the data the tab needs.
-      { id: "public_record", label: "Public record", needs: "publicRecord" }
+      { id: "public_record", label: "Public record", needs: "publicRecord" },
+      { id: "findings", label: "Findings", needs: "publicRecord" }
     ]
   }
 ]);

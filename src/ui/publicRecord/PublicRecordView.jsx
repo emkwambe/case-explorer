@@ -6,16 +6,12 @@ import React, { useEffect, useMemo, useState } from "react";
 import { styles } from "../theme.js";
 import { Callout } from "../components/primitives.jsx";
 import { LineChart, BarChart } from "../funding/LineChart.jsx";
+import { qLabel, toMillions, fmtM, fmtPct, fmtRate, eventX } from "./format.js";
 
-const qLabel = (code) => `${code.slice(4)} ${code.slice(0, 4)}`;
-const toMillions = (m) => (m.unit === "USD thousands" ? m.value / 1e3 : m.unit === "USD" ? m.value / 1e6 : m.value);
-const fmtM = (v) => (v === null || v === undefined ? "—" : `${v < 0 ? "−" : ""}$${Math.abs(v).toFixed(1)}M`);
-const fmtPct = (v, d = 2) => (v === null || v === undefined ? "—" : `${(v * 100).toFixed(d)}%`);
-const fmtRate = (v) => (v === null || v === undefined ? "—" : `${v.toFixed(2)}%`);
 const filingIndexUrl = (accn) => `https://www.sec.gov/Archives/edgar/data/1821850/${accn.replace(/-/g, "")}/`;
 
 /** A clickable value that opens its lineage. */
-function Val({ refData, text, onSelect, testId }) {
+export function Val({ refData, text, onSelect, testId }) {
   if (!refData) return <span style={{ color: "#94a3b8" }}>—</span>;
   return (
     <button type="button" onClick={() => onSelect(refData)} data-testid={testId} title="Show source"
@@ -74,10 +70,13 @@ function LineageDetail({ r, depth = 0 }) {
   if (r.event) {
     return <div style={indent}>{r.event.dateLabel}: {r.event.detail} <a href={r.event.source.url} target="_blank" rel="noreferrer">{r.event.source.label}</a></div>;
   }
+  if (r.citation) {
+    return <div style={indent}>{r.citation.text} <a href={r.citation.source.url} target="_blank" rel="noreferrer">{r.citation.source.label}</a></div>;
+  }
   return <div style={indent}>{JSON.stringify(r)}</div>;
 }
 
-function LineagePanel({ selected, onClose }) {
+export function LineagePanel({ selected, onClose }) {
   return (
     <div style={{ ...styles.panel, position: "sticky", top: 0, zIndex: 2, marginBottom: 14, background: "#eff6ff", borderColor: "#bfdbfe", fontSize: 12, lineHeight: 1.6 }} data-testid="lineage" aria-live="polite">
       {!selected && <span>Select any value or data point to see where it comes from.</span>}
@@ -151,15 +150,6 @@ function UnitEconomicsPanel({ record, select }) {
       <p style={{ ...styles.note, marginTop: 8 }}>{record.basisNote}</p>
     </section>
   );
-}
-
-function eventX(dateIso) {
-  const [y, m, d] = dateIso.split("-").map(Number);
-  const q = Math.ceil(m / 3);
-  const qIndex = (y - 2021) * 4 + (q - 1); // index of the quarter whose end point is at x = qIndex
-  const qStart = new Date(Date.UTC(y, (q - 1) * 3, 1)), qEnd = new Date(Date.UTC(y, q * 3, 0));
-  const frac = (Date.UTC(y, m - 1, d) - qStart) / (qEnd - qStart);
-  return qIndex - 1 + frac;
 }
 
 function LiquidityPanel({ record, select }) {

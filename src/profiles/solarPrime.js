@@ -3,6 +3,7 @@
 
 import { SUNLIGHT_10K_FY2022, SUNLIGHT_PR_2022_09_28 } from "./sunlight/sources.js";
 import { SUNLIGHT_CASE_STUDIES } from "./sunlight/caseStudies.js";
+import { SUNLIGHT_FINDINGS } from "./sunlight/findings.js";
 
 export const SOLAR_PRIME_PROFILE = Object.freeze({
   id: "SOLAR_PRIME",
@@ -128,5 +129,8 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
   // Loaded on demand so the main bundle and the Node test scripts never import the JSON.
   publicRecord: Object.freeze({
     load: () => import("./sunlight/publicRecordData.js").then((m) => m.PUBLIC_RECORD)
-  })
+  }),
+
+  // Copy for the Findings tab, which is shown with the Public record tab.
+  findings: SUNLIGHT_FINDINGS
 });

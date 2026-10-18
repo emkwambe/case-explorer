@@ -21,6 +21,7 @@ import { DealerViewTab } from "./dealers/DealerView.jsx";
 import { useDealerPortfolio } from "./dealers/useDealerPortfolio.js";
 import { FundingViewTab } from "./funding/FundingView.jsx";
 import { PublicRecordTab } from "./publicRecord/PublicRecordView.jsx";
+import { FindingsTab } from "./findings/FindingsView.jsx";
 import { TAB_GROUPS, visibleTabs, groupOfTab } from "./navigation.js";
 
 const SCENARIOS = [
@@ -140,7 +141,7 @@ function CaseExplorerShell() {
       </header>
 
       {step && (
-        <div style={{ background: "#0f172a", color: "white", padding: "12px 28px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }} data-testid="tour-banner">
+        <div style={{ background: "#0f172a", color: "white", padding: "12px 28px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }} className="ce-no-print" data-testid="tour-banner">
           <div style={{ flex: "1 1 420px" }}>
             <strong style={{ fontSize: 14 }}>{step.title}</strong>
             <div style={{ fontSize: 13, color: "#cbd5e1", marginTop: 2 }}>{step.body}</div>
@@ -199,13 +200,13 @@ function CaseExplorerShell() {
           <div className="ce-credit-layout">
           {creditMode && <UnderwritingSidebar key={selectedCase.id} caseData={selectedCase} assessment={assessments.get(selectedCase.id)} />}
           <div style={styles.detail} className="ce-detail">
-            <div style={styles.segmented} role="group" aria-label="Sections" data-testid="section-control">
+            <div style={styles.segmented} className="ce-nav" role="group" aria-label="Sections" data-testid="section-control">
               {TAB_GROUPS.map((g) => (
                 <button key={g.id} type="button" aria-pressed={group.id === g.id} onClick={() => openGroup(g)} data-testid={`section-${g.id}`}
                   style={{ ...styles.segment, ...(group.id === g.id ? styles.segmentActive : null) }}>{g.label}</button>
               ))}
             </div>
-            <div style={styles.tabs} role="tablist" aria-label={`${group.label} tabs`}>
+            <div style={styles.tabs} className="ce-nav" role="tablist" aria-label={`${group.label} tabs`}>
               {tabs.map((t) => (
                 <button
                   key={t.id} role="tab" aria-selected={currentTab === t.id} onClick={() => setActiveTab(t.id)}
@@ -213,8 +214,8 @@ function CaseExplorerShell() {
                 >{t.label}</button>
               ))}
             </div>
-            <div style={styles.tabContent}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+            <div style={styles.tabContent} className="ce-tab-content">
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }} className="ce-case-strip">
                 <Chip color={ALIGNMENT_COLORS[selectedCase.label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[selectedCase.label.alignment_level]}>{selectedCase.label.alignment_level}</Chip>
                 <strong>{selectedCase.applicant.name}</strong>
                 <span style={{ color: "#64748b", fontSize: 13 }}>{scenarioLabel(selectedCase.meta?.corruption_type)} · {selectedCase.id}</span>
@@ -235,6 +236,7 @@ function CaseExplorerShell() {
               {currentTab === "dealers" && <DealerViewTab portfolio={dealerPortfolio} />}
               {currentTab === "funding" && <FundingViewTab portfolio={dealerPortfolio} />}
               {currentTab === "public_record" && profile.publicRecord && <PublicRecordTab profile={profile} />}
+              {currentTab === "findings" && profile.publicRecord && <FindingsTab profile={profile} portfolio={dealerPortfolio} onOpenTab={setActiveTab} />}
               {currentTab === "network" && <NetworkTab cases={cases} />}
               {currentTab === "economics" && <EconomicsTab cases={cases} config={config} />}
               {currentTab === "validation" && <ValidationTab />}
