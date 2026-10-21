@@ -1,7 +1,7 @@
 // src/ui/CaseExplorer.jsx — Application shell: case library, tab routing and the guided tour.
 
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase, scenarioLabel } from "./theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase, scenarioLabel, REFERENCE_LABEL, REFERENCE_LABEL_NOTE } from "./theme.js";
 import { CaseCard, CreditCaseCard, Chip } from "./components/primitives.jsx";
 import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
 import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks/useCaseAnalysis.js";
@@ -98,8 +98,8 @@ function CaseExplorerShell() {
   const openGroup = (g) => setActiveTab(visibleTabs(g, profile)[0].id);
 
   // Header counts use the profile's lens: the credit policy for credit profiles, otherwise the
-  // generator's integrity check.
-  const lens = profile.headerLens === "credit" ? "credit policy" : "integrity check";
+  // generator's reference label (computed from hidden truth: an answer key, not a system decision).
+  const lens = profile.headerLens === "credit" ? "credit policy" : "reference label";
   const counts = useMemo(() => {
     const byOutcome = { APPROVE: 0, REVIEW: 0, DECLINE: 0 };
     for (const c of cases) {
@@ -118,7 +118,7 @@ function CaseExplorerShell() {
             {profile.subtitle ?? profile.label} · generator {GENERATOR_VERSION} · {cases.length} cases
           </p>
           <div className="ce-header-chips" data-testid="header-counts" aria-label={`Case counts by ${lens}`}>
-            <span className="ce-header-lens">{lens === "credit policy" ? "Credit policy" : "Integrity check"}</span>
+            <span className="ce-header-lens" title={lens === "credit policy" ? undefined : `${REFERENCE_LABEL}: ${REFERENCE_LABEL_NOTE}`}>{lens === "credit policy" ? "Credit policy" : REFERENCE_LABEL}</span>
             <span className="ce-chip" data-testid="count-approve">Approve <strong>{counts.APPROVE}</strong></span>
             <span className="ce-chip" data-testid="count-review">Review <strong>{counts.REVIEW}</strong></span>
             <span className="ce-chip" data-testid="count-decline">Decline <strong>{counts.DECLINE}</strong></span>

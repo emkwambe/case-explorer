@@ -1,4 +1,4 @@
-// The integrity badge rule: a case card carries the badge only when the generator's integrity check
+// The reference-label badge rule: a case card carries the badge only when the generator's reference label
 // reviews or declines the case and cites a fraud indicator or a verification failure.
 
 import { describe, it, expect } from "vitest";
@@ -17,7 +17,7 @@ describe("integrityBadge", () => {
     for (const decision of ["REVIEW", "DECLINE"]) {
       for (const category of [REASON_CATEGORIES.FRAUD_INDICATOR, REASON_CATEGORIES.VERIFICATION_FAILURE]) {
         const code = codeOf(category);
-        expect(integrityBadge({ generatorDecision: decision }, label(otherCode, code))).toEqual({ text: `Integrity: ${decision.toLowerCase()}`, codes: [code] });
+        expect(integrityBadge({ generatorDecision: decision }, label(otherCode, code))).toEqual({ text: `Reference: ${decision.toLowerCase()}`, codes: [code] });
       }
     }
   });
@@ -31,7 +31,7 @@ describe("integrityBadge", () => {
   });
 
   // Of the 12 opening cases: Solar prime's credit-lens cards show the badge on 4 of the 8 the
-  // integrity check flags. Mortgage cards have no badge; the rule would select 10 of its 12 flagged
+  // reference label flags. Mortgage cards have no badge; the rule would select 10 of its 12 flagged
   // cases (its two clean cases carry no fraud or verification code).
   it("selects 4 of 12 opening cases under Solar prime and 10 of 12 under Mortgage", () => {
     const count = (id) => {

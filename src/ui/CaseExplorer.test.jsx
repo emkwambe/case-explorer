@@ -258,8 +258,8 @@ describe("Credit Risk Mode", () => {
   it("compares all-application and approved-only FICO with the 10-K benchmark for both profiles", async () => {
     render(<CaseExplorer />);
     await userEvent.click(screen.getByTestId("credit-risk-mode"));
-    expect(screen.getByTestId("conflict-approve-decline")).toHaveTextContent(/Integrity APPROVE · Credit DECLINE: \d+/);
-    expect(screen.getByTestId("conflict-flag-approve")).toHaveTextContent(/Integrity DECLINE or fraud REVIEW · Credit APPROVE: \d+/);
+    expect(screen.getByTestId("conflict-approve-decline")).toHaveTextContent(/Reference APPROVE · Credit DECLINE: \d+/);
+    expect(screen.getByTestId("conflict-flag-approve")).toHaveTextContent(/Reference DECLINE or fraud REVIEW · Credit APPROVE: \d+/);
     const panel = screen.getByTestId("benchmark-panel");
     panel.open = true;
     fireEvent(panel, new Event("toggle"));
@@ -544,7 +544,7 @@ describe("navigation and header", () => {
   it("header subtitle and counts follow the active profile; Solar prime opens on its own seeded mix", async () => {
     render(<CaseExplorer />);
     expect(screen.getByTestId("header-subtitle")).toHaveTextContent(/^Mortgage risk simulation, fraud analytics and model validation · generator 2\.0\.0 · 12 cases$/);
-    expect(screen.getByTestId("header-counts")).toHaveTextContent(/^Integrity check\s*Approve \d+\s*Review \d+\s*Decline \d+$/);
+    expect(screen.getByTestId("header-counts")).toHaveTextContent(/^Reference label\s*Approve \d+\s*Review \d+\s*Decline \d+$/);
     await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
     expect(screen.getByTestId("header-subtitle")).toHaveTextContent("Prime solar lending: credit policy, dealer channel, funding stress and public record · generator 2.0.0 · 12 cases");
     expect(screen.getByTestId("header-counts")).toHaveAttribute("aria-label", "Case counts by credit policy");
@@ -636,7 +636,7 @@ describe("case cards follow the profile lens", () => {
       if (decision === "APPROVE") expect(reason).toBe("Meets credit policy");
       else expect(reason).toMatch(/^(FICO \d+ below 660|High DTI \d+%|Elevated DTI \d+%|Liquidity risk: checking \$[\d,]+|Fraud review: .+)$/);
       const badge = within(card).queryByTestId("card-integrity");
-      if (badge) expect(badge.textContent).toMatch(/^Integrity: (review|decline)$/);
+      if (badge) expect(badge.textContent).toMatch(/^Reference: (review|decline)$/);
     }
     // The integrity badge appears only for fraud-indicator or verification-failure codes.
     const badges = screen.getAllByTestId("card-integrity");
@@ -663,10 +663,10 @@ describe("case cards follow the profile lens", () => {
 });
 
 describe("integrity detail in the Decision tab", () => {
-  it("lists the integrity check's reason codes, including benign ones that carry no card badge", async () => {
+  it("lists the reference label's reason codes, including benign ones that carry no card badge", async () => {
     render(<CaseExplorer />);
     await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
-    // The newest case first, as in the list, whose integrity check cites the benign ELEVATED_DTI code.
+    // The newest case first, as in the list, whose reference label cites the benign ELEVATED_DTI code.
     const solar = getProfile("SOLAR_PRIME");
     const target = buildInitialCases(applyProfile(demoConfig, solar), solar.openingLibrary).reverse().find((c) => c.label.reason_codes.includes("ELEVATED_DTI"));
     const elevated = screen.getAllByTestId("case-card").find((c) => c.textContent.startsWith(target.applicant.name) && /^Elevated DTI \d+%$/.test(within(c).getByTestId("card-reason").textContent));
@@ -674,7 +674,7 @@ describe("integrity detail in the Decision tab", () => {
     await userEvent.click(elevated);
     await openTab("Decision");
     const detail = screen.getByTestId("integrity-detail");
-    expect(detail).toHaveTextContent(/^Integrity check \(generator\): manual review/);
+    expect(detail).toHaveTextContent(/^Reference label \(uses the case's hidden truth; an answer key, not a system decision\): manual review/);
     expect(detail).toHaveTextContent("Elevated Dti");
   });
 });

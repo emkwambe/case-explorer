@@ -158,27 +158,27 @@ check("SOLAR_PRIME over 2,000 applications at seed 42: approved-only mean FICO 7
   assert.ok(solar.modeShare < 0.02, `SOLAR_PRIME score ${solar.modeValue} holds ${(100 * solar.modeShare).toFixed(2)}% of cases`);
 });
 
-check("disagreement callouts: only integrity APPROVE + credit DECLINE, and integrity DECLINE / fraud REVIEW + credit APPROVE", () => {
+check("disagreement callouts: only reference APPROVE + credit DECLINE, and reference DECLINE / fraud REVIEW + credit APPROVE", () => {
   const a = assessCredit(handBuilt({ fico: 640, expected: "APPROVE" }));
   assert.equal(a.disagreement.kind, DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE);
-  assert.equal(a.disagreement.text, "Integrity check: APPROVE · Credit policy: DECLINE (FICO 640)");
+  assert.equal(a.disagreement.text, "Reference label: APPROVE · Credit policy: DECLINE (FICO 640)");
   const b = assessCredit(handBuilt({ fico: 720, housing: 1000, expected: "DECLINE" }));
   assert.equal(b.policyDecision, "APPROVE");
   assert.equal(b.disagreement.kind, DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE);
   const c = assessCredit(handBuilt({ fico: 720, housing: 1000, expected: "MANUAL_REVIEW", reasonCodes: ["UNSOURCED_LARGE_DEPOSIT"] }));
   assert.equal(c.disagreement.kind, DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE);
-  assert.match(c.disagreement.text, /^Integrity check: REVIEW for fraud · Credit policy: APPROVE \(UNSOURCED_LARGE_DEPOSIT\)$/);
+  assert.match(c.disagreement.text, /^Reference label: REVIEW for fraud · Credit policy: APPROVE \(UNSOURCED_LARGE_DEPOSIT\)$/);
   // A credit-only integrity review against a credit approval is a difference of lens, not a conflict.
   assert.equal(assessCredit(handBuilt({ fico: 720, housing: 1000, expected: "MANUAL_REVIEW", reasonCodes: ["ELEVATED_DTI"] })).disagreement, null);
-  // Integrity DECLINE + credit DECLINE and integrity APPROVE + credit REVIEW are not callouts.
+  // Reference DECLINE + credit DECLINE and reference APPROVE + credit REVIEW are not callouts.
   assert.equal(assessCredit(handBuilt({ fico: 640, expected: "DECLINE" })).disagreement, null);
   assert.equal(assessCredit(handBuilt({ fico: 682, expected: "APPROVE" })).disagreement, null);
 });
 
 check("riskSummary matches the documented format", () => {
   const line = riskSummary(assessCredit(handBuilt({ fico: 682, expected: "APPROVE" })));
-  assert.equal(line, "Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Integrity: APPROVE");
-  const format = /^Borrower: FICO (\d+|n\/a), DTI (\d+%( \(partial\))?|n\/a), Student \$[\d,]+\/mo, Fraud: (None|Review), Policy: (APPROVE|(REVIEW|DECLINE) - .+) \| Integrity: (APPROVE|REVIEW|DECLINE|n\/a)$/;
+  assert.equal(line, "Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Reference: APPROVE");
+  const format = /^Borrower: FICO (\d+|n\/a), DTI (\d+%( \(partial\))?|n\/a), Student \$[\d,]+\/mo, Fraud: (None|Review), Policy: (APPROVE|(REVIEW|DECLINE) - .+) \| Reference: (APPROVE|REVIEW|DECLINE|n\/a)$/;
   for (let i = 0; i < 200; i++) {
     const s = riskSummary(assessCredit(generateBlendedCase(i, PROFILES.SOLAR_PRIME, 42), getProfile("SOLAR_PRIME")));
     assert.match(s, format);
@@ -194,5 +194,5 @@ for (const [profile, m] of Object.entries(mix)) {
   console.log(`  ${profile}`);
   console.log(`    FICO   all applications ${fmt(k.allMean)} (n ${k.n}) · approved only ${fmt(k.approvedMean)} (n ${k.approvedN}) · p5 ${m.p5} · below 660 ${share(m.below660)} · most common score ${m.modeValue} at ${share(m.modeShare)}`);
   console.log(`    Policy APPROVE ${share(m.counts.APPROVE / m.n)} · REVIEW ${share(m.counts.REVIEW / m.n)} · DECLINE ${share(m.counts.DECLINE / m.n)}`);
-  console.log(`    Callouts: integrity APPROVE + credit DECLINE ${m.conflicts[DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE]} · integrity DECLINE/fraud REVIEW + credit APPROVE ${m.conflicts[DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE]}`);
+  console.log(`    Callouts: reference APPROVE + credit DECLINE ${m.conflicts[DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE]} · reference DECLINE/fraud REVIEW + credit APPROVE ${m.conflicts[DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE]}`);
 }

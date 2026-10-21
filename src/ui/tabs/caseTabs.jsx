@@ -2,7 +2,7 @@
 // ground-truth graph, evidence and application metadata.
 
 import React from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, OUTCOME_ICONS, eventFamily, money, pct, titleCase, scenarioLabel } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, OUTCOME_ICONS, eventFamily, money, pct, titleCase, scenarioLabel, REFERENCE_LABEL, REFERENCE_LABEL_NOTE } from "../theme.js";
 import { MetricCard, Panel, KV, Badge, ComparisonRow, CitationList, Callout } from "../components/primitives.jsx";
 import { caseDti } from "../../creditRisk.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
@@ -26,7 +26,7 @@ export function OverviewTab({ caseData }) {
       <div style={styles.grid4}>
         <MetricCard title="Alignment Level" value={label.alignment_level} color={ALIGNMENT_COLORS[label.alignment_level]} subtitle={titleCase(label.case_coherence_status)} />
         <MetricCard title="Fraud Risk" value={label.fraud_risk_level} color={FRAUD_COLORS[label.fraud_risk_level]} />
-        <MetricCard title="Expected Outcome" value={label.expected_outcome} color={OUTCOME_COLORS[label.expected_outcome]} icon={OUTCOME_ICONS[label.expected_outcome]} />
+        <MetricCard title={REFERENCE_LABEL} value={label.expected_outcome} color={OUTCOME_COLORS[label.expected_outcome]} icon={OUTCOME_ICONS[label.expected_outcome]} subtitle={REFERENCE_LABEL_NOTE} />
         <MetricCard title="Scenario" value={scenarioLabel(caseData.meta?.corruption_type)} color="#64748b" subtitle={`${caseData.meta?.severity} severity · ${label.difficulty}`} />
       </div>
       {solar && profile.application?.note && <div style={{ ...styles.note, marginTop: -4 }} data-testid="solar-generator-note">{profile.application.note}</div>}

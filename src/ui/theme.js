@@ -118,3 +118,6 @@ export const pct = (n, d = 1) => (n === null || n === undefined || Number.isNaN(
 export const titleCase = (s) => String(s ?? "").replace(/_/g, " ").toLowerCase().replace(/(^|\s)\w/g, (m) => m.toUpperCase());
 /** Display name of a case's scenario (fraud typology); a case with no corruption is a clean application. */
 export const scenarioLabel = (type) => (!type || type === "NONE" ? "Clean application" : titleCase(type));
+/** The generator's verdict (label.expected_outcome) is computed from hidden world truth, so every view names it the same way. */
+export const REFERENCE_LABEL = "Reference label";
+export const REFERENCE_LABEL_NOTE = "uses the case's hidden truth; an answer key, not a system decision";

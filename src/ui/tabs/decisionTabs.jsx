@@ -1,7 +1,7 @@
 // src/ui/tabs/decisionTabs.jsx — Decision, explanation, fairness and investigation tabs.
 
 import React, { useState } from "react";
-import { styles, OUTCOME_COLORS, OUTCOME_ICONS, SEVERITY_COLORS, CATEGORY_COLORS, STATE_COLORS, titleCase } from "../theme.js";
+import { styles, OUTCOME_COLORS, OUTCOME_ICONS, SEVERITY_COLORS, CATEGORY_COLORS, STATE_COLORS, titleCase, REFERENCE_LABEL, REFERENCE_LABEL_NOTE } from "../theme.js";
 import { MetricCard, Panel, KV, Badge, Chip, CitationList, Callout } from "../components/primitives.jsx";
 import { download } from "../components/download.js";
 import { REASON_CODES } from "../../decisioning/reason-codes/catalog.js";
@@ -28,13 +28,13 @@ export function DecisionTab({ caseData, scored }) {
           <div style={{ color: "#64748b", fontSize: 13 }}>Pathway: {titleCase(decision.pathway)} · policy {decision.policy_version} · ruleset {versions.ruleset}</div>
         </div>
         <div style={{ textAlign: "right", fontSize: 12, color: agrees ? "#059669" : "#b45309" }}>
-          <div>Generator label: <strong>{caseData.label.expected_outcome}</strong></div>
+          <div title={`${REFERENCE_LABEL}: ${REFERENCE_LABEL_NOTE}`}>{REFERENCE_LABEL}: <strong>{caseData.label.expected_outcome}</strong></div>
           <div>{agrees ? "Policy agrees" : "Policy differs — counted against decision agreement"}</div>
         </div>
       </div>
 
       <div style={{ ...styles.note, marginTop: -6 }} data-testid="integrity-detail">
-        <strong>Integrity check (generator):</strong> {caseData.label.expected_outcome.replace(/_/g, " ").toLowerCase()}
+        <strong>{REFERENCE_LABEL} ({REFERENCE_LABEL_NOTE}):</strong> {caseData.label.expected_outcome.replace(/_/g, " ").toLowerCase()}
         {caseData.label.reason ? ` — ${caseData.label.reason}` : ""}
         {caseData.label.reason_codes?.length > 0 && (
           <span>

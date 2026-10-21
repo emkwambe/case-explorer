@@ -2,7 +2,7 @@
 // public-benchmark validation panel and the compliance footer.
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { styles, money } from "../theme.js";
+import { styles, money, REFERENCE_LABEL, REFERENCE_LABEL_NOTE } from "../theme.js";
 import { caseDti, dtiDefinition, riskSummary, ficoComparison, DISAGREEMENT, DTI_BASIS } from "../../creditRisk.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
 import { CREDIT_DECISION_COLORS, COMPLIANCE_TEXT, REFERENCE_SIZE, REFERENCE_SEED, profileReference } from "./useCreditAssessments.js";
@@ -137,7 +137,7 @@ export function UnderwritingSidebar({ caseData, assessment }) {
         ))}
       </div>
 
-      <div style={styles.kvRow}><span>Integrity check</span><strong>{assessment.generatorDecision ?? "—"}</strong></div>
+      <div style={styles.kvRow} title={`${REFERENCE_LABEL}: ${REFERENCE_LABEL_NOTE}`}><span>{REFERENCE_LABEL}</span><strong>{assessment.generatorDecision ?? "—"}</strong></div>
       <div style={styles.kvRow}><span>FICO (claimed)</span><strong>{assessment.fico ?? "—"}</strong></div>
       <div style={styles.kvRow}><span>{dtiDefinition(profile).label} (claimed)</span><strong data-testid="sidebar-dti">{fmtPct(assessment.dti)}{assessment.dtiPartial ? " (partial)" : ""}</strong></div>
       <div style={styles.kvRow}><span>Student loans</span><strong>{money(assessment.studentPayment)}/mo</strong></div>
@@ -182,8 +182,8 @@ export function PortfolioStrip({ assessments }) {
           {k} {Math.round((100 * v) / n)}% ({v})
         </span>
       ))}
-      <span style={neutral} data-testid="conflict-approve-decline">Integrity APPROVE · Credit DECLINE: {conflicts[DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE]}</span>
-      <span style={neutral} data-testid="conflict-flag-approve">Integrity DECLINE or fraud REVIEW · Credit APPROVE: {conflicts[DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE]}</span>
+      <span style={neutral} title={`${REFERENCE_LABEL}: ${REFERENCE_LABEL_NOTE}`} data-testid="conflict-approve-decline">Reference APPROVE · Credit DECLINE: {conflicts[DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE]}</span>
+      <span style={neutral} title={`${REFERENCE_LABEL}: ${REFERENCE_LABEL_NOTE}`} data-testid="conflict-flag-approve">Reference DECLINE or fraud REVIEW · Credit APPROVE: {conflicts[DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE]}</span>
     </div>
   );
 }

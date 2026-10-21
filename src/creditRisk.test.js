@@ -251,23 +251,23 @@ describe("credit assessment outputs", () => {
     expect(assessCredit(none)).toMatchObject({ generatorDecision: null, disagreement: null });
   });
 
-  it("calls out integrity APPROVE with credit DECLINE, naming the driver", () => {
+  it("calls out reference APPROVE with credit DECLINE, naming the driver", () => {
     expect(assessCredit(handBuilt({ fico: 640 })).disagreement).toEqual({
       kind: DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE, generator: "APPROVE", policy: "DECLINE",
-      text: "Integrity check: APPROVE · Credit policy: DECLINE (FICO 640)"
+      text: "Reference label: APPROVE · Credit policy: DECLINE (FICO 640)"
     });
-    expect(assessCredit(handBuilt({ obligations: 1000, housing: 3700 })).disagreement.text).toBe("Integrity check: APPROVE · Credit policy: DECLINE (back-end DTI 47%)");
+    expect(assessCredit(handBuilt({ obligations: 1000, housing: 3700 })).disagreement.text).toBe("Reference label: APPROVE · Credit policy: DECLINE (back-end DTI 47%)");
   });
 
-  it("calls out integrity DECLINE or fraud REVIEW with credit APPROVE, and nothing else", () => {
+  it("calls out reference DECLINE or fraud REVIEW with credit APPROVE, and nothing else", () => {
     expect(assessCredit(handBuilt({ expected: "DECLINE" })).disagreement).toEqual({
       kind: DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE, generator: "DECLINE", policy: "APPROVE",
-      text: "Integrity check: DECLINE · Credit policy: APPROVE"
+      text: "Reference label: DECLINE · Credit policy: APPROVE"
     });
     expect(assessCredit(handBuilt({ expected: "DECLINE", reasonCodes: ["UNVERIFIABLE_INCOME", "ELEVATED_DTI"] })).disagreement.text)
-      .toBe("Integrity check: DECLINE · Credit policy: APPROVE (UNVERIFIABLE_INCOME)");
+      .toBe("Reference label: DECLINE · Credit policy: APPROVE (UNVERIFIABLE_INCOME)");
     expect(assessCredit(handBuilt({ expected: "MANUAL_REVIEW", reasonCodes: ["UNSOURCED_LARGE_DEPOSIT"] })).disagreement.text)
-      .toBe("Integrity check: REVIEW for fraud · Credit policy: APPROVE (UNSOURCED_LARGE_DEPOSIT)");
+      .toBe("Reference label: REVIEW for fraud · Credit policy: APPROVE (UNSOURCED_LARGE_DEPOSIT)");
     expect(assessCredit(handBuilt({ expected: "MANUAL_REVIEW", reasonCodes: ["ELEVATED_DTI", "NOT_A_CODE"] })).disagreement).toBeNull();
     expect(assessCredit(handBuilt({ expected: "MANUAL_REVIEW" })).disagreement).toBeNull();
     expect(assessCredit(handBuilt({ fico: 640, expected: "DECLINE" })).disagreement).toBeNull();
@@ -277,13 +277,13 @@ describe("credit assessment outputs", () => {
 
   it("formats the one-line risk summary", () => {
     expect(riskSummary(assessCredit(handBuilt({ fico: 682, obligations: 1000, housing: 3300 }))))
-      .toBe("Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Integrity: APPROVE");
+      .toBe("Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Reference: APPROVE");
     expect(riskSummary(assessCredit(handBuilt({ fico: 640, obligations: 1000, housing: 3700, studentPayments: [1234.6] }))))
-      .toBe("Borrower: FICO 640, DTI 47%, Student $1,235/mo, Fraud: None, Policy: DECLINE - Credit score below program minimum; Excessive obligations in relation to income | Integrity: APPROVE");
+      .toBe("Borrower: FICO 640, DTI 47%, Student $1,235/mo, Fraud: None, Policy: DECLINE - Credit score below program minimum; Excessive obligations in relation to income | Reference: APPROVE");
     expect(riskSummary(assessCredit(handBuilt({ housing: null, obligations: 500 }))))
-      .toBe("Borrower: FICO 720, DTI 5% (partial), Student $320/mo, Fraud: None, Policy: APPROVE | Integrity: APPROVE");
+      .toBe("Borrower: FICO 720, DTI 5% (partial), Student $320/mo, Fraud: None, Policy: APPROVE | Reference: APPROVE");
     expect(riskSummary({ fico: null, dti: null, dtiPartial: true, studentPayment: 0, fraudFlag: "REVIEW", reasons: [], policyDecision: "APPROVE", generatorDecision: null }))
-      .toBe("Borrower: FICO n/a, DTI n/a, Student $0/mo, Fraud: Review, Policy: APPROVE | Integrity: n/a");
+      .toBe("Borrower: FICO n/a, DTI n/a, Student $0/mo, Fraud: Review, Policy: APPROVE | Reference: n/a");
   });
 });
 

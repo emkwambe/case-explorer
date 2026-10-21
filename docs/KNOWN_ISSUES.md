@@ -42,7 +42,7 @@ Under the Solar prime profile, Borrower profiles reuse the mortgage generator; m
 
 The integrity verdict (`label.expected_outcome`, with `label.reason_codes`) comes from the generator's reference labeller, `computeDecision` in `src/core/findings.js`. It underwrites on world truth: verified income, the true credit score, the higher of claimed and true obligations, and the injected corruption type. It is an answer key, not a system decision. No decision function reads it as an input; the leakage audit in `scripts/test-spine.test.mjs` covers decision outputs only, and the verdict is truth-derived by design.
 
-The case views show it today: the Decision tab ("Integrity check (generator)", "Generator label"), the Overview's Expected Outcome card, the case cards and their integrity badge, the Data Table's Outcome column, the Credit Risk sidebar, and the Mortgage header lens. Most of those labels call it an integrity check, not an answer key.
+The case views show it under one name, "Reference label", with the note "uses the case's hidden truth; an answer key, not a system decision": the Decision tab, the Overview card, the case cards and their "Reference: decline" badge, the Data Table column, the Credit Risk sidebar and disagreement callouts, and the Mortgage header lens. The "Integrity model" wording that remains on the Decision tab names the underwriting policy's factors (`scoreCase`, permitted inputs only), not this verdict.
 
 **Challenge mode must hide it.** A blind decision is meaningless while the verdict, its reason codes or the integrity badge is on screen, so challenge mode has to hide every one of these until the learner commits.
 

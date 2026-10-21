@@ -33,17 +33,17 @@ export function cardReason(a) {
 }
 
 /**
- * Secondary integrity badge, or null. Shown only when the generator's integrity check reviews or
- * declines the case for a fraud indicator or a verification failure; benign explainable variances
- * (timing drift, A1/A2 coherent-with-explainable-variances, credit-only reviews) show nothing on the
- * card and stay in the case's Decision tab. Uses the same reason-code rule as the integrity
- * disagreement callout.
+ * Secondary reference-label badge, or null. Shown only when the generator's reference label (computed
+ * from hidden truth: an answer key, not a system decision) reviews or declines the case for a fraud
+ * indicator or a verification failure; benign explainable variances (timing drift, A1/A2
+ * coherent-with-explainable-variances, credit-only reviews) show nothing on the card and stay in the
+ * case's Decision tab. Uses the same reason-code rule as the disagreement callout.
  */
 export function integrityBadge(a, label) {
   if (!a?.generatorDecision || a.generatorDecision === "APPROVE") return null;
   const codes = integrityFraudCodes(label);
   if (codes.length === 0) return null;
-  return { text: `Integrity: ${a.generatorDecision.toLowerCase()}`, codes };
+  return { text: `Reference: ${a.generatorDecision.toLowerCase()}`, codes };
 }
 
 export const COMPLIANCE_TEXT = "Demo only · Synthetic data · Not a consumer report · Not for credit decisions · Educational portfolio project";

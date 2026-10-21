@@ -7,7 +7,7 @@ export const MORTGAGE_PROFILE = Object.freeze({
   subtitle: "Mortgage risk simulation, fraud analytics and model validation",
   // Purchase or refinance mortgage: back-end DTI adds the proposed PITI (see caseDti in creditRisk.js).
   dti: Object.freeze({ basis: "PROPOSED_PITI", label: "Back-end DTI (incl. proposed PITI)" }),
-  // Header counts use the generator's integrity check.
+  // Header counts use the generator's reference label (an answer key computed from hidden truth).
   headerLens: "integrity",
   // The opening library is the fraud-typology showcase used by the guided walkthrough.
   openingLibrary: { kind: "showcase" },

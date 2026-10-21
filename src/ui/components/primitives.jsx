@@ -1,6 +1,6 @@
 // src/ui/components/primitives.jsx — Small presentational building blocks.
 import React from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, titleCase, scenarioLabel } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, titleCase, scenarioLabel, REFERENCE_LABEL, REFERENCE_LABEL_NOTE } from "../theme.js";
 import { CREDIT_DECISION_COLORS, CREDIT_DECISION_LABELS, cardReason, integrityBadge } from "../credit/useCreditAssessments.js";
 
 export function MetricCard({ title, value, color, subtitle, icon }) {
@@ -79,7 +79,7 @@ export function CaseCard({ caseData, selected, onClick, accentColor, loanAmount 
       </div>
       <div style={styles.cardMeta}>Age {applicant.age} · ${(loanAmount ?? caseData.application.loan_amount).toLocaleString()} · {scenarioLabel(caseData.meta?.corruption_type)}</div>
       <div style={styles.cardOutcome}>
-        <span style={{ color: FRAUD_COLORS[label.fraud_risk_level], fontWeight: 600 }}>{label.expected_outcome}</span>
+        <span style={{ color: FRAUD_COLORS[label.fraud_risk_level], fontWeight: 600 }} title={`${REFERENCE_LABEL}: ${REFERENCE_LABEL_NOTE}`} data-testid="card-reference">Reference: {label.expected_outcome}</span>
         <span style={styles.cardDifficulty}>{label.difficulty}</span>
       </div>
     </div>
@@ -88,8 +88,8 @@ export function CaseCard({ caseData, selected, onClick, accentColor, loanAmount 
 
 /**
  * Case card under the credit lens: the credit-policy decision is the primary status and colour,
- * the top reason is the subtitle, and an integrity badge appears only when the integrity check cites
- * a fraud indicator or a verification failure.
+ * the top reason is the subtitle, and a reference-label badge appears only when the reference label
+ * cites a fraud indicator or a verification failure.
  */
 export function CreditCaseCard({ caseData, selected, onClick, assessment }) {
   const decision = assessment.policyDecision;
@@ -110,7 +110,7 @@ export function CreditCaseCard({ caseData, selected, onClick, assessment }) {
       <div style={styles.cardOutcome}>
         <span style={{ fontSize: 12, color: "#64748b" }}>Age {caseData.applicant.age} · FICO {assessment.fico ?? "—"}</span>
         {integrity && (
-          <span title={`Integrity check cites: ${integrity.codes.map(titleCase).join(", ")}`} data-codes={integrity.codes.join(",")}
+          <span title={`${REFERENCE_LABEL} (${REFERENCE_LABEL_NOTE}) cites: ${integrity.codes.map(titleCase).join(", ")}`} data-codes={integrity.codes.join(",")}
             style={{ fontSize: 11, color: "#475569", border: "1px solid #cbd5e1", borderRadius: 10, padding: "1px 8px" }} data-testid="card-integrity">{integrity.text}</span>
         )}
       </div>

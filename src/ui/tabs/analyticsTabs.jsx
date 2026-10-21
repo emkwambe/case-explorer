@@ -1,7 +1,7 @@
 // src/ui/tabs/analyticsTabs.jsx — Portfolio-level tabs: data table, network, economics, validation.
 
 import React, { useMemo, useState } from "react";
-import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, money, pct, titleCase, scenarioLabel } from "../theme.js";
+import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, FRAUD_COLORS, OUTCOME_COLORS, money, pct, titleCase, scenarioLabel, REFERENCE_LABEL } from "../theme.js";
 import { MetricCard, Panel, Badge, Chip, Th, Callout } from "../components/primitives.jsx";
 import { download } from "../components/download.js";
 import { scoreCase } from "../../decisioning/index.js";
@@ -72,7 +72,7 @@ export function DataTableTab({ cases, onSelect }) {
             <Th label={`${dtiDefinition(profile).label}, truth`} sortKey="dti" sortConfig={sortConfig} onSort={requestSort} numeric />
             <Th label="Credit" sortKey="credit_score" sortConfig={sortConfig} onSort={requestSort} numeric />
             <Th label="Align" sortKey="label.alignment_level" sortConfig={sortConfig} onSort={requestSort} />
-            <Th label="Outcome" sortKey="label.expected_outcome" sortConfig={sortConfig} onSort={requestSort} />
+            <Th label={REFERENCE_LABEL} sortKey="label.expected_outcome" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Fraud risk" sortKey="label.fraud_risk_level" sortConfig={sortConfig} onSort={requestSort} />
             <Th label="Observed outcome" sortKey="performance.status" sortConfig={sortConfig} onSort={requestSort} />
           </tr></thead>

@@ -7,9 +7,10 @@
 //     `presentation` or an underwriter-visible fraud-rule alert. World truth, the generator's
 //     labels and `meta.corruption_type` are never policy inputs.
 //   * The policy is a credit overlay, kept separate from the generator's own decision
-//     (`label.expected_outcome`, shown as the "Integrity check"). Only two disagreements are
-//     reported: integrity APPROVE with credit DECLINE, and integrity DECLINE (or REVIEW for
-//     fraud or verification reasons) with credit APPROVE. They are reported, not resolved.
+//     (`label.expected_outcome`, shown as the "Reference label": it is computed from hidden truth,
+//     so it is an answer key, not a system decision). Only two disagreements are reported:
+//     reference APPROVE with credit DECLINE, and reference DECLINE (or REVIEW for fraud or
+//     verification reasons) with credit APPROVE. They are reported, not resolved.
 //   * The policy never uses geography, region, zip code, persona, age or regime.
 //     `scripts/credit-risk.test.mjs` enforces this by changing those fields on a case and
 //     asserting that `assessCredit` output is unchanged. No fair-lending claim is made:
@@ -178,7 +179,7 @@ export function assessCredit(caseObj, profile = getProfile(DEFAULT_PROFILE_ID), 
     ? declineFlags.map((f) => f.adverseActionReason)
     : policyDecision === "REVIEW" ? reviewFlags.map((f) => f.label) : [];
 
-  // The generator's own decision is the integrity check: a separate lens, never a policy input.
+  // The generator's own decision is the reference label: computed from hidden truth, never a policy input.
   const generatorDecision = normaliseDecision(caseObj?.label?.expected_outcome);
   const integrityFraudReview = generatorDecision === "REVIEW" && integrityFraudCodes(caseObj?.label).length > 0;
   let disagreement = null;
@@ -189,7 +190,7 @@ export function assessCredit(caseObj, profile = getProfile(DEFAULT_PROFILE_ID), 
       kind: DISAGREEMENT.INTEGRITY_APPROVE_CREDIT_DECLINE,
       generator: generatorDecision,
       policy: policyDecision,
-      text: `Integrity check: APPROVE · Credit policy: DECLINE (${detail})`
+      text: `Reference label: APPROVE · Credit policy: DECLINE (${detail})`
     };
   } else if ((generatorDecision === "DECLINE" || integrityFraudReview) && policyDecision === "APPROVE") {
     const codes = integrityFraudCodes(caseObj?.label);
@@ -197,7 +198,7 @@ export function assessCredit(caseObj, profile = getProfile(DEFAULT_PROFILE_ID), 
       kind: DISAGREEMENT.INTEGRITY_FLAG_CREDIT_APPROVE,
       generator: generatorDecision,
       policy: policyDecision,
-      text: `Integrity check: ${generatorDecision}${integrityFraudReview ? " for fraud" : ""} · Credit policy: APPROVE${codes.length ? ` (${codes.join(", ")})` : ""}`
+      text: `Reference label: ${generatorDecision}${integrityFraudReview ? " for fraud" : ""} · Credit policy: APPROVE${codes.length ? ` (${codes.join(", ")})` : ""}`
     };
   }
 
@@ -218,8 +219,9 @@ export function assessCredit(caseObj, profile = getProfile(DEFAULT_PROFILE_ID), 
 
 /**
  * One-line summary, for example:
- *   Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Integrity: APPROVE
- * "Integrity" is the generator's integrity-check decision. The " - <reasons>" part is omitted on
+ *   Borrower: FICO 682, DTI 43%, Student $320/mo, Fraud: None, Policy: REVIEW - Elevated DTI | Reference: APPROVE
+ * "Reference" is the generator's reference label (computed from hidden truth: an answer key, not a
+ * system decision). The " - <reasons>" part is omitted on
  * APPROVE; several reasons are joined with "; ".
  */
 export function riskSummary(a) {
@@ -228,7 +230,7 @@ export function riskSummary(a) {
   const student = `$${Math.round(a.studentPayment).toLocaleString("en-US")}/mo`;
   const fraud = a.fraudFlag === "REVIEW" ? "Review" : "None";
   const policy = a.reasons.length ? `${a.policyDecision} - ${a.reasons.join("; ")}` : a.policyDecision;
-  return `Borrower: FICO ${fico}, DTI ${dti}, Student ${student}, Fraud: ${fraud}, Policy: ${policy} | Integrity: ${a.generatorDecision ?? "n/a"}`;
+  return `Borrower: FICO ${fico}, DTI ${dti}, Student ${student}, Fraud: ${fraud}, Policy: ${policy} | Reference: ${a.generatorDecision ?? "n/a"}`;
 }
 
 /**
