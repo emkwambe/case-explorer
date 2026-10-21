@@ -1,0 +1,381 @@
+{
+  "profile": "SOLAR_PRIME",
+  "seed": 42,
+  "loans": {
+    "count": 10000,
+    "sum_ead": 448332100,
+    "expected_loss": 4413431,
+    "lgd": 0.85,
+    "dpd30_count": 225,
+    "dpd30_rate": 0.0225,
+    "charged_off_count": 101
+  },
+  "dealers": [
+    {
+      "dealer_id": "NC-01",
+      "loans": 17,
+      "sum_ead": 877600,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-02",
+      "loans": 23,
+      "sum_ead": 1146000,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-03",
+      "loans": 11,
+      "sum_ead": 318500,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-04",
+      "loans": 45,
+      "sum_ead": 2299300,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-05",
+      "loans": 18,
+      "sum_ead": 734100,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-06",
+      "loans": 98,
+      "sum_ead": 4435300,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-07",
+      "loans": 15,
+      "sum_ead": 543300,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-08",
+      "loans": 52,
+      "sum_ead": 2282700,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-09",
+      "loans": 214,
+      "sum_ead": 9864000,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-10",
+      "loans": 20,
+      "sum_ead": 880200,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-11",
+      "loans": 18,
+      "sum_ead": 787200,
+      "dpd30_count": 1,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-12",
+      "loans": 25,
+      "sum_ead": 925600,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-13",
+      "loans": 31,
+      "sum_ead": 1293300,
+      "dpd30_count": 1,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-14",
+      "loans": 129,
+      "sum_ead": 5128100,
+      "dpd30_count": 1,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-15",
+      "loans": 18,
+      "sum_ead": 966600,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-16",
+      "loans": 31,
+      "sum_ead": 1624300,
+      "dpd30_count": 0,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-17",
+      "loans": 15,
+      "sum_ead": 805600,
+      "dpd30_count": 1,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-18",
+      "loans": 738,
+      "sum_ead": 33508800,
+      "dpd30_count": 24,
+      "rating": "YELLOW"
+    },
+    {
+      "dealer_id": "NC-19",
+      "loans": 1885,
+      "sum_ead": 82900000,
+      "dpd30_count": 46,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-20",
+      "loans": 445,
+      "sum_ead": 19698400,
+      "dpd30_count": 26,
+      "rating": "RED"
+    },
+    {
+      "dealer_id": "NC-21",
+      "loans": 83,
+      "sum_ead": 3887000,
+      "dpd30_count": 3,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-22",
+      "loans": 14,
+      "sum_ead": 556300,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-23",
+      "loans": 10,
+      "sum_ead": 474200,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-24",
+      "loans": 16,
+      "sum_ead": 690500,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-25",
+      "loans": 131,
+      "sum_ead": 6029900,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-26",
+      "loans": 108,
+      "sum_ead": 4953300,
+      "dpd30_count": 0,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "NC-27",
+      "loans": 13,
+      "sum_ead": 586600,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-28",
+      "loans": 22,
+      "sum_ead": 844800,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-29",
+      "loans": 20,
+      "sum_ead": 920300,
+      "dpd30_count": 0,
+      "rating": "INSUFFICIENT_DATA"
+    },
+    {
+      "dealer_id": "NC-30",
+      "loans": 314,
+      "sum_ead": 14459100,
+      "dpd30_count": 28,
+      "rating": "RED"
+    },
+    {
+      "dealer_id": "SC-01",
+      "loans": 80,
+      "sum_ead": 3484000,
+      "dpd30_count": 3,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "GA-01",
+      "loans": 731,
+      "sum_ead": 32324200,
+      "dpd30_count": 18,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "VA-01",
+      "loans": 231,
+      "sum_ead": 10391700,
+      "dpd30_count": 1,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "TN-01",
+      "loans": 221,
+      "sum_ead": 10740600,
+      "dpd30_count": 0,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "SC-02",
+      "loans": 1144,
+      "sum_ead": 50502100,
+      "dpd30_count": 15,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "GA-02",
+      "loans": 237,
+      "sum_ead": 11065200,
+      "dpd30_count": 7,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "VA-02",
+      "loans": 86,
+      "sum_ead": 3756000,
+      "dpd30_count": 1,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "TN-02",
+      "loans": 108,
+      "sum_ead": 4940900,
+      "dpd30_count": 0,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "SC-03",
+      "loans": 136,
+      "sum_ead": 6005400,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "GA-03",
+      "loans": 87,
+      "sum_ead": 3873900,
+      "dpd30_count": 1,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "VA-03",
+      "loans": 402,
+      "sum_ead": 18259300,
+      "dpd30_count": 3,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "TN-03",
+      "loans": 91,
+      "sum_ead": 4316000,
+      "dpd30_count": 1,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "SC-04",
+      "loans": 288,
+      "sum_ead": 12649700,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "GA-04",
+      "loans": 84,
+      "sum_ead": 3816500,
+      "dpd30_count": 0,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "VA-04",
+      "loans": 140,
+      "sum_ead": 6450100,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "TN-04",
+      "loans": 167,
+      "sum_ead": 7253000,
+      "dpd30_count": 4,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "SC-05",
+      "loans": 469,
+      "sum_ead": 21353600,
+      "dpd30_count": 4,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "GA-05",
+      "loans": 369,
+      "sum_ead": 17125100,
+      "dpd30_count": 12,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "VA-05",
+      "loans": 166,
+      "sum_ead": 7126400,
+      "dpd30_count": 6,
+      "rating": "GREEN"
+    },
+    {
+      "dealer_id": "TN-05",
+      "loans": 184,
+      "sum_ead": 8477500,
+      "dpd30_count": 2,
+      "rating": "GREEN"
+    }
+  ],
+  "pool": {
+    "applications": 18674,
+    "funded": 10000,
+    "funded_share": 0.535504,
+    "policy_mix": {
+      "APPROVE": 10000,
+      "REVIEW": 4494,
+      "DECLINE": 4180
+    },
+    "policy_mix_share": {
+      "APPROVE": 0.535504,
+      "REVIEW": 0.240655,
+      "DECLINE": 0.223841
+    },
+    "note": "Pool mix: credit-policy decisions over the 18,674 applications generated to fund the 10,000-loan book. It is not the 54.6 / 24.7 / 20.7 mix, which comes from the separate 2,000-application test:credit sample."
+  }
+}

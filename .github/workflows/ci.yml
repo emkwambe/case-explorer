@@ -50,8 +50,23 @@ jobs:
           path: coverage/
           retention-days: 14
 
+  script-suites:
+    name: Engine checks, locked Findings numbers, test spine and credit tape
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # test:credit, test:dealers, test:funding, test:public-record, test:sandbox, test:locked,
+      # test:spine and test:tape, in that order; the first failure fails the job.
+      - run: npm run test:all
+
   benchmark:
-    name: Analytical benchmark (release gates)
+    name: Analytical benchmark (release gates and answer keys)
     runs-on: ubuntu-latest
     needs: [lint, unit-tests]
     steps:
@@ -61,7 +76,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
-      # Fails the job when any mandatory gate in src/evaluation/gates.js fails.
+      # Fails the job when any mandatory gate in src/evaluation/gates.js fails, or when a pinned case
+      # set differs from its answer key in benchmarks/ (or the key is not named in benchmarks/CHANGELOG.md).
       - run: node scripts/benchmark.js --count 2000 --seed 42 --out artifacts
       - name: Verify README metrics are generated from artifacts, not typed
         run: node scripts/update_readme_metrics.js --check
@@ -219,7 +235,7 @@ jobs:
   deploy-pages:
     name: Deploy demo to GitHub Pages
     runs-on: ubuntu-latest
-    needs: [build, benchmark, python-analytics]
+    needs: [build, benchmark, python-analytics, script-suites]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
       contents: read

@@ -10,7 +10,7 @@ import { analyzeNetwork } from "../../analytics/network.js";
 import { injectFraudRings } from "../../simulation/rings.js";
 import { isFraudCase, extractDecisionFeatures, decisionRowsToCsv } from "../../ml/decision_features.js";
 import { casesToCsv } from "../../ml/features.js";
-import { useArtifact, artifactUrl } from "../hooks/useArtifacts.js";
+import { useArtifact, artifactUrl, modelProvenance } from "../hooks/useArtifacts.js";
 import { caseDti, dtiDefinition } from "../../creditRisk.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
 
@@ -232,8 +232,10 @@ export function EconomicsTab({ cases, config }) {
 export function ValidationTab() {
   const benchmark = useArtifact("validation-summary.json");
   const models = useArtifact("model-summary.json");
+  const snapshot = useArtifact("model-snapshot.json");
   const s = benchmark.data;
   const champion = models.data?.champion;
+  const provenance = modelProvenance(models.data, snapshot.data);
 
   return (
     <div>
@@ -292,6 +294,7 @@ export function ValidationTab() {
 
       {champion && (
         <Panel title="Model validation" style={{ marginTop: 16 }}>
+          {provenance && <div data-testid="model-provenance" style={{ fontSize: 12, color: "#475569", marginBottom: 8 }}>{provenance.text}</div>}
           <div style={styles.grid4}>
             <MetricCard title="Champion" value={champion.model} color="#2563eb" subtitle={`${champion.backend} · v${champion.version}`} />
             <MetricCard title="Test PR-AUC" value={champion.test?.pr_auc?.toFixed(3)} color="#059669" />

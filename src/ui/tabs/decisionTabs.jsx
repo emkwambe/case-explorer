@@ -6,7 +6,7 @@ import { MetricCard, Panel, KV, Badge, Chip, CitationList, Callout } from "../co
 import { download } from "../components/download.js";
 import { REASON_CODES } from "../../decisioning/reason-codes/catalog.js";
 import { getRule } from "../../decisioning/fraud-rules/rules.js";
-import { artifactUrl, useArtifact } from "../hooks/useArtifacts.js";
+import { artifactUrl, useArtifact, modelProvenance } from "../hooks/useArtifacts.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
 import { showsSolarLoan } from "../../profiles/index.js";
 
@@ -138,9 +138,11 @@ export function DecisionTab({ caseData, scored }) {
 
 export function ExplanationTab({ scored }) {
   const models = useArtifact("model-summary.json");
+  const snapshot = useArtifact("model-snapshot.json");
   if (!scored) return null;
   const e = scored.explanation;
   const champion = models.data?.champion;
+  const provenance = modelProvenance(models.data, snapshot.data);
   const importance = models.data?.explainability?.global_importance ?? models.data?.explainability?.permutation_importance ?? null;
   return (
     <div>
@@ -188,6 +190,7 @@ export function ExplanationTab({ scored }) {
         )}
         {champion && (
           <>
+            {provenance && <div data-testid="model-provenance" style={{ fontSize: 12, color: "#475569", marginBottom: 8 }}>{provenance.text}</div>}
             <div style={styles.grid4}>
               <MetricCard title="Champion" value={champion.model} color="#2563eb" subtitle={champion.backend} />
               <MetricCard title="Test PR-AUC" value={(champion.test?.pr_auc ?? 0).toFixed(3)} color="#059669" />

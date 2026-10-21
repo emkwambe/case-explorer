@@ -17,6 +17,11 @@
     "test:funding": "node scripts/funding.test.mjs",
     "test:public-record": "node scripts/public-record.test.mjs",
     "test:sandbox": "node scripts/policy-sandbox.test.mjs",
+    "test:locked": "node scripts/locked-numbers.test.mjs",
+    "test:spine": "node scripts/test-spine.test.mjs",
+    "test:tape": "node scripts/credit-tape.test.mjs",
+    "test:all": "npm run test:credit && npm run test:dealers && npm run test:funding && npm run test:public-record && npm run test:sandbox && npm run test:locked && npm run test:spine && npm run test:tape",
+    "export:tape": "node scripts/export_credit_book.mjs",
     "smoke": "node scripts/smoke.mjs",
     "capture:findings": "node scripts/capture-findings.mjs",
     "check:mobile": "node scripts/check-mobile.mjs",
@@ -66,5 +71,5 @@
     "vite": "^8.1.1",
     "vitest": "^4.1.10"
   },
-  "description": "Mortgage risk simulation, fraud analytics and model-validation lab: synthetic borrower generation, rule and ML detection, governed decisioning, fairness testing and audit-ready evidence."
+  "description": "Credit risk lab for consumer lending: synthetic applications with known ground truth, a point-of-sale solar credit lab, a public-record case study, and a mortgage fraud-analytics and model-validation suite."
 }

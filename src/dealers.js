@@ -62,7 +62,8 @@ export const DEALER_DEFAULTS = Object.freeze({
   performance: {
     monthsOnBook: 18,
     // Logistic monthly hazard of a 30+ DPD event on true FICO, true back-end DTI, fraud and dealer quality.
-    // The intercept is calibrated on 10,000 SOLAR_PRIME cases at seed 42 to roughly 6% 30+ DPD over 18 months.
+    // The intercept was set on SOLAR_PRIME cases at seed 42. It gives 5.0% 30+ DPD over 18 months across the
+    // first 10,000 applications (any decision) and 2.25% on the 10,000-loan funded book (credit-policy APPROVE).
     intercept: -7.3,
     ficoPer100Below700: 0.9,
     dtiPer10PointsAbove36: 0.35,

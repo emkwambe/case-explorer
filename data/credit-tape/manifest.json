@@ -1,0 +1,60 @@
+{
+  "tape_version": "1.0.0",
+  "profile": "SOLAR_PRIME",
+  "seed": 42,
+  "as_of_date": "2026-01-15",
+  "generator_version": "2.0.0",
+  "case_schema_version": "2.0.0",
+  "configuration_hash": "sha256:e984ec798beee74c88e4a25089df2071c5d9b9cd5acc8cc0471fba2b3f386a7b",
+  "produced_by": "node scripts/export_credit_book.mjs",
+  "files": {
+    "credit-tape-loans.csv": {
+      "role": "one row per funded loan: presented values and simulated outcomes",
+      "rows": 10000,
+      "columns": [
+        "loan_id",
+        "dealer_id",
+        "ead",
+        "fico_presented",
+        "dti_presented",
+        "checking_presented",
+        "fraud_review",
+        "dpd30",
+        "charged_off"
+      ],
+      "sha256": "bc319c09a4022eb38f88e5d40082e9a8bd1640117c6f3983612006b9443c37b2"
+    },
+    "credit-tape-pool.csv": {
+      "role": "one row per application generated to fund the book: presented values and the credit-policy decision",
+      "rows": 18674,
+      "columns": [
+        "application_id",
+        "fico_presented",
+        "dti_presented",
+        "checking_presented",
+        "fraud_review",
+        "decision",
+        "funded"
+      ],
+      "sha256": "34ad9311ec2066cdee74bd462916f25f18349d86cfa14668c937c07beec8ae75"
+    },
+    "credit-tape-oracle.csv": {
+      "role": "answer key — never a model input: world truth, the corruption label, dealer quality and PD for each funded loan",
+      "rows": 10000,
+      "columns": [
+        "loan_id",
+        "fico_true",
+        "dti_true",
+        "fraud_true",
+        "corruption_type",
+        "dealer_quality",
+        "pd"
+      ],
+      "sha256": "db5575d53882523016398ed5d0dc64499ad8d534df3c5d0c68fc409682221f1a"
+    },
+    "credit-tape-reconciliation.json": {
+      "role": "totals the tape must reconcile to",
+      "sha256": "696a331582e13018be39cafbb0f1ae68e1dafd5d5da03c7cacd9b9b2fbd3aa42"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Architecture
 
-Case Explorer is a mortgage risk simulation, fraud analytics and model-validation lab. It has a JavaScript core (generation, decisioning, evaluation, API, UI) and a Python analytics workbench (model development, explainability, fairness, monitoring, governance).
+Case Explorer is a credit risk lab for consumer lending, built on synthetic applications with known ground truth; its mortgage fraud-analytics and model-validation suite is one part of it. It has a JavaScript core (generation, decisioning, evaluation, API, UI) and a Python analytics workbench (model development, explainability, fairness, monitoring, governance).
 
 On top of that core sits a credit lab for consumer lending, driven by **lender profiles**: Solar prime is the default, and Mortgage stays the engine's fallback. The credit lab covers the credit policy, the Dealer View, Funding & Rates, a Public record tab built on pinned SEC and FRED snapshots, a Findings tab, and a Policy Sandbox that scores the portfolio's application pool under a candidate credit policy. Browser code never calls SEC or FRED; it reads only the committed snapshots in `data/public-record/`.
 
@@ -22,6 +22,8 @@ Generation produces three layers plus metadata:
 `src/ml/decision_features.js` builds the underwriter-visible view. `src/decisioning/policies/feature_policy.js` classifies every field as permitted, sensitive or prohibited and throws at runtime if a prohibited field reaches a model. Prohibited covers everything derived from world truth, every label, identity, and every field of the performance simulation, which is information about the future.
 
 The second rule is that a policy is never graded against another policy. `src/simulation/performance.js` simulates each case forward as if the loan were funded, reading world-truth cash flows and no policy, rule or reason code. `src/evaluation/outcome/index.js` grades the underwriting policy on that outcome: does policy severity rank real defaults, is the approved pool safer than the population, how many rejected applicants would have paid, and what is the portfolio worth against approve-all, decline-all and an oracle. Performance is simulated for declined cases too, so a false decline is measurable.
+
+Two default definitions exist. The 36-month performance simulation above gives the Mortgage measure, `performance.defaulted`, exported to the Python datasets as `label__defaulted`. The Solar prime dealer simulation in `src/dealers.js` gives, for each funded loan, `pd` and `dpd30` (30+ days past due within 18 months). The credit work uses the Solar measures: the Findings numbers, the Policy Sandbox and the loan tape in `data/credit-tape/`.
 
 ## Request and evaluation flows
 

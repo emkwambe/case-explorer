@@ -1,7 +1,9 @@
 # Case Explorer analytics workbench
 
-Python model-development, validation, explainability, fairness, monitoring and governance layer for the
-synthetic mortgage cases produced by the JavaScript generator.
+Case Explorer is a credit risk lab. This workbench is its mortgage fraud-analytics suite: the Python
+model-development, validation, explainability, fairness, monitoring and governance layer for the
+synthetic mortgage cases produced by the JavaScript generator. Credit-default modelling on the Solar
+prime book is not in it yet.
 
 ```
 cd analytics

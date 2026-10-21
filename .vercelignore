@@ -22,6 +22,8 @@
 /public/artifacts
 
 # Prebuild step: scripts/prepare_demo_assets.js copies the published artifacts into public/.
+# !/artifacts includes artifacts/model-snapshot, the committed model outputs used when
+# analytics/artifacts (gitignored) is absent.
 !/scripts
 /scripts/*
 !/scripts/prepare_demo_assets.js

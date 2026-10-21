@@ -1,0 +1,3228 @@
+{
+  "analytics_version": "0.2.0",
+  "generated_at": "2026-10-14T18:17:18.856229+00:00",
+  "runtime_seconds": 90.9,
+  "lineage": {
+    "dataset_version": "2.1.0",
+    "generator_version": "2.0.0",
+    "generator_commit": "8aaa130fb28b8702ee47e80486e544cd83f1ea0a",
+    "seed": "42",
+    "generated_at": "2026-10-14T18:14:20.837Z",
+    "feature_schema_version": "1.0.0",
+    "feature_policy_version": "1.0.0",
+    "ruleset_version": "1.3.0",
+    "splits": {
+      "train": {
+        "configuration_hash": "sha256:0791d6f8ad0889666847962454a395e14bf5260a1e4aca658178ec6190d00ff3",
+        "seed": "42",
+        "as_of_date": "2026-01-15",
+        "population_regime": "baseline",
+        "record_count": 3598,
+        "fraud_rate": 0.1882,
+        "file_sha256": "sha256:bdb5831c11d8bf3abead6295a385c7f3986c8368a157740da61f5ccfa8bd2b93"
+      },
+      "validation": {
+        "configuration_hash": "sha256:0791d6f8ad0889666847962454a395e14bf5260a1e4aca658178ec6190d00ff3",
+        "seed": "42",
+        "as_of_date": "2026-01-15",
+        "population_regime": "baseline",
+        "record_count": 1155,
+        "fraud_rate": 0.181,
+        "file_sha256": "sha256:40dbc12b2ada6eb123d2059ad8aab5bb7235400624521dc123653372573c5cf0"
+      },
+      "test": {
+        "configuration_hash": "sha256:0791d6f8ad0889666847962454a395e14bf5260a1e4aca658178ec6190d00ff3",
+        "seed": "42",
+        "as_of_date": "2026-01-15",
+        "population_regime": "baseline",
+        "record_count": 1247,
+        "fraud_rate": 0.1989,
+        "file_sha256": "sha256:7f0f545aa3948176bc3a0204d7b19361d5324f6fca1d9a1932407e0ee60ba4bd"
+      },
+      "out_of_time": {
+        "configuration_hash": "sha256:069797263e56bf370272845f2579bc0ad5cbebee6e98a692248c581358b445ac",
+        "seed": "42-oot",
+        "as_of_date": "2026-07-15",
+        "population_regime": "out_of_time_rate_shock",
+        "record_count": 1500,
+        "fraud_rate": 0.198,
+        "file_sha256": "sha256:df46e1de51b3cf8afaa6db7f8ba1c8b312ea08c0f5fbdab79fe25ad278eb5665"
+      },
+      "geography_stress": {
+        "configuration_hash": "sha256:0debc983dd6434a15e40670632238f91b53ba291ae2c06ac2ed06cd33fd52a3a",
+        "seed": "42-geo",
+        "as_of_date": "2026-01-15",
+        "population_regime": "high_cost_markets",
+        "record_count": 1500,
+        "fraud_rate": 0.198,
+        "file_sha256": "sha256:cb0ba9ef380a224fb35140d8a67bd4e9da341c410ccd815ed7b497433f7b71b9"
+      },
+      "economic_regime_stress": {
+        "configuration_hash": "sha256:0275ebf264588d65e9185eb38e931bc6f9b93af06053b39f07955c51724588a8",
+        "seed": "42-regime",
+        "as_of_date": "2026-01-15",
+        "population_regime": "subprime_heavy_rate_shock",
+        "record_count": 1500,
+        "fraud_rate": 0.2107,
+        "file_sha256": "sha256:9d6ed7bc98c7dd20730971da29dfa0571dd1fccc7a52eeb99f8efa34da06ef34"
+      },
+      "adversarial_fraud": {
+        "configuration_hash": "sha256:c55b6635f023cd6677efcb9e0acac5e3f9e7f9310bc0ff027bdd85941a92ee7c",
+        "seed": "42-adv",
+        "as_of_date": "2026-01-15",
+        "population_regime": "adversarial_placement",
+        "record_count": 1500,
+        "fraud_rate": 0.1033,
+        "file_sha256": "sha256:a2ba50c5d76cfb1d091e07c17ae146212c4e21146e8f47c8f001cfc108329b93"
+      },
+      "clean_negative_control": {
+        "configuration_hash": "sha256:0791d6f8ad0889666847962454a395e14bf5260a1e4aca658178ec6190d00ff3",
+        "seed": "42-clean",
+        "as_of_date": "2026-01-15",
+        "population_regime": "clean_only",
+        "record_count": 750,
+        "fraud_rate": 0,
+        "file_sha256": "sha256:0d6051c8ee1e4c4c86da6cd1a04e09d3bd8c8d01b883b12a450c4db4c18aa5c3"
+      }
+    }
+  },
+  "feature_names": [
+    "loan_amount",
+    "proposed_piti",
+    "purpose_refinance",
+    "claimed_salary",
+    "claimed_checking_balance",
+    "claimed_monthly_obligations",
+    "claimed_tenure_months",
+    "claimed_liability_count",
+    "claimed_liability_cluster_days",
+    "claimed_backend_dti",
+    "evidence_w2_wages",
+    "evidence_employer_salary",
+    "evidence_checking_balance",
+    "evidence_monthly_payroll_deposit",
+    "evidence_expected_monthly_net",
+    "evidence_credit_score",
+    "evidence_open_accounts",
+    "evidence_bureau_liability_count",
+    "evidence_bureau_monthly_obligations",
+    "evidence_overdraft_count",
+    "evidence_large_deposit_count",
+    "evidence_large_deposit_total",
+    "evidence_rent_monthly",
+    "disc_salary_vs_employer_pct",
+    "disc_salary_vs_w2_pct",
+    "disc_checking_vs_bank_pct",
+    "disc_obligations_vs_bureau",
+    "disc_obligations_vs_bureau_pct",
+    "disc_liability_count",
+    "disc_employer_name_mismatch",
+    "disc_w2_employer_variation",
+    "disc_payroll_vs_expected_pct",
+    "disc_credit_score_claim_vs_bureau",
+    "disc_employment_start_vs_hire_days",
+    "disc_w2_exceeds_gross",
+    "timeline_rent_before_lease",
+    "timeline_deposit_before_employment",
+    "reserves_months_verified",
+    "backend_dti_verified",
+    "backend_dti_bureau",
+    "residual_income_claimed",
+    "obligations_to_income",
+    "rent_to_income",
+    "loan_to_income",
+    "hour_of_day",
+    "is_business_hours",
+    "ip_risk_score",
+    "is_vpn",
+    "is_tor",
+    "typing_speed_wpm",
+    "fields_copy_pasted",
+    "session_duration_seconds",
+    "used_autofill",
+    "min_doc_age_days",
+    "docs_created_within_2_days"
+  ],
+  "champion": {
+    "model": "random_forest",
+    "version": "1.0.4",
+    "backend": "sklearn",
+    "params": {
+      "n_estimators": 300,
+      "max_depth": 12,
+      "min_samples_leaf": 3,
+      "class_weight": "balanced_subsample"
+    },
+    "threshold": 0.21,
+    "splits": {
+      "test": {
+        "n": 1247,
+        "fraud_n": 248,
+        "pr_auc": 0.9954340318656306,
+        "roc_auc": 0.9965852949723918,
+        "precision": 1.0,
+        "recall": 0.9919354838709677,
+        "f1": 0.9959514170040485,
+        "fpr": 0.0,
+        "fnr": 0.008064516129032258,
+        "specificity": 1.0,
+        "ece": 0.03333268113090571,
+        "brier": 0.004744215956408126
+      },
+      "out_of_time": {
+        "n": 1500,
+        "fraud_n": 297,
+        "pr_auc": 0.9848938446129912,
+        "roc_auc": 0.9880545549705982,
+        "precision": 0.993127147766323,
+        "recall": 0.9730639730639731,
+        "f1": 0.9829931972789115,
+        "fpr": 0.0016625103906899418,
+        "fnr": 0.026936026936026935,
+        "specificity": 0.99833748960931,
+        "ece": 0.04046540913378448,
+        "brier": 0.008807665599942381
+      },
+      "geography_stress": {
+        "n": 1500,
+        "fraud_n": 297,
+        "pr_auc": 0.9877470898330056,
+        "roc_auc": 0.9911136860430293,
+        "precision": 1.0,
+        "recall": 0.9797979797979798,
+        "f1": 0.989795918367347,
+        "fpr": 0.0,
+        "fnr": 0.020202020202020204,
+        "specificity": 1.0,
+        "ece": 0.030513022121816454,
+        "brier": 0.006626854650067417
+      },
+      "economic_regime_stress": {
+        "n": 1500,
+        "fraud_n": 316,
+        "pr_auc": 0.9757876916784898,
+        "roc_auc": 0.9801466814916182,
+        "precision": 1.0,
+        "recall": 0.9556962025316456,
+        "f1": 0.9773462783171522,
+        "fpr": 0.0,
+        "fnr": 0.04430379746835443,
+        "specificity": 1.0,
+        "ece": 0.037775290811643,
+        "brier": 0.01220363064937155
+      },
+      "adversarial_fraud": {
+        "n": 1500,
+        "fraud_n": 155,
+        "pr_auc": 0.9999999999999999,
+        "roc_auc": 1.0,
+        "precision": 0.9748427672955975,
+        "recall": 1.0,
+        "f1": 0.9872611464968153,
+        "fpr": 0.002973977695167286,
+        "fnr": 0.0,
+        "specificity": 0.9970260223048327,
+        "ece": 0.03224491359042634,
+        "brier": 0.0020246986264907106
+      },
+      "clean_negative_control": {
+        "n": 750,
+        "fraud_n": 0,
+        "pr_auc": 0.0,
+        "roc_auc": 0.5,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "fpr": 0.0013333333333333333,
+        "fnr": 0.0,
+        "specificity": 0.9986666666666667,
+        "ece": 0.03233324857168691,
+        "brier": 0.001854187969744118
+      }
+    },
+    "test": {
+      "n": 1247,
+      "fraud_n": 248,
+      "pr_auc": 0.9954340318656306,
+      "roc_auc": 0.9965852949723918,
+      "precision": 1.0,
+      "recall": 0.9919354838709677,
+      "f1": 0.9959514170040485,
+      "fpr": 0.0,
+      "fnr": 0.008064516129032258,
+      "specificity": 1.0,
+      "ece": 0.03333268113090571,
+      "brier": 0.004744215956408126
+    },
+    "by_fraud_type": [
+      {
+        "group": "ASSET_SEASONING",
+        "n": 9,
+        "fraud_n": 9,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "BUST_OUT",
+        "n": 10,
+        "fraud_n": 10,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "CONCEALMENT",
+        "n": 81,
+        "fraud_n": 81,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "EVIDENCE_TAMPERING",
+        "n": 25,
+        "fraud_n": 25,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "FABRICATION",
+        "n": 40,
+        "fraud_n": 40,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "GIFT_FUND_MISREPRESENTATION",
+        "n": 7,
+        "fraud_n": 7,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "INCOHERENT",
+        "n": 12,
+        "fraud_n": 0,
+        "recall": null,
+        "alert_rate": 0.0,
+        "fpr": 0.0,
+        "pr_auc": null
+      },
+      {
+        "group": "INFLATION",
+        "n": 49,
+        "fraud_n": 49,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "NONE",
+        "n": 987,
+        "fraud_n": 0,
+        "recall": null,
+        "alert_rate": 0.0,
+        "fpr": 0.0,
+        "pr_auc": null
+      },
+      {
+        "group": "OCCUPANCY_MISREPRESENTATION",
+        "n": 8,
+        "fraud_n": 8,
+        "recall": 0.75,
+        "alert_rate": 0.75,
+        "fpr": null,
+        "pr_auc": null
+      },
+      {
+        "group": "STRAW_BUYER",
+        "n": 19,
+        "fraud_n": 19,
+        "recall": 1.0,
+        "alert_rate": 1.0,
+        "fpr": null,
+        "pr_auc": null
+      }
+    ],
+    "by_regime": [
+      {
+        "group": "PRIME",
+        "n": 666,
+        "fraud_n": 135,
+        "recall": 0.9925925925925926,
+        "alert_rate": 0.2012012012012012,
+        "fpr": 0.0,
+        "pr_auc": 0.996921596921597
+      },
+      {
+        "group": "SELF_EMPLOYED",
+        "n": 197,
+        "fraud_n": 37,
+        "recall": 1.0,
+        "alert_rate": 0.18781725888324874,
+        "fpr": 0.0,
+        "pr_auc": 0.9999999999999999
+      },
+      {
+        "group": "SUBPRIME",
+        "n": 384,
+        "fraud_n": 76,
+        "recall": 0.9868421052631579,
+        "alert_rate": 0.1953125,
+        "fpr": 0.0,
+        "pr_auc": 0.9902434658073754
+      }
+    ],
+    "confusion": {
+      "tp": 246,
+      "fp": 0,
+      "fn": 2,
+      "tn": 999
+    },
+    "out_of_time": {
+      "pr_auc": 0.9848938446129912,
+      "roc_auc": 0.9880545549705982,
+      "recall": 0.9730639730639731,
+      "fpr": 0.0016625103906899418
+    },
+    "adversarial": {
+      "pr_auc": 0.9999999999999999,
+      "recall": 1.0
+    },
+    "clean_control_fpr": 0.0013333333333333333,
+    "registry_key": "random_forest@1.0.4",
+    "underwriting_outcomes": {
+      "approval_rate": 0.7754611066559743,
+      "manual_review_rate": 0.0272654370489174,
+      "decline_rate": 0.19727345629510826,
+      "bad_rate_proxy": 0.002068252326783868,
+      "expected_loss_proxy": 470820.0,
+      "expected_loss_per_approved_loan": 486.8872802481903,
+      "false_decline_rate": 0.0,
+      "review_workload_count": 34,
+      "review_workload_hours": 25.5,
+      "customer_friction_proxy": 0.03403403403403404,
+      "fraud_captured_rate": 0.9919354838709677,
+      "n": 1247,
+      "params": {
+        "review_threshold": 0.105,
+        "decline_threshold": 0.21,
+        "loss_given_fraud": 0.35,
+        "minutes_per_review": 45.0
+      }
+    },
+    "economics": {
+      "params": {
+        "fraud_prevalence": null,
+        "average_loss": 60000.0,
+        "manual_review_cost": 85.0,
+        "false_decline_cost": 1200.0,
+        "investigation_capacity": null,
+        "model_operating_cost": 2.0,
+        "minutes_per_review": 45.0,
+        "review_to_decline_rate": 0.85
+      },
+      "ev_optimal_threshold": 0.3,
+      "selected_threshold": 0.21,
+      "net_benefit_at_selected": 12522596.0,
+      "net_benefit_at_ev_optimal": 12522596.0
+    }
+  },
+  "models": [
+    {
+      "model": "rules_baseline",
+      "version": "1.3.4",
+      "backend": "deterministic-rules",
+      "params": {
+        "weights": {
+          "FR-001": 1.0,
+          "FR-001b": 0.5,
+          "FR-002": 1.0,
+          "FR-003": 1.0,
+          "FR-003b": 0.5,
+          "FR-004": 1.0,
+          "FR-005": 0.5,
+          "FR-006": 1.0,
+          "FR-007": 0.5,
+          "FR-008": 0.2,
+          "FR-009": 1.0,
+          "FR-010": 0.5,
+          "FR-011": 0.5,
+          "FR-012": 0.2,
+          "FR-013": 1.0
+        },
+        "rules": [
+          "FR-001",
+          "FR-001b",
+          "FR-002",
+          "FR-003",
+          "FR-003b",
+          "FR-004",
+          "FR-005",
+          "FR-006",
+          "FR-007",
+          "FR-008",
+          "FR-009",
+          "FR-010",
+          "FR-011",
+          "FR-012",
+          "FR-013"
+        ]
+      },
+      "threshold": 0.26,
+      "splits": {
+        "test": {
+          "n": 1247,
+          "fraud_n": 248,
+          "pr_auc": 0.9760556071576714,
+          "roc_auc": 0.9928597952791501,
+          "precision": 0.9461538461538461,
+          "recall": 0.9919354838709677,
+          "f1": 0.9685039370078741,
+          "fpr": 0.014014014014014014,
+          "fnr": 0.008064516129032258,
+          "specificity": 0.985985985985986,
+          "ece": 0.039643417402076817,
+          "brier": 0.018271960087839375
+        },
+        "out_of_time": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9575677594239806,
+          "roc_auc": 0.9824428826922594,
+          "precision": 0.9381107491856677,
+          "recall": 0.9696969696969697,
+          "f1": 0.9536423841059603,
+          "fpr": 0.015793848711554447,
+          "fnr": 0.030303030303030304,
+          "specificity": 0.9842061512884456,
+          "ece": 0.032843598959236456,
+          "brier": 0.02206060561698428
+        },
+        "geography_stress": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9725000100170135,
+          "roc_auc": 0.98650259872205,
+          "precision": 0.9570957095709571,
+          "recall": 0.9764309764309764,
+          "f1": 0.9666666666666667,
+          "fpr": 0.010806317539484621,
+          "fnr": 0.02356902356902357,
+          "specificity": 0.9891936824605154,
+          "ece": 0.036316711006094585,
+          "brier": 0.01732787886674564
+        },
+        "economic_regime_stress": {
+          "n": 1500,
+          "fraud_n": 316,
+          "pr_auc": 0.948228662649534,
+          "roc_auc": 0.9750724320047895,
+          "precision": 0.9261538461538461,
+          "recall": 0.9525316455696202,
+          "f1": 0.939157566302652,
+          "fpr": 0.02027027027027027,
+          "fnr": 0.04746835443037975,
+          "specificity": 0.9797297297297297,
+          "ece": 0.03130546030718223,
+          "brier": 0.027100744737682418
+        },
+        "adversarial_fraud": {
+          "n": 1500,
+          "fraud_n": 155,
+          "pr_auc": 1.0,
+          "roc_auc": 1.0,
+          "precision": 0.9393939393939394,
+          "recall": 1.0,
+          "f1": 0.96875,
+          "fpr": 0.007434944237918215,
+          "fnr": 0.0,
+          "specificity": 0.9925650557620818,
+          "ece": 0.02776275524268099,
+          "brier": 0.0036826328640672673
+        },
+        "clean_negative_control": {
+          "n": 750,
+          "fraud_n": 0,
+          "pr_auc": 0.0,
+          "roc_auc": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "fpr": 0.0026666666666666666,
+          "fnr": 0.0,
+          "specificity": 0.9973333333333333,
+          "ece": 0.027192457437462042,
+          "brier": 0.002703327596164407
+        }
+      },
+      "test": {
+        "n": 1247,
+        "fraud_n": 248,
+        "pr_auc": 0.9760556071576714,
+        "roc_auc": 0.9928597952791501,
+        "precision": 0.9461538461538461,
+        "recall": 0.9919354838709677,
+        "f1": 0.9685039370078741,
+        "fpr": 0.014014014014014014,
+        "fnr": 0.008064516129032258,
+        "specificity": 0.985985985985986,
+        "ece": 0.039643417402076817,
+        "brier": 0.018271960087839375
+      },
+      "by_fraud_type": [
+        {
+          "group": "ASSET_SEASONING",
+          "n": 9,
+          "fraud_n": 9,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "BUST_OUT",
+          "n": 10,
+          "fraud_n": 10,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "CONCEALMENT",
+          "n": 81,
+          "fraud_n": 81,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "EVIDENCE_TAMPERING",
+          "n": 25,
+          "fraud_n": 25,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "FABRICATION",
+          "n": 40,
+          "fraud_n": 40,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "GIFT_FUND_MISREPRESENTATION",
+          "n": 7,
+          "fraud_n": 7,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "INCOHERENT",
+          "n": 12,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 1.0,
+          "fpr": 1.0,
+          "pr_auc": null
+        },
+        {
+          "group": "INFLATION",
+          "n": 49,
+          "fraud_n": 49,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "NONE",
+          "n": 987,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 0.002026342451874367,
+          "fpr": 0.002026342451874367,
+          "pr_auc": null
+        },
+        {
+          "group": "OCCUPANCY_MISREPRESENTATION",
+          "n": 8,
+          "fraud_n": 8,
+          "recall": 0.75,
+          "alert_rate": 0.75,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "STRAW_BUYER",
+          "n": 19,
+          "fraud_n": 19,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        }
+      ],
+      "confusion": {
+        "tp": 246,
+        "fp": 14,
+        "fn": 2,
+        "tn": 985
+      },
+      "out_of_time": {
+        "pr_auc": 0.9575677594239806,
+        "roc_auc": 0.9824428826922594,
+        "recall": 0.9696969696969697,
+        "fpr": 0.015793848711554447
+      },
+      "adversarial": {
+        "pr_auc": 1.0,
+        "recall": 1.0
+      },
+      "clean_control_fpr": 0.0026666666666666666,
+      "registry_key": "rules_baseline@1.3.4"
+    },
+    {
+      "model": "logistic_regression",
+      "version": "1.0.4",
+      "backend": "sklearn",
+      "params": {
+        "C": 0.5,
+        "max_iter": 2000,
+        "class_weight": "balanced",
+        "scaler": "standard"
+      },
+      "threshold": 0.3,
+      "splits": {
+        "test": {
+          "n": 1247,
+          "fraud_n": 248,
+          "pr_auc": 0.9892494109601846,
+          "roc_auc": 0.9919597016371211,
+          "precision": 1.0,
+          "recall": 0.9717741935483871,
+          "f1": 0.9856850715746422,
+          "fpr": 0.0,
+          "fnr": 0.028225806451612902,
+          "specificity": 1.0,
+          "ece": 0.032914608225909504,
+          "brier": 0.00820793650170534
+        },
+        "out_of_time": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9770423799332137,
+          "roc_auc": 0.9786196685614806,
+          "precision": 0.9828178694158075,
+          "recall": 0.9629629629629629,
+          "f1": 0.9727891156462585,
+          "fpr": 0.004156275976724855,
+          "fnr": 0.037037037037037035,
+          "specificity": 0.9958437240232751,
+          "ece": 0.060059818184567446,
+          "brier": 0.015332892192470268
+        },
+        "geography_stress": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9850786736804654,
+          "roc_auc": 0.986831462309434,
+          "precision": 0.9965397923875432,
+          "recall": 0.9696969696969697,
+          "f1": 0.9829351535836177,
+          "fpr": 0.0008312551953449709,
+          "fnr": 0.030303030303030304,
+          "specificity": 0.999168744804655,
+          "ece": 0.031397733299224836,
+          "brier": 0.008740413205244891
+        },
+        "economic_regime_stress": {
+          "n": 1500,
+          "fraud_n": 316,
+          "pr_auc": 0.9718873648991811,
+          "roc_auc": 0.9747824367088608,
+          "precision": 0.9585987261146497,
+          "recall": 0.9525316455696202,
+          "f1": 0.9555555555555555,
+          "fpr": 0.01097972972972973,
+          "fnr": 0.04746835443037975,
+          "specificity": 0.9890202702702703,
+          "ece": 0.06470835597501101,
+          "brier": 0.018961985078423258
+        },
+        "adversarial_fraud": {
+          "n": 1500,
+          "fraud_n": 155,
+          "pr_auc": 0.9945878881362752,
+          "roc_auc": 0.9961290322580645,
+          "precision": 1.0,
+          "recall": 0.9935483870967742,
+          "f1": 0.9967637540453074,
+          "fpr": 0.0,
+          "fnr": 0.0064516129032258064,
+          "specificity": 1.0,
+          "ece": 0.04222915308890566,
+          "brier": 0.003504720156582683
+        },
+        "clean_negative_control": {
+          "n": 750,
+          "fraud_n": 0,
+          "pr_auc": 0.0,
+          "roc_auc": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "fpr": 0.0,
+          "fnr": 0.0,
+          "specificity": 1.0,
+          "ece": 0.04468720724428004,
+          "brier": 0.002866004839216627
+        }
+      },
+      "test": {
+        "n": 1247,
+        "fraud_n": 248,
+        "pr_auc": 0.9892494109601846,
+        "roc_auc": 0.9919597016371211,
+        "precision": 1.0,
+        "recall": 0.9717741935483871,
+        "f1": 0.9856850715746422,
+        "fpr": 0.0,
+        "fnr": 0.028225806451612902,
+        "specificity": 1.0,
+        "ece": 0.032914608225909504,
+        "brier": 0.00820793650170534
+      },
+      "by_fraud_type": [
+        {
+          "group": "ASSET_SEASONING",
+          "n": 9,
+          "fraud_n": 9,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "BUST_OUT",
+          "n": 10,
+          "fraud_n": 10,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "CONCEALMENT",
+          "n": 81,
+          "fraud_n": 81,
+          "recall": 0.9753086419753086,
+          "alert_rate": 0.9753086419753086,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "EVIDENCE_TAMPERING",
+          "n": 25,
+          "fraud_n": 25,
+          "recall": 0.88,
+          "alert_rate": 0.88,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "FABRICATION",
+          "n": 40,
+          "fraud_n": 40,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "GIFT_FUND_MISREPRESENTATION",
+          "n": 7,
+          "fraud_n": 7,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "INCOHERENT",
+          "n": 12,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 0.0,
+          "fpr": 0.0,
+          "pr_auc": null
+        },
+        {
+          "group": "INFLATION",
+          "n": 49,
+          "fraud_n": 49,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "NONE",
+          "n": 987,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 0.0,
+          "fpr": 0.0,
+          "pr_auc": null
+        },
+        {
+          "group": "OCCUPANCY_MISREPRESENTATION",
+          "n": 8,
+          "fraud_n": 8,
+          "recall": 0.75,
+          "alert_rate": 0.75,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "STRAW_BUYER",
+          "n": 19,
+          "fraud_n": 19,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        }
+      ],
+      "confusion": {
+        "tp": 241,
+        "fp": 0,
+        "fn": 7,
+        "tn": 999
+      },
+      "out_of_time": {
+        "pr_auc": 0.9770423799332137,
+        "roc_auc": 0.9786196685614806,
+        "recall": 0.9629629629629629,
+        "fpr": 0.004156275976724855
+      },
+      "adversarial": {
+        "pr_auc": 0.9945878881362752,
+        "recall": 0.9935483870967742
+      },
+      "clean_control_fpr": 0.0,
+      "registry_key": "logistic_regression@1.0.4"
+    },
+    {
+      "model": "random_forest",
+      "version": "1.0.4",
+      "backend": "sklearn",
+      "params": {
+        "n_estimators": 300,
+        "max_depth": 12,
+        "min_samples_leaf": 3,
+        "class_weight": "balanced_subsample"
+      },
+      "threshold": 0.21,
+      "splits": {
+        "test": {
+          "n": 1247,
+          "fraud_n": 248,
+          "pr_auc": 0.9954340318656306,
+          "roc_auc": 0.9965852949723918,
+          "precision": 1.0,
+          "recall": 0.9919354838709677,
+          "f1": 0.9959514170040485,
+          "fpr": 0.0,
+          "fnr": 0.008064516129032258,
+          "specificity": 1.0,
+          "ece": 0.03333268113090571,
+          "brier": 0.004744215956408126
+        },
+        "out_of_time": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9848938446129912,
+          "roc_auc": 0.9880545549705982,
+          "precision": 0.993127147766323,
+          "recall": 0.9730639730639731,
+          "f1": 0.9829931972789115,
+          "fpr": 0.0016625103906899418,
+          "fnr": 0.026936026936026935,
+          "specificity": 0.99833748960931,
+          "ece": 0.04046540913378448,
+          "brier": 0.008807665599942381
+        },
+        "geography_stress": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9877470898330056,
+          "roc_auc": 0.9911136860430293,
+          "precision": 1.0,
+          "recall": 0.9797979797979798,
+          "f1": 0.989795918367347,
+          "fpr": 0.0,
+          "fnr": 0.020202020202020204,
+          "specificity": 1.0,
+          "ece": 0.030513022121816454,
+          "brier": 0.006626854650067417
+        },
+        "economic_regime_stress": {
+          "n": 1500,
+          "fraud_n": 316,
+          "pr_auc": 0.9757876916784898,
+          "roc_auc": 0.9801466814916182,
+          "precision": 1.0,
+          "recall": 0.9556962025316456,
+          "f1": 0.9773462783171522,
+          "fpr": 0.0,
+          "fnr": 0.04430379746835443,
+          "specificity": 1.0,
+          "ece": 0.037775290811643,
+          "brier": 0.01220363064937155
+        },
+        "adversarial_fraud": {
+          "n": 1500,
+          "fraud_n": 155,
+          "pr_auc": 0.9999999999999999,
+          "roc_auc": 1.0,
+          "precision": 0.9748427672955975,
+          "recall": 1.0,
+          "f1": 0.9872611464968153,
+          "fpr": 0.002973977695167286,
+          "fnr": 0.0,
+          "specificity": 0.9970260223048327,
+          "ece": 0.03224491359042634,
+          "brier": 0.0020246986264907106
+        },
+        "clean_negative_control": {
+          "n": 750,
+          "fraud_n": 0,
+          "pr_auc": 0.0,
+          "roc_auc": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "fpr": 0.0013333333333333333,
+          "fnr": 0.0,
+          "specificity": 0.9986666666666667,
+          "ece": 0.03233324857168691,
+          "brier": 0.001854187969744118
+        }
+      },
+      "test": {
+        "n": 1247,
+        "fraud_n": 248,
+        "pr_auc": 0.9954340318656306,
+        "roc_auc": 0.9965852949723918,
+        "precision": 1.0,
+        "recall": 0.9919354838709677,
+        "f1": 0.9959514170040485,
+        "fpr": 0.0,
+        "fnr": 0.008064516129032258,
+        "specificity": 1.0,
+        "ece": 0.03333268113090571,
+        "brier": 0.004744215956408126
+      },
+      "by_fraud_type": [
+        {
+          "group": "ASSET_SEASONING",
+          "n": 9,
+          "fraud_n": 9,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "BUST_OUT",
+          "n": 10,
+          "fraud_n": 10,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "CONCEALMENT",
+          "n": 81,
+          "fraud_n": 81,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "EVIDENCE_TAMPERING",
+          "n": 25,
+          "fraud_n": 25,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "FABRICATION",
+          "n": 40,
+          "fraud_n": 40,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "GIFT_FUND_MISREPRESENTATION",
+          "n": 7,
+          "fraud_n": 7,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "INCOHERENT",
+          "n": 12,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 0.0,
+          "fpr": 0.0,
+          "pr_auc": null
+        },
+        {
+          "group": "INFLATION",
+          "n": 49,
+          "fraud_n": 49,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "NONE",
+          "n": 987,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 0.0,
+          "fpr": 0.0,
+          "pr_auc": null
+        },
+        {
+          "group": "OCCUPANCY_MISREPRESENTATION",
+          "n": 8,
+          "fraud_n": 8,
+          "recall": 0.75,
+          "alert_rate": 0.75,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "STRAW_BUYER",
+          "n": 19,
+          "fraud_n": 19,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        }
+      ],
+      "confusion": {
+        "tp": 246,
+        "fp": 0,
+        "fn": 2,
+        "tn": 999
+      },
+      "out_of_time": {
+        "pr_auc": 0.9848938446129912,
+        "roc_auc": 0.9880545549705982,
+        "recall": 0.9730639730639731,
+        "fpr": 0.0016625103906899418
+      },
+      "adversarial": {
+        "pr_auc": 0.9999999999999999,
+        "recall": 1.0
+      },
+      "clean_control_fpr": 0.0013333333333333333,
+      "registry_key": "random_forest@1.0.4",
+      "underwriting_outcomes": {
+        "approval_rate": 0.7754611066559743,
+        "manual_review_rate": 0.0272654370489174,
+        "decline_rate": 0.19727345629510826,
+        "bad_rate_proxy": 0.002068252326783868,
+        "expected_loss_proxy": 470820.0,
+        "expected_loss_per_approved_loan": 486.8872802481903,
+        "false_decline_rate": 0.0,
+        "review_workload_count": 34,
+        "review_workload_hours": 25.5,
+        "customer_friction_proxy": 0.03403403403403404,
+        "fraud_captured_rate": 0.9919354838709677,
+        "n": 1247,
+        "params": {
+          "review_threshold": 0.105,
+          "decline_threshold": 0.21,
+          "loss_given_fraud": 0.35,
+          "minutes_per_review": 45.0
+        }
+      },
+      "economics": {
+        "params": {
+          "fraud_prevalence": null,
+          "average_loss": 60000.0,
+          "manual_review_cost": 85.0,
+          "false_decline_cost": 1200.0,
+          "investigation_capacity": null,
+          "model_operating_cost": 2.0,
+          "minutes_per_review": 45.0,
+          "review_to_decline_rate": 0.85
+        },
+        "ev_optimal_threshold": 0.3,
+        "selected_threshold": 0.21,
+        "net_benefit_at_selected": 12522596.0,
+        "net_benefit_at_ev_optimal": 12522596.0
+      }
+    },
+    {
+      "model": "gradient_boosting",
+      "version": "1.0.4",
+      "backend": "lightgbm",
+      "params": {
+        "backend": "lightgbm",
+        "n_estimators": 400,
+        "learning_rate": 0.05,
+        "max_depth": 5
+      },
+      "threshold": 0.03,
+      "splits": {
+        "test": {
+          "n": 1247,
+          "fraud_n": 248,
+          "pr_auc": 0.9933863176617993,
+          "roc_auc": 0.9958870160483064,
+          "precision": 1.0,
+          "recall": 0.9879032258064516,
+          "f1": 0.9939148073022313,
+          "fpr": 0.0,
+          "fnr": 0.012096774193548387,
+          "specificity": 1.0,
+          "ece": 0.0023888083157877086,
+          "brier": 0.0024122211259886813
+        },
+        "out_of_time": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9837678933507921,
+          "roc_auc": 0.9869909961348032,
+          "precision": 0.996551724137931,
+          "recall": 0.9730639730639731,
+          "f1": 0.9846678023850085,
+          "fpr": 0.0008312551953449709,
+          "fnr": 0.026936026936026935,
+          "specificity": 0.999168744804655,
+          "ece": 0.0051962047459760624,
+          "brier": 0.005333347833669707
+        },
+        "geography_stress": {
+          "n": 1500,
+          "fraud_n": 297,
+          "pr_auc": 0.9886682040148912,
+          "roc_auc": 0.9916622584951763,
+          "precision": 1.0,
+          "recall": 0.9797979797979798,
+          "f1": 0.989795918367347,
+          "fpr": 0.0,
+          "fnr": 0.020202020202020204,
+          "specificity": 1.0,
+          "ece": 0.0038587072567269924,
+          "brier": 0.003999199414084322
+        },
+        "economic_regime_stress": {
+          "n": 1500,
+          "fraud_n": 316,
+          "pr_auc": 0.9758849906715807,
+          "roc_auc": 0.9822501496749914,
+          "precision": 1.0,
+          "recall": 0.9556962025316456,
+          "f1": 0.9773462783171522,
+          "fpr": 0.0,
+          "fnr": 0.04430379746835443,
+          "specificity": 1.0,
+          "ece": 0.009438901114086668,
+          "brier": 0.009339651375188728
+        },
+        "adversarial_fraud": {
+          "n": 1500,
+          "fraud_n": 155,
+          "pr_auc": 1.0,
+          "roc_auc": 1.0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "fpr": 0.0,
+          "fnr": 0.0,
+          "specificity": 1.0,
+          "ece": 0.0002172114501689528,
+          "brier": 4.5274332944721717e-07
+        },
+        "clean_negative_control": {
+          "n": 750,
+          "fraud_n": 0,
+          "pr_auc": 0.0,
+          "roc_auc": 0.5,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "fpr": 0.0,
+          "fnr": 0.0,
+          "specificity": 1.0,
+          "ece": 0.0002055478499735092,
+          "brier": 3.347738132797342e-07
+        }
+      },
+      "test": {
+        "n": 1247,
+        "fraud_n": 248,
+        "pr_auc": 0.9933863176617993,
+        "roc_auc": 0.9958870160483064,
+        "precision": 1.0,
+        "recall": 0.9879032258064516,
+        "f1": 0.9939148073022313,
+        "fpr": 0.0,
+        "fnr": 0.012096774193548387,
+        "specificity": 1.0,
+        "ece": 0.0023888083157877086,
+        "brier": 0.0024122211259886813
+      },
+      "by_fraud_type": [
+        {
+          "group": "ASSET_SEASONING",
+          "n": 9,
+          "fraud_n": 9,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "BUST_OUT",
+          "n": 10,
+          "fraud_n": 10,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "CONCEALMENT",
+          "n": 81,
+          "fraud_n": 81,
+          "recall": 0.9876543209876543,
+          "alert_rate": 0.9876543209876543,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "EVIDENCE_TAMPERING",
+          "n": 25,
+          "fraud_n": 25,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "FABRICATION",
+          "n": 40,
+          "fraud_n": 40,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "GIFT_FUND_MISREPRESENTATION",
+          "n": 7,
+          "fraud_n": 7,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "INCOHERENT",
+          "n": 12,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 0.0,
+          "fpr": 0.0,
+          "pr_auc": null
+        },
+        {
+          "group": "INFLATION",
+          "n": 49,
+          "fraud_n": 49,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "NONE",
+          "n": 987,
+          "fraud_n": 0,
+          "recall": null,
+          "alert_rate": 0.0,
+          "fpr": 0.0,
+          "pr_auc": null
+        },
+        {
+          "group": "OCCUPANCY_MISREPRESENTATION",
+          "n": 8,
+          "fraud_n": 8,
+          "recall": 0.75,
+          "alert_rate": 0.75,
+          "fpr": null,
+          "pr_auc": null
+        },
+        {
+          "group": "STRAW_BUYER",
+          "n": 19,
+          "fraud_n": 19,
+          "recall": 1.0,
+          "alert_rate": 1.0,
+          "fpr": null,
+          "pr_auc": null
+        }
+      ],
+      "confusion": {
+        "tp": 245,
+        "fp": 0,
+        "fn": 3,
+        "tn": 999
+      },
+      "out_of_time": {
+        "pr_auc": 0.9837678933507921,
+        "roc_auc": 0.9869909961348032,
+        "recall": 0.9730639730639731,
+        "fpr": 0.0008312551953449709
+      },
+      "adversarial": {
+        "pr_auc": 1.0,
+        "recall": 1.0
+      },
+      "clean_control_fpr": 0.0,
+      "registry_key": "gradient_boosting@1.0.4"
+    }
+  ],
+  "explainability": {
+    "global_importance": [
+      {
+        "feature": "disc_salary_vs_employer_pct",
+        "permutation_importance": 0.032208099153016215,
+        "std": 0.0007377332310668222,
+        "native_importance": 0.12380542344047812
+      },
+      {
+        "feature": "disc_obligations_vs_bureau_pct",
+        "permutation_importance": 0.0035685508422462985,
+        "std": 0.0010905066130772602,
+        "native_importance": 0.038192083839701046
+      },
+      {
+        "feature": "disc_obligations_vs_bureau",
+        "permutation_importance": 0.001261400341756125,
+        "std": 4.480161631797899e-05,
+        "native_importance": 0.03250287459188658
+      },
+      {
+        "feature": "evidence_large_deposit_count",
+        "permutation_importance": 0.0012122643948593304,
+        "std": 9.609057274013694e-05,
+        "native_importance": 0.05533827536359645
+      },
+      {
+        "feature": "hour_of_day",
+        "permutation_importance": 0.0007370897563971912,
+        "std": 1.3437982839731034e-05,
+        "native_importance": 0.005065967006030897
+      },
+      {
+        "feature": "backend_dti_verified",
+        "permutation_importance": 0.0006922033263643934,
+        "std": 0.00042053359528543104,
+        "native_importance": 0.03517423083744471
+      },
+      {
+        "feature": "obligations_to_income",
+        "permutation_importance": 0.00062725336850451,
+        "std": 0.0005323037703404618,
+        "native_importance": 0.01814291054045878
+      },
+      {
+        "feature": "min_doc_age_days",
+        "permutation_importance": 0.000505440365407428,
+        "std": 2.0018699304797046e-05,
+        "native_importance": 0.09138376325565432
+      },
+      {
+        "feature": "docs_created_within_2_days",
+        "permutation_importance": 0.0005017630242086125,
+        "std": 1.0935862380770845e-05,
+        "native_importance": 0.09926212205888625
+      },
+      {
+        "feature": "evidence_bureau_liability_count",
+        "permutation_importance": 0.0004227947013041522,
+        "std": 0.00017691535476479936,
+        "native_importance": 0.0005118215128825334
+      },
+      {
+        "feature": "disc_checking_vs_bank_pct",
+        "permutation_importance": 0.0003777948506803686,
+        "std": 3.7584339657528785e-05,
+        "native_importance": 0.03242146950969245
+      },
+      {
+        "feature": "evidence_checking_balance",
+        "permutation_importance": 0.0003326053370585003,
+        "std": 0.00012133860236161669,
+        "native_importance": 0.007523698597495279
+      },
+      {
+        "feature": "reserves_months_verified",
+        "permutation_importance": 0.000287855998516573,
+        "std": 4.1308514252489847e-05,
+        "native_importance": 0.011512416137245147
+      },
+      {
+        "feature": "claimed_checking_balance",
+        "permutation_importance": 0.000286793603463531,
+        "std": 0.0005745640741868408,
+        "native_importance": 0.031511587239970246
+      },
+      {
+        "feature": "evidence_monthly_payroll_deposit",
+        "permutation_importance": 0.00026786934797871085,
+        "std": 0.00035120476739646905,
+        "native_importance": 0.002657351668496037
+      },
+      {
+        "feature": "claimed_backend_dti",
+        "permutation_importance": 0.0002617010319775126,
+        "std": 0.0008956034144230598,
+        "native_importance": 0.021696304023019145
+      },
+      {
+        "feature": "claimed_monthly_obligations",
+        "permutation_importance": 0.0002274118779261425,
+        "std": 0.0001771352664135942,
+        "native_importance": 0.024951427086510908
+      },
+      {
+        "feature": "backend_dti_bureau",
+        "permutation_importance": 0.00022502586178738682,
+        "std": 0.0005587064302226423,
+        "native_importance": 0.004084994956676425
+      },
+      {
+        "feature": "ip_risk_score",
+        "permutation_importance": 0.00021357913051893717,
+        "std": 0.0007125529840471921,
+        "native_importance": 0.10169687760307879
+      },
+      {
+        "feature": "claimed_liability_cluster_days",
+        "permutation_importance": 0.0002133576181063246,
+        "std": 0.00017482077029414884,
+        "native_importance": 0.0012774855606978899
+      },
+      {
+        "feature": "claimed_salary",
+        "permutation_importance": 0.00020464083020466095,
+        "std": 7.280867003284928e-05,
+        "native_importance": 0.00278264832815093
+      },
+      {
+        "feature": "evidence_w2_wages",
+        "permutation_importance": 0.00019843388345726077,
+        "std": 0.00010454914307478197,
+        "native_importance": 0.001741017829473329
+      },
+      {
+        "feature": "disc_employer_name_mismatch",
+        "permutation_importance": 0.00019688399037551819,
+        "std": 2.1124880932852483e-05,
+        "native_importance": 0.021403095041874792
+      },
+      {
+        "feature": "is_business_hours",
+        "permutation_importance": 0.00019319821064680553,
+        "std": 9.83141162083305e-06,
+        "native_importance": 0.002417556466712031
+      },
+      {
+        "feature": "disc_liability_count",
+        "permutation_importance": 0.00014906873031368396,
+        "std": 1.9114705501220954e-05,
+        "native_importance": 0.006039302632009569
+      }
+    ],
+    "shap_mean_abs": {
+      "disc_salary_vs_employer_pct": 0.0641860004911816,
+      "ip_risk_score": 0.05608037176867915,
+      "docs_created_within_2_days": 0.05524292557026721,
+      "min_doc_age_days": 0.05148947568827202,
+      "evidence_large_deposit_count": 0.030656879892063733,
+      "evidence_large_deposit_total": 0.03004652121126973,
+      "fields_copy_pasted": 0.02958006423199663,
+      "disc_obligations_vs_bureau_pct": 0.024670605592138607,
+      "disc_obligations_vs_bureau": 0.020207659660695213,
+      "backend_dti_verified": 0.018484782036383846,
+      "claimed_checking_balance": 0.017712349914208583,
+      "disc_checking_vs_bank_pct": 0.015041559429083685,
+      "session_duration_seconds": 0.015023321100203095,
+      "claimed_monthly_obligations": 0.012991260723658502,
+      "claimed_backend_dti": 0.011563805115672048,
+      "disc_employer_name_mismatch": 0.011194309576188291,
+      "obligations_to_income": 0.011065356424167045,
+      "disc_salary_vs_w2_pct": 0.010721018031629281,
+      "reserves_months_verified": 0.006085132064109322,
+      "disc_employment_start_vs_hire_days": 0.00494643017181891,
+      "typing_speed_wpm": 0.004729573032359502,
+      "backend_dti_bureau": 0.0037461773744053863,
+      "disc_payroll_vs_expected_pct": 0.0030756883291968478,
+      "hour_of_day": 0.0027816493066855595,
+      "disc_liability_count": 0.0027429655278078586
+    },
+    "local_explanations": [
+      {
+        "index": 0,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.058194256854966576
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.163,
+            "contribution": -0.05399520575776239
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05160299505649535
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 18.0,
+            "contribution": -0.04928860750310145
+          },
+          {
+            "feature": "reserves_months_verified",
+            "value": 19.010906040268456,
+            "contribution": 0.03755665781420247
+          }
+        ],
+        "positive_total": 0.075053825339349,
+        "negative_total": -0.47993414209156976,
+        "reason_codes": [
+          {
+            "reason_code": "INSUFFICIENT_RESERVES",
+            "contribution": 0.03756,
+            "features": [
+              "reserves_months_verified"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.checking_balance"
+            ]
+          },
+          {
+            "reason_code": "UNVERIFIABLE_INCOME",
+            "contribution": 0.02309,
+            "features": [
+              "disc_salary_vs_w2_pct"
+            ],
+            "evidence_sources": [
+              "W2_DOCUMENT.w2_wages"
+            ]
+          },
+          {
+            "reason_code": "ANOMALOUS_APPLICATION_BEHAVIOR",
+            "contribution": 0.00193,
+            "features": [
+              "typing_speed_wpm"
+            ],
+            "evidence_sources": [
+              "APPLICATION_METADATA.session"
+            ]
+          }
+        ],
+        "case_id": "case-gen-16-204ffcd5",
+        "score": 0.0951196832477797,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 1,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.06605548190876073
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.18,
+            "contribution": -0.05258916425884253
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.050052614151079235
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 17.0,
+            "contribution": -0.048728471148969006
+          },
+          {
+            "feature": "disc_salary_vs_w2_pct",
+            "value": 0.3575377282360306,
+            "contribution": 0.036576124225797695
+          }
+        ],
+        "positive_total": 0.04896440017556013,
+        "negative_total": -0.4679657425656373,
+        "reason_codes": [
+          {
+            "reason_code": "UNVERIFIABLE_INCOME",
+            "contribution": 0.03658,
+            "features": [
+              "disc_salary_vs_w2_pct"
+            ],
+            "evidence_sources": [
+              "W2_DOCUMENT.w2_wages"
+            ]
+          },
+          {
+            "reason_code": "RAPID_CREDIT_PROFILE_CONSTRUCTION",
+            "contribution": 0.00881,
+            "features": [
+              "disc_credit_score_claim_vs_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.credit_score"
+            ]
+          },
+          {
+            "reason_code": "POTENTIAL_DOCUMENT_TAMPERING",
+            "contribution": 0.00094,
+            "features": [
+              "disc_payroll_vs_expected_pct"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.monthly_payroll_deposit"
+            ]
+          }
+        ],
+        "case_id": "case-gen-17-1f4ffb42",
+        "score": 0.08099865760992313,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 2,
+        "top_contributions": [
+          {
+            "feature": "evidence_large_deposit_count",
+            "value": 3.0,
+            "contribution": 0.2620352992442212
+          },
+          {
+            "feature": "evidence_large_deposit_total",
+            "value": 19601.0,
+            "contribution": 0.25312351557581586
+          },
+          {
+            "feature": "reserves_months_verified",
+            "value": 21.015171503957784,
+            "contribution": 0.0426355133885194
+          },
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.03332577122695655
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.109,
+            "contribution": -0.030658366335735553
+          }
+        ],
+        "positive_total": 0.5667846789180728,
+        "negative_total": -0.2453056414774096,
+        "reason_codes": [
+          {
+            "reason_code": "UNSOURCED_LARGE_DEPOSIT",
+            "contribution": 0.51516,
+            "features": [
+              "evidence_large_deposit_count",
+              "evidence_large_deposit_total"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.recent_large_deposits"
+            ]
+          },
+          {
+            "reason_code": "INSUFFICIENT_RESERVES",
+            "contribution": 0.04359,
+            "features": [
+              "evidence_checking_balance",
+              "reserves_months_verified"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.checking_balance"
+            ]
+          },
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00186,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          }
+        ],
+        "case_id": "case-gen-19-214ffe68",
+        "score": 0.8214790374406633,
+        "label_is_fraud": 1,
+        "label_fraud_type": "ASSET_SEASONING"
+      },
+      {
+        "index": 3,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05462942411233333
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.09,
+            "contribution": -0.054005785381723945
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05302409019960691
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 22.0,
+            "contribution": -0.04920367040911332
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 0.0,
+            "contribution": -0.030319500643236887
+          }
+        ],
+        "positive_total": 0.009053353624329439,
+        "negative_total": -0.49443009493112516,
+        "reason_codes": [
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00407,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          }
+        ],
+        "case_id": "case-gen-31-ad4aca9e",
+        "score": 0.014623258693204659,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 4,
+        "top_contributions": [
+          {
+            "feature": "disc_obligations_vs_bureau_pct",
+            "value": 1.0,
+            "contribution": 0.075938674469804
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 3.0,
+            "contribution": 0.07313298284367463
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.843,
+            "contribution": 0.06917403068261542
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 2.0,
+            "contribution": 0.06126439790078942
+          },
+          {
+            "feature": "disc_obligations_vs_bureau",
+            "value": 666.0,
+            "contribution": 0.05868963417482086
+          }
+        ],
+        "positive_total": 0.5494789289436758,
+        "negative_total": -0.0497509529017492,
+        "reason_codes": [
+          {
+            "reason_code": "UNDISCLOSED_LIABILITIES",
+            "contribution": 0.13463,
+            "features": [
+              "disc_obligations_vs_bureau",
+              "disc_obligations_vs_bureau_pct"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          },
+          {
+            "reason_code": "SUSPICIOUS_DOCUMENT_METADATA",
+            "contribution": 0.1344,
+            "features": [
+              "min_doc_age_days",
+              "docs_created_within_2_days"
+            ],
+            "evidence_sources": [
+              "APPLICATION_METADATA.documents"
+            ]
+          },
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.1075,
+            "features": [
+              "claimed_backend_dti",
+              "backend_dti_verified",
+              "obligations_to_income"
+            ],
+            "evidence_sources": [
+              "APPLICATION.stated",
+              "EMPLOYER_VERIFICATION.salary"
+            ]
+          }
+        ],
+        "case_id": "case-gen-34-b24ad27d",
+        "score": 0.9997279760419265,
+        "label_is_fraud": 1,
+        "label_fraud_type": "CONCEALMENT"
+      },
+      {
+        "index": 5,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05562312552732768
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.1,
+            "contribution": -0.054107524601539524
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05282712636707602
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 62.0,
+            "contribution": -0.04997158762831802
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 2.0,
+            "contribution": -0.02888801526670643
+          }
+        ],
+        "positive_total": 0.0007234004387977611,
+        "negative_total": -0.487473184110677,
+        "reason_codes": [
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00063,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          }
+        ],
+        "case_id": "case-gen-36-b04acf57",
+        "score": 0.013250216328120868,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 6,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.0563542903709629
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.198,
+            "contribution": -0.05566357457550832
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05357828588831856
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 72.0,
+            "contribution": -0.049619177434064736
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 1.0,
+            "contribution": -0.030340971005943008
+          }
+        ],
+        "positive_total": 0.008992378629993964,
+        "negative_total": -0.4849467918493222,
+        "reason_codes": [
+          {
+            "reason_code": "INSUFFICIENT_INCOME",
+            "contribution": 0.00139,
+            "features": [
+              "residual_income_claimed"
+            ],
+            "evidence_sources": [
+              "APPLICATION.stated"
+            ]
+          },
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.0012,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-39-a54abe06",
+        "score": 0.024045586780672278,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 7,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05556585858075808
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.166,
+            "contribution": -0.05489576193788891
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05250224839219707
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 31.0,
+            "contribution": -0.04982354228795803
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 0.0,
+            "contribution": -0.030179562188248448
+          }
+        ],
+        "positive_total": 0.012925343074244608,
+        "negative_total": -0.49079429493141413,
+        "reason_codes": [
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00369,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          },
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00088,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-42-2a56c858",
+        "score": 0.022131048142830855,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 8,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 3.405949503779503,
+            "contribution": 0.12481452368633789
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 3.0,
+            "contribution": 0.05674956537602776
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.606,
+            "contribution": 0.055428319650970344
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 1.0,
+            "contribution": 0.0478796021866714
+          },
+          {
+            "feature": "disc_checking_vs_bank_pct",
+            "value": 14.719378660555131,
+            "contribution": 0.04574930123459587
+          }
+        ],
+        "positive_total": 0.5256803528114403,
+        "negative_total": -0.026007429468442485,
+        "reason_codes": [
+          {
+            "reason_code": "UNVERIFIABLE_INCOME",
+            "contribution": 0.15446,
+            "features": [
+              "disc_salary_vs_employer_pct",
+              "disc_salary_vs_w2_pct"
+            ],
+            "evidence_sources": [
+              "EMPLOYER_VERIFICATION.salary",
+              "W2_DOCUMENT.w2_wages"
+            ]
+          },
+          {
+            "reason_code": "SUSPICIOUS_DOCUMENT_METADATA",
+            "contribution": 0.10463,
+            "features": [
+              "min_doc_age_days",
+              "docs_created_within_2_days"
+            ],
+            "evidence_sources": [
+              "APPLICATION_METADATA.documents"
+            ]
+          },
+          {
+            "reason_code": "UNVERIFIABLE_EMPLOYMENT",
+            "contribution": 0.06727,
+            "features": [
+              "disc_employer_name_mismatch",
+              "disc_employment_start_vs_hire_days"
+            ],
+            "evidence_sources": [
+              "EMPLOYER_VERIFICATION.employer",
+              "EMPLOYER_VERIFICATION.hire_date"
+            ]
+          }
+        ],
+        "case_id": "case-gen-49-2556c079",
+        "score": 0.9996729233429981,
+        "label_is_fraud": 1,
+        "label_fraud_type": "FABRICATION"
+      },
+      {
+        "index": 9,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05595193742444352
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05296795950663763
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.146,
+            "contribution": -0.05223627610143076
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 55.0,
+            "contribution": -0.04981876813006264
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 2.0,
+            "contribution": -0.02860896461942622
+          }
+        ],
+        "positive_total": 0.017354983558061917,
+        "negative_total": -0.48256037216715286,
+        "reason_codes": [
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00465,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          },
+          {
+            "reason_code": "RAPID_CREDIT_PROFILE_CONSTRUCTION",
+            "contribution": 0.0033,
+            "features": [
+              "disc_credit_score_claim_vs_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.credit_score"
+            ]
+          },
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00116,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-50-b259dd07",
+        "score": 0.03479461139090929,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 10,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05526083256658652
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.209,
+            "contribution": -0.05474729565276713
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05250016258278186
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 54.0,
+            "contribution": -0.04928323838809733
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 2.0,
+            "contribution": -0.02846997162253146
+          }
+        ],
+        "positive_total": 0.012154152797092803,
+        "negative_total": -0.4881095259112598,
+        "reason_codes": [
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00363,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          },
+          {
+            "reason_code": "RAPID_CREDIT_PROFILE_CONSTRUCTION",
+            "contribution": 0.00206,
+            "features": [
+              "claimed_liability_cluster_days"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          }
+        ],
+        "case_id": "case-gen-51-b159db74",
+        "score": 0.024044626885833146,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 11,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.055607569623229644
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.184,
+            "contribution": -0.05521893048945714
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05239306563048274
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 31.0,
+            "contribution": -0.050285426037708233
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 0.0,
+            "contribution": -0.03003714429133548
+          }
+        ],
+        "positive_total": 0.015739877448137093,
+        "negative_total": -0.48771630755334894,
+        "reason_codes": [
+          {
+            "reason_code": "RAPID_CREDIT_PROFILE_CONSTRUCTION",
+            "contribution": 0.0083,
+            "features": [
+              "claimed_liability_cluster_days"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          },
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00443,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          }
+        ],
+        "case_id": "case-gen-56-b059d9e1",
+        "score": 0.028023569894788405,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 12,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05627935747599868
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.135,
+            "contribution": -0.053709496614347735
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05366713299446229
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 90.0,
+            "contribution": -0.04922558421251114
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 1.0,
+            "contribution": -0.030189033834942522
+          }
+        ],
+        "positive_total": 0.006436233196849793,
+        "negative_total": -0.49045997152815235,
+        "reason_codes": [
+          {
+            "reason_code": "RAPID_CREDIT_PROFILE_CONSTRUCTION",
+            "contribution": 0.00234,
+            "features": [
+              "claimed_liability_cluster_days"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          },
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00125,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-57-af59d84e",
+        "score": 0.015976261668697825,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 13,
+        "top_contributions": [
+          {
+            "feature": "ip_risk_score",
+            "value": 0.169,
+            "contribution": -0.054987534256048604
+          },
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.052717283661819006
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05264616401576428
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 47.0,
+            "contribution": -0.050851687907821054
+          },
+          {
+            "feature": "evidence_large_deposit_total",
+            "value": 0.0,
+            "contribution": -0.03451728255064355
+          }
+        ],
+        "positive_total": 0.027850974716150036,
+        "negative_total": -0.49544284437799624,
+        "reason_codes": [
+          {
+            "reason_code": "INSUFFICIENT_RESERVES",
+            "contribution": 0.02704,
+            "features": [
+              "reserves_months_verified"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.checking_balance"
+            ]
+          }
+        ],
+        "case_id": "case-gen-59-a959cedc",
+        "score": 0.032408130338154,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 14,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05665762769484561
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.101,
+            "contribution": -0.05409430784696138
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05237032421649861
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 17.0,
+            "contribution": -0.048612960776812986
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 1.0,
+            "contribution": -0.030315391296481142
+          }
+        ],
+        "positive_total": 0.0008688037906377831,
+        "negative_total": -0.4826151847940325,
+        "reason_codes": [],
+        "case_id": "case-gen-76-20547a03",
+        "score": 0.01825361899660558,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 15,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.056396540321893014
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.127,
+            "contribution": -0.054385382093492154
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.0540221352968294
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 20.0,
+            "contribution": -0.05019617496268869
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 2.0,
+            "contribution": -0.02888297686062179
+          }
+        ],
+        "positive_total": 0.001099242866451188,
+        "negative_total": -0.487072004139236,
+        "reason_codes": [
+          {
+            "reason_code": "INSUFFICIENT_INCOME",
+            "contribution": 2e-05,
+            "features": [
+              "residual_income_claimed"
+            ],
+            "evidence_sources": [
+              "APPLICATION.stated"
+            ]
+          }
+        ],
+        "case_id": "case-gen-83-a33971bf",
+        "score": 0.014027238727215433,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 16,
+        "top_contributions": [
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.061816727797676496
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.095,
+            "contribution": -0.0553774855418448
+          },
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05502583362282231
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 27.0,
+            "contribution": -0.05426475331710872
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 2.0,
+            "contribution": -0.028704571602943218
+          }
+        ],
+        "positive_total": 0.01790431035403787,
+        "negative_total": -0.49835848037850433,
+        "reason_codes": [
+          {
+            "reason_code": "ANOMALOUS_APPLICATION_BEHAVIOR",
+            "contribution": 0.01097,
+            "features": [
+              "typing_speed_wpm"
+            ],
+            "evidence_sources": [
+              "APPLICATION_METADATA.session"
+            ]
+          },
+          {
+            "reason_code": "INSUFFICIENT_INCOME",
+            "contribution": 0.00145,
+            "features": [
+              "residual_income_claimed"
+            ],
+            "evidence_sources": [
+              "APPLICATION.stated"
+            ]
+          },
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00089,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-84-a0396d06",
+        "score": 0.019545829975534088,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 17,
+        "top_contributions": [
+          {
+            "feature": "min_doc_age_days",
+            "value": 27.0,
+            "contribution": -0.06186739967914432
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.177,
+            "contribution": -0.0617659233210345
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.059457891045079744
+          },
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05118932918113042
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 1.0,
+            "contribution": -0.03659099990815013
+          }
+        ],
+        "positive_total": 0.047378049708301576,
+        "negative_total": -0.4884229012762907,
+        "reason_codes": [
+          {
+            "reason_code": "ANOMALOUS_APPLICATION_BEHAVIOR",
+            "contribution": 0.019,
+            "features": [
+              "session_duration_seconds"
+            ],
+            "evidence_sources": [
+              "APPLICATION_METADATA.session"
+            ]
+          },
+          {
+            "reason_code": "INSUFFICIENT_INCOME",
+            "contribution": 0.00273,
+            "features": [
+              "residual_income_claimed"
+            ],
+            "evidence_sources": [
+              "APPLICATION.stated"
+            ]
+          },
+          {
+            "reason_code": "RAPID_CREDIT_PROFILE_CONSTRUCTION",
+            "contribution": 0.00156,
+            "features": [
+              "claimed_liability_cluster_days"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          }
+        ],
+        "case_id": "case-gen-85-a1396e99",
+        "score": 0.05895514843201131,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 18,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.055281191227063244
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.223,
+            "contribution": -0.054099894125834526
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05283494457636449
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 43.0,
+            "contribution": -0.05054598725019416
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 0.0,
+            "contribution": -0.030471838476874347
+          }
+        ],
+        "positive_total": 0.003076218595327406,
+        "negative_total": -0.49265924333166083,
+        "reason_codes": [
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00143,
+            "features": [
+              "backend_dti_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.liabilities"
+            ]
+          }
+        ],
+        "case_id": "case-gen-92-ac3bbe81",
+        "score": 0.010416975263666653,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 19,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05468129449073293
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05262172458915722
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.084,
+            "contribution": -0.052549574497378466
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 43.0,
+            "contribution": -0.04907740556173173
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 0.0,
+            "contribution": -0.029822214528131927
+          }
+        ],
+        "positive_total": 0.007039463196491147,
+        "negative_total": -0.4476182884147429,
+        "reason_codes": [
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00139,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          },
+          {
+            "reason_code": "EXCESSIVE_DTI",
+            "contribution": 0.00125,
+            "features": [
+              "claimed_backend_dti"
+            ],
+            "evidence_sources": [
+              "APPLICATION.stated"
+            ]
+          },
+          {
+            "reason_code": "INSUFFICIENT_INCOME",
+            "contribution": 0.00099,
+            "features": [
+              "residual_income_claimed"
+            ],
+            "evidence_sources": [
+              "APPLICATION.stated"
+            ]
+          }
+        ],
+        "case_id": "case-gen-93-ab3bbcee",
+        "score": 0.05942117478174831,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 20,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.056661889987417335
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05351525934781953
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 24.0,
+            "contribution": -0.05073016122190047
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.081,
+            "contribution": -0.042163960622033834
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 0.0,
+            "contribution": -0.030022063672459035
+          }
+        ],
+        "positive_total": 0.0030764529734626806,
+        "negative_total": -0.4713154014751869,
+        "reason_codes": [
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00134,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-98-a23baec3",
+        "score": 0.031761051498276134,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 21,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05562019381271019
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.112,
+            "contribution": -0.05453213124573069
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05251293942602683
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 89.0,
+            "contribution": -0.04954807595354161
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 2.0,
+            "contribution": -0.028965932864542666
+          }
+        ],
+        "positive_total": 0.004458657843139452,
+        "negative_total": -0.48552330463427773,
+        "reason_codes": [],
+        "case_id": "case-gen-110-b8d9c3a0",
+        "score": 0.01893535320886204,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 22,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.05659295186936275
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.053988627462782164
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.224,
+            "contribution": -0.05347576821958882
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 56.0,
+            "contribution": -0.05017031770935429
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 0.0,
+            "contribution": -0.030116075835432903
+          }
+        ],
+        "positive_total": 0.003625797097035714,
+        "negative_total": -0.4877043698647033,
+        "reason_codes": [
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00083,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          },
+          {
+            "reason_code": "LIMITED_EMPLOYMENT_HISTORY",
+            "contribution": 0.00018,
+            "features": [
+              "claimed_tenure_months"
+            ],
+            "evidence_sources": [
+              "EMPLOYER_VERIFICATION.hire_date"
+            ]
+          }
+        ],
+        "case_id": "case-gen-121-49e163a8",
+        "score": 0.015921427232332735,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 23,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.055776652238188264
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05399109118606526
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.217,
+            "contribution": -0.053661993749266695
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 45.0,
+            "contribution": -0.05084665298257029
+          },
+          {
+            "feature": "fields_copy_pasted",
+            "value": 1.0,
+            "contribution": -0.030836211525851694
+          }
+        ],
+        "positive_total": 0.012099464233941837,
+        "negative_total": -0.4857878687409638,
+        "reason_codes": [
+          {
+            "reason_code": "RAPID_CREDIT_PROFILE_CONSTRUCTION",
+            "contribution": 0.00656,
+            "features": [
+              "disc_credit_score_claim_vs_bureau"
+            ],
+            "evidence_sources": [
+              "CREDIT_BUREAU.credit_score"
+            ]
+          },
+          {
+            "reason_code": "HIGH_RISK_NETWORK_ORIGIN",
+            "contribution": 0.00324,
+            "features": [
+              "is_vpn"
+            ],
+            "evidence_sources": [
+              "APPLICATION_METADATA.is_vpn"
+            ]
+          },
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.00142,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-122-4ce16861",
+        "score": 0.02631159549297842,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      },
+      {
+        "index": 24,
+        "top_contributions": [
+          {
+            "feature": "disc_salary_vs_employer_pct",
+            "value": 0.0,
+            "contribution": -0.06889747652388818
+          },
+          {
+            "feature": "ip_risk_score",
+            "value": 0.209,
+            "contribution": -0.054360569439573854
+          },
+          {
+            "feature": "docs_created_within_2_days",
+            "value": 0.0,
+            "contribution": -0.05155338980434705
+          },
+          {
+            "feature": "min_doc_age_days",
+            "value": 46.0,
+            "contribution": -0.05145252736082289
+          },
+          {
+            "feature": "disc_salary_vs_w2_pct",
+            "value": 0.3755219614585892,
+            "contribution": 0.03389267253699574
+          }
+        ],
+        "positive_total": 0.035090481666671045,
+        "negative_total": -0.4982664592767646,
+        "reason_codes": [
+          {
+            "reason_code": "UNVERIFIABLE_INCOME",
+            "contribution": 0.03389,
+            "features": [
+              "disc_salary_vs_w2_pct"
+            ],
+            "evidence_sources": [
+              "W2_DOCUMENT.w2_wages"
+            ]
+          },
+          {
+            "reason_code": "TIGHT_RESIDUAL_INCOME",
+            "contribution": 0.001,
+            "features": [
+              "evidence_overdraft_count"
+            ],
+            "evidence_sources": [
+              "BANK_STATEMENT.overdraft_count"
+            ]
+          }
+        ],
+        "case_id": "case-gen-123-4be166ce",
+        "score": 0.03682402238990684,
+        "label_is_fraud": 0,
+        "label_fraud_type": "NONE"
+      }
+    ],
+    "partial_dependence": {
+      "disc_salary_vs_employer_pct": {
+        "grid": [
+          -0.07752363418030245,
+          0.0,
+          0.2
+        ],
+        "mean_score": [
+          0.2862949407581366,
+          0.22800926341352853,
+          0.7835416398503066
+        ]
+      },
+      "disc_obligations_vs_bureau_pct": {
+        "grid": [
+          0.0,
+          0.2075378538512181,
+          1.0
+        ],
+        "mean_score": [
+          0.2307071394450074,
+          0.4946188868429267,
+          0.5035450825108189
+        ]
+      },
+      "disc_obligations_vs_bureau": {
+        "grid": [
+          0.0,
+          108.7171428571429,
+          1810.9999999999955
+        ],
+        "mean_score": [
+          0.23242416696389664,
+          0.41018215656282886,
+          0.4301947213677533
+        ]
+      },
+      "evidence_large_deposit_count": {
+        "grid": [
+          0.0,
+          1.0
+        ],
+        "mean_score": [
+          0.23229278086157204,
+          0.5645680941447523
+        ]
+      },
+      "hour_of_day": {
+        "grid": [
+          1.0,
+          9.0,
+          10.0,
+          11.0,
+          12.0,
+          13.0,
+          14.0,
+          15.0,
+          16.0,
+          16.517142857142858,
+          17.0
+        ],
+        "mean_score": [
+          0.27768524310966286,
+          0.24094687609231044,
+          0.2399637823524744,
+          0.23939207151905065,
+          0.23930962542358675,
+          0.2393920481313671,
+          0.23918025139288857,
+          0.23916725179705442,
+          0.2392252961802661,
+          0.23963912320845177,
+          0.23963912320845177
+        ]
+      },
+      "backend_dti_verified": {
+        "grid": [
+          0.2784666666666666,
+          0.2844754995175855,
+          0.31764285714285706,
+          0.326247662763466,
+          0.3375931928181108,
+          0.3467885194805195,
+          0.3588855599897818,
+          0.37228847864678327,
+          0.3844004474551023,
+          0.3975613275297686,
+          0.4179216478283078,
+          0.43294670745979746,
+          0.46255718802811974,
+          0.49550746416332314,
+          0.5680111620636638
+        ],
+        "mean_score": [
+          0.4077841304620026,
+          0.2504141259243283,
+          0.24342238582787332,
+          0.23990639822790308,
+          0.23972182446260745,
+          0.23978642830068955,
+          0.23932822454155764,
+          0.2368818006384529,
+          0.2407352707561312,
+          0.24245210686097424,
+          0.24633886808154576,
+          0.2529051857756779,
+          0.25343151424470384,
+          0.25352167998043623,
+          0.2543150640012061
+        ]
+      }
+    }
+  },
+  "fairness_status": "PASS",
+  "economics": {
+    "params": {
+      "fraud_prevalence": null,
+      "average_loss": 60000.0,
+      "manual_review_cost": 85.0,
+      "false_decline_cost": 1200.0,
+      "investigation_capacity": null,
+      "model_operating_cost": 2.0,
+      "minutes_per_review": 45.0,
+      "review_to_decline_rate": 0.85
+    },
+    "ev_optimal_threshold": 0.3,
+    "selected_threshold": 0.21,
+    "net_benefit_at_selected": 12522596.0,
+    "net_benefit_at_ev_optimal": 12522596.0
+  },
+  "registry_state": {
+    "rules_baseline@1.3.0": "VALIDATION_PENDING",
+    "logistic_regression@1.0.0": "VALIDATION_PENDING",
+    "random_forest@1.0.0": "APPROVED",
+    "gradient_boosting@1.0.0": "VALIDATION_PENDING",
+    "rules_baseline@1.3.1": "VALIDATION_PENDING",
+    "logistic_regression@1.0.1": "VALIDATION_PENDING",
+    "random_forest@1.0.1": "APPROVED",
+    "gradient_boosting@1.0.1": "VALIDATION_PENDING",
+    "rules_baseline@1.3.2": "VALIDATION_PENDING",
+    "logistic_regression@1.0.2": "VALIDATION_PENDING",
+    "random_forest@1.0.2": "APPROVED",
+    "gradient_boosting@1.0.2": "VALIDATION_PENDING",
+    "rules_baseline@1.3.3": "VALIDATION_PENDING",
+    "logistic_regression@1.0.3": "VALIDATION_PENDING",
+    "random_forest@1.0.3": "APPROVED",
+    "gradient_boosting@1.0.3": "VALIDATION_PENDING",
+    "rules_baseline@1.3.4": "VALIDATION_PENDING",
+    "logistic_regression@1.0.4": "VALIDATION_PENDING",
+    "random_forest@1.0.4": "APPROVED",
+    "gradient_boosting@1.0.4": "VALIDATION_PENDING"
+  }
+}

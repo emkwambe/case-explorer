@@ -38,6 +38,14 @@ Under the Solar prime profile, Borrower profiles reuse the mortgage generator; m
 
 **Planned fix.** A full solar borrower generator: applicants, applications and the integrity check generated for a solar loan, so no mortgage field is produced and nothing needs hiding.
 
+## The integrity verdict is computed from hidden truth and is shown openly
+
+The integrity verdict (`label.expected_outcome`, with `label.reason_codes`) comes from the generator's reference labeller, `computeDecision` in `src/core/findings.js`. It underwrites on world truth: verified income, the true credit score, the higher of claimed and true obligations, and the injected corruption type. It is an answer key, not a system decision. No decision function reads it as an input; the leakage audit in `scripts/test-spine.test.mjs` covers decision outputs only, and the verdict is truth-derived by design.
+
+The case views show it today: the Decision tab ("Integrity check (generator)", "Generator label"), the Overview's Expected Outcome card, the case cards and their integrity badge, the Data Table's Outcome column, the Credit Risk sidebar, and the Mortgage header lens. Most of those labels call it an integrity check, not an answer key.
+
+**Challenge mode must hide it.** A blind decision is meaningless while the verdict, its reason codes or the integrity badge is on screen, so challenge mode has to hide every one of these until the learner commits.
+
 ## Findings images are captured manually, not in CI
 
 `npm run capture:findings` (scripts/capture-findings.mjs) builds the app, generates the seed-42 funded portfolio in headless Chromium and writes the seven Findings PNGs and their captions to `docs/findings/`. It runs only on demand: no CI job runs it, so the committed images can fall behind the app until someone re-runs the script. The script needs Playwright's Chromium on the machine (`npx playwright install chromium`) and takes a few minutes, most of it the 10,000-loan portfolio.

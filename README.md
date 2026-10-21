@@ -90,11 +90,11 @@ _Generated from `analytics/artifacts/model-summary.json` (governed splits from `
 |---|---|
 | Champion model | random_forest (sklearn) |
 | Fraud PR-AUC (held-out test) | 0.995 |
-| Fraud ROC-AUC (held-out test) | 0.996 |
-| Recall at selected threshold (0.20) | 0.992 |
+| Fraud ROC-AUC (held-out test) | 0.997 |
+| Recall at selected threshold (0.21) | 0.992 |
 | Precision at threshold | 1.000 |
 | False-positive rate at threshold | 0.000 |
-| Calibration error (ECE) | 0.034 |
+| Calibration error (ECE) | 0.033 |
 | Brier score | 0.005 |
 | Out-of-time PR-AUC / recall | 0.985 / 0.973 |
 | Adversarial-set PR-AUC | 1.000 |

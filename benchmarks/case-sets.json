@@ -1,0 +1,27 @@
+{
+  "description": "Seed-pinned case sets checked by npm run benchmark against benchmarks/answer-key-<id>.json. The first set is the benchmark's own population (unchanged); the keys apply only to a run with its parameters.",
+  "sets": [
+    {
+      "id": "mortgage-baseline",
+      "profile": "MORTGAGE",
+      "raw_config": true,
+      "seed": "42",
+      "count": 2000,
+      "stratified": 150,
+      "as_of": "2026-01-15",
+      "decision": "underwriting_policy",
+      "description": "The existing benchmark's population: 2,000 blended cases plus 150 per stratum, from distribution_config.json with no profile applied. Decision: the underwriting policy (scoreCase). Flagged: any fraud rule fired."
+    },
+    {
+      "id": "solar-prime",
+      "profile": "SOLAR_PRIME",
+      "raw_config": false,
+      "seed": "42",
+      "count": 2000,
+      "stratified": 40,
+      "as_of": "2026-01-15",
+      "decision": "credit_policy",
+      "description": "Solar prime: 2,000 blended cases (the test:credit sample) plus 40 per stratum. Decision: the credit policy (assessCredit). Flagged: sent to fraud review (a HIGH-severity rule fired)."
+    }
+  ]
+}

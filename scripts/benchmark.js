@@ -15,7 +15,9 @@
 //   artifacts/fairness-results.csv
 //   artifacts/rule-analytics.csv
 //   artifacts/benchmark-manifest.json
-// Exits non-zero when any mandatory gate fails (unless --no-fail).
+// Then checks the seed-pinned answer keys in benchmarks/ and prints their scorecard
+// (scripts/lib/answer-key.mjs); --update-key rewrites the keys instead.
+// Exits non-zero when any mandatory gate fails or an answer key does not match (unless --no-fail).
 
 import fs from "fs";
 import path from "path";
@@ -37,12 +39,13 @@ import { UNDERWRITING_POLICY_VERSION } from "../src/decisioning/underwriting/pol
 import { REASON_CODE_CATALOG_VERSION } from "../src/decisioning/reason-codes/catalog.js";
 import { FEATURE_POLICY_VERSION } from "../src/decisioning/policies/feature_policy.js";
 import { toCsv, round } from "../src/evaluation/stats.js";
+import { STRATA, runAnswerKeys } from "./lib/answer-key.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 
 function parseArgs(argv) {
-  const args = { count: 2000, seed: "42", out: "artifacts", verbose: false, fail: true, stratified: 150, asOf: "2026-01-15" };
+  const args = { count: 2000, seed: "42", out: "artifacts", verbose: false, fail: true, stratified: 150, asOf: "2026-01-15", updateKey: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === "--count") args.count = parseInt(argv[++i], 10);
@@ -52,7 +55,8 @@ function parseArgs(argv) {
     else if (a === "--as-of") args.asOf = argv[++i];
     else if (a === "--verbose") args.verbose = true;
     else if (a === "--no-fail") args.fail = false;
-    else if (a === "--help" || a === "-h") { console.log("Usage: node scripts/benchmark.js [--count N] [--seed S] [--out DIR] [--stratified K] [--as-of YYYY-MM-DD] [--verbose] [--no-fail]"); process.exit(0); }
+    else if (a === "--update-key") args.updateKey = true;
+    else if (a === "--help" || a === "-h") { console.log("Usage: node scripts/benchmark.js [--count N] [--seed S] [--out DIR] [--stratified K] [--as-of YYYY-MM-DD] [--verbose] [--no-fail] [--update-key]"); process.exit(0); }
   }
   if (!Number.isInteger(args.count) || args.count < 100 || args.count > 200000) throw new Error("--count must be an integer between 100 and 200000");
   return args;
@@ -61,13 +65,6 @@ function parseArgs(argv) {
 function gitCommit() {
   try { return execSync("git rev-parse HEAD", { cwd: ROOT, stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch { return null; }
 }
-
-const STRATA = [
-  ["NONE", "LOW"], ["INFLATION", "LOW"], ["INFLATION", "MEDIUM"], ["INFLATION", "HIGH"],
-  ["CONCEALMENT", "MEDIUM"], ["CONCEALMENT", "HIGH"], ["FABRICATION", "HIGH"], ["BUST_OUT", "HIGH"],
-  ["EVIDENCE_TAMPERING", "MEDIUM"], ["EVIDENCE_TAMPERING", "HIGH"], ["INCOHERENT", "HIGH"],
-  ["OCCUPANCY_MISREPRESENTATION", "MEDIUM"], ["GIFT_FUND_MISREPRESENTATION", "MEDIUM"], ["ASSET_SEASONING", "MEDIUM"], ["STRAW_BUYER", "HIGH"]
-];
 
 export async function runBenchmark(args) {
   const started = Date.now();
@@ -310,7 +307,10 @@ if (isMain) {
   try {
     const args = parseArgs(process.argv.slice(2));
     const { gates } = await runBenchmark(args);
-    process.exit(gates.passed || !args.fail ? 0 : 1);
+    // Answer keys (benchmarks/): regenerate the pinned case sets and compare them case by case.
+    const configText = fs.readFileSync(path.join(ROOT, "src", "distribution_config.json"), "utf8");
+    const keysOk = runAnswerKeys(args, { configText, baseConfig: JSON.parse(configText) });
+    process.exit((gates.passed && keysOk) || !args.fail ? 0 : 1);
   } catch (err) {
     console.error(`Benchmark failed: ${err.message}`);
     console.error(err.stack);

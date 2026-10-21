@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "case-analytics"
 version = "0.2.0"
-description = "Model development, validation, explainability, fairness and monitoring workbench for Case Explorer synthetic mortgage cases."
+description = "Mortgage fraud-analytics suite of the Case Explorer credit risk lab: model development, validation, explainability, fairness and monitoring on synthetic mortgage cases."
 requires-python = ">=3.11"
 dependencies = [
   "pandas>=2.1",

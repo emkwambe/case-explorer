@@ -1,0 +1,14 @@
+{
+  "description": "Committed snapshot of the Python model outputs the Explanation and Validation tabs read. scripts/prepare_demo_assets.js uses a file from here only when analytics/artifacts/ lacks it (the Vercel build, where analytics/artifacts/ is gitignored). GitHub Pages serves a fresh CI pipeline run instead.",
+  "generated_at": "2026-10-14T18:17:18.856229+00:00",
+  "generator_commit": "8aaa130fb28b8702ee47e80486e544cd83f1ea0a",
+  "produced_by": "python -m case_analytics.pipeline --data data --out artifacts (in analytics/), after node scripts/build_datasets.js --out analytics/data --train 6000 --seed 42",
+  "files": {
+    "model-summary.json": "cb69534679b1a124de764f2bd7a040762fc855fcdd4c6b0b932097b8b3e5e8e5",
+    "shap_summary_random_forest.png": "50dd96e19ca28403da24548ce7af0e46b1e3d1da367e1852482a8b798d515b19",
+    "pr_curves.png": "5ca2b82e73c1ec60ed3cfaeb3b4fe9bfa9b37a9b95486a8e84e0cfc8f524e2e1",
+    "calibration.png": "c750010e4142a6209ef7eadd240bca86fbefff4181a8aa52155fdec2e0e082d4",
+    "validation-package.md": "f5459fa9b292940cf60fae7b08ac8154c2b5f0ac2a3bfda5dc4de50203afc810",
+    "model-comparison.md": "d56e67bda8c838d6fad6f0e73fd1e3f7edeb9f960b4ff1ada99d0691d325f336"
+  }
+}
