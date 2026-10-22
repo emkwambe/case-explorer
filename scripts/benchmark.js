@@ -18,7 +18,9 @@
 // Then checks the seed-pinned answer keys in benchmarks/ and prints their scorecard
 // (scripts/lib/answer-key.mjs); --update-key rewrites the keys instead.
 // Exits non-zero when any mandatory gate fails or an answer key does not match (unless --no-fail).
+// Runs in UTC on every machine (scripts/lib/utc.mjs), so the keys do not depend on local time.
 
+import "./lib/utc.mjs";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";

@@ -19,6 +19,16 @@ None of these packages is in the browser bundle or the API server's runtime depe
 - The nested `qs` can only be cleared with a major upgrade of a Stryker dependency: `typed-rest-client` 2.x to 3.x, which `@stryker-mutator/core` 10.0.0 pins. It needs a Stryker release that moves to `typed-rest-client` 3.x, or an override that has been tested against Stryker.
 - GHSA-82fw-gwwq-j7x9 is fixed in `vitest` 4.1.11, a patch release inside the `^4.1.10` range, but a plain `npm audit fix` does not apply it. GHSA-qxg6-89mg-rqv8 covers `@vitest/mocker` up to and including 4.1.11, so clearing both needs a later release, an explicit `npm update vitest @vitest/coverage-v8` and a full test run.
 
+## Defect: rule outcome depends on process time zone
+
+The generator does date arithmetic on `Date` objects in the process's local time zone, so the same seed can give different dates, and occasionally different fraud-rule results, on machines in different zones. Example: `src/core/life.js` parses the employment start date as midnight UTC (`new Date(startDate)`), then adds months with `setMonth`, which works in local time, and writes the result with `toISOString`. In US Eastern time, midnight UTC on 2024-12-15 is 19:00 on 14 December; four months later, after daylight saving starts, 19:00 EDT on 14 April is 23:00 UTC, so the auto loan opens on 2025-04-14. In UTC it opens on 2025-04-15.
+
+**Regression case.** `case-gen-1042-6c72619a` in the `mortgage-baseline` answer key (fabrication, HIGH). Its two liabilities open 120 days apart in US Eastern time and 121 in UTC. FR-009 (rapid credit-profile construction) treats accounts opened within 120 days as clustered, so it fires in Eastern time and not in UTC, and the case loses the IDENTITY_UNVERIFIABLE and RAPID_CREDIT_PROFILE_CONSTRUCTION reason codes. Its decision (DECLINE) and its fraud-review flag are the same in both zones. Across the 6,850 answer-key cases this is the only rule or reason-code difference; every case hash differs.
+
+**Containment.** `npm run benchmark` pins the process to UTC (`scripts/lib/utc.mjs`, imported first), so the answer keys are the same on every machine and in CI. The browser app, the other script suites and the tracked `artifacts/` files still use the local time zone; the tracked artifacts were generated in US Eastern time (FR-009 fires on 170 cases there, 169 under UTC).
+
+**Planned fix (Sprint 9 candidate).** Make the generator's date handling time-zone-independent (UTC date arithmetic throughout), and add a test that generates `case-gen-1042-6c72619a` under two time zones and asserts identical rule results.
+
 ## Credit Risk Mode UI below the mutation-testing break threshold
 
 Last measured 2026-10-14 with a scoped Stryker run over `src/creditRisk.js` and `src/ui/credit/**` (vitest runner, thresholds 60 / 70 / 85).
