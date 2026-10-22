@@ -22,15 +22,13 @@
 /public/artifacts
 
 # Prebuild step: scripts/prepare_demo_assets.js copies the published artifacts into public/.
-# !/artifacts includes artifacts/model-snapshot, the committed model outputs used when
-# analytics/artifacts (gitignored) is absent.
+# !/artifacts includes artifacts/model-snapshot, the committed model outputs. analytics/artifacts
+# (gitignored, present only on a machine that ran the Python pipeline) stays out of the upload, so a
+# CLI deploy from any machine serves the committed snapshot, as the GitHub Pages build does.
 !/scripts
 /scripts/*
 !/scripts/prepare_demo_assets.js
 !/artifacts
-!/analytics
-/analytics/*
-!/analytics/artifacts
 
 # The pinned public-record snapshot the Public record tab imports (raw files, filings and the
 # filing page excerpt, which only the tests read, excluded).
