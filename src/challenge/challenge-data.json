@@ -1,0 +1,3448 @@
+{
+ "teaching_set": "teaching-v1",
+ "teaching_sha256": "4f6884254c4e00b7a65a9b6b086472e76fb8743b84d05af5ca8bc88360102330",
+ "profile": "SOLAR_PRIME",
+ "seed": "42",
+ "as_of": "2026-01-15",
+ "rubric": {
+  "pairClean": "Claims, truth and evidence agree and every policy threshold is met with margin: approve.",
+  "pairFraud": "The claims alone would pass, but one verified fact contradicts them: refer for verification (review), not approve.",
+  "pairConcealmentVerified": "Verified debt from the bureau takes DTI past the 45% cap: decline on verified figures.",
+  "fico": "Claimed FICO below 660 declines; 660 and above passes.",
+  "dti": "DTI above 45% declines; from 36% to 45% goes to review; below 36% passes.",
+  "liquidity": "At DTI above 40%, checking under $1,000 adds a liquidity flag; the elevated DTI already means review.",
+  "conflictMaterial": "Income overstated and debt understated, each above its HIGH threshold: refer for verification.",
+  "conflictSubThreshold": "Income overstated and debt understated, each below its HIGH threshold: together the claims cannot be relied on, so re-underwrite on verified figures (review).",
+  "thin": "A missing document the decision depends on → review; one it does not depend on is noted and the case is decided on the remaining evidence."
+ },
+ "cases": [
+  {
+   "id": "concealment-1/clean",
+   "group": "causal-pair",
+   "pair": "concealment-1",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 4,
+    "case_id": "case-gen-4-fd62ad7a"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": "absent",
+    "threshold": "FR-003: $100/mo",
+    "note": "verified DTI moves past the 45% cap"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "2c0ddf9544acf5a3"
+   }
+  },
+  {
+   "id": "concealment-1/fraud",
+   "group": "causal-pair",
+   "pair": "concealment-1",
+   "role": "fraud",
+   "typology": "CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 4,
+    "case_id": "case-gen-4-fd62ad7a"
+   },
+   "mutations": [
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 3819
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": 3819,
+    "threshold": "FR-003: $100/mo",
+    "note": "verified DTI moves past the 45% cap"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "acceptable_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairConcealmentVerified"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-003:HIGH"
+    ],
+    "hash": "16f4882109a4f0ce"
+   },
+   "gap": {
+    "reason": "The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%."
+   }
+  },
+  {
+   "id": "concealment-2/clean",
+   "group": "causal-pair",
+   "pair": "concealment-2",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 7,
+    "case_id": "case-gen-7-fc62abe7"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": "absent",
+    "threshold": "FR-003: $100/mo",
+    "note": "verified DTI moves past the 45% cap"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "c15a5c4a0badc6d0"
+   }
+  },
+  {
+   "id": "concealment-2/fraud",
+   "group": "causal-pair",
+   "pair": "concealment-2",
+   "role": "fraud",
+   "typology": "CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 7,
+    "case_id": "case-gen-7-fc62abe7"
+   },
+   "mutations": [
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 5902
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": 5902,
+    "threshold": "FR-003: $100/mo",
+    "note": "verified DTI moves past the 45% cap"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "acceptable_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairConcealmentVerified"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-003:HIGH"
+    ],
+    "hash": "5a9e4a8b9f06e6de"
+   },
+   "gap": {
+    "reason": "The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%."
+   }
+  },
+  {
+   "id": "concealment-3/clean",
+   "group": "causal-pair",
+   "pair": "concealment-3",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 8,
+    "case_id": "case-gen-8-f1629a96"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": "absent",
+    "threshold": "FR-003: $100/mo",
+    "note": "verified DTI moves past the 45% cap"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "e2c21e16e6592807"
+   }
+  },
+  {
+   "id": "concealment-3/fraud",
+   "group": "causal-pair",
+   "pair": "concealment-3",
+   "role": "fraud",
+   "typology": "CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 8,
+    "case_id": "case-gen-8-f1629a96"
+   },
+   "mutations": [
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 3577
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": 3577,
+    "threshold": "FR-003: $100/mo",
+    "note": "verified DTI moves past the 45% cap"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "acceptable_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairConcealmentVerified"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-003:HIGH"
+    ],
+    "hash": "ee183899de5e5b27"
+   },
+   "gap": {
+    "reason": "The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%."
+   }
+  },
+  {
+   "id": "concealment-4/clean",
+   "group": "causal-pair",
+   "pair": "concealment-4",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 11,
+    "case_id": "case-gen-11-194ff1d0"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": "absent",
+    "threshold": "FR-003: $100/mo",
+    "note": "just above the material threshold"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "084932fe3bf33766"
+   }
+  },
+  {
+   "id": "concealment-4/fraud",
+   "group": "causal-pair",
+   "pair": "concealment-4",
+   "role": "fraud",
+   "typology": "CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 11,
+    "case_id": "case-gen-11-194ff1d0"
+   },
+   "mutations": [
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 105
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": 105,
+    "threshold": "FR-003: $100/mo",
+    "note": "just above the material threshold"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-003:HIGH"
+    ],
+    "hash": "a1be62c94870d925"
+   },
+   "gap": {
+    "reason": "Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt."
+   }
+  },
+  {
+   "id": "concealment-5/clean",
+   "group": "causal-pair",
+   "pair": "concealment-5",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 13,
+    "case_id": "case-gen-13-1b4ff4f6"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": "absent",
+    "threshold": "FR-003: $100/mo",
+    "note": "just above the material threshold"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "0aa29314a4ffebd5"
+   }
+  },
+  {
+   "id": "concealment-5/fraud",
+   "group": "causal-pair",
+   "pair": "concealment-5",
+   "role": "fraud",
+   "typology": "CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 13,
+    "case_id": "case-gen-13-1b4ff4f6"
+   },
+   "mutations": [
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 105
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "undisclosed monthly debt (truth and credit bureau; not in the claims)",
+    "value": 105,
+    "threshold": "FR-003: $100/mo",
+    "note": "just above the material threshold"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-003:HIGH"
+    ],
+    "hash": "ec5e6815caa23b43"
+   },
+   "gap": {
+    "reason": "Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt."
+   }
+  },
+  {
+   "id": "inflation-1/clean",
+   "group": "causal-pair",
+   "pair": "inflation-1",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 14,
+    "case_id": "case-gen-14-1e4ff9af"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": "absent",
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "566206c8ea04e7ad"
+   }
+  },
+  {
+   "id": "inflation-1/fraud",
+   "group": "causal-pair",
+   "pair": "inflation-1",
+   "role": "fraud",
+   "typology": "INFLATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 14,
+    "case_id": "case-gen-14-1e4ff9af"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.35
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": 1.35,
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH"
+    ],
+    "hash": "b4f19ef3b7bcc057"
+   }
+  },
+  {
+   "id": "inflation-2/clean",
+   "group": "causal-pair",
+   "pair": "inflation-2",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 17,
+    "case_id": "case-gen-17-1f4ffb42"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": "absent",
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "4198d958ce12419b"
+   }
+  },
+  {
+   "id": "inflation-2/fraud",
+   "group": "causal-pair",
+   "pair": "inflation-2",
+   "role": "fraud",
+   "typology": "INFLATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 17,
+    "case_id": "case-gen-17-1f4ffb42"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.35
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": 1.35,
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH"
+    ],
+    "hash": "ed3a2b0ab64d6e96"
+   }
+  },
+  {
+   "id": "inflation-3/clean",
+   "group": "causal-pair",
+   "pair": "inflation-3",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 18,
+    "case_id": "case-gen-18-224ffffb"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": "absent",
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "9c80e7bdbd9316c5"
+   }
+  },
+  {
+   "id": "inflation-3/fraud",
+   "group": "causal-pair",
+   "pair": "inflation-3",
+   "role": "fraud",
+   "typology": "INFLATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 18,
+    "case_id": "case-gen-18-224ffffb"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.35
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": 1.35,
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH"
+    ],
+    "hash": "b1f619d5ee82330d"
+   }
+  },
+  {
+   "id": "inflation-4/clean",
+   "group": "causal-pair",
+   "pair": "inflation-4",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 21,
+    "case_id": "case-gen-21-a94885bb"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": "absent",
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "0d6976f62b4b59bb"
+   }
+  },
+  {
+   "id": "inflation-4/fraud",
+   "group": "causal-pair",
+   "pair": "inflation-4",
+   "role": "fraud",
+   "typology": "INFLATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 21,
+    "case_id": "case-gen-21-a94885bb"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.16
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": 1.16,
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH"
+    ],
+    "hash": "dff8d8e6f5640efd"
+   }
+  },
+  {
+   "id": "inflation-5/clean",
+   "group": "causal-pair",
+   "pair": "inflation-5",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 22,
+    "case_id": "case-gen-22-aa48874e"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": "absent",
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "b4e03d74eff66419"
+   }
+  },
+  {
+   "id": "inflation-5/fraud",
+   "group": "causal-pair",
+   "pair": "inflation-5",
+   "role": "fraud",
+   "typology": "INFLATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 22,
+    "case_id": "case-gen-22-aa48874e"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.16
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ employer-verified salary",
+    "value": 1.16,
+    "threshold": "FR-001: above 1.15"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH"
+    ],
+    "hash": "08b966a16579fc05"
+   }
+  },
+  {
+   "id": "evidence-tampering-1/clean",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-1",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 23,
+    "case_id": "case-gen-23-ab4888e1"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": "absent",
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "f1ee76287c0ca7db"
+   }
+  },
+  {
+   "id": "evidence-tampering-1/fraud",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-1",
+   "role": "fraud",
+   "typology": "EVIDENCE_TAMPERING",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 23,
+    "case_id": "case-gen-23-ab4888e1"
+   },
+   "mutations": [
+    {
+     "type": "conflict_document",
+     "params": {
+      "field": "BANK_STATEMENT.checking_balance",
+      "pct": 0.29
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": 1.3,
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-006:HIGH"
+    ],
+    "hash": "1f18cd29e9ebed57"
+   }
+  },
+  {
+   "id": "evidence-tampering-2/clean",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-2",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 29,
+    "case_id": "case-gen-29-a1487923"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": "absent",
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "b1d3d7ca35e11314"
+   }
+  },
+  {
+   "id": "evidence-tampering-2/fraud",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-2",
+   "role": "fraud",
+   "typology": "EVIDENCE_TAMPERING",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 29,
+    "case_id": "case-gen-29-a1487923"
+   },
+   "mutations": [
+    {
+     "type": "conflict_document",
+     "params": {
+      "field": "BANK_STATEMENT.checking_balance",
+      "pct": 0.3011
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": 1.3,
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-006:HIGH"
+    ],
+    "hash": "09a78614da0bb932"
+   }
+  },
+  {
+   "id": "evidence-tampering-3/clean",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-3",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 30,
+    "case_id": "case-gen-30-ae4acc31"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": "absent",
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "0952a5b81b81cfa8"
+   }
+  },
+  {
+   "id": "evidence-tampering-3/fraud",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-3",
+   "role": "fraud",
+   "typology": "EVIDENCE_TAMPERING",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 30,
+    "case_id": "case-gen-30-ae4acc31"
+   },
+   "mutations": [
+    {
+     "type": "conflict_document",
+     "params": {
+      "field": "BANK_STATEMENT.checking_balance",
+      "pct": 0.2926
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": 1.3,
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-006:HIGH"
+    ],
+    "hash": "685147a7f424d5cb"
+   }
+  },
+  {
+   "id": "evidence-tampering-4/clean",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-4",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 33,
+    "case_id": "case-gen-33-ab4ac778"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": "absent",
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "f428e0bef74980a7"
+   }
+  },
+  {
+   "id": "evidence-tampering-4/fraud",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-4",
+   "role": "fraud",
+   "typology": "EVIDENCE_TAMPERING",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 33,
+    "case_id": "case-gen-33-ab4ac778"
+   },
+   "mutations": [
+    {
+     "type": "conflict_document",
+     "params": {
+      "field": "BANK_STATEMENT.checking_balance",
+      "pct": 0.1697
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": 1.16,
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-006:HIGH"
+    ],
+    "hash": "c583f3467e29b577"
+   }
+  },
+  {
+   "id": "evidence-tampering-5/clean",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-5",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 39,
+    "case_id": "case-gen-39-a54abe06"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": "absent",
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "ee434e93868dec3a"
+   }
+  },
+  {
+   "id": "evidence-tampering-5/fraud",
+   "group": "causal-pair",
+   "pair": "evidence-tampering-5",
+   "role": "fraud",
+   "typology": "EVIDENCE_TAMPERING",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 39,
+    "case_id": "case-gen-39-a54abe06"
+   },
+   "mutations": [
+    {
+     "type": "conflict_document",
+     "params": {
+      "field": "BANK_STATEMENT.checking_balance",
+      "pct": 0.1746
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "bank-statement balance ÷ claimed balance",
+    "value": 1.16,
+    "threshold": "FR-006: above 1.15"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-006:HIGH"
+    ],
+    "hash": "89d73770f2eced79"
+   }
+  },
+  {
+   "id": "fabrication-1/clean",
+   "group": "causal-pair",
+   "pair": "fabrication-1",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 46,
+    "case_id": "case-gen-46-2e56cea4"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "absent",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "729789f7c0b05038"
+   }
+  },
+  {
+   "id": "fabrication-1/fraud",
+   "group": "causal-pair",
+   "pair": "fabrication-1",
+   "role": "fraud",
+   "typology": "FABRICATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 46,
+    "case_id": "case-gen-46-2e56cea4"
+   },
+   "mutations": [
+    {
+     "type": "fabricate_assets",
+     "params": {
+      "pct": 0.52
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "$3,842, 50.00% of $7,684",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-004:HIGH"
+    ],
+    "hash": "d93b062712a69214"
+   }
+  },
+  {
+   "id": "fabrication-2/clean",
+   "group": "causal-pair",
+   "pair": "fabrication-2",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 47,
+    "case_id": "case-gen-47-2f56d037"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "absent",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "ec9b7a49ccdf39a7"
+   }
+  },
+  {
+   "id": "fabrication-2/fraud",
+   "group": "causal-pair",
+   "pair": "fabrication-2",
+   "role": "fraud",
+   "typology": "FABRICATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 47,
+    "case_id": "case-gen-47-2f56d037"
+   },
+   "mutations": [
+    {
+     "type": "fabricate_assets",
+     "params": {
+      "pct": 0.5224
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "$18,123, 50.00% of $36,246",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-004:HIGH"
+    ],
+    "hash": "7175272ba98de632"
+   }
+  },
+  {
+   "id": "fabrication-3/clean",
+   "group": "causal-pair",
+   "pair": "fabrication-3",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 55,
+    "case_id": "case-gen-55-ad59d528"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "absent",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "3a63a28df67e22e8"
+   }
+  },
+  {
+   "id": "fabrication-3/fraud",
+   "group": "causal-pair",
+   "pair": "fabrication-3",
+   "role": "fraud",
+   "typology": "FABRICATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 55,
+    "case_id": "case-gen-55-ad59d528"
+   },
+   "mutations": [
+    {
+     "type": "fabricate_assets",
+     "params": {
+      "pct": 0.4927
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "$3,901, 49.99% of $7,803",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-004:HIGH"
+    ],
+    "hash": "04529f4e1cf18319"
+   }
+  },
+  {
+   "id": "fabrication-4/clean",
+   "group": "causal-pair",
+   "pair": "fabrication-4",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 57,
+    "case_id": "case-gen-57-af59d84e"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "absent",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "6e8ed0010cb4076c"
+   }
+  },
+  {
+   "id": "fabrication-4/fraud",
+   "group": "causal-pair",
+   "pair": "fabrication-4",
+   "role": "fraud",
+   "typology": "FABRICATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 57,
+    "case_id": "case-gen-57-af59d84e"
+   },
+   "mutations": [
+    {
+     "type": "fabricate_assets",
+     "params": {
+      "pct": 0.0939
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "$799, 10.50% of $7,613",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-004:HIGH"
+    ],
+    "hash": "5b36b82073a04857"
+   }
+  },
+  {
+   "id": "fabrication-5/clean",
+   "group": "causal-pair",
+   "pair": "fabrication-5",
+   "role": "clean",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 60,
+    "case_id": "case-gen-60-20523b6c"
+   },
+   "mutations": [],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "absent",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "easy",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "pairClean"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "f2e1d616977a0742"
+   }
+  },
+  {
+   "id": "fabrication-5/fraud",
+   "group": "causal-pair",
+   "pair": "fabrication-5",
+   "role": "fraud",
+   "typology": "FABRICATION",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 60,
+    "case_id": "case-gen-60-20523b6c"
+   },
+   "mutations": [
+    {
+     "type": "fabricate_assets",
+     "params": {
+      "pct": 0.1132
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed checking balance over the bank-statement balance (FR-004's measure)",
+    "value": "$601, 10.51% of $5,718",
+    "threshold": "FR-004: excess above $500 and above 10% of the statement balance"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "rubric": "pairFraud"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-004:HIGH"
+    ],
+    "hash": "f6494a5d1a321cd3"
+   }
+  },
+  {
+   "id": "near/fico-659-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 64,
+    "case_id": "case-gen-64-1c523520"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -154
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 659,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "LOW_FICO"
+    ],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "LOW_FICO"
+    ],
+    "fraud_rules": [],
+    "hash": "cea06ce8a411db14"
+   }
+  },
+  {
+   "id": "near/fico-660-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 64,
+    "case_id": "case-gen-64-1c523520"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -153
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 660,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "a94dbb741b4a9074"
+   }
+  },
+  {
+   "id": "near/fico-661-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 64,
+    "case_id": "case-gen-64-1c523520"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -152
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 661,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "808c53b8bccec9d5"
+   }
+  },
+  {
+   "id": "near/fico-659-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 69,
+    "case_id": "case-gen-69-29524997"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -139
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 659,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "LOW_FICO"
+    ],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "LOW_FICO"
+    ],
+    "fraud_rules": [],
+    "hash": "a59b4c9e80d9514c"
+   }
+  },
+  {
+   "id": "near/fico-660-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 69,
+    "case_id": "case-gen-69-29524997"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -138
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 660,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "ece4cd2330765bf6"
+   }
+  },
+  {
+   "id": "near/fico-661-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 69,
+    "case_id": "case-gen-69-29524997"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -137
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 661,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "a7f1fc2a6b304bd7"
+   }
+  },
+  {
+   "id": "near/fico-659-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 74,
+    "case_id": "case-gen-74-22547d29"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -121
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 659,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "LOW_FICO"
+    ],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "LOW_FICO"
+    ],
+    "fraud_rules": [],
+    "hash": "f7068366638a686d"
+   }
+  },
+  {
+   "id": "near/fico-660-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 74,
+    "case_id": "case-gen-74-22547d29"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -120
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 660,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "02345c613f4d0f15"
+   }
+  },
+  {
+   "id": "near/fico-661-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 74,
+    "case_id": "case-gen-74-22547d29"
+   },
+   "mutations": [
+    {
+     "type": "shift_fico",
+     "params": {
+      "points": -119
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed FICO",
+    "value": 661,
+    "threshold": "660"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "fico"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "278dfd44e5e4b189"
+   }
+  },
+  {
+   "id": "near/dti-35.9-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 79,
+    "case_id": "case-gen-79-2d548e7a"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.359
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.359,
+    "threshold": "0.36"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "bcfca3af88f0385b"
+   }
+  },
+  {
+   "id": "near/dti-36.1-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 79,
+    "case_id": "case-gen-79-2d548e7a"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.361
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.361,
+    "threshold": "0.36"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "ceaf19b5f586a59a"
+   }
+  },
+  {
+   "id": "near/dti-44.9-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 79,
+    "case_id": "case-gen-79-2d548e7a"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.449
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.449,
+    "threshold": "0.45"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "756db0d34f957515"
+   }
+  },
+  {
+   "id": "near/dti-45.1-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 79,
+    "case_id": "case-gen-79-2d548e7a"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.451
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.451,
+    "threshold": "0.45"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "f0f7ea2bba3c86ef"
+   }
+  },
+  {
+   "id": "near/dti-35.9-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 83,
+    "case_id": "case-gen-83-a33971bf"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.359
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.359,
+    "threshold": "0.36"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "c534a9b6070cdce4"
+   }
+  },
+  {
+   "id": "near/dti-36.1-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 83,
+    "case_id": "case-gen-83-a33971bf"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.361
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.361,
+    "threshold": "0.36"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "22bb4b3943def09b"
+   }
+  },
+  {
+   "id": "near/dti-44.9-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 83,
+    "case_id": "case-gen-83-a33971bf"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.449
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.449,
+    "threshold": "0.45"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "7a04259300286b32"
+   }
+  },
+  {
+   "id": "near/dti-45.1-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 83,
+    "case_id": "case-gen-83-a33971bf"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.451
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.451,
+    "threshold": "0.45"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "2196c3e51980c87d"
+   }
+  },
+  {
+   "id": "near/dti-35.9-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 84,
+    "case_id": "case-gen-84-a0396d06"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.359
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.359,
+    "threshold": "0.36"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "8c5f4b8fd0ade523"
+   }
+  },
+  {
+   "id": "near/dti-36.1-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 84,
+    "case_id": "case-gen-84-a0396d06"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.361
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.361,
+    "threshold": "0.36"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "ae494a1041793fb2"
+   }
+  },
+  {
+   "id": "near/dti-44.9-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 84,
+    "case_id": "case-gen-84-a0396d06"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.449
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.449,
+    "threshold": "0.45"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "ab05168ec980fa99"
+   }
+  },
+  {
+   "id": "near/dti-45.1-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 84,
+    "case_id": "case-gen-84-a0396d06"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.451
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed back-end DTI",
+    "value": 0.451,
+    "threshold": "0.45"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI"
+    ],
+    "rubric": "dti"
+   },
+   "system": {
+    "decision": "DECLINE",
+    "reason_codes": [
+     "HIGH_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "cce0fdc1daa0dfe2"
+   }
+  },
+  {
+   "id": "near/checking-999-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 86,
+    "case_id": "case-gen-86-9e3969e0"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.41
+     }
+    },
+    {
+     "type": "set_checking",
+     "params": {
+      "amount": 999
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "checking balance (at DTI 41%)",
+    "value": 999,
+    "threshold": "$1000"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI",
+     "LIQUIDITY_RISK"
+    ],
+    "rubric": "liquidity"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI",
+     "LIQUIDITY_RISK"
+    ],
+    "fraud_rules": [],
+    "hash": "5cdf9fff88f5edbd"
+   }
+  },
+  {
+   "id": "near/checking-1000-b1",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 86,
+    "case_id": "case-gen-86-9e3969e0"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.41
+     }
+    },
+    {
+     "type": "set_checking",
+     "params": {
+      "amount": 1000
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "checking balance (at DTI 41%)",
+    "value": 1000,
+    "threshold": "$1000"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "liquidity"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "f22bdb71068f316e"
+   }
+  },
+  {
+   "id": "near/checking-999-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 89,
+    "case_id": "case-gen-89-ad39817d"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.41
+     }
+    },
+    {
+     "type": "set_checking",
+     "params": {
+      "amount": 999
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "checking balance (at DTI 41%)",
+    "value": 999,
+    "threshold": "$1000"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI",
+     "LIQUIDITY_RISK"
+    ],
+    "rubric": "liquidity"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI",
+     "LIQUIDITY_RISK"
+    ],
+    "fraud_rules": [],
+    "hash": "6d47486f753074b0"
+   }
+  },
+  {
+   "id": "near/checking-1000-b2",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 89,
+    "case_id": "case-gen-89-ad39817d"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.41
+     }
+    },
+    {
+     "type": "set_checking",
+     "params": {
+      "amount": 1000
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "checking balance (at DTI 41%)",
+    "value": 1000,
+    "threshold": "$1000"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "liquidity"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "27e4409fa0ca0b04"
+   }
+  },
+  {
+   "id": "near/checking-999-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 90,
+    "case_id": "case-gen-90-aa3bbb5b"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.41
+     }
+    },
+    {
+     "type": "set_checking",
+     "params": {
+      "amount": 999
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "checking balance (at DTI 41%)",
+    "value": 999,
+    "threshold": "$1000"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI",
+     "LIQUIDITY_RISK"
+    ],
+    "rubric": "liquidity"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI",
+     "LIQUIDITY_RISK"
+    ],
+    "fraud_rules": [],
+    "hash": "a35044c9f07368ef"
+   }
+  },
+  {
+   "id": "near/checking-1000-b3",
+   "group": "near-threshold",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 90,
+    "case_id": "case-gen-90-aa3bbb5b"
+   },
+   "mutations": [
+    {
+     "type": "shift_dti_to",
+     "params": {
+      "target": 0.41
+     }
+    },
+    {
+     "type": "set_checking",
+     "params": {
+      "amount": 1000
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "checking balance (at DTI 41%)",
+    "value": 1000,
+    "threshold": "$1000"
+   },
+   "difficulty": "medium",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "rubric": "liquidity"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "ELEVATED_DTI"
+    ],
+    "fraud_rules": [],
+    "hash": "4272df91301be387"
+   }
+  },
+  {
+   "id": "conflict/sub-threshold-b1",
+   "group": "conflicting",
+   "typology": "INFLATION+CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 93,
+    "case_id": "case-gen-93-ab3bbcee"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.08
+     }
+    },
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 60
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ verified, and undisclosed monthly debt",
+    "value": "1.08 and $60/mo",
+    "threshold": "FR-001 1.15 · FR-003 $100/mo"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "INCOME_VARIANCE_REVIEW",
+     "LIABILITY_VARIANCE_REVIEW"
+    ],
+    "rubric": "conflictSubThreshold"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [
+     "FR-001:MEDIUM",
+     "FR-003:MEDIUM"
+    ],
+    "hash": "2989188929fb67b5"
+   },
+   "gap": {
+    "reason": "The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims."
+   }
+  },
+  {
+   "id": "conflict/material-b1",
+   "group": "conflicting",
+   "typology": "INFLATION+CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 93,
+    "case_id": "case-gen-93-ab3bbcee"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.35
+     }
+    },
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 300
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ verified, and undisclosed monthly debt",
+    "value": "1.35 and $300/mo",
+    "threshold": "FR-001 1.15 · FR-003 $100/mo"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "rubric": "conflictMaterial"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH",
+     "FR-003:HIGH"
+    ],
+    "hash": "aedfba6a858792e9"
+   },
+   "gap": {
+    "reason": "Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt."
+   }
+  },
+  {
+   "id": "conflict/sub-threshold-b2",
+   "group": "conflicting",
+   "typology": "INFLATION+CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 94,
+    "case_id": "case-gen-94-ae3bc1a7"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.08
+     }
+    },
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 60
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ verified, and undisclosed monthly debt",
+    "value": "1.08 and $60/mo",
+    "threshold": "FR-001 1.15 · FR-003 $100/mo"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "INCOME_VARIANCE_REVIEW",
+     "LIABILITY_VARIANCE_REVIEW"
+    ],
+    "rubric": "conflictSubThreshold"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [
+     "FR-001:MEDIUM",
+     "FR-003:MEDIUM"
+    ],
+    "hash": "c9ad1ddbe8281cdd"
+   },
+   "gap": {
+    "reason": "The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims."
+   }
+  },
+  {
+   "id": "conflict/material-b2",
+   "group": "conflicting",
+   "typology": "INFLATION+CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 94,
+    "case_id": "case-gen-94-ae3bc1a7"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.35
+     }
+    },
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 300
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ verified, and undisclosed monthly debt",
+    "value": "1.35 and $300/mo",
+    "threshold": "FR-001 1.15 · FR-003 $100/mo"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "rubric": "conflictMaterial"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH",
+     "FR-003:HIGH"
+    ],
+    "hash": "bac75c83e21a3fb6"
+   },
+   "gap": {
+    "reason": "Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt."
+   }
+  },
+  {
+   "id": "conflict/sub-threshold-b3",
+   "group": "conflicting",
+   "typology": "INFLATION+CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 98,
+    "case_id": "case-gen-98-a23baec3"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.08
+     }
+    },
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 60
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ verified, and undisclosed monthly debt",
+    "value": "1.08 and $60/mo",
+    "threshold": "FR-001 1.15 · FR-003 $100/mo"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "INCOME_VARIANCE_REVIEW",
+     "LIABILITY_VARIANCE_REVIEW"
+    ],
+    "rubric": "conflictSubThreshold"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [
+     "FR-001:MEDIUM",
+     "FR-003:MEDIUM"
+    ],
+    "hash": "188cd1950492cbca"
+   },
+   "gap": {
+    "reason": "The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims."
+   }
+  },
+  {
+   "id": "conflict/material-b3",
+   "group": "conflicting",
+   "typology": "INFLATION+CONCEALMENT",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 98,
+    "case_id": "case-gen-98-a23baec3"
+   },
+   "mutations": [
+    {
+     "type": "inflate_income",
+     "params": {
+      "pct": 0.35
+     }
+    },
+    {
+     "type": "hide_debt",
+     "params": {
+      "monthly": 300
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "claimed salary ÷ verified, and undisclosed monthly debt",
+    "value": "1.35 and $300/mo",
+    "threshold": "FR-001 1.15 · FR-003 $100/mo"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW",
+     "UNDISCLOSED_LIABILITIES"
+    ],
+    "rubric": "conflictMaterial"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH",
+     "FR-003:HIGH"
+    ],
+    "hash": "5c8e97d3eb482873"
+   },
+   "gap": {
+    "reason": "Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt."
+   }
+  },
+  {
+   "id": "thin/bank-statement-b1",
+   "group": "thin-evidence",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 106,
+    "case_id": "case-gen-106-c0dc0ecf"
+   },
+   "mutations": [
+    {
+     "type": "remove_statement",
+     "params": {
+      "source": "BANK_STATEMENT"
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "missing document",
+    "value": "BANK_STATEMENT",
+    "threshold": "the decision does not depend on it (noted)"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "thin"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "43226e8da4e0f77c"
+   }
+  },
+  {
+   "id": "thin/credit-bureau-b1",
+   "group": "thin-evidence",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 106,
+    "case_id": "case-gen-106-c0dc0ecf"
+   },
+   "mutations": [
+    {
+     "type": "remove_statement",
+     "params": {
+      "source": "CREDIT_BUREAU"
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "missing document",
+    "value": "CREDIT_BUREAU",
+    "threshold": "the decision depends on it"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "MISSING_DOCUMENT"
+    ],
+    "rubric": "thin"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "dc60834965f96956"
+   },
+   "gap": {
+    "reason": "Neither engine requires document presence: with the CREDIT_BUREAU missing, the credit policy approves on the claims."
+   }
+  },
+  {
+   "id": "thin/employer-verification-b1",
+   "group": "thin-evidence",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 106,
+    "case_id": "case-gen-106-c0dc0ecf"
+   },
+   "mutations": [
+    {
+     "type": "remove_statement",
+     "params": {
+      "source": "EMPLOYER_VERIFICATION"
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "missing document",
+    "value": "EMPLOYER_VERIFICATION",
+    "threshold": "the decision depends on it"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "MISSING_DOCUMENT"
+    ],
+    "rubric": "thin"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH"
+    ],
+    "hash": "d02af3984d8828a2"
+   },
+   "gap": {
+    "reason": "Sent to review by FR-001 comparing the claimed salary with W-2 wages (the fallback when employer verification is missing), not because the document is missing."
+   }
+  },
+  {
+   "id": "thin/bank-statement-b2",
+   "group": "thin-evidence",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 113,
+    "case_id": "case-gen-113-bbd9c859"
+   },
+   "mutations": [
+    {
+     "type": "remove_statement",
+     "params": {
+      "source": "BANK_STATEMENT"
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "missing document",
+    "value": "BANK_STATEMENT",
+    "threshold": "the decision does not depend on it (noted)"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "rubric": "thin"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "a121e7baf5cebc1b"
+   }
+  },
+  {
+   "id": "thin/credit-bureau-b2",
+   "group": "thin-evidence",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 113,
+    "case_id": "case-gen-113-bbd9c859"
+   },
+   "mutations": [
+    {
+     "type": "remove_statement",
+     "params": {
+      "source": "CREDIT_BUREAU"
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "missing document",
+    "value": "CREDIT_BUREAU",
+    "threshold": "the decision depends on it"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "MISSING_DOCUMENT"
+    ],
+    "rubric": "thin"
+   },
+   "system": {
+    "decision": "APPROVE",
+    "reason_codes": [],
+    "fraud_rules": [],
+    "hash": "b71a66ea22467b5d"
+   },
+   "gap": {
+    "reason": "Neither engine requires document presence: with the CREDIT_BUREAU missing, the credit policy approves on the claims."
+   }
+  },
+  {
+   "id": "thin/employer-verification-b2",
+   "group": "thin-evidence",
+   "typology": "NONE",
+   "base": {
+    "profile": "SOLAR_PRIME",
+    "seed": "42",
+    "index": 113,
+    "case_id": "case-gen-113-bbd9c859"
+   },
+   "mutations": [
+    {
+     "type": "remove_statement",
+     "params": {
+      "source": "EMPLOYER_VERIFICATION"
+     }
+    }
+   ],
+   "key_fact": {
+    "field": "missing document",
+    "value": "EMPLOYER_VERIFICATION",
+    "threshold": "the decision depends on it"
+   },
+   "difficulty": "hard",
+   "expected": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "MISSING_DOCUMENT"
+    ],
+    "rubric": "thin"
+   },
+   "system": {
+    "decision": "REVIEW",
+    "reason_codes": [
+     "FRAUD_REVIEW"
+    ],
+    "fraud_rules": [
+     "FR-001:HIGH"
+    ],
+    "hash": "43a38235f428480e"
+   },
+   "gap": {
+    "reason": "Sent to review by FR-001 comparing the claimed salary with W-2 wages (the fallback when employer verification is missing), not because the document is missing."
+   }
+  }
+ ],
+ "packs": [
+  {
+   "id": "first-week",
+   "name": "First week",
+   "skill": "Reading an application against its evidence",
+   "description": "Easy cases only, as whole pairs: each clean approval with the fraud twin that one clear fact turns into a referral.",
+   "caseIds": [
+    "inflation-1/clean",
+    "inflation-1/fraud",
+    "inflation-2/clean",
+    "inflation-2/fraud",
+    "inflation-3/clean",
+    "inflation-3/fraud",
+    "evidence-tampering-1/clean",
+    "evidence-tampering-1/fraud",
+    "evidence-tampering-2/clean",
+    "evidence-tampering-2/fraud",
+    "evidence-tampering-3/clean",
+    "evidence-tampering-3/fraud",
+    "fabrication-1/clean",
+    "fabrication-1/fraud",
+    "fabrication-2/clean",
+    "fabrication-2/fraud",
+    "fabrication-3/clean",
+    "fabrication-3/fraud"
+   ]
+  },
+  {
+   "id": "on-the-line",
+   "name": "On the line",
+   "skill": "Applying the policy's cut-offs exactly",
+   "description": "Cases one step either side of the credit score minimum, the debt-to-income watch line and cap, and the liquidity rule.",
+   "caseIds": [
+    "near/fico-659-b1",
+    "near/fico-660-b1",
+    "near/fico-661-b1",
+    "near/fico-659-b2",
+    "near/fico-660-b2",
+    "near/fico-661-b2",
+    "near/fico-659-b3",
+    "near/fico-660-b3",
+    "near/fico-661-b3",
+    "near/dti-35.9-b1",
+    "near/dti-36.1-b1",
+    "near/dti-44.9-b1",
+    "near/dti-45.1-b1",
+    "near/dti-35.9-b2",
+    "near/dti-36.1-b2",
+    "near/dti-44.9-b2",
+    "near/dti-45.1-b2",
+    "near/dti-35.9-b3",
+    "near/dti-36.1-b3",
+    "near/dti-44.9-b3",
+    "near/dti-45.1-b3",
+    "near/checking-999-b1",
+    "near/checking-1000-b1",
+    "near/checking-999-b2",
+    "near/checking-1000-b2",
+    "near/checking-999-b3",
+    "near/checking-1000-b3"
+   ]
+  },
+  {
+   "id": "judgment-calls",
+   "name": "Judgment calls",
+   "skill": "Materiality: what changes the decision and what doesn't",
+   "description": "Conflicting signals and missing documents.",
+   "caseIds": [
+    "conflict/sub-threshold-b1",
+    "conflict/material-b1",
+    "conflict/sub-threshold-b2",
+    "conflict/material-b2",
+    "conflict/sub-threshold-b3",
+    "conflict/material-b3",
+    "thin/bank-statement-b1",
+    "thin/credit-bureau-b1",
+    "thin/employer-verification-b1",
+    "thin/bank-statement-b2",
+    "thin/credit-bureau-b2",
+    "thin/employer-verification-b2"
+   ]
+  },
+  {
+   "id": "causal-pairs",
+   "name": "Causal pairs",
+   "skill": "Spotting the one fact that changes the outcome",
+   "description": "Clean and fraud twins, mixed: each pair differs in one fact.",
+   "caseIds": [
+    "concealment-1/clean",
+    "concealment-1/fraud",
+    "concealment-2/clean",
+    "concealment-2/fraud",
+    "concealment-3/clean",
+    "concealment-3/fraud",
+    "concealment-4/clean",
+    "concealment-4/fraud",
+    "concealment-5/clean",
+    "concealment-5/fraud",
+    "inflation-1/clean",
+    "inflation-1/fraud",
+    "inflation-2/clean",
+    "inflation-2/fraud",
+    "inflation-3/clean",
+    "inflation-3/fraud",
+    "inflation-4/clean",
+    "inflation-4/fraud",
+    "inflation-5/clean",
+    "inflation-5/fraud",
+    "evidence-tampering-1/clean",
+    "evidence-tampering-1/fraud",
+    "evidence-tampering-2/clean",
+    "evidence-tampering-2/fraud",
+    "evidence-tampering-3/clean",
+    "evidence-tampering-3/fraud",
+    "evidence-tampering-4/clean",
+    "evidence-tampering-4/fraud",
+    "evidence-tampering-5/clean",
+    "evidence-tampering-5/fraud",
+    "fabrication-1/clean",
+    "fabrication-1/fraud",
+    "fabrication-2/clean",
+    "fabrication-2/fraud",
+    "fabrication-3/clean",
+    "fabrication-3/fraud",
+    "fabrication-4/clean",
+    "fabrication-4/fraud",
+    "fabrication-5/clean",
+    "fabrication-5/fraud"
+   ]
+  },
+  {
+   "id": "engine-limits",
+   "name": "Where the engine is wrong",
+   "skill": "Knowing a system's limits",
+   "description": "Every case where the teaching answer and the credit policy differ, in the decision or in its reasons.",
+   "caseIds": [
+    "concealment-1/fraud",
+    "concealment-2/fraud",
+    "concealment-3/fraud",
+    "concealment-4/fraud",
+    "concealment-5/fraud",
+    "conflict/sub-threshold-b1",
+    "conflict/material-b1",
+    "conflict/sub-threshold-b2",
+    "conflict/material-b2",
+    "conflict/sub-threshold-b3",
+    "conflict/material-b3",
+    "thin/credit-bureau-b1",
+    "thin/employer-verification-b1",
+    "thin/credit-bureau-b2",
+    "thin/employer-verification-b2"
+   ]
+  },
+  {
+   "id": "full-set",
+   "name": "Full set",
+   "skill": "Assessment",
+   "description": "All cases, easy to hard.",
+   "tiered": true,
+   "caseIds": [
+    "concealment-1/clean",
+    "concealment-1/fraud",
+    "concealment-2/clean",
+    "concealment-2/fraud",
+    "concealment-3/clean",
+    "concealment-3/fraud",
+    "concealment-4/clean",
+    "concealment-4/fraud",
+    "concealment-5/clean",
+    "concealment-5/fraud",
+    "inflation-1/clean",
+    "inflation-1/fraud",
+    "inflation-2/clean",
+    "inflation-2/fraud",
+    "inflation-3/clean",
+    "inflation-3/fraud",
+    "inflation-4/clean",
+    "inflation-4/fraud",
+    "inflation-5/clean",
+    "inflation-5/fraud",
+    "evidence-tampering-1/clean",
+    "evidence-tampering-1/fraud",
+    "evidence-tampering-2/clean",
+    "evidence-tampering-2/fraud",
+    "evidence-tampering-3/clean",
+    "evidence-tampering-3/fraud",
+    "evidence-tampering-4/clean",
+    "evidence-tampering-4/fraud",
+    "evidence-tampering-5/clean",
+    "evidence-tampering-5/fraud",
+    "fabrication-1/clean",
+    "fabrication-1/fraud",
+    "fabrication-2/clean",
+    "fabrication-2/fraud",
+    "fabrication-3/clean",
+    "fabrication-3/fraud",
+    "fabrication-4/clean",
+    "fabrication-4/fraud",
+    "fabrication-5/clean",
+    "fabrication-5/fraud",
+    "near/fico-659-b1",
+    "near/fico-660-b1",
+    "near/fico-661-b1",
+    "near/fico-659-b2",
+    "near/fico-660-b2",
+    "near/fico-661-b2",
+    "near/fico-659-b3",
+    "near/fico-660-b3",
+    "near/fico-661-b3",
+    "near/dti-35.9-b1",
+    "near/dti-36.1-b1",
+    "near/dti-44.9-b1",
+    "near/dti-45.1-b1",
+    "near/dti-35.9-b2",
+    "near/dti-36.1-b2",
+    "near/dti-44.9-b2",
+    "near/dti-45.1-b2",
+    "near/dti-35.9-b3",
+    "near/dti-36.1-b3",
+    "near/dti-44.9-b3",
+    "near/dti-45.1-b3",
+    "near/checking-999-b1",
+    "near/checking-1000-b1",
+    "near/checking-999-b2",
+    "near/checking-1000-b2",
+    "near/checking-999-b3",
+    "near/checking-1000-b3",
+    "conflict/sub-threshold-b1",
+    "conflict/material-b1",
+    "conflict/sub-threshold-b2",
+    "conflict/material-b2",
+    "conflict/sub-threshold-b3",
+    "conflict/material-b3",
+    "thin/bank-statement-b1",
+    "thin/credit-bureau-b1",
+    "thin/employer-verification-b1",
+    "thin/bank-statement-b2",
+    "thin/credit-bureau-b2",
+    "thin/employer-verification-b2"
+   ]
+  }
+ ]
+}
