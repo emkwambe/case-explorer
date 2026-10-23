@@ -35,7 +35,12 @@ LEGITIMATE_CREDIT_FACTORS = ("income_band",)
 MIN_RATED = 30
 ZIP3_TOP = 10
 Z95 = float(norm.ppf(0.975))
-FOUR_FIFTHS = 0.8
+# A reference line on the AIR, never a pass/fail test: no row is marked against it.
+AIR_REFERENCE = 0.80
+AIR_REFERENCE_NOTE = (
+    "0.80 is the four-fifths screening heuristic from the EEOC's 1978 Uniform Guidelines on employee selection. "
+    "It is a common informal screen, not a lending legal standard, and crossing it is not a finding of discrimination."
+)
 PROXY_FOLDS = 5
 PROXY_SEED = 12
 PROXY_BOOTSTRAPS = 200
@@ -123,9 +128,6 @@ def group_table(groups: pd.Series, approve: np.ndarray) -> dict[str, Any]:
         "reference_group": ref["group"] if ref else None,
         "groups": rows,
         "lowest_air": {"group": lowest["group"], "air": lowest["adverse_impact_ratio"]} if lowest else None,
-        "rated_groups_below_four_fifths": [
-            r["group"] for r in rated_rows if r["adverse_impact_ratio"] < FOUR_FIFTHS
-        ],
     }
 
 
@@ -248,7 +250,9 @@ def fairness_section(data: Data, p_xgb_pool: np.ndarray, log=print) -> dict[str,
         },
         "min_rated_group": MIN_RATED,
         "interval_methods": "approval rate: Wilson 95%; adverse impact ratio: Katz log-scale 95%",
-        "four_fifths_note": (
-            "groups below 0.8 of the highest group's rate are listed as a monitoring reference only, not a legal test"
-        ),
+        "air_reference_line": {
+            "value": AIR_REFERENCE,
+            "note": AIR_REFERENCE_NOTE,
+            "not_shown_for": list(LEGITIMATE_CREDIT_FACTORS),
+        },
     }

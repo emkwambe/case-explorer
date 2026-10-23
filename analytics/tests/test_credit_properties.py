@@ -93,3 +93,22 @@ def test_model_card_carries_the_fairness_section_and_legal_status():
     assert "developer testing, not independent validation" in card
     walk = docs.WALKTHROUGH.read_text(encoding="utf-8")
     assert "## 11. Fairness" in walk and "\n11. " in walk.split("## Answer key", 1)[1]
+
+
+def test_air_has_a_reference_line_only_with_no_pass_fail_marking():
+    f = properties()["fairness"]
+    line = f["air_reference_line"]
+    assert line["value"] == 0.8
+    assert line["note"] == (
+        "0.80 is the four-fifths screening heuristic from the EEOC's 1978 Uniform Guidelines on employee selection. "
+        "It is a common informal screen, not a lending legal standard, and crossing it is not a finding of discrimination."
+    )
+    assert line["not_shown_for"] == ["income_band"]
+    text = json.dumps(f["groups"]).lower()
+    for word in ("below", "flag", "four_fifths", "fail", "pass"):
+        assert word not in text, word
+    card = docs.MODEL_CARD.read_text(encoding="utf-8")
+    assert line["note"] in card
+    assert "Below four-fifths" not in card
+    income = card.split("**Income band**", 1)[1].split("\n\n**", 1)[0]
+    assert "0.80" not in income and "reference line" not in income

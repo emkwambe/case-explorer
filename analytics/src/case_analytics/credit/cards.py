@@ -324,17 +324,6 @@ def group_md(name: str, g: dict[str, Any]) -> list[str]:
             f"| {r['group']} | {n(r['applicants'])} | {rate_ci(r)} | {100 * r['difference_from_overall']:+.1f} pts | {air(r)} | "
             f"{pct(rx['rate'], 1)}, {air(rx, with_ci=False)} | {pct(ra['rate'], 1)} |"
         )
-    below = ch["rated_groups_below_four_fifths"]
-    xbelow = xg["rated_groups_below_four_fifths"]
-    if below or xbelow:
-        L += [
-            "",
-            "Below four-fifths of the highest group's rate: champion "
-            + (", ".join(below) if below else "none")
-            + "; `credit_pd_xgb` cut-off "
-            + (", ".join(xbelow) if xbelow else "none")
-            + ".",
-        ]
     return L + [""]
 
 
@@ -368,7 +357,7 @@ def fairness_md(p: dict[str, Any]) -> list[str]:
         "",
         financial_sentence(fl),
         "",
-        f"**Approval rates by group** on the seed-42 application pool. The champion is the bureau-score policy ({n(pols[CHAMPION]['approvals'])} approvals); the `credit_pd_xgb` cut-off approves the same number; the as-is policy ({n(pols['as_is_policy_reference']['approvals'])} approvals) reads the claimed FICO, which sees the true score, so it is not a fair benchmark and appears as a reference column only. AIR is the adverse impact ratio, the group's rate over the highest rated group's. Intervals: Wilson 95% for approval rates, Katz log-scale 95% for the AIR. Groups under {f['min_rated_group']} applicants are listed but not rated. Groups below four-fifths of the highest rate are listed as a monitoring reference only, not a legal test.",
+        f"**Approval rates by group** on the seed-42 application pool. The champion is the bureau-score policy ({n(pols[CHAMPION]['approvals'])} approvals); the `credit_pd_xgb` cut-off approves the same number; the as-is policy ({n(pols['as_is_policy_reference']['approvals'])} approvals) reads the claimed FICO, which sees the true score, so it is not a fair benchmark and appears as a reference column only. AIR is the adverse impact ratio, the group's rate over the highest rated group's. Intervals: Wilson 95% for approval rates, Katz log-scale 95% for the AIR. Groups under {f['min_rated_group']} applicants are listed but not rated. AIR reference line: {f['air_reference_line']['value']:.2f}. {f['air_reference_line']['note']} It is not shown for income band, a legitimate credit factor, and no row is marked against it.",
         "",
     ]
     for name in [k for k in ATTRIBUTE_NAMES if k in f["groups"]]:

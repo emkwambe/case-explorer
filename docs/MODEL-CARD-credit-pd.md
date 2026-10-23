@@ -165,7 +165,7 @@ Monitoring evidence, not a legal conclusion. Three questions: does any engine us
 
 **The financial channel, reported separately.** Moving an applicant to another region also moves their housing cost (the current housing payment scaled by the target region's rent multiplier), so DTI follows and decisions can change. That is a credit factor responding to a cost, not the engine reading region, and it is reported as its own category: opening library: 26 flips, DTI moved on 26, the credit decision changed on 7, and 0 changed anything without a DTI move; teaching-v1: 158 flips, DTI moved on 158, the credit decision changed on 23, and 0 changed anything without a DTI move; seed-42 pool: 37,348 flips, DTI moved on 37,348, the credit decision changed on 9,556, and 0 changed anything without a DTI move. A change the channel does not explain would have stopped the sprint; there were none.
 
-**Approval rates by group** on the seed-42 application pool. The champion is the bureau-score policy (9,991 approvals); the `credit_pd_xgb` cut-off approves the same number; the as-is policy (10,000 approvals) reads the claimed FICO, which sees the true score, so it is not a fair benchmark and appears as a reference column only. AIR is the adverse impact ratio, the group's rate over the highest rated group's. Intervals: Wilson 95% for approval rates, Katz log-scale 95% for the AIR. Groups under 30 applicants are listed but not rated. Groups below four-fifths of the highest rate are listed as a monitoring reference only, not a legal test.
+**Approval rates by group** on the seed-42 application pool. The champion is the bureau-score policy (9,991 approvals); the `credit_pd_xgb` cut-off approves the same number; the as-is policy (10,000 approvals) reads the claimed FICO, which sees the true score, so it is not a fair benchmark and appears as a reference column only. AIR is the adverse impact ratio, the group's rate over the highest rated group's. Intervals: Wilson 95% for approval rates, Katz log-scale 95% for the AIR. Groups under 30 applicants are listed but not rated. AIR reference line: 0.80. 0.80 is the four-fifths screening heuristic from the EEOC's 1978 Uniform Guidelines on employee selection. It is a common informal screen, not a lending legal standard, and crossing it is not a finding of discrimination. It is not shown for income band, a legitimate credit factor, and no row is marked against it.
 
 **Age band** (overall approval rate 53.5% under the champion)
 
@@ -177,8 +177,6 @@ Monitoring evidence, not a legal conclusion. Three questions: does any engine us
 | 50-59 | 2,626 | 61.6% (59.7%–63.5%) | +8.1 pts | 0.950 (0.895–1.008) | 61.1%, 0.944 | 61.6% |
 | 60+ | 783 | 64.9% (61.5%–68.1%) | +11.4 pts | 1.000 (reference) | 64.8%, 1.000 | 64.6% |
 
-Below four-fifths of the highest group's rate: champion 22-29; `credit_pd_xgb` cut-off 22-29.
-
 **Region (cost-of-living group)** (overall approval rate 53.5% under the champion)
 
 | Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
@@ -186,8 +184,6 @@ Below four-fifths of the highest group's rate: champion 22-29; `credit_pd_xgb` c
 | HIGH_COST | 4,708 | 45.8% (44.4%–47.3%) | -7.7 pts | 0.755 (0.726–0.785) | 51.9%, 0.912 | 45.9% |
 | LOW_COST | 4,591 | 60.7% (59.3%–62.1%) | +7.2 pts | 1.000 (reference) | 56.9%, 1.000 | 60.7% |
 | MEDIUM_COST | 9,375 | 53.8% (52.8%–54.8%) | +0.3 pts | 0.886 (0.860–0.913) | 52.6%, 0.925 | 53.9% |
-
-Below four-fifths of the highest group's rate: champion HIGH_COST; `credit_pd_xgb` cut-off none.
 
 **ZIP3 (ten largest, the rest as other)** (overall approval rate 53.5% under the champion)
 
@@ -215,8 +211,6 @@ Below four-fifths of the highest group's rate: champion HIGH_COST; `credit_pd_xg
 | 120K-180K | 5,308 | 68.6% (67.4%–69.8%) | +15.1 pts | 0.894 (0.873–0.915) | 68.5%, 0.940 | 68.7% |
 | 180K+ | 5,811 | 76.8% (75.7%–77.8%) | +23.3 pts | 1.000 (reference) | 72.9%, 1.000 | 76.8% |
 
-Below four-fifths of the highest group's rate: champion 50K-80K, 80K-120K, <50K; `credit_pd_xgb` cut-off 50K-80K, 80K-120K, <50K.
-
 **Persona (occupation)** (overall approval rate 53.5% under the champion)
 
 | Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
@@ -231,8 +225,6 @@ Below four-fifths of the highest group's rate: champion 50K-80K, 80K-120K, <50K;
 | SOFTWARE_ENGINEER | 2,701 | 76.0% (74.4%–77.6%) | +22.5 pts | 0.995 (0.958–1.033) | 72.1%, 1.000 | 76.0% |
 | TEACHER | 2,732 | 32.8% (31.1%–34.6%) | -20.7 pts | 0.429 (0.403–0.457) | 39.2%, 0.544 | 32.9% |
 
-Below four-fifths of the highest group's rate: champion CONSTRUCTION_WORKER, ENTREPRENEUR, RETAIL_MANAGER, TEACHER; `credit_pd_xgb` cut-off CONSTRUCTION_WORKER, ENTREPRENEUR, RETAIL_MANAGER, TEACHER.
-
 **Regime** (overall approval rate 53.5% under the champion)
 
 | Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
@@ -240,8 +232,6 @@ Below four-fifths of the highest group's rate: champion CONSTRUCTION_WORKER, ENT
 | PRIME | 15,773 | 54.7% (54.0%–55.5%) | +1.2 pts | 1.000 (reference) | 54.5%, 1.000 | 54.8% |
 | SELF_EMPLOYED | 1,943 | 48.7% (46.5%–50.9%) | -4.8 pts | 0.889 (0.848–0.933) | 51.6%, 0.946 | 48.7% |
 | SUBPRIME | 958 | 42.9% (39.8%–46.1%) | -10.6 pts | 0.784 (0.728–0.844) | 41.2%, 0.757 | 43.0% |
-
-Below four-fifths of the highest group's rate: champion SUBPRIME; `credit_pd_xgb` cut-off SUBPRIME.
 
 **Family status (synthetic scenario)** (overall approval rate 53.5% under the champion)
 

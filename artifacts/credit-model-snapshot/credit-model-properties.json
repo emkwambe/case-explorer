@@ -1,5 +1,12 @@
 {
  "fairness": {
+  "air_reference_line": {
+   "not_shown_for": [
+    "income_band"
+   ],
+   "note": "0.80 is the four-fifths screening heuristic from the EEOC's 1978 Uniform Guidelines on employee selection. It is a common informal screen, not a lending legal standard, and crossing it is not a finding of discrimination.",
+   "value": 0.8
+  },
   "flips": {
    "clean": true,
    "note": "audit: flip_sensitive changes the audit record only; deep: the attribute in every layer that holds it, nothing recomputed; financial: region moved with its housing cost (rent multiplier), so DTI follows. Compared: credit decision and reason codes, underwriting decision and codes, every fraud rule, and the credit model's 14 features (identical features give an identical PD and identical reasons).",
@@ -273,7 +280,6 @@
     ]
    }
   },
-  "four_fifths_note": "groups below 0.8 of the highest group's rate are listed as a monitoring reference only, not a legal test",
   "groups": {
    "age_band": {
     "legitimate_credit_factor": false,
@@ -370,9 +376,6 @@
        "group": "22-29"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [
-       "22-29"
-      ],
       "reference_group": "60+"
      },
      "bureau_score_policy": {
@@ -467,9 +470,6 @@
        "group": "22-29"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "22-29"
-      ],
       "reference_group": "60+"
      },
      "credit_pd_xgb_cutoff": {
@@ -564,9 +564,6 @@
        "group": "22-29"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "22-29"
-      ],
       "reference_group": "60+"
      }
     }
@@ -615,7 +612,6 @@
        "group": "0"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "1"
      },
      "bureau_score_policy": {
@@ -659,7 +655,6 @@
        "group": "0"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "1"
      },
      "credit_pd_xgb_cutoff": {
@@ -703,7 +698,6 @@
        "group": "0"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "1"
      }
     }
@@ -786,7 +780,6 @@
        "group": "SINGLE_PARENT"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "WITH_DEPENDENTS"
      },
      "bureau_score_policy": {
@@ -864,7 +857,6 @@
        "group": "SINGLE_PARENT"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "WITH_DEPENDENTS"
      },
      "credit_pd_xgb_cutoff": {
@@ -942,7 +934,6 @@
        "group": "MARRIED"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "WITH_DEPENDENTS"
      }
     }
@@ -1008,9 +999,6 @@
        "group": "HIGH_COST"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [
-       "HIGH_COST"
-      ],
       "reference_group": "LOW_COST"
      },
      "bureau_score_policy": {
@@ -1071,9 +1059,6 @@
        "group": "HIGH_COST"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "HIGH_COST"
-      ],
       "reference_group": "LOW_COST"
      },
      "credit_pd_xgb_cutoff": {
@@ -1134,7 +1119,6 @@
        "group": "HIGH_COST"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "LOW_COST"
      }
     }
@@ -1234,11 +1218,6 @@
        "group": "<50K"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [
-       "50K-80K",
-       "80K-120K",
-       "<50K"
-      ],
       "reference_group": "180K+"
      },
      "bureau_score_policy": {
@@ -1333,11 +1312,6 @@
        "group": "<50K"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "50K-80K",
-       "80K-120K",
-       "<50K"
-      ],
       "reference_group": "180K+"
      },
      "credit_pd_xgb_cutoff": {
@@ -1432,11 +1406,6 @@
        "group": "<50K"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "50K-80K",
-       "80K-120K",
-       "<50K"
-      ],
       "reference_group": "180K+"
      }
     }
@@ -1604,12 +1573,6 @@
        "group": "CONSTRUCTION_WORKER"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [
-       "CONSTRUCTION_WORKER",
-       "ENTREPRENEUR",
-       "RETAIL_MANAGER",
-       "TEACHER"
-      ],
       "reference_group": "PHYSICIAN_ASSISTANT"
      },
      "bureau_score_policy": {
@@ -1772,12 +1735,6 @@
        "group": "CONSTRUCTION_WORKER"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "CONSTRUCTION_WORKER",
-       "ENTREPRENEUR",
-       "RETAIL_MANAGER",
-       "TEACHER"
-      ],
       "reference_group": "PHYSICIAN_ASSISTANT"
      },
      "credit_pd_xgb_cutoff": {
@@ -1940,12 +1897,6 @@
        "group": "CONSTRUCTION_WORKER"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "CONSTRUCTION_WORKER",
-       "ENTREPRENEUR",
-       "RETAIL_MANAGER",
-       "TEACHER"
-      ],
       "reference_group": "SOFTWARE_ENGINEER"
      }
     }
@@ -2011,9 +1962,6 @@
        "group": "SUBPRIME"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [
-       "SUBPRIME"
-      ],
       "reference_group": "PRIME"
      },
      "bureau_score_policy": {
@@ -2074,9 +2022,6 @@
        "group": "SUBPRIME"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "SUBPRIME"
-      ],
       "reference_group": "PRIME"
      },
      "credit_pd_xgb_cutoff": {
@@ -2137,9 +2082,6 @@
        "group": "SUBPRIME"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [
-       "SUBPRIME"
-      ],
       "reference_group": "PRIME"
      }
     }
@@ -2341,7 +2283,6 @@
        "group": "558"
       },
       "overall_rate": 0.535504,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "754"
      },
      "bureau_score_policy": {
@@ -2538,7 +2479,6 @@
        "group": "558"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "754"
      },
      "credit_pd_xgb_cutoff": {
@@ -2735,7 +2675,6 @@
        "group": "801"
       },
       "overall_rate": 0.535022,
-      "rated_groups_below_four_fifths": [],
       "reference_group": "754"
      }
     }
