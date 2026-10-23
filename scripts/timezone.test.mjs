@@ -22,7 +22,8 @@ if (process.argv.includes("--child")) {
   const { generateBlendedCase, generateCase } = await import(pathToFileURL(path.join(ROOT, "src/generator.js")).href);
   const { applyProfile } = await import(pathToFileURL(path.join(ROOT, "src/profiles/index.js")).href);
   const { caseRecord } = await import(pathToFileURL(path.join(ROOT, "scripts/lib/answer-key.mjs")).href);
-  const sets = JSON.parse(fs.readFileSync(path.join(ROOT, "benchmarks/case-sets.json"), "utf8")).sets;
+  // Seed-generated populations only; the teaching set is built from them by mutation and checked by test:mutations.
+  const sets = JSON.parse(fs.readFileSync(path.join(ROOT, "benchmarks/case-sets.json"), "utf8")).sets.filter((s) => !s.kind);
   const base = JSON.parse(fs.readFileSync(path.join(ROOT, "src/distribution_config.json"), "utf8"));
   const records = {};
   for (const set of sets) {

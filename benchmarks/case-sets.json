@@ -22,6 +22,16 @@
       "as_of": "2026-01-15",
       "decision": "credit_policy",
       "description": "Solar prime: 2,000 blended cases (the test:credit sample) plus 40 per stratum. Decision: the credit policy (assessCredit). Flagged: sent to fraud review (a HIGH-severity rule fired)."
+    },
+    {
+      "id": "teaching-v1",
+      "kind": "teaching",
+      "profile": "SOLAR_PRIME",
+      "seed": "42",
+      "as_of": "2026-01-15",
+      "decision": "credit_policy",
+      "file": "case-sets/teaching-v1/cases.json",
+      "description": "Answer-keyed teaching cases built by the mutation engine from seeded Solar prime bases: causal fraud pairs, near-threshold, conflicting-signal and thin-evidence cases. Each case carries the teaching answer (expected) and the engine's answer (system: the credit policy, with the underwriting policy and the reference label as separate columns). The gate checks system as a regression; expected-versus-system gaps are listed with reasons."
     }
   ]
 }

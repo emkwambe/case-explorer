@@ -17,6 +17,7 @@ import { assessCredit } from "../../src/creditRisk.js";
 import { extractDecisionView, runFraudRules, scoreCase, FRAUD_RULESET_VERSION, UNDERWRITING_POLICY_VERSION, REASON_CODE_CATALOG_VERSION } from "../../src/decisioning/index.js";
 import { FRAUD_CORRUPTION_TYPES } from "../../src/ml/decision_features.js";
 import { GENERATOR_VERSION, CASE_SCHEMA_VERSION } from "../../src/core/case.js";
+import { buildTeachingSet, serializeTeachingSet, teachingFile, teachingSummary } from "./teaching-set.mjs";
 
 export const BENCH_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "benchmarks");
 
@@ -160,6 +161,7 @@ export function runAnswerKeys(args, { configText, baseConfig }) {
   }
   let ok = true;
   for (const set of sets) {
+    if (set.kind === "teaching") { ok = runTeachingKey(set, args, { configText, baseConfig, changelog }) && ok; continue; }
     const { cases, config } = generateSet(set, baseConfig);
     const records = cases.map((c) => caseRecord(c, set, config));
     const header = keyHeader(set, configText);
@@ -185,4 +187,42 @@ export function runAnswerKeys(args, { configText, baseConfig }) {
     ok = ok && logged && !changed.length && !headerChanges.length && committed === text;
   }
   return ok;
+}
+
+/**
+ * A teaching set (kind "teaching", e.g. teaching-v1) is its own key: the file holds each case's
+ * teaching answer (`expected`) and the engine's answer (`system`). The gate rebuilds it and requires
+ * an identical file whose SHA-256 is named in the CHANGELOG, so a change to either answer is logged.
+ * The scorecard lists every case where expected and system differ, with its reason.
+ */
+function runTeachingKey(set, args, { configText, baseConfig, changelog }) {
+  const built = buildTeachingSet(set, baseConfig, configText);
+  const text = serializeTeachingSet(built);
+  const file = teachingFile(BENCH_DIR, set);
+  if (args.updateKey) {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, text);
+    const digest = sha256(text);
+    console.log(`\nTeaching set written: ${path.relative(path.dirname(BENCH_DIR), file)} (${built.entries.length} cases, sha256 ${digest})`);
+    if (!changelog.includes(digest)) console.log(`  Add a line to benchmarks/CHANGELOG.md naming sha256 ${digest} and the reason, or CI fails.`);
+    return true;
+  }
+  if (!fs.existsSync(file)) { console.log(`\nTEACHING SET MISSING: ${set.id}. Run npm run benchmark -- --update-key.`); return false; }
+  const committed = fs.readFileSync(file, "utf8");
+  const before = new Map(JSON.parse(committed).cases.map((e) => [e.id, e]));
+  const changed = built.entries.filter((e) => !before.has(e.id) || !same(before.get(e.id).system, e.system) || !same(before.get(e.id).expected, e.expected)).map((e) => e.id);
+  for (const id of before.keys()) if (!built.entries.some((e) => e.id === id)) changed.push(`${id} (removed)`);
+  const s = teachingSummary(built.entries);
+  console.log(`\n=== Teaching set: ${set.id} — ${changed.length || committed !== text ? "CHANGED" : "PASS"} (${(s.n - changed.length).toLocaleString("en-US")} of ${s.n} cases match the committed answers) ===`);
+  console.log(`Groups ${Object.entries(s.byGroup).map(([k, v]) => `${k} ${v}`).join(" · ")} · difficulty ${Object.entries(s.byDifficulty).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
+  console.log(`Teaching answer vs credit policy: agree on ${s.agree} of ${s.n}; named gaps ${s.gaps.length}:`);
+  for (const g of s.gaps) console.log(`  ${g.id}: expected ${g.expected.decision} [${g.expected.reason_codes.join(", ")}], system ${g.system.decision} [${g.system.reason_codes.join(", ")}] — ${g.reason ?? "NO REASON RECORDED"}`);
+  for (const id of changed.slice(0, 30)) console.log(`  changed: ${id}`);
+  const digest = sha256(committed);
+  const logged = changelog.includes(digest);
+  if (!logged) console.log(`TEACHING SET NOT IN CHANGELOG: ${set.id} sha256 ${digest} is not named in benchmarks/CHANGELOG.md.`);
+  const unexplained = s.gaps.filter((g) => !g.reason);
+  if (unexplained.length) console.log(`TEACHING SET HAS UNEXPLAINED GAPS: ${unexplained.map((g) => g.id).join(", ")}.`);
+  if (committed !== text) console.log(`TEACHING SET CHANGED: ${set.id}. If intended, run npm run benchmark -- --update-key and add a CHANGELOG line with the reason.`);
+  return logged && committed === text && !unexplained.length;
 }

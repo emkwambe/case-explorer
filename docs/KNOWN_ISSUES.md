@@ -79,9 +79,17 @@ The case views show it under one name, "Reference label", with the note "uses th
 - Swap-in performance is known here only because the data is synthetic. The conservative inferred view (swap-in PD × 1.5) is an assumption, not an estimate from data.
 - Fair-lending review is out of scope for synthetic data; the app makes no legal claims.
 
+## Findings from the mutation engine (recorded, not fixed)
+
+These came out of the controlled mutations and the teaching set (`docs/MUTATIONS.md`, `benchmarks/case-sets/teaching-v1/`). They describe the engines as they are; none is changed here.
+
+- **The Solar credit policy scores claimed values only.** `assessCredit` reads the presentation layer (claimed FICO, claimed obligations, claimed income), so a concealed or verified debt reaches its decision only through a HIGH-severity fraud rule, which sends the case to review (FRAUD_REVIEW, "Unable to verify information provided"). There is no verified-DTI decline: in every causal pair the fraud twin goes from APPROVE to REVIEW, even where the hidden debt takes the verified DTI past the 45% cap. The underwriting policy (`scoreCase`) does underwrite on verified income and the higher of claimed and bureau obligations.
+- **Neither engine requires a document to be present.** A missing bank statement never changes the credit decision. A missing credit-bureau report or employer verification changes it only when a fraud rule misreads the absent value: FR-009 takes a missing bureau score as 0 (so its score-gap signal fires), and FR-001 falls back to W-2 wages when employer verification is missing (on 18 of 20 test bases the W-2 wages sit more than 15% below the claimed salary, so it fires HIGH). In `teaching-v1` the six thin-evidence cases expect review for a missing document; the engine approves four and sends two to fraud review for the FR-001 reason, and all six are named gaps.
+- **The opening library's first case teaches concealment poorly.** Under Solar prime the app opens on `case-gen-0-9fed5fca` (CONCEALMENT, HIGH). Its claimed FICO is 648, so the credit policy declines it on LOW_FICO whatever the hidden debt; and the concealed $1,011/mo leaves its true DTI at 31.4%, below the 36% watch line, so the debt would not change the credit decision even once verified. To be replaced in Sprint 10 with a case from `teaching-v1`'s causal pairs.
+
 ## The public-record chunk is above Vite's 500 kB warning
 
-`npm run build` warns that `publicRecordData-*.js` is 514 kB (54 kB gzipped), because the Public record tab's lazily loaded data now includes the peer-lender snapshot (`peers-quarterly.json`, about 600 kB of JSON with full lineage) and the complaint counts. It is a warning only: the chunk loads when the tab opens, not with the main bundle, and the build and every check pass. **Later option:** split the peer data into its own lazy chunk, loaded when the peer panel is shown.
+`npm run build` warns that `publicRecordData-*.js` is about 517 kB (55 kB gzipped; 516.61 kB at the build of October 22, 2026), because the Public record tab's lazily loaded data now includes the peer-lender snapshot (`peers-quarterly.json`, about 600 kB of JSON with full lineage) and the complaint counts. It is a warning only: the chunk loads when the tab opens, not with the main bundle, and the build and every check pass. **Later option:** split the peer data into its own lazy chunk, loaded when the peer panel is shown.
 
 ## Rate paths are Treasury-only
 

@@ -7,6 +7,7 @@ import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
 import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks/useCaseAnalysis.js";
 import { OverviewTab, TimelineTab, AlignmentTab, TruthGraphTab, EvidenceTab, MetadataTab } from "./tabs/caseTabs.jsx";
 import { DecisionTab, ExplanationTab, FairnessTab, InvestigationTab } from "./tabs/decisionTabs.jsx";
+import { TryAChangePanel } from "./tabs/TryAChangePanel.jsx";
 import { OutcomeTab } from "./tabs/outcomeTab.jsx";
 import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/analyticsTabs.jsx";
 import { TOUR_STEPS } from "./demo/tour.js";
@@ -228,7 +229,7 @@ function CaseExplorerShell() {
               {currentTab === "truth_graph" && <TruthGraphTab caseData={selectedCase} />}
               {currentTab === "evidence" && <EvidenceTab caseData={selectedCase} />}
               {currentTab === "metadata" && <MetadataTab caseData={selectedCase} />}
-              {currentTab === "decision" && <DecisionTab caseData={selectedCase} scored={scored} />}
+              {currentTab === "decision" && <><DecisionTab caseData={selectedCase} scored={scored} /><TryAChangePanel caseData={selectedCase} profile={profile} config={config} /></>}
               {currentTab === "outcome" && <OutcomeTab caseData={selectedCase} scored={scored} />}
               {currentTab === "explanation" && <ExplanationTab scored={scored} />}
               {currentTab === "fairness" && <FairnessTab caseData={selectedCase} counterfactual={counterfactual} />}
