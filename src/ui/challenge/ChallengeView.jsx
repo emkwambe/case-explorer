@@ -25,6 +25,8 @@ import { EvidenceTab, OverviewTab } from "../tabs/caseTabs.jsx";
 import { DecisionTab } from "../tabs/decisionTabs.jsx";
 import { TryAChangePanel } from "../tabs/TryAChangePanel.jsx";
 import { useScoredCase } from "../hooks/useCaseAnalysis.js";
+import { useArtifact } from "../hooks/useArtifacts.js";
+import { CaseCreditModel } from "../tabs/CreditModelTab.jsx";
 import { download } from "../components/download.js";
 import { styles, money, titleCase } from "../theme.js";
 
@@ -173,14 +175,16 @@ export function AttemptForm({ caseObj, onCommit }) {
 
 const codesText = (xs) => (xs?.length ? xs.join(", ") : "none");
 
-function ExploreCase({ caseObj }) {
+function ExploreCase({ caseObj, teachingId }) {
   const { profile } = useActiveProfile();
   const ctx = useMemo(() => teachingContext(DATA, CONFIG), []);
   const scored = useScoredCase(caseObj, ctx.config);
+  const creditModel = useArtifact("credit-model-cases.json");
   return (
     <div data-testid="challenge-explore">
       <OverviewTab caseData={caseObj} />
       <DecisionTab caseData={caseObj} scored={scored} />
+      <CaseCreditModel caseKey={teachingId} cases={creditModel} />
       <TryAChangePanel caseData={caseObj} profile={profile} config={ctx.config} />
     </div>
   );
@@ -262,7 +266,7 @@ export function Reveal({ entry, caseObj, attempt, score, headingRef, twin, explo
         {/* The normal case views are built only when opened: they score the case and run "Try a change". */}
         <details style={{ marginTop: 12 }} onToggle={(e) => setExplore(e.currentTarget.open)} data-testid="challenge-explore-toggle">
           <summary style={{ cursor: "pointer", fontWeight: 600, color: C.text }}>Explore this case: reference label, rules and "Try a change"</summary>
-          {explore && <ExploreCase caseObj={caseObj} />}
+          {explore && <ExploreCase caseObj={caseObj} teachingId={entry.id} />}
         </details>
       </section>
     </ChallengeGateContext.Provider>

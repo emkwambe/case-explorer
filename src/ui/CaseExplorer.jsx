@@ -8,6 +8,7 @@ import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks
 import { OverviewTab, TimelineTab, AlignmentTab, TruthGraphTab, EvidenceTab, MetadataTab } from "./tabs/caseTabs.jsx";
 import { DecisionTab, ExplanationTab, FairnessTab, InvestigationTab } from "./tabs/decisionTabs.jsx";
 import { TryAChangePanel } from "./tabs/TryAChangePanel.jsx";
+import { CreditModelTab } from "./tabs/CreditModelTab.jsx";
 import { OutcomeTab } from "./tabs/outcomeTab.jsx";
 import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/analyticsTabs.jsx";
 import { tourSteps } from "./demo/tour.js";
@@ -272,6 +273,7 @@ function CaseExplorerShell() {
               {currentTab === "decision" && <><DecisionTab caseData={selectedCase} scored={scored} /><TryAChangePanel caseData={selectedCase} profile={profile} config={config} /></>}
               {currentTab === "outcome" && <OutcomeTab caseData={selectedCase} scored={scored} />}
               {currentTab === "explanation" && <ExplanationTab scored={scored} />}
+              {currentTab === "credit_model" && profile.creditModel && <CreditModelTab caseData={selectedCase} />}
               {currentTab === "fairness" && <FairnessTab caseData={selectedCase} counterfactual={counterfactual} />}
               {currentTab === "investigation" && <InvestigationTab caseData={selectedCase} scored={scored} {...investigation} />}
               {currentTab === "portfolio" && <DataTableTab cases={cases} onSelect={(id) => { select(id); setActiveTab("overview"); }} />}

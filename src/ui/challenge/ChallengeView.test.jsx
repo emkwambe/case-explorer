@@ -19,6 +19,7 @@ import { createProgressStore, summarize, STORAGE_KEY } from "../../challenge/pro
 import { ActiveProfileProvider } from "../../profiles/activeProfile.js";
 import { REFERENCE_LABEL } from "../theme.js";
 import CaseExplorer from "../CaseExplorer.jsx";
+import { CREDIT_MODEL_LABEL } from "../tabs/CreditModelTab.jsx";
 
 const ctx = teachingContext(DATA, CONFIG);
 const built = new Map(DATA.cases.map((e) => [e.id, buildTeachingCase(e, DATA, ctx)]));
@@ -45,6 +46,7 @@ describe("the blind view", () => {
       const text = container.textContent;
       const forbidden = [
         REFERENCE_LABEL, e.id, e.base.case_id, "/clean", "/fraud", e.key_fact.field, DATA.rubric[e.expected.rubric], "Fidelity", "Holds the deciding value",
+        CREDIT_MODEL_LABEL, "Credit model", "Probability of 30+",
         ...TYPOLOGY_WORDS, ...REASON_CODES, ...e.system.fraud_rules.map((r) => r.split(":")[0]), "APPROVE", "DECLINE", "MANUAL_REVIEW",
         ...(e.gap ? [e.gap.reason] : [])
       ];

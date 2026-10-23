@@ -201,8 +201,8 @@ describe("Credit Risk Mode", () => {
       for (const mode of [false, true]) {
         if (screen.getByTestId("credit-risk-mode").checked !== mode) await userEvent.click(screen.getByTestId("credit-risk-mode"));
         const names = await allTabs();
-        // Solar prime adds the Public record, Findings and Policy Sandbox tabs.
-        expect(names.length).toBe(profile === "SOLAR_PRIME" ? 20 : 17);
+        // Solar prime adds the Public record, Findings, Policy Sandbox and Credit model tabs.
+        expect(names.length).toBe(profile === "SOLAR_PRIME" ? 21 : 17);
         for (const name of names) {
           await openTab(name);
           expect(screen.getByTestId("compliance-footer")).toHaveTextContent(FOOTER);

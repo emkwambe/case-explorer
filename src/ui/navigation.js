@@ -14,7 +14,9 @@ export const TAB_GROUPS = Object.freeze([
       { id: "metadata", label: "Metadata" },
       { id: "decision", label: "Decision" },
       { id: "outcome", label: "Outcome" },
-      { id: "explanation", label: "Explanation" }
+      { id: "explanation", label: "Explanation" },
+      // The credit PD model's read-only view (Solar prime only).
+      { id: "credit_model", label: "Credit model", needs: "creditModel" }
     ]
   },
   {

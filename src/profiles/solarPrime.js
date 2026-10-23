@@ -25,6 +25,8 @@ export const SOLAR_PRIME_PROFILE = Object.freeze({
   // The app opens on teaching-v1's concealment pair 1 (clean twin first; the walkthrough swaps in the
   // fraud twin), so the first case a new user sees shows one hidden debt turning an approval into a decline.
   openingCase: "concealment-1",
+  // The credit PD model (analytics/src/case_analytics/credit/) was trained on this profile's books.
+  creditModel: true,
   description: "Prime solar application stream. The approved-under-credit-policy population is calibrated to Sunlight Financial's reported average FICO of financed borrowers; every other distribution keeps the generator default and is uncalibrated.",
 
   // Calibration preset, deep-merged over src/distribution_config.json. The regime mix is mostly

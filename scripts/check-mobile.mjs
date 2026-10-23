@@ -164,6 +164,9 @@ try {
   await check("Credit lab: Overview with Credit Risk Mode", "credit-overview.png");
   await openTab(page, "case", "Decision");
   await check("Credit lab: Decision with Credit Risk Mode", "credit-decision.png");
+  await openTab(page, "case", "Credit model");
+  await need(page.getByTestId("credit-model-about"), "credit-model-about", 30_000);
+  await check("Credit model tab", "credit-model.png");
 
   // Challenge mode: the pack list, a blind case with its answer form, and the reveal.
   await (await need(page.getByTestId("challenge-mode"), "challenge-mode")).click();
