@@ -11,10 +11,13 @@ import json
 from pathlib import Path
 from typing import Any
 
+from .cards import model_card, walkthrough
 from .data import ROOT
 from .pipeline import SNAPSHOT_DIR, SUMMARY
 
 README = ROOT / "analytics" / "credit" / "README.md"
+MODEL_CARD = ROOT / "docs" / "MODEL-CARD-credit-pd.md"
+WALKTHROUGH = ROOT / "docs" / "CREDIT-MODEL-WALKTHROUGH.md"
 
 
 def load_summary(snapshot: Path = SNAPSHOT_DIR) -> dict[str, Any]:
@@ -122,7 +125,7 @@ def readme(s: dict[str, Any]) -> str:
 
 def documents(snapshot: Path = SNAPSHOT_DIR) -> dict[Path, str]:
     s = load_summary(snapshot)
-    return {README: readme(s)}
+    return {README: readme(s), MODEL_CARD: model_card(s), WALKTHROUGH: walkthrough(s)}
 
 
 def main(argv: list[str] | None = None) -> int:

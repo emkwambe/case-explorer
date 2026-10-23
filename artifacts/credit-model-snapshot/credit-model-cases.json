@@ -1,0 +1,1924 @@
+{
+ "base_value_log_odds": -3.665651,
+ "label": "Second opinion only: the credit policy makes the decision.",
+ "model": "credit_pd_xgb",
+ "opening_library": {
+  "case-gen-0-9fed5fca": {
+   "pd": 0.078463,
+   "reasons": [
+    {
+     "contribution": 1.422669,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.210028,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.041917,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.026993,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "case-gen-1-a0ed615d": {
+   "pd": 0.020997,
+   "reasons": [
+    {
+     "contribution": 0.016823,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004002,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.003229,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "case-gen-10-c2b05e97": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.014332,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004451,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.003229,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "case-gen-11-c1b05d04": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.015279,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.010587,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "case-gen-2-9ded5ca4": {
+   "pd": 0.123926,
+   "reasons": [
+    {
+     "contribution": 1.741413,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.036704,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004002,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "case-gen-3-9eed5e37": {
+   "pd": 0.01734,
+   "reasons": [
+    {
+     "contribution": 0.002864,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.001996,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.000609,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    }
+   ]
+  },
+  "case-gen-4-9bed597e": {
+   "pd": 0.020997,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002955,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "case-gen-4-fd62ad7a": {
+   "pd": 0.02014,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.003138,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "case-gen-5-9ced5b11": {
+   "pd": 0.183971,
+   "reasons": [
+    {
+     "contribution": 1.918556,
+     "group": "UNSOURCED_DEPOSITS",
+     "statement": "Recent large deposits are not sourced"
+    },
+    {
+     "contribution": 0.196465,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.176608,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.010892,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "case-gen-6-99ed5658": {
+   "pd": 0.066982,
+   "reasons": [
+    {
+     "contribution": 1.445035,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.046566,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.002372,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "case-gen-7-9aed57eb": {
+   "pd": 0.020984,
+   "reasons": [
+    {
+     "contribution": 0.060231,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.001276,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "case-gen-8-97ed5332": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.015279,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002955,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "case-gen-9-98ed54c5": {
+   "pd": 0.024532,
+   "reasons": [
+    {
+     "contribution": 0.115731,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.047028,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.012363,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.009871,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    }
+   ]
+  }
+ },
+ "teaching": {
+  "concealment-1/clean": {
+   "pd": 0.02014,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.003138,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "concealment-1/fraud": {
+   "pd": 0.168377,
+   "reasons": [
+    {
+     "contribution": 1.9804,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.262223,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002555,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "concealment-2/clean": {
+   "pd": 0.021165,
+   "reasons": [
+    {
+     "contribution": 0.019045,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.013802,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "concealment-2/fraud": {
+   "pd": 0.085552,
+   "reasons": [
+    {
+     "contribution": 1.569768,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.045089,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.01772,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    }
+   ]
+  },
+  "concealment-3/clean": {
+   "pd": 0.02014,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002427,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "concealment-3/fraud": {
+   "pd": 0.168377,
+   "reasons": [
+    {
+     "contribution": 1.9804,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.261461,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.001844,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "concealment-4/clean": {
+   "pd": 0.024189,
+   "reasons": [
+    {
+     "contribution": 0.152463,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.009085,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002518,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "concealment-4/fraud": {
+   "pd": 0.179576,
+   "reasons": [
+    {
+     "contribution": 1.925902,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.250543,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.130306,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.040373,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "concealment-5/clean": {
+   "pd": 0.020371,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.003138,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "concealment-5/fraud": {
+   "pd": 0.069525,
+   "reasons": [
+    {
+     "contribution": 1.477168,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002555,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "conflict/material-b1": {
+   "pd": 0.29198,
+   "reasons": [
+    {
+     "contribution": 1.554114,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 1.531182,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.027865,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "conflict/material-b2": {
+   "pd": 0.306064,
+   "reasons": [
+    {
+     "contribution": 1.706267,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 1.406449,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.036831,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.028396,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "conflict/material-b3": {
+   "pd": 0.24692,
+   "reasons": [
+    {
+     "contribution": 1.559953,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 1.447919,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "conflict/sub-threshold-b1": {
+   "pd": 0.275082,
+   "reasons": [
+    {
+     "contribution": 1.54935,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 1.420351,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.04499,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "conflict/sub-threshold-b2": {
+   "pd": 0.287408,
+   "reasons": [
+    {
+     "contribution": 1.569394,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 1.424617,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.043976,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.037269,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "conflict/sub-threshold-b3": {
+   "pd": 0.28983,
+   "reasons": [
+    {
+     "contribution": 1.559194,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 1.45675,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.036016,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "evidence-tampering-1/clean": {
+   "pd": 0.020467,
+   "reasons": [
+    {
+     "contribution": 0.038854,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.005412,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "evidence-tampering-1/fraud": {
+   "pd": 0.020719,
+   "reasons": [
+    {
+     "contribution": 0.044137,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.012624,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "evidence-tampering-2/clean": {
+   "pd": 0.020453,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002955,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "evidence-tampering-2/fraud": {
+   "pd": 0.020581,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002955,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "evidence-tampering-3/clean": {
+   "pd": 0.020997,
+   "reasons": [
+    {
+     "contribution": 0.014332,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004002,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "evidence-tampering-3/fraud": {
+   "pd": 0.020997,
+   "reasons": [
+    {
+     "contribution": 0.014332,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "evidence-tampering-4/clean": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.003229,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "evidence-tampering-4/fraud": {
+   "pd": 0.020997,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.003229,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "evidence-tampering-5/clean": {
+   "pd": 0.021677,
+   "reasons": [
+    {
+     "contribution": 0.034046,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.020424,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.01185,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "evidence-tampering-5/fraud": {
+   "pd": 0.022251,
+   "reasons": [
+    {
+     "contribution": 0.043506,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.019663,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.012624,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.01185,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "fabrication-1/clean": {
+   "pd": 0.020997,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002955,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "fabrication-1/fraud": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004451,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002955,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "fabrication-2/clean": {
+   "pd": 0.020523,
+   "reasons": [
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004966,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "fabrication-2/fraud": {
+   "pd": 0.019799,
+   "reasons": [
+    {
+     "contribution": 0.004451,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 2.1e-05,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    }
+   ]
+  },
+  "fabrication-3/clean": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002518,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "fabrication-3/fraud": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004451,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002518,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "fabrication-4/clean": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002518,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "fabrication-4/fraud": {
+   "pd": 0.020867,
+   "reasons": [
+    {
+     "contribution": 0.012787,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004451,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002518,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "fabrication-5/clean": {
+   "pd": 0.02087,
+   "reasons": [
+    {
+     "contribution": 0.013056,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004002,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002427,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "fabrication-5/fraud": {
+   "pd": 0.020741,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.006865,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.004451,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002427,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "inflation-1/clean": {
+   "pd": 0.01944,
+   "reasons": [
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "inflation-1/fraud": {
+   "pd": 0.087708,
+   "reasons": [
+    {
+     "contribution": 1.595099,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "inflation-2/clean": {
+   "pd": 0.020523,
+   "reasons": [
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004002,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002427,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.000244,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    }
+   ]
+  },
+  "inflation-2/fraud": {
+   "pd": 0.098671,
+   "reasons": [
+    {
+     "contribution": 1.64254,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.011834,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004002,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "inflation-3/clean": {
+   "pd": 0.020396,
+   "reasons": [
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.003576,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "inflation-3/fraud": {
+   "pd": 0.118439,
+   "reasons": [
+    {
+     "contribution": 1.731213,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.037324,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "inflation-4/clean": {
+   "pd": 0.020302,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002518,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "inflation-4/fraud": {
+   "pd": 0.100049,
+   "reasons": [
+    {
+     "contribution": 1.64254,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.012004,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "inflation-5/clean": {
+   "pd": 0.015388,
+   "reasons": [
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002765,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "inflation-5/fraud": {
+   "pd": 0.068927,
+   "reasons": [
+    {
+     "contribution": 1.602784,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002765,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/checking-1000-b1": {
+   "pd": 0.021071,
+   "reasons": [
+    {
+     "contribution": 0.098429,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.011426,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/checking-1000-b2": {
+   "pd": 0.022657,
+   "reasons": [
+    {
+     "contribution": 0.099068,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.012876,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/checking-1000-b3": {
+   "pd": 0.022004,
+   "reasons": [
+    {
+     "contribution": 0.098429,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/checking-999-b1": {
+   "pd": 0.021071,
+   "reasons": [
+    {
+     "contribution": 0.098429,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.011426,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/checking-999-b2": {
+   "pd": 0.022657,
+   "reasons": [
+    {
+     "contribution": 0.099068,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.012876,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/checking-999-b3": {
+   "pd": 0.022004,
+   "reasons": [
+    {
+     "contribution": 0.098429,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-35.9-b1": {
+   "pd": 0.020315,
+   "reasons": [
+    {
+     "contribution": 0.102723,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.002686,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/dti-35.9-b2": {
+   "pd": 0.021544,
+   "reasons": [
+    {
+     "contribution": 0.099738,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-35.9-b3": {
+   "pd": 0.022556,
+   "reasons": [
+    {
+     "contribution": 0.110329,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.013111,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-36.1-b1": {
+   "pd": 0.020315,
+   "reasons": [
+    {
+     "contribution": 0.102723,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.002686,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/dti-36.1-b2": {
+   "pd": 0.021544,
+   "reasons": [
+    {
+     "contribution": 0.099738,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-36.1-b3": {
+   "pd": 0.022556,
+   "reasons": [
+    {
+     "contribution": 0.110329,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.013111,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-44.9-b1": {
+   "pd": 0.020315,
+   "reasons": [
+    {
+     "contribution": 0.102723,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.002686,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/dti-44.9-b2": {
+   "pd": 0.021544,
+   "reasons": [
+    {
+     "contribution": 0.100575,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-44.9-b3": {
+   "pd": 0.022556,
+   "reasons": [
+    {
+     "contribution": 0.110329,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.013111,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-45.1-b1": {
+   "pd": 0.020315,
+   "reasons": [
+    {
+     "contribution": 0.102723,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.002686,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/dti-45.1-b2": {
+   "pd": 0.021544,
+   "reasons": [
+    {
+     "contribution": 0.100575,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/dti-45.1-b3": {
+   "pd": 0.022556,
+   "reasons": [
+    {
+     "contribution": 0.110329,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.013111,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.011956,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/fico-659-b1": {
+   "pd": 0.023349,
+   "reasons": [
+    {
+     "contribution": 0.148993,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.026139,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.008148,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "near/fico-659-b2": {
+   "pd": 0.024201,
+   "reasons": [
+    {
+     "contribution": 0.170388,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/fico-659-b3": {
+   "pd": 0.024243,
+   "reasons": [
+    {
+     "contribution": 0.197392,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/fico-660-b1": {
+   "pd": 0.023349,
+   "reasons": [
+    {
+     "contribution": 0.148993,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.026139,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.008148,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "near/fico-660-b2": {
+   "pd": 0.024201,
+   "reasons": [
+    {
+     "contribution": 0.170388,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/fico-660-b3": {
+   "pd": 0.024243,
+   "reasons": [
+    {
+     "contribution": 0.197392,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "near/fico-661-b1": {
+   "pd": 0.023349,
+   "reasons": [
+    {
+     "contribution": 0.148993,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.026139,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    },
+    {
+     "contribution": 0.008148,
+     "group": "EMPLOYMENT",
+     "statement": "Length of employment"
+    }
+   ]
+  },
+  "near/fico-661-b2": {
+   "pd": 0.024201,
+   "reasons": [
+    {
+     "contribution": 0.170388,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.004,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "near/fico-661-b3": {
+   "pd": 0.023767,
+   "reasons": [
+    {
+     "contribution": 0.15888,
+     "group": "CREDIT_SCORE",
+     "statement": "Credit score below program standards"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002427,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "thin/bank-statement-b1": {
+   "pd": 0.104897,
+   "reasons": [
+    {
+     "contribution": 1.644584,
+     "group": "UNSOURCED_DEPOSITS",
+     "statement": "Recent large deposits are not sourced"
+    },
+    {
+     "contribution": 0.026078,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.022343,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "thin/bank-statement-b2": {
+   "pd": 0.101786,
+   "reasons": [
+    {
+     "contribution": 1.615966,
+     "group": "UNSOURCED_DEPOSITS",
+     "statement": "Recent large deposits are not sourced"
+    },
+    {
+     "contribution": 0.026078,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.022343,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    }
+   ]
+  },
+  "thin/credit-bureau-b1": {
+   "pd": 0.109818,
+   "reasons": [
+    {
+     "contribution": 2.033549,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.262126,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.093671,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    },
+    {
+     "contribution": 0.002555,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    }
+   ]
+  },
+  "thin/credit-bureau-b2": {
+   "pd": 0.094497,
+   "reasons": [
+    {
+     "contribution": 1.916575,
+     "group": "UNDISCLOSED_DEBT",
+     "statement": "Credit report shows obligations not disclosed on the application"
+    },
+    {
+     "contribution": 0.262887,
+     "group": "ASSET_DISCREPANCY",
+     "statement": "Stated account balance does not match the bank statement"
+    },
+    {
+     "contribution": 0.002992,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.000358,
+     "group": "DEBT_BURDEN",
+     "statement": "Debt obligations too high relative to income"
+    }
+   ]
+  },
+  "thin/employer-verification-b1": {
+   "pd": 0.11447,
+   "reasons": [
+    {
+     "contribution": 1.731213,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.036613,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.006935,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  },
+  "thin/employer-verification-b2": {
+   "pd": 0.117099,
+   "reasons": [
+    {
+     "contribution": 1.731213,
+     "group": "INCOME_DISCREPANCY",
+     "statement": "Income could not be verified at the amount stated"
+    },
+    {
+     "contribution": 0.03705,
+     "group": "INCOME_LEVEL",
+     "statement": "Income insufficient for the amount of credit requested"
+    },
+    {
+     "contribution": 0.00523,
+     "group": "LIQUIDITY",
+     "statement": "Limited cash reserves"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,373 @@
+"""The model card and the walkthrough, generated from the snapshot so their numbers cannot drift.
+
+Every number below is read from artifacts/credit-model-snapshot/; every conclusion that depends on a
+number (which model is better, whether recalibration was needed, whether reasons are stable) is chosen
+by code from that number, not written by hand.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+XGB, LOGIT = "credit_pd_xgb", "credit_pd_logistic"
+TYPOLOGY_ORDER = (
+    "INFLATION",
+    "CONCEALMENT",
+    "EVIDENCE_TAMPERING",
+    "FABRICATION",
+    "ASSET_SEASONING",
+    "INFLATION+CONCEALMENT",
+    "NONE",
+)
+
+
+def f3(v: float) -> str:
+    return f"{v:.3f}"
+
+
+def pct(v: float, d: int = 2) -> str:
+    return f"{100 * v:.{d}f}%"
+
+
+def n(v: float | int) -> str:
+    return f"{v:,.0f}"
+
+
+def ci(t: dict[str, Any], key: str, digits: int = 3) -> str:
+    m, c = t["metrics"][key], t["ci95"][key]
+    return f"{m:.{digits}f} ({c['low']:.{digits}f}–{c['high']:.{digits}f})"
+
+
+def verdict(s: dict[str, Any]) -> str:
+    d = s["comparison"]["xgb_minus_logistic"]["auc_difference"]
+    if d["low"] > 0:
+        return f"`{XGB}` discriminates better than the baseline: its AUC is higher by {f3(d['point'])} (95% interval {f3(d['low'])} to {f3(d['high'])}, which excludes 0)."
+    if d["high"] < 0:
+        return f"The logistic baseline discriminates better: `{XGB}`'s AUC is lower by {f3(-d['point'])} (95% interval {f3(d['low'])} to {f3(d['high'])}, which excludes 0)."
+    return (
+        f"**`{XGB}` does not clearly beat the logistic baseline.** Its AUC is higher by {f3(d['point'])}, but the paired 95% interval "
+        f"({f3(d['low'])} to {f3(d['high'])}) contains 0, so this test book of {n(s['data']['after']['test']['defaults'])} defaults cannot tell them apart."
+    )
+
+
+def accuracy_table(acc: dict[str, Any], diag: dict[str, Any] | None = None) -> list[str]:
+    head = "| Typology | Cases | Expected group | Top reason correct | Any of top 4 correct |" + (
+        " Diagnostic: top / top 4 |" if diag else ""
+    )
+    rule = "|---|---|---|---|---|" + ("---|" if diag else "")
+    rows = [head, rule]
+    for t in TYPOLOGY_ORDER:
+        if t not in acc:
+            continue
+        a = acc[t]
+        if a.get("control"):
+            line = f"| NONE (control) | {n(a['n'])} | none: blaming a discrepancy is a false alarm | {n(a['top1_blames_discrepancy'])} blamed one ({pct(a['top1_blames_discrepancy'] / a['n'], 1)}) | {n(a['top4_blames_discrepancy'])} ({pct(a['top4_blames_discrepancy'] / a['n'], 1)}) |"
+            if diag:
+                b = diag[t]
+                line += f" {n(b['top1_blames_discrepancy'])} / {n(b['top4_blames_discrepancy'])} |"
+        else:
+            line = f"| {t} | {n(a['n'])} | {', '.join(a['expected_groups'])} | {n(a['top1_hits'])} ({pct(a['top1_hits'] / a['n'], 0)}) | {n(a['top4_hits'])} ({pct(a['top4_hits'] / a['n'], 0)}) |"
+            if diag:
+                b = diag[t]
+                line += f" {n(b['top1_hits'])} / {n(b['top4_hits'])} |"
+        rows.append(line)
+    return rows
+
+
+def deciles_table(rows: list[dict[str, Any]]) -> list[str]:
+    out = [
+        "| Decile (by predicted PD) | Loans | Defaults | Mean predicted | Observed (95% interval) | Mean true PD |",
+        "|---|---|---|---|---|---|",
+    ]
+    for r in rows:
+        out.append(
+            f"| {r['decile']} | {n(r['n'])} | {n(r['defaults'])} | {pct(r['mean_predicted'])} | {pct(r['observed_rate'])} ({pct(r['observed_low'])}–{pct(r['observed_high'])}) | {pct(r['mean_true'])} |"
+        )
+    return out
+
+
+def stable_word(mean: float) -> str:
+    return "stable" if mean >= 0.8 else "moderately stable" if mean >= 0.6 else "**unstable**"
+
+
+def stability_sentence(st: dict[str, Any]) -> str:
+    mean, top = st["mean_agreement"], st["riskiest_decile"]
+    return (
+        f"Across {st['bootstraps']} retrains on resampled training data, a test loan's top reason matched the headline model's "
+        f"{pct(mean, 0)} of the time on average; {pct(st['share_with_agreement_at_least_80pct'], 0)} of loans kept the same top reason in at least 80% of retrains "
+        f"and {pct(st['share_with_agreement_below_50pct'], 0)} in fewer than half. Over all loans the top reason is {stable_word(mean)}: most loans sit near the "
+        f"average PD, where every contribution is small and the ranking flips easily. In the riskiest tenth of the book, where a reason statement would actually be "
+        f"sent, agreement averages {pct(top['mean_agreement'], 0)} ({pct(top['share_with_agreement_at_least_80pct'], 0)} of those loans at 80% or more): {stable_word(top['mean_agreement'])}."
+    )
+
+
+def tampering_sentence(acc: dict[str, Any]) -> str:
+    """Whether tampering's asset-discrepancy reasons stand out from the noise clean loans show."""
+    teach, book = acc["teaching_twins_and_conflicting"], acc["funded_test_book"]
+    t = teach["EVIDENCE_TAMPERING"]
+    asset_book, asset_teach = (
+        book["NONE"]["by_group"]["ASSET_DISCREPANCY"],
+        teach["NONE"]["by_group"]["ASSET_DISCREPANCY"],
+    )
+    top1 = t["top1_hits"] / t["n"]
+    false4 = asset_book["top4"] / book["NONE"]["n"]
+    separable = top1 > false4
+    return (
+        f"**Tampering {'can' if separable else 'cannot'} be separated from clean-loan noise.** The asset discrepancy was the top reason for "
+        f"{n(t['top1_hits'])} of {n(t['n'])} tampering twins and in the top four for {n(t['top4_hits'])}; but the same group is in the top four for "
+        f"{n(asset_book['top4'])} of {n(book['NONE']['n'])} clean funded loans ({pct(false4, 0)}) and {n(asset_teach['top4'])} of {n(teach['NONE']['n'])} clean twins, "
+        "because stated and statement balances already differ slightly in most clean loans. "
+        + (
+            "A top-four asset-discrepancy reason for tampering therefore carries no information."
+            if not separable
+            else ""
+        )
+    )
+
+
+def control_sentence(acc: dict[str, Any]) -> str:
+    """Which discrepancy groups the clean funded loans are wrongly given, by group."""
+    c = acc["funded_test_book"]["NONE"]
+    parts = [
+        f"{g} {n(v['top4'])} in the top four ({n(v['top1'])} as the top reason)"
+        for g, v in c["by_group"].items()
+        if v["top4"]
+    ]
+    if not parts:
+        return "No clean funded loan was given a discrepancy reason."
+    text = f"On the {n(c['n'])} clean funded loans the false alarms come from: " + "; ".join(parts) + "."
+    if c["by_group"]["UNDISCLOSED_DEBT"]["top4"]:
+        text += " Undisclosed-debt false alarms come from `undisclosed_accounts`: the bureau lists one more account than the application on most loans, a generator quirk."
+    elif [g for g, v in c["by_group"].items() if v["top4"]] == ["ASSET_DISCREPANCY"]:
+        text += " All of them are asset discrepancies: stated and statement balances already differ slightly in most clean loans."
+    return text
+
+
+def model_card(s: dict[str, Any]) -> str:
+    x, lg = s["models"][XGB], s["models"][LOGIT]
+    ce, d = s["ceilings"], s["data"]
+    r, pv, dg = s["reasons"], s["policy_view"], s["diagnostic_all_applications"]
+    acc = r["accuracy"]
+    after = d["after"]
+    L = [
+        "# Model card: `credit_pd_xgb` (Solar prime probability of default)",
+        "",
+        "_Generated by `python -m case_analytics.credit.docs --write` from `artifacts/credit-model-snapshot/`. Every number is the snapshot's; `--check` fails if this file and the snapshot disagree._",
+        "",
+        "**Status: developer testing, not independent validation** (the SR 26-2 wording; SR 26-2 replaced SR 11-7 in April 2026). **Second opinion only: the credit policy makes the decision.** The model changes no decision, no locked number and no answer key.",
+        "",
+        "## Intended use",
+        "",
+        "- Training and portfolio demonstration: how a PD model is built, calibrated, explained and checked against a known truth.",
+        "- **Not** for real lending decisions, and not for any real applicant. Every borrower, dealer and outcome is synthetic.",
+        "",
+        "> **The model recovers a simple, known simulated process, so its performance does not transfer to real data.** Default here is a logistic monthly hazard of four things: true FICO below 700, true DTI above 36%, a fraud flag, and dealer quality. Real default has many more drivers, noisier data and drift.",
+        "",
+        "## Data",
+        "",
+        f"- **Target:** {s['target']}.",
+        f"- **Training:** {n(after['training']['rows'])} funded loans from {len(d['seeds']['training'])} independent books (seeds {', '.join(map(str, d['seeds']['training']))}), {n(after['training']['defaults'])} defaults ({pct(after['training']['default_rate'])}).",
+        f"- **Calibration:** {n(after['calibration']['rows'])} funded loans from seeds {', '.join(map(str, d['seeds']['calibration']))}, {n(after['calibration']['defaults'])} defaults.",
+        f"- **Test:** the locked seed-42 book, {n(after['test']['rows'])} funded loans, {n(after['test']['defaults'])} defaults ({pct(after['test']['default_rate'])}). It played no part in tuning or calibration.",
+        "- **Selection bias:** outcomes exist only for funded loans, so the model learns from approved applicants only. Reject inference is Sprint 12.",
+        "- **No out-of-time test:** every application in these books is submitted on the same as-of date (2026-01-15); the seed-42 book is out-of-sample by seed only.",
+        "- Details, shapes before and after, and the feature list: [analytics/credit/README.md](../analytics/credit/README.md).",
+        "",
+        "**Features** (decision-time only; monotonic direction in brackets): "
+        + "; ".join(f"`{f['name']}` [{'+' if f['monotone'] > 0 else '−'}]" for f in s["features"])
+        + ".",
+        "",
+        "**Excluded:** "
+        + "; ".join(s["excluded"])
+        + ". Hidden truth (the oracle files) is used only to evaluate; a test enforces it.",
+        "",
+        "## Models",
+        "",
+        f"- **Baseline `{LOGIT}`:** median imputation, standardisation, L2 logistic regression; C = {lg['params']['C']} chosen by cross-validation over whole training books.",
+        f"- **Challenger `{XGB}`:** XGBoost with a monotonic constraint on every feature, no class reweighting (`scale_pos_weight` = 1), histogram trees, one thread, no sampling. Chosen from the grid by cross-validated log loss: max depth {x['params']['max_depth']}, learning rate {x['params']['learning_rate']}, {x['params']['n_estimators']} trees, min child weight {x['params']['min_child_weight']}.",
+        "",
+        "## Performance on the test book",
+        "",
+        "| Model | AUC (95% CI) | KS (95% CI) | Brier (95% CI) | Mean predicted | Observed |",
+        "|---|---|---|---|---|---|",
+        f"| `{XGB}` | {ci(x['test'], 'auc')} | {ci(x['test'], 'ks')} | {ci(x['test'], 'brier', 4)} | {pct(x['test']['metrics']['mean_predicted'])} | {pct(x['test']['metrics']['observed_rate'])} |",
+        f"| `{LOGIT}` | {ci(lg['test'], 'auc')} | {ci(lg['test'], 'ks')} | {ci(lg['test'], 'brier', 4)} | {pct(lg['test']['metrics']['mean_predicted'])} | {pct(lg['test']['metrics']['observed_rate'])} |",
+        f"| Ceiling: the simulation's true PD | {ci(ce['true_pd'], 'auc')} | {ci(ce['true_pd'], 'ks')} | {ci(ce['true_pd'], 'brier', 4)} | {pct(ce['true_pd']['metrics']['mean_predicted'])} | |",
+        f"| Fair ceiling: true PD without the dealer term | {ci(ce['true_pd_without_dealer_term'], 'auc')} | {ci(ce['true_pd_without_dealer_term'], 'ks')} | {ci(ce['true_pd_without_dealer_term'], 'brier', 4)} | {pct(ce['true_pd_without_dealer_term']['metrics']['mean_predicted'])} | |",
+        "",
+        f"With {n(after['test']['defaults'])} test defaults the intervals are wide. {verdict(s)} The true-PD ceiling shows the best any model could do on this book; the fair ceiling removes the dealer-quality term the model is barred from seeing, so it is the benchmark for a dealer-blind model.",
+        "",
+        "## Calibration",
+        "",
+        *[
+            f"- `{m}`: on the calibration books {c['calibration_books']['before']['trigger']['deciles_outside']} of 10 deciles fell outside the 95% interval and the mean prediction was off by {pct(c['calibration_books']['before']['trigger']['calibration_in_the_large_relative_error'], 1)} relative, so recalibration was {'applied (isotonic, fitted on the calibration books only)' if c['calibration_books']['recalibrated'] else 'not needed by the pre-registered rule (3+ deciles outside, or more than 10% relative)'}. On the test book it predicts {pct(c['test']['calibration_in_the_large']['mean_predicted'])} against {pct(c['test']['calibration_in_the_large']['observed'])} observed."
+            for m, c in ((XGB, x), (LOGIT, lg))
+        ],
+        "",
+        f"**`{XGB}` on the test book, by decile:**",
+        "",
+        *deciles_table(x["test"]["deciles"]),
+        "",
+        "## Learned PD against true PD",
+        "",
+        "Only synthetic data has the true probability. The comparison is the headline result.",
+        "",
+        "| Model | Rank correlation with true PD | Mean absolute error | Rank correlation with dealer-blind true PD | Mean absolute error |",
+        "|---|---|---|---|---|",
+        *[
+            f"| `{m}` | {f3(c['test']['learned_vs_true']['spearman'])} | {pct(c['test']['learned_vs_true']['mean_absolute_error'])} | {f3(c['test']['learned_vs_true_without_dealer_term']['spearman'])} | {pct(c['test']['learned_vs_true_without_dealer_term']['mean_absolute_error'])} |"
+            for m, c in ((XGB, x), (LOGIT, lg))
+        ],
+        "",
+        "The gap to the full true PD is mostly the dealer term, which the model cannot see by design; the dealer-blind comparison is the fair one.",
+        "",
+        "## Policy view (reported only)",
+        "",
+        f"At the credit policy's approval count on the seed-42 application pool ({n(pv['approvals'])} of {n(pv['applications'])}), approving the lowest-PD applications instead would swap {n(pv[XGB]['swap_in'])} loans in and out under `{XGB}` and {n(pv[LOGIT]['swap_in'])} under `{LOGIT}`. Expected loss (synthetic truth, LGD {pv['lgd']}): policy ${n(pv['policy_expected_loss'])}, `{XGB}` ${n(pv[XGB]['model_expected_loss'])}, `{LOGIT}` ${n(pv[LOGIT]['model_expected_loss'])}. Declined applicants are outside the training population, so their scores are extrapolation. The champion/challenger run through the Policy Sandbox is Sprint 12.",
+        "",
+        "## All-applications diagnostic (not the headline model)",
+        "",
+        f"Trained with the same settings on every application of the training books ({n(dg['training_rows'])} rows, {n(dg['training_defaults'])} defaults), which only a simulation can label. On the same test book: AUC {ci(dg['test'], 'auc')}, a difference of {dg['difference_vs_headline']['auc']:+.3f} from the headline model; Brier difference {dg['difference_vs_headline']['brier']:+.5f}. Reason accuracy is compared below.",
+        "",
+        "## Reasons",
+        "",
+        "Method: TreeSHAP splits each prediction's log-odds into one contribution per feature plus a base value; the split was checked to add up on every test loan. Contributions are summed by feature group, and up to the top four groups that raise risk become the reason statements (Reg B, 12 CFR §1002.9, requires the specific principal reasons for adverse action). SHAP is a standard way to rank contributions; it is not a method regulators have endorsed.",
+        "",
+        "| Group | Reason statement | Features | Mean \\|SHAP\\| (test book) |",
+        "|---|---|---|---|",
+        *[
+            f"| {g} | {v['statement']} | {', '.join(f'`{f}`' for f in v['features'])} | {r['global']['groups'][g]:.4f} |"
+            for g, v in r["groups"].items()
+        ],
+        "",
+        f"**Stability.** {stability_sentence(r['stability'])}",
+        "",
+        "## Reason accuracy against the hidden truth",
+        "",
+        "Did the reason name the field that was actually falsified? The expected group per typology: concealment → undisclosed debt; inflation → income discrepancy; tampering and fabrication → asset discrepancy; asset seasoning → unsourced deposits. Clean cases are the control.",
+        "",
+        "**Teaching-v1 twins** (seed-42 bases, unseen in training; the conflicting cases count a hit for either expected group):",
+        "",
+        *accuracy_table(
+            acc["headline"]["teaching_twins_and_conflicting"],
+            acc["diagnostic_all_applications"]["teaching_twins_and_conflicting"],
+        ),
+        "",
+        "**The funded seed-42 book** (the funded book holds no tampering or fabrication loans: those are routed to review):",
+        "",
+        *accuracy_table(
+            acc["headline"]["funded_test_book"], acc["diagnostic_all_applications"]["funded_test_book"]
+        ),
+        "",
+        control_sentence(acc["headline"]),
+        "",
+        tampering_sentence(acc["headline"]),
+        "",
+        "A low score is a finding, not a failure to hide: it means the model predicts default but cannot tell an underwriter why in fraud terms, which supports keeping the fraud rules beside it. Tampering and fabrication are the hardest case by construction: the funded training books contain neither typology, so the model has only seen the small balance differences of clean loans.",
+        "",
+        "## Limitations",
+        "",
+        "- Synthetic data from a known, simple process (above); results do not transfer to real lending.",
+        f"- {n(after['test']['defaults'])} test defaults: confidence intervals are wide.",
+        "- Funded-only selection bias; no reject inference (Sprint 12).",
+        "- Fairness is not yet tested (Sprint 12). Sensitive and geographic attributes are excluded, which does not by itself establish fair outcomes.",
+        "- No out-of-time test (one as-of date). No drift monitoring (Sprint 12).",
+        "- Generator quirks the model sees: the bureau records one more account than the application lists on most loans (`undisclosed_accounts` = 1), and bureau scores can exceed 850.",
+        "",
+        "## How this would run in production",
+        "",
+        "The feature build would be a dbt model over the loan-origination tables and the retraining a scheduled Airflow job, with the manifest hashes as data contracts. Neither is built here; both are portfolio items for later.",
+        "",
+        "## Reproducibility",
+        "",
+        "`node scripts/export_credit_features.mjs` (data; every file hashed in `data/credit-model/manifest.json`), then `python -m case_analytics.credit.pipeline` (snapshot), with the exact package versions in `analytics/constraints-credit.txt`. A rerun on the same machine is byte-identical; CI rebuilds on Linux and compares numerically within a stated tolerance (`case_analytics.credit.compare`).",
+        "",
+    ]
+    return "\n".join(L)
+
+
+def walkthrough(s: dict[str, Any]) -> str:
+    x, lg, ce, d, r = s["models"][XGB], s["models"][LOGIT], s["ceilings"], s["data"], s["reasons"]
+    after = d["after"]
+    coef = lg["coefficients_per_sd"]
+    top_coef = sorted(((k, v) for k, v in coef.items() if k != "(intercept)"), key=lambda kv: -abs(kv[1]))[:3]
+    gi = sorted(r["global"]["groups"].items(), key=lambda kv: -kv[1])
+    acc = r["accuracy"]["headline"]
+    infl = acc["funded_test_book"].get("INFLATION")
+    L = [
+        "# The credit model, step by step",
+        "",
+        "_Generated by `python -m case_analytics.credit.docs --write` from the snapshot, so every number is this book's. Drafted by Claude Code; review it like code. Each step ends with a question to check yourself._",
+        "",
+        "## 1. The target",
+        "",
+        f"Default means the Solar loan reached 30 or more days past due within 18 months: the `dpd30` flag. On the funded test book that happened to {n(after['test']['defaults'])} of {n(after['test']['rows'])} loans ({pct(after['test']['default_rate'])}). It is not the Mortgage `label__defaulted`, which belongs to a different generator and a different product.",
+        "",
+        "*Check yourself:* why is a default flag, rather than the simulation's PD, the thing a lender can train on?",
+        "",
+        "## 2. The split",
+        "",
+        f"Training uses {len(d['seeds']['training'])} independent books ({n(after['training']['rows'])} loans, {n(after['training']['defaults'])} defaults); calibration uses two more; the locked seed-42 book is the test set and is touched once, at the end. Splitting by book rather than by row means no applicant, dealer draw or seed is shared between training and test. Tuning folds also hold out whole books.",
+        "",
+        "*Check yourself:* what would go wrong if the test book were used to choose the hyperparameters?",
+        "",
+        "## 3. The features",
+        "",
+        "Fourteen decision-time fields: the stated figures, the verified ones from the documents, and one-sided discrepancies between them (for example `income_overstatement_pct`, the positive part of stated minus verified income, over verified). An underwriter has both figures, so the discrepancies are allowed. Excluded: sensitive and geographic attributes, dealer ID, device metadata, fraud-rule outputs, W-2 wages and every hidden-truth column.",
+        "",
+        "*Check yourself:* why is dealer ID excluded even though dealer quality drives default in this simulation?",
+        "",
+        "## 4. The baseline",
+        "",
+        "Logistic regression on standardised features: each coefficient is the change in log-odds for one standard deviation of the feature. The largest here: "
+        + "; ".join(f"`{k}` {v:+.3f}" for k, v in top_coef)
+        + f". Test AUC {ci(lg['test'], 'auc')}.",
+        "",
+        "*Check yourself:* a coefficient of −0.5 on `fico_bureau`: what happens to the odds of default for a one-SD higher score?",
+        "",
+        "## 5. XGBoost",
+        "",
+        f"A boosted model adds small trees one at a time, each correcting the last. Monotonic constraints force a higher FICO never to raise risk and a larger discrepancy never to lower it, so the model cannot learn a pattern a credit committee would reject. Classes are not reweighted: reweighting would inflate every prediction and they would stop being probabilities. Chosen settings: depth {x['params']['max_depth']}, {x['params']['n_estimators']} trees at learning rate {x['params']['learning_rate']}.",
+        "",
+        "*Check yourself:* why does `scale_pos_weight` = 1 matter for a PD model but not for a fraud-ranking model?",
+        "",
+        "## 6. Evaluation",
+        "",
+        f"AUC is the chance a random defaulter scores above a random non-defaulter: `{XGB}` {ci(x['test'], 'auc')}. KS is the largest gap between the two score distributions: {ci(x['test'], 'ks')}. Brier is the mean squared error of the probabilities: {ci(x['test'], 'brier', 4)}. Calibration by decile compares mean predicted PD with the observed rate in each tenth of the book; in the riskiest decile here {pct(x['test']['deciles'][-1]['mean_predicted'])} was predicted and {pct(x['test']['deciles'][-1]['observed_rate'])} observed. {verdict(s)}",
+        "",
+        "*Check yourself:* a model with high AUC but poor calibration: which committee question can it answer, and which can't it?",
+        "",
+        "## 7. SHAP",
+        "",
+        f"Each prediction's log-odds equal a base value ({r['base_value_log_odds']:.3f}) plus one contribution per feature; this was checked on all {n(r['additivity']['rows_checked'])} test loans. Contributions are summed by group so one cause is not reported twice, and the groups that raise risk most become reasons. Largest groups on average: "
+        + "; ".join(f"{g} {v:.4f}" for g, v in gi[:3])
+        + f". {stability_sentence(r['stability'])}",
+        "",
+        "*Check yourself:* why sum `dti_stated` and `stated_monthly_debts` into one reason?",
+        "",
+        "## 8. Learned PD against true PD",
+        "",
+        f"The simulation knows each loan's true probability. `{XGB}`'s predictions rank-correlate {f3(x['test']['learned_vs_true']['spearman'])} with it, and {f3(x['test']['learned_vs_true_without_dealer_term']['spearman'])} with the true PD once the dealer term is removed. The fair ceiling, the dealer-blind true PD itself, reaches AUC {ci(ce['true_pd_without_dealer_term'], 'auc')}: that is how close a dealer-blind model could get.",
+        "",
+        "*Check yourself:* why can't a real lender run this comparison?",
+        "",
+        "## 9. Reason accuracy",
+        "",
+        "For loans whose falsified field is known, did the top reason name it? "
+        + (
+            f"On the funded test book's {n(infl['n'])} income-inflation loans the top reason was the income discrepancy {n(infl['top1_hits'])} times ({pct(infl['top1_hits'] / infl['n'], 0)})."
+            if infl
+            else ""
+        )
+        + " The model card has every typology, the teaching twins and the clean controls.",
+        "",
+        "*Check yourself:* if reason accuracy were low but AUC high, what would you keep beside the model?",
+        "",
+        "## 10. Limits",
+        "",
+        "This model recovers a simple, known simulated process; its numbers do not transfer to real data. It learns from funded loans only, has no out-of-time test, is untested for fairness, and is a second opinion beside the credit policy, never the decision. It must not be used for real lending.",
+        "",
+        "*Check yourself:* name two things a real model risk review would ask for that this sprint does not provide.",
+        "",
+    ]
+    return "\n".join(L)

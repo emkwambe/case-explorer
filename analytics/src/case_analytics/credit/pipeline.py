@@ -28,7 +28,8 @@ from sklearn.metrics import log_loss, roc_auc_score
 from sklearn.model_selection import GroupKFold
 
 from . import evaluate as ev
-from .data import ROOT, Data, load_data
+from . import reasons as rs
+from .data import DATA_DIR, ROOT, Data, load_data
 from .models import (
     LOGIT_GRID,
     LOGIT_NAME,
@@ -43,6 +44,7 @@ from .models import (
 
 SNAPSHOT_DIR = ROOT / "artifacts" / "credit-model-snapshot"
 SUMMARY = "credit-model-summary.json"
+CASES = "credit-model-cases.json"
 CV_FOLDS = 4
 PACKAGES = ("xgboost", "scikit-learn", "numpy", "pandas", "scipy", "shap")
 
@@ -304,6 +306,18 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
     }
     log(f"  diagnostic (all applications): test AUC {diagnostic['test']['metrics']['auc']:.4f}")
 
+    comparison = {
+        "xgb_minus_logistic": ev.paired_difference(yte, test_scores[XGB_NAME], test_scores[LOGIT_NAME]),
+        "note": (
+            "positive AUC difference and negative Brier difference favour credit_pd_xgb; "
+            "an interval that contains 0 means the test book cannot tell the models apart"
+        ),
+    }
+
+    reasons, cases = reason_section(
+        data, final[XGB_NAME], diag, tuning[XGB_NAME]["winner"], Xtr, ytr, Xte, test, log
+    )
+
     summary = rounded(
         {
             "snapshot_version": "1.0.0",
@@ -315,12 +329,103 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
             "tuning": tuning,
             "models": models,
             "ceilings": ceilings,
+            "comparison": comparison,
             "policy_view": policy,
             "diagnostic_all_applications": diagnostic,
+            "reasons": reasons,
         }
     )
-    write_snapshot(out, {SUMMARY: summary}, data)
+    write_snapshot(out, {SUMMARY: summary, CASES: rounded(cases)}, data)
     return summary
+
+
+def teaching_typology(row: pd.Series) -> str | None:
+    """Reason-accuracy label for a teaching case: fraud twins by typology, clean twins as the control,
+    conflicting cases by their combined typology; other teaching groups are not scored."""
+    if row["group"] == "causal-pair":
+        return str(row["typology"]) if row["role"] == "fraud" else "NONE"
+    if row["group"] == "conflicting":
+        return str(row["typology"])
+    return None
+
+
+def reason_section(
+    data: Data, model: Any, diag: Any, winner: dict[str, Any], Xtr, ytr, Xte, test: pd.DataFrame, log
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    spec = data.spec
+    values, base = rs.shap_values(model, Xte)
+    gm, groups = rs.group_matrix(values, spec)
+    top1 = [(rs.top_groups(gm[i], groups, 1) or [""])[0] for i in range(len(Xte))]
+
+    teaching = pd.read_csv(DATA_DIR / "teaching-v1.csv", keep_default_na=False, na_values=[""])
+    opening = pd.read_csv(DATA_DIR / "opening-library.csv")
+    keep = [teaching_typology(r) is not None for _, r in teaching.iterrows()]
+    scored = teaching[keep].reset_index(drop=True)
+    labels = [str(teaching_typology(r)) for _, r in scored.iterrows()]
+    book_labels = test["corruption_type"].astype(str).tolist()
+
+    def accuracy_for(m: Any) -> dict[str, Any]:
+        tv, _ = rs.shap_values(m, data.X(scored))
+        bv, _ = rs.shap_values(m, Xte)
+        return {
+            "teaching_twins_and_conflicting": rs.accuracy(rs.group_matrix(tv, spec)[0], groups, labels),
+            "funded_test_book": rs.accuracy(rs.group_matrix(bv, spec)[0], groups, book_labels),
+        }
+
+    headline, diagnostic = accuracy_for(model), accuracy_for(diag)
+
+    def diff(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
+        out: dict[str, Any] = {}
+        for where in a:
+            out[where] = {}
+            for t, h in a[where].items():
+                keys = (
+                    ("top1_blames_discrepancy", "top4_blames_discrepancy")
+                    if h.get("control")
+                    else ("top1_hits", "top4_hits")
+                )
+                out[where][t] = {k: b[where][t][k] - h[k] for k in keys}
+        return out
+
+    log("  reasons: stability over bootstrap retrains")
+    stab = rs.stability(lambda: xgb(spec.monotone, **winner), Xtr, ytr, Xte, spec, top1, predict(model, Xte))
+
+    def case_rows(frame: pd.DataFrame, key: str) -> dict[str, Any]:
+        X = data.X(frame)
+        v, _ = rs.shap_values(model, X)
+        g, _ = rs.group_matrix(v, spec)
+        p = predict(model, X)
+        return {
+            str(frame[key].iloc[i]): {"pd": float(p[i]), "reasons": rs.reasons_for(g[i], groups, spec)}
+            for i in range(len(frame))
+        }
+
+    reasons = {
+        "method": (
+            "TreeSHAP (shap.TreeExplainer) on credit_pd_xgb in log-odds; contributions summed by feature group; "
+            "up to the top four groups that raise risk become reason statements"
+        ),
+        "base_value_log_odds": base,
+        "additivity": {"rows_checked": len(Xte), "tolerance": rs.ADDITIVITY_TOL, "holds": True},
+        "groups": {g: spec.groups[g] for g in groups},
+        "global": rs.global_importance(values, spec),
+        "top1_distribution_test_book": {g: top1.count(g) for g in [*groups, ""]},
+        "stability": stab,
+        "expected_group_by_typology": {k: list(v) for k, v in rs.EXPECTED_GROUP.items()},
+        "accuracy": {
+            "headline": headline,
+            "diagnostic_all_applications": diagnostic,
+            "diagnostic_minus_headline": diff(headline, diagnostic),
+        },
+    }
+    cases = {
+        "label": "Second opinion only: the credit policy makes the decision.",
+        "model": XGB_NAME,
+        "base_value_log_odds": base,
+        "teaching": case_rows(teaching, "teaching_id"),
+        "opening_library": case_rows(opening, "case_id"),
+    }
+    return reasons, cases
 
 
 def write_snapshot(out: Path, documents: dict[str, Any], data: Data) -> None:

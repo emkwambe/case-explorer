@@ -39,6 +39,7 @@ ignore = ["B905", "B008"]
 [tool.ruff.lint.per-file-ignores]
 # Generated-document templates: long lines are prose paragraphs of the Markdown they write.
 "src/case_analytics/credit/docs.py" = ["E501"]
+"src/case_analytics/credit/cards.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.11"

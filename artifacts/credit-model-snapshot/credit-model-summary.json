@@ -312,6 +312,22 @@
    }
   }
  },
+ "comparison": {
+  "note": "positive AUC difference and negative Brier difference favour credit_pd_xgb; an interval that contains 0 means the test book cannot tell the models apart",
+  "xgb_minus_logistic": {
+   "auc_difference": {
+    "high": 0.043157,
+    "low": -0.024362,
+    "point": 0.008437
+   },
+   "brier_difference": {
+    "high": 9e-05,
+    "low": -0.00013,
+    "point": -1.6e-05
+   },
+   "resamples": 1000
+  }
+ },
  "data": {
   "after": {
    "calibration": {
@@ -1547,6 +1563,455 @@
   },
   "lgd": 0.85,
   "policy_expected_loss": 4413429.470675
+ },
+ "reasons": {
+  "accuracy": {
+   "diagnostic_all_applications": {
+    "funded_test_book": {
+     "ASSET_SEASONING": {
+      "expected_groups": [
+       "UNSOURCED_DEPOSITS"
+      ],
+      "n": 113,
+      "no_positive_reason": 0,
+      "top1_hits": 113,
+      "top4_hits": 113
+     },
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 7,
+      "no_positive_reason": 0,
+      "top1_hits": 6,
+      "top4_hits": 6
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 357,
+      "no_positive_reason": 0,
+      "top1_hits": 357,
+      "top4_hits": 357
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 6,
+        "top4": 6
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 9523,
+      "top1_blames_discrepancy": 6,
+      "top4_blames_discrepancy": 6
+     }
+    },
+    "teaching_twins_and_conflicting": {
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "EVIDENCE_TAMPERING": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 0,
+      "top4_hits": 0
+     },
+     "FABRICATION": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION+CONCEALMENT": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY",
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 6,
+      "no_positive_reason": 0,
+      "top1_hits": 6,
+      "top4_hits": 6
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 20,
+      "top1_blames_discrepancy": 0,
+      "top4_blames_discrepancy": 0
+     }
+    }
+   },
+   "diagnostic_minus_headline": {
+    "funded_test_book": {
+     "ASSET_SEASONING": {
+      "top1_hits": 4,
+      "top4_hits": 4
+     },
+     "CONCEALMENT": {
+      "top1_hits": 1,
+      "top4_hits": 1
+     },
+     "INFLATION": {
+      "top1_hits": 0,
+      "top4_hits": 0
+     },
+     "NONE": {
+      "top1_blames_discrepancy": -94,
+      "top4_blames_discrepancy": -3973
+     }
+    },
+    "teaching_twins_and_conflicting": {
+     "CONCEALMENT": {
+      "top1_hits": 0,
+      "top4_hits": 0
+     },
+     "EVIDENCE_TAMPERING": {
+      "top1_hits": 0,
+      "top4_hits": -5
+     },
+     "FABRICATION": {
+      "top1_hits": 4,
+      "top4_hits": 0
+     },
+     "INFLATION": {
+      "top1_hits": 0,
+      "top4_hits": 0
+     },
+     "INFLATION+CONCEALMENT": {
+      "top1_hits": 0,
+      "top4_hits": 0
+     },
+     "NONE": {
+      "top1_blames_discrepancy": 0,
+      "top4_blames_discrepancy": -9
+     }
+    }
+   },
+   "headline": {
+    "funded_test_book": {
+     "ASSET_SEASONING": {
+      "expected_groups": [
+       "UNSOURCED_DEPOSITS"
+      ],
+      "n": 113,
+      "no_positive_reason": 0,
+      "top1_hits": 109,
+      "top4_hits": 109
+     },
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 7,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 357,
+      "no_positive_reason": 0,
+      "top1_hits": 357,
+      "top4_hits": 357
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 100,
+        "top4": 3979
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 9523,
+      "top1_blames_discrepancy": 100,
+      "top4_blames_discrepancy": 3979
+     }
+    },
+    "teaching_twins_and_conflicting": {
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "EVIDENCE_TAMPERING": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 0,
+      "top4_hits": 5
+     },
+     "FABRICATION": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 1,
+      "top4_hits": 5
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION+CONCEALMENT": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY",
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 6,
+      "no_positive_reason": 0,
+      "top1_hits": 6,
+      "top4_hits": 6
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 0,
+        "top4": 9
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 20,
+      "top1_blames_discrepancy": 0,
+      "top4_blames_discrepancy": 9
+     }
+    }
+   }
+  },
+  "additivity": {
+   "holds": true,
+   "rows_checked": 10000,
+   "tolerance": 1e-05
+  },
+  "base_value_log_odds": -3.665651,
+  "expected_group_by_typology": {
+   "ASSET_SEASONING": [
+    "UNSOURCED_DEPOSITS"
+   ],
+   "CONCEALMENT": [
+    "UNDISCLOSED_DEBT"
+   ],
+   "EVIDENCE_TAMPERING": [
+    "ASSET_DISCREPANCY"
+   ],
+   "FABRICATION": [
+    "ASSET_DISCREPANCY"
+   ],
+   "INFLATION": [
+    "INCOME_DISCREPANCY"
+   ],
+   "INFLATION+CONCEALMENT": [
+    "INCOME_DISCREPANCY",
+    "UNDISCLOSED_DEBT"
+   ]
+  },
+  "global": {
+   "features": {
+    "checking_overstatement_pct": 0.002634,
+    "checking_stated": 0.003632,
+    "checking_statement": 0.003871,
+    "dti_stated": 0.004775,
+    "fico_bureau": 0.028499,
+    "income_overstatement_pct": 0.19155,
+    "income_stated": 0.008029,
+    "large_deposits_total": 0.061448,
+    "overdraft_count": 0.001055,
+    "stated_monthly_debts": 0.012856,
+    "statement_excess_pct": 0.004645,
+    "tenure_months": 0.017902,
+    "undisclosed_accounts": 0.0,
+    "undisclosed_debt": 0.004348
+   },
+   "groups": {
+    "ASSET_DISCREPANCY": 0.005314,
+    "CREDIT_SCORE": 0.028499,
+    "DEBT_BURDEN": 0.016003,
+    "EMPLOYMENT": 0.017902,
+    "INCOME_DISCREPANCY": 0.19155,
+    "INCOME_LEVEL": 0.008029,
+    "LIQUIDITY": 0.007589,
+    "UNDISCLOSED_DEBT": 0.004348,
+    "UNSOURCED_DEPOSITS": 0.061448
+   },
+   "statistic": "mean |SHAP| in log-odds on the test book"
+  },
+  "groups": {
+   "ASSET_DISCREPANCY": {
+    "features": [
+     "checking_overstatement_pct",
+     "statement_excess_pct"
+    ],
+    "statement": "Stated account balance does not match the bank statement"
+   },
+   "CREDIT_SCORE": {
+    "features": [
+     "fico_bureau"
+    ],
+    "statement": "Credit score below program standards"
+   },
+   "DEBT_BURDEN": {
+    "features": [
+     "dti_stated",
+     "stated_monthly_debts"
+    ],
+    "statement": "Debt obligations too high relative to income"
+   },
+   "EMPLOYMENT": {
+    "features": [
+     "tenure_months"
+    ],
+    "statement": "Length of employment"
+   },
+   "INCOME_DISCREPANCY": {
+    "features": [
+     "income_overstatement_pct"
+    ],
+    "statement": "Income could not be verified at the amount stated"
+   },
+   "INCOME_LEVEL": {
+    "features": [
+     "income_stated"
+    ],
+    "statement": "Income insufficient for the amount of credit requested"
+   },
+   "LIQUIDITY": {
+    "features": [
+     "checking_stated",
+     "checking_statement",
+     "overdraft_count"
+    ],
+    "statement": "Limited cash reserves"
+   },
+   "UNDISCLOSED_DEBT": {
+    "features": [
+     "undisclosed_debt",
+     "undisclosed_accounts"
+    ],
+    "statement": "Credit report shows obligations not disclosed on the application"
+   },
+   "UNSOURCED_DEPOSITS": {
+    "features": [
+     "large_deposits_total"
+    ],
+    "statement": "Recent large deposits are not sourced"
+   }
+  },
+  "method": "TreeSHAP (shap.TreeExplainer) on credit_pd_xgb in log-odds; contributions summed by feature group; up to the top four groups that raise risk become reason statements",
+  "stability": {
+   "bootstraps": 20,
+   "loans_with_a_reason": 9981,
+   "mean_agreement": 0.544044,
+   "riskiest_decile": {
+    "loans_with_a_reason": 1000,
+    "mean_agreement": 0.8862,
+    "share_with_agreement_at_least_80pct": 0.838,
+    "share_with_agreement_below_50pct": 0.015
+   },
+   "share_with_agreement_at_least_80pct": 0.144174,
+   "share_with_agreement_below_50pct": 0.390141,
+   "statistic": "per test loan, the share of 20 bootstrap retrains whose top reason group equals the headline model's"
+  },
+  "top1_distribution_test_book": {
+   "": 19,
+   "ASSET_DISCREPANCY": 100,
+   "CREDIT_SCORE": 1125,
+   "DEBT_BURDEN": 1574,
+   "EMPLOYMENT": 4141,
+   "INCOME_DISCREPANCY": 357,
+   "INCOME_LEVEL": 394,
+   "LIQUIDITY": 2176,
+   "UNDISCLOSED_DEBT": 5,
+   "UNSOURCED_DEPOSITS": 109
+  }
  },
  "snapshot_version": "1.0.0",
  "target": "dpd30: 30+ days past due within 18 months (simulated), the Solar book's default flag",

@@ -118,6 +118,59 @@ def test_snapshot_manifest_hashes_the_committed_files():
     assert hashlib.sha256(data_manifest).hexdigest() == meta["data_manifest_sha256"]
 
 
+def test_shap_contributions_add_up_to_the_log_odds_on_every_test_loan(data):
+    from case_analytics.credit import reasons as rs
+
+    summary = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))
+    train = data.frame(data.training)
+    model = xgb(data.spec.monotone, **summary["tuning"]["credit_pd_xgb"]["winner"]).fit(
+        data.X(train), data.y(train)
+    )
+    Xte = data.X(data.frame([data.test]))
+    values, base = rs.shap_values(
+        model, Xte
+    )  # raises if any row's contributions + base differ from its log-odds
+    assert values.shape == (10_000, len(data.spec.features))
+    assert abs(base - summary["reasons"]["base_value_log_odds"]) < 1e-6
+
+
+def test_reasons_are_the_top_four_risk_raising_groups_with_their_statements():
+    from case_analytics.credit import reasons as rs
+
+    spec = load_spec()
+    groups = list(spec.groups)
+    row = np.array([0.5, -0.2, 0.1, 0.0, 0.3, 0.05, 0.2, -1.0, 0.4])
+    assert len(row) == len(groups)
+    top = rs.top_groups(row, groups)
+    assert len(top) == 4 and all(row[groups.index(g)] > 0 for g in top)
+    assert [row[groups.index(g)] for g in top] == sorted((row[groups.index(g)] for g in top), reverse=True)
+    stated = rs.reasons_for(row, groups, spec)
+    assert [r["statement"] for r in stated] == [spec.groups[g]["statement"] for g in top]
+    assert rs.top_groups(-np.abs(row), groups) == []
+
+
+def test_case_snapshot_covers_the_teaching_set_and_the_opening_library():
+    cases = json.loads((SNAPSHOT_DIR / "credit-model-cases.json").read_text(encoding="utf-8"))
+    assert len(cases["teaching"]) == 79 and len(cases["opening_library"]) == 13
+    assert cases["label"] == "Second opinion only: the credit policy makes the decision."
+    for entry in [*cases["teaching"].values(), *cases["opening_library"].values()]:
+        assert 0 < entry["pd"] < 1
+        assert len(entry["reasons"]) <= 4
+        assert all(r["contribution"] > 0 and r["statement"] for r in entry["reasons"])
+
+
+def test_model_card_headline_numbers_are_the_snapshot_values():
+    summary = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))
+    card = (docs.MODEL_CARD).read_text(encoding="utf-8")
+    x = summary["models"]["credit_pd_xgb"]["test"]
+    auc, low, high = x["metrics"]["auc"], x["ci95"]["auc"]["low"], x["ci95"]["auc"]["high"]
+    assert f"{auc:.3f} ({low:.3f}–{high:.3f})" in card
+    fair = summary["ceilings"]["true_pd_without_dealer_term"]["metrics"]["auc"]
+    assert f"{fair:.3f}" in card
+    assert "developer testing, not independent validation" in card
+    assert "does not transfer to real data" in card
+
+
 def test_generated_documents_are_current():
     for path, text in docs.documents().items():
         assert path.read_text(encoding="utf-8") == text, path

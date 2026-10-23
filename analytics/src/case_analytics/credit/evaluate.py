@@ -58,6 +58,34 @@ def bootstrap_ci(
     }
 
 
+def paired_difference(y: np.ndarray, p_a: np.ndarray, p_b: np.ndarray, n: int = BOOTSTRAPS) -> dict[str, Any]:
+    """AUC and Brier of model a minus model b on the same bootstrap resamples (fixed seed), with
+    percentile 95% intervals: the fair test of whether one model beats the other."""
+    rng = np.random.default_rng(BOOTSTRAP_SEED)
+    auc, brier = [], []
+    m = len(y)
+    for _ in range(n):
+        idx = rng.integers(0, m, m)
+        yy = y[idx]
+        if yy.sum() == 0 or yy.sum() == m:
+            continue
+        auc.append(roc_auc_score(yy, p_a[idx]) - roc_auc_score(yy, p_b[idx]))
+        brier.append(float(np.mean((p_a[idx] - yy) ** 2) - np.mean((p_b[idx] - yy) ** 2)))
+    return {
+        "auc_difference": {
+            "point": float(roc_auc_score(y, p_a) - roc_auc_score(y, p_b)),
+            "low": float(np.percentile(auc, 2.5)),
+            "high": float(np.percentile(auc, 97.5)),
+        },
+        "brier_difference": {
+            "point": float(np.mean((p_a - y) ** 2) - np.mean((p_b - y) ** 2)),
+            "low": float(np.percentile(brier, 2.5)),
+            "high": float(np.percentile(brier, 97.5)),
+        },
+        "resamples": len(auc),
+    }
+
+
 def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
     if n == 0:
         return (0.0, 1.0)
