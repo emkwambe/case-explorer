@@ -21,12 +21,13 @@ Each case records its base (seed, index and case id), the mutations applied, the
 
 - `pairClean`: Claims, truth and evidence agree and every policy threshold is met with margin: approve.
 - `pairFraud`: The claims alone would pass, but one verified fact contradicts them: refer for verification (review), not approve.
+- `pairConcealmentVerified`: Verified debt from the bureau takes DTI past the 45% cap: decline on verified figures.
 - `fico`: Claimed FICO below 660 declines; 660 and above passes.
 - `dti`: DTI above 45% declines; from 36% to 45% goes to review; below 36% passes.
 - `liquidity`: At DTI above 40%, checking under $1,000 adds a liquidity flag; the elevated DTI already means review.
 - `conflictMaterial`: Income overstated and debt understated, each above its HIGH threshold: refer for verification.
 - `conflictSubThreshold`: Income overstated and debt understated, each below its HIGH threshold: together the claims cannot be relied on, so re-underwrite on verified figures (review).
-- `thin`: A required document is missing: the case cannot be decided on the evidence, so review.
+- `thin`: A missing document the decision depends on → review; one it does not depend on is noted and the case is decided on the remaining evidence.
 
 ## What the set looks like
 
@@ -50,15 +51,15 @@ Each case records its base (seed, index and case id), the mutations applied, the
 
 | Difficulty | Cases |
 |---|---|
-| easy | 32 |
-| medium | 35 |
+| easy | 29 |
+| medium | 38 |
 | hard | 12 |
 
 | Expected decision | Cases |
 |---|---|
-| APPROVE | 29 |
-| REVIEW | 44 |
-| DECLINE | 6 |
+| APPROVE | 31 |
+| DECLINE | 9 |
+| REVIEW | 39 |
 
 | System decision (credit policy) | Cases |
 |---|---|
@@ -66,21 +67,24 @@ Each case records its base (seed, index and case id), the mutations applied, the
 | REVIEW | 37 |
 | DECLINE | 6 |
 
-Causal pairs: the clean twin is the base itself; the fraud twin adds one fact (the key fact) and nothing else, so the decision changes from APPROVE to REVIEW only because of it. Pairs 1–3 of each typology put the fact at least twice its rule's threshold (easy); pairs 4–5 put it within 10% above (medium).
+Causal pairs: the clean twin is the base itself; the fraud twin adds one fact (the key fact) and nothing else, so the engine's decision changes from APPROVE to REVIEW only because of it. Pairs 1–3 of each typology put the fact at least twice its rule's threshold (easy); pairs 4–5 put it within 10% above (medium). The exception is concealment pairs 1–3: their hidden debt takes the verified DTI to 47.0%, so the teaching answer is DECLINE on verified figures, and the deciding signal is that DTI at 1.04× the 45% cap (medium).
+
+**Fabrication key facts.** The key fact states FR-004's own measure: the claimed checking balance's excess over the bank-statement balance, in dollars and as a percentage of the statement balance (FR-004 fires above $500 and above 10% of the statement). The mutation's `pct` parameter (`fabricate_assets`) is relative to the claimed balance instead, so it is not the same number.
 
 ## Known gaps
 
-**Where the engine's answer differs from the teaching answer (9 of 79).** Each is listed with its reason; the gate fails if a gap has none.
+**Where the engine's answer differs from the teaching answer (10 of 79).** Each is listed with its reason; the gate fails if a gap has none.
 
 | Case | Expected | System (credit policy) | Why |
 |---|---|---|---|
+| concealment-1/fraud | DECLINE [HIGH_DTI, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%. |
+| concealment-2/fraud | DECLINE [HIGH_DTI, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%. |
+| concealment-3/fraud | DECLINE [HIGH_DTI, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%. |
 | conflict/sub-threshold-b1 | REVIEW [INCOME_VARIANCE_REVIEW, LIABILITY_VARIANCE_REVIEW] | APPROVE [—] | The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims. |
 | conflict/sub-threshold-b2 | REVIEW [INCOME_VARIANCE_REVIEW, LIABILITY_VARIANCE_REVIEW] | APPROVE [—] | The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims. |
 | conflict/sub-threshold-b3 | REVIEW [INCOME_VARIANCE_REVIEW, LIABILITY_VARIANCE_REVIEW] | APPROVE [—] | The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims. |
-| thin/bank-statement-b1 | REVIEW [MISSING_DOCUMENT] | APPROVE [—] | Neither engine requires document presence: with the BANK_STATEMENT missing, the credit policy approves on the claims. |
 | thin/credit-bureau-b1 | REVIEW [MISSING_DOCUMENT] | APPROVE [—] | Neither engine requires document presence: with the CREDIT_BUREAU missing, the credit policy approves on the claims. |
 | thin/employer-verification-b1 | REVIEW [MISSING_DOCUMENT] | REVIEW [FRAUD_REVIEW] | Sent to review by FR-001 comparing the claimed salary with W-2 wages (the fallback when employer verification is missing), not because the document is missing. |
-| thin/bank-statement-b2 | REVIEW [MISSING_DOCUMENT] | APPROVE [—] | Neither engine requires document presence: with the BANK_STATEMENT missing, the credit policy approves on the claims. |
 | thin/credit-bureau-b2 | REVIEW [MISSING_DOCUMENT] | APPROVE [—] | Neither engine requires document presence: with the CREDIT_BUREAU missing, the credit policy approves on the claims. |
 | thin/employer-verification-b2 | REVIEW [MISSING_DOCUMENT] | REVIEW [FRAUD_REVIEW] | Sent to review by FR-001 comparing the claimed salary with W-2 wages (the fallback when employer verification is missing), not because the document is missing. |
 

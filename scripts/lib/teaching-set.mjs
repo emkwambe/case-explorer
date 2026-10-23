@@ -31,12 +31,13 @@ export const DIFFICULTY_RULE = Object.freeze({
 export const RUBRIC = Object.freeze({
   pairClean: "Claims, truth and evidence agree and every policy threshold is met with margin: approve.",
   pairFraud: "The claims alone would pass, but one verified fact contradicts them: refer for verification (review), not approve.",
+  pairConcealmentVerified: `Verified debt from the bureau takes DTI past the ${CREDIT_POLICY.dtiDecline * 100}% cap: decline on verified figures.`,
   fico: `Claimed FICO below ${CREDIT_POLICY.ficoDecline} declines; ${CREDIT_POLICY.ficoDecline} and above passes.`,
   dti: `DTI above ${CREDIT_POLICY.dtiDecline * 100}% declines; from ${CREDIT_POLICY.dtiWatchLow * 100}% to ${CREDIT_POLICY.dtiDecline * 100}% goes to review; below ${CREDIT_POLICY.dtiWatchLow * 100}% passes.`,
   liquidity: `At DTI above ${CREDIT_POLICY.liquidityDtiMin * 100}%, checking under $${CREDIT_POLICY.liquidityCheckingMin.toLocaleString("en-US")} adds a liquidity flag; the elevated DTI already means review.`,
   conflictMaterial: "Income overstated and debt understated, each above its HIGH threshold: refer for verification.",
   conflictSubThreshold: "Income overstated and debt understated, each below its HIGH threshold: together the claims cannot be relied on, so re-underwrite on verified figures (review).",
-  thin: "A required document is missing: the case cannot be decided on the evidence, so review."
+  thin: "A missing document the decision depends on → review; one it does not depend on is noted and the case is decided on the remaining evidence."
 });
 
 /** The teaching set's base cases: eligible Solar prime cases from the seed's blended stream, in seed order. */
@@ -66,7 +67,10 @@ function recipes(B, ctx) {
       const obs = observeCase(base.c, ctx);
       const income = base.c.truth.current_state.salary / 12;
       const monthly = easy ? Math.round((0.47 - obs.true_dti) * income) : 105;
-      return { mutations: [{ type: "hide_debt", params: { monthly } }], key: { field: "undisclosed monthly debt (truth and credit bureau; not in the claims)", value: monthly, threshold: "FR-003: $100/mo", note: easy ? "verified DTI moves past the 45% cap" : "just above the material threshold" } };
+      // Easy twins take the verified DTI past the cap, so the teaching answer declines on verified figures.
+      // The deciding signal is then the verified DTI (47% against the 45% cap, 1.04×), which is medium.
+      const expected = easy ? { decision: "DECLINE", reason_codes: ["HIGH_DTI", "UNDISCLOSED_LIABILITIES"], rubric: "pairConcealmentVerified" } : undefined;
+      return { mutations: [{ type: "hide_debt", params: { monthly } }], expected, difficulty: "medium", key: { field: "undisclosed monthly debt (truth and credit bureau; not in the claims)", value: monthly, threshold: "FR-003: $100/mo", note: easy ? "verified DTI moves past the 45% cap" : "just above the material threshold" } };
     } },
     { typology: "INFLATION", make: (base, easy) => {
       const ratio = easy ? 1.35 : 1.16;
@@ -80,17 +84,20 @@ function recipes(B, ctx) {
     { typology: "FABRICATION", make: (base, easy) => {
       const ev = statement(base.c), claims = base.c.presentation.current_state.checking_balance;
       const target = easy ? Math.max(ev * 1.5, ev + 1200) : Math.max(ev * 1.105, ev + 525);
-      return { mutations: [{ type: "fabricate_assets", params: { pct: round4(target / claims - 1) } }], key: { field: "claimed checking balance over the bank statement", value: Math.round(target - ev), threshold: "FR-004: above $500 and 10%" } };
+      // The mutation's pct is relative to the claimed balance; the key fact states FR-004's own measure,
+      // the excess as a percentage of the statement balance, from the balance the mutation produces.
+      const pct = round4(target / claims - 1), excess = Math.round(claims * (1 + pct)) - ev;
+      return { mutations: [{ type: "fabricate_assets", params: { pct } }], key: { field: "claimed checking balance over the bank-statement balance (FR-004's measure)", value: `$${excess.toLocaleString("en-US")}, ${(excess / ev * 100).toFixed(2)}% of $${ev.toLocaleString("en-US")}`, threshold: "FR-004: excess above $500 and above 10% of the statement balance" } };
     } }
   ];
   for (const p of PAIRS) {
     for (let k = 1; k <= 5; k++) {
       const base = next(), easy = k <= 3, pair = `${p.typology.toLowerCase().replace(/_/g, "-")}-${k}`;
-      const { mutations, key } = p.make(base, easy);
+      const { mutations, key, expected, difficulty } = p.make(base, easy);
       add({ id: `${pair}/clean`, group: "causal-pair", pair, role: "clean", typology: "NONE", base, mutations: [], tests: "control twin",
         expected: { decision: "APPROVE", reason_codes: [], rubric: "pairClean" }, key_fact: { ...key, value: "absent" }, difficulty: "easy" });
       add({ id: `${pair}/fraud`, group: "causal-pair", pair, role: "fraud", typology: p.typology, base, mutations, tests: key.threshold,
-        expected: { decision: "REVIEW", reason_codes: ["FRAUD_REVIEW"], rubric: "pairFraud" }, key_fact: key, difficulty: easy ? "easy" : "medium" });
+        expected: expected ?? { decision: "REVIEW", reason_codes: ["FRAUD_REVIEW"], rubric: "pairFraud" }, key_fact: key, difficulty: difficulty ?? (easy ? "easy" : "medium") });
     }
   }
 
@@ -135,13 +142,16 @@ function recipes(B, ctx) {
       tests: "FR-001 and FR-003 each above their HIGH thresholds", expected: { decision: "REVIEW", reason_codes: ["FRAUD_REVIEW"], rubric: "conflictMaterial" },
       key_fact: { field: "claimed salary ÷ verified, and undisclosed monthly debt", value: "1.35 and $300/mo", threshold: "FR-001 1.15 · FR-003 $100/mo" }, difficulty: "hard" });
   }
-  // Thin evidence: one required document missing.
+  // Thin evidence: one document missing. The decision depends on the bureau report and the employer
+  // verification; it does not depend on the bank statement, so that case is decided on the rest.
+  const DEPENDS_ON = new Set(["CREDIT_BUREAU", "EMPLOYER_VERIFICATION"]);
   for (let k = 1; k <= 2; k++) {
     const base = next();
     for (const source of ["BANK_STATEMENT", "CREDIT_BUREAU", "EMPLOYER_VERIFICATION"]) {
+      const depends = DEPENDS_ON.has(source);
       add({ id: `thin/${source.toLowerCase().replace(/_/g, "-")}-b${k}`, group: "thin-evidence", typology: "NONE", base, mutations: [{ type: "remove_statement", params: { source } }],
-        tests: `${source} present`, expected: { decision: "REVIEW", reason_codes: ["MISSING_DOCUMENT"], rubric: "thin" },
-        key_fact: { field: "missing document", value: source, threshold: "document required" }, difficulty: "hard" });
+        tests: `${source} present`, expected: depends ? { decision: "REVIEW", reason_codes: ["MISSING_DOCUMENT"], rubric: "thin" } : { decision: "APPROVE", reason_codes: [], rubric: "thin" },
+        key_fact: { field: "missing document", value: source, threshold: depends ? "the decision depends on it" : "the decision does not depend on it (noted)" }, difficulty: "hard" });
     }
   }
   return { recipes: out, basesUsed: b };
@@ -150,6 +160,9 @@ function recipes(B, ctx) {
 /** One line on why the engine's answer differs from the teaching answer; null when no reason is known. */
 export function gapReason(entry) {
   const s = entry.system, m = entry.mutations;
+  if (entry.group === "causal-pair" && entry.expected.rubric === "pairConcealmentVerified" && s.decision === "REVIEW" && s.fraud_rules.includes("FR-003:HIGH")) {
+    return `The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of ${(s.true_dti * 100).toFixed(1)}%.`;
+  }
   if (entry.group === "thin-evidence") {
     const src = m[0].params.source;
     if (s.decision === "APPROVE") return `Neither engine requires document presence: with the ${src} missing, the credit policy approves on the claims.`;

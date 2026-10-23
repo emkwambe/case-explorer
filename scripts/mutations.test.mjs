@@ -191,8 +191,25 @@ check("every case where the teaching answer and the engine differ is a named gap
     assert.equal(Boolean(e.gap), !agrees, e.id);
     if (e.gap) assert.ok(typeof e.gap.reason === "string" && e.gap.reason.length > 20, `${e.id}: gap without a reason`);
   }
-  assert.equal(gaps.length, 9);
-  assert.deepEqual([...new Set(gaps.map((g) => g.group))].sort(), ["conflicting", "thin-evidence"]);
+  assert.equal(gaps.length, 10);
+  assert.deepEqual([...new Set(gaps.map((g) => g.group))].sort(), ["causal-pair", "conflicting", "thin-evidence"]);
+  // Owner review (October 2026): the easy concealment twins decline on verified figures; a missing bank
+  // statement is noted and the case decided on the rest.
+  for (let k = 1; k <= 5; k++) {
+    const e = bySet.get(`concealment-${k}/fraud`).e;
+    assert.equal(e.expected.decision, k <= 3 ? "DECLINE" : "REVIEW", e.id);
+    assert.equal(e.difficulty, "medium", e.id);
+    if (k <= 3) assert.ok(e.system.true_dti > 0.45 && e.system.true_dti < 0.45 * 1.1 && e.gap, `${e.id}: verified DTI ${e.system.true_dti}`);
+  }
+  // Fabrication key facts state FR-004's measure: the excess over the statement, and as % of the statement.
+  for (let k = 1; k <= 5; k++) {
+    const { e, c } = bySet.get(`fabrication-${k}/fraud`);
+    const ev = c.evidence.find((x) => x.source === "BANK_STATEMENT").fields.checking_balance, excess = c.presentation.current_state.checking_balance - ev;
+    assert.equal(e.key_fact.value, `$${excess.toLocaleString("en-US")}, ${(excess / ev * 100).toFixed(2)}% of $${ev.toLocaleString("en-US")}`, e.id);
+  }
+  for (const e of entries.filter((x) => x.group === "thin-evidence")) {
+    assert.equal(e.expected.decision, e.mutations[0].params.source === "BANK_STATEMENT" ? "APPROVE" : "REVIEW", e.id);
+  }
 });
 
 check("docs/MUTATIONS.md and the teaching-set README are current", () => {
