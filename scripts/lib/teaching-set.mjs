@@ -19,6 +19,8 @@ import { applyMutations, observeCase } from "../../src/mutations.js";
 import { isEligibleBase, pctForRatio, BASE_RULE } from "../../src/mutationTable.js";
 import { GENERATOR_VERSION, CASE_SCHEMA_VERSION } from "../../src/core/case.js";
 import { CREDIT_POLICY } from "../../src/creditRisk.js";
+import { extractDecisionView } from "../../src/decisioning/index.js";
+import { getRule } from "../../src/decisioning/fraud-rules/rules.js";
 
 const sha256 = (text) => crypto.createHash("sha256").update(text).digest("hex");
 
@@ -69,7 +71,8 @@ function recipes(B, ctx) {
       const monthly = easy ? Math.round((0.47 - obs.true_dti) * income) : 105;
       // Easy twins take the verified DTI past the cap, so the teaching answer declines on verified figures.
       // The deciding signal is then the verified DTI (47% against the 45% cap, 1.04×), which is medium.
-      const expected = easy ? { decision: "DECLINE", reason_codes: ["HIGH_DTI", "UNDISCLOSED_LIABILITIES"], rubric: "pairConcealmentVerified" } : undefined;
+      // FRAUD_REVIEW is acceptable there (no credit, no penalty): referring the case is not wrong, only incomplete.
+      const expected = easy ? { decision: "DECLINE", reason_codes: ["HIGH_DTI", "UNDISCLOSED_LIABILITIES"], acceptable_codes: ["FRAUD_REVIEW"], rubric: "pairConcealmentVerified" } : undefined;
       return { mutations: [{ type: "hide_debt", params: { monthly } }], expected, difficulty: "medium", key: { field: "undisclosed monthly debt (truth and credit bureau; not in the claims)", value: monthly, threshold: "FR-003: $100/mo", note: easy ? "verified DTI moves past the 45% cap" : "just above the material threshold" } };
     } },
     { typology: "INFLATION", make: (base, easy) => {
@@ -163,6 +166,9 @@ export function gapReason(entry) {
   if (entry.group === "causal-pair" && entry.expected.rubric === "pairConcealmentVerified" && s.decision === "REVIEW" && s.fraud_rules.includes("FR-003:HIGH")) {
     return `The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of ${(s.true_dti * 100).toFixed(1)}%.`;
   }
+  if (entry.expected.decision === s.decision && entry.expected.reason_codes.includes("UNDISCLOSED_LIABILITIES") && !s.reason_codes.includes("UNDISCLOSED_LIABILITIES") && s.fraud_rules.includes("FR-003:HIGH")) {
+    return "Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt.";
+  }
   if (entry.group === "thin-evidence") {
     const src = m[0].params.source;
     if (s.decision === "APPROVE") return `Neither engine requires document presence: with the ${src} missing, the credit policy approves on the claims.`;
@@ -192,6 +198,11 @@ export function buildTeachingSet(set, baseConfig, configText) {
     const c = applyMutations(r.base.c, r.mutations, ctx);
     cases.push(c);
     const o = observeCase(c, ctx);
+    // Where the bureau shows undisclosed debt at FR-003's material level, the teaching answer names it.
+    const v = extractDecisionView(c), hidden = (v.evidence.bureau_monthly_obligations ?? 0) - (v.claims.monthly_obligations ?? 0);
+    if (hidden >= getRule("FR-003").threshold.min_hidden_monthly && !r.expected.reason_codes.includes("UNDISCLOSED_LIABILITIES")) {
+      r.expected = { ...r.expected, reason_codes: [...r.expected.reason_codes, "UNDISCLOSED_LIABILITIES"] };
+    }
     const system = {
       decision: o["credit.decision"], reason_codes: o["credit.flags"], fraud_rules: o.fraud_rules,
       claimed_dti: o.claimed_dti, true_dti: o.true_dti, claimed_fico: o.claimed_fico,

@@ -124,8 +124,10 @@ check("composition: 40 pair, 27 near-threshold, 6 conflicting, 6 thin-evidence; 
     assert.ok(Array.isArray(e.mutations) && e.key_fact?.field && e.typology && e.tests, e.id);
     assert.ok(Object.keys(DIFFICULTY_RULE).includes(e.difficulty), e.id);
     // The teaching answer comes from the rubric, never from the reference label.
-    assert.deepEqual(Object.keys(e.expected).sort(), ["decision", "reason_codes", "rubric"], e.id);
+    assert.deepEqual(Object.keys(e.expected).filter((k) => k !== "acceptable_codes").sort(), ["decision", "reason_codes", "rubric"], e.id);
     assert.ok(RUBRIC[e.expected.rubric], e.id);
+    // Acceptable codes earn no credit and no penalty; a code is never both required and acceptable.
+    for (const code of e.expected.acceptable_codes ?? []) assert.ok(!e.expected.reason_codes.includes(code), `${e.id}: ${code}`);
     assert.ok(e.system.reference_label && e.system.underwriting, e.id);
   }
 });
@@ -191,7 +193,7 @@ check("every case where the teaching answer and the engine differ is a named gap
     assert.equal(Boolean(e.gap), !agrees, e.id);
     if (e.gap) assert.ok(typeof e.gap.reason === "string" && e.gap.reason.length > 20, `${e.id}: gap without a reason`);
   }
-  assert.equal(gaps.length, 10);
+  assert.equal(gaps.length, 15);
   assert.deepEqual([...new Set(gaps.map((g) => g.group))].sort(), ["causal-pair", "conflicting", "thin-evidence"]);
   // Owner review (October 2026): the easy concealment twins decline on verified figures; a missing bank
   // statement is noted and the case decided on the rest.
@@ -206,6 +208,13 @@ check("every case where the teaching answer and the engine differ is a named gap
     const { e, c } = bySet.get(`fabrication-${k}/fraud`);
     const ev = c.evidence.find((x) => x.source === "BANK_STATEMENT").fields.checking_balance, excess = c.presentation.current_state.checking_balance - ev;
     assert.equal(e.key_fact.value, `$${excess.toLocaleString("en-US")}, ${(excess / ev * 100).toFixed(2)}% of $${ev.toLocaleString("en-US")}`, e.id);
+  }
+  // Owner review (D5): wherever the bureau shows undisclosed debt at FR-003's material level, the
+  // teaching answer requires UNDISCLOSED_LIABILITIES; FRAUD_REVIEW is acceptable on concealment 1–3.
+  for (const e of entries) {
+    const hidden = e.mutations.filter((m) => m.type === "hide_debt").reduce((s, m) => s + m.params.monthly, 0);
+    assert.equal(e.expected.reason_codes.includes("UNDISCLOSED_LIABILITIES"), hidden >= 100, e.id);
+    assert.deepEqual(e.expected.acceptable_codes ?? [], /^concealment-[1-3]\/fraud$/.test(e.id) ? ["FRAUD_REVIEW"] : [], e.id);
   }
   for (const e of entries.filter((x) => x.group === "thin-evidence")) {
     assert.equal(e.expected.decision, e.mutations[0].params.source === "BANK_STATEMENT" ? "APPROVE" : "REVIEW", e.id);

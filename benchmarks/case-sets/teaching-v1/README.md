@@ -8,7 +8,7 @@ Every case starts from a seeded SOLAR_PRIME base case (seed `42`, as-of 2026-01-
 
 Each case records its base (seed, index and case id), the mutations applied, the rule or threshold it tests, its **key fact**, its difficulty, and two answers:
 
-- **expected:** the teaching answer, from the rubric for the rule the case tests. It is not the generator's truth-derived reference label, which is kept apart under `system.reference_label`.
+- **expected:** the teaching answer, from the rubric for the rule the case tests. It is not the generator's truth-derived reference label, which is kept apart under `system.reference_label`. `reason_codes` are the codes a full answer names; where present, `acceptable_codes` are codes that are not wrong but not required (a scorer gives them no credit and no penalty). Wherever the bureau shows undisclosed debt at FR-003's material level ($100/mo), the required codes include UNDISCLOSED_LIABILITIES.
 - **system:** what the engine decides today: the Solar credit policy (`decision`, `reason_codes`), with the underwriting policy (`underwriting`) as a second column, the fraud rules that fired, and the case hash.
 
 **Difficulty rule.**
@@ -73,16 +73,21 @@ Causal pairs: the clean twin is the base itself; the fraud twin adds one fact (t
 
 ## Known gaps
 
-**Where the engine's answer differs from the teaching answer (10 of 79).** Each is listed with its reason; the gate fails if a gap has none.
+**Where the engine's answer differs from the teaching answer (15 of 79).** Each is listed with its reason; the gate fails if a gap has none.
 
 | Case | Expected | System (credit policy) | Why |
 |---|---|---|---|
 | concealment-1/fraud | DECLINE [HIGH_DTI, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%. |
 | concealment-2/fraud | DECLINE [HIGH_DTI, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%. |
 | concealment-3/fraud | DECLINE [HIGH_DTI, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | The credit policy scores claimed values only: the bureau debt reaches it as a HIGH fraud alert (FR-003), so it refers for review instead of declining on the verified DTI of 47.0%. |
+| concealment-4/fraud | REVIEW [FRAUD_REVIEW, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt. |
+| concealment-5/fraud | REVIEW [FRAUD_REVIEW, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt. |
 | conflict/sub-threshold-b1 | REVIEW [INCOME_VARIANCE_REVIEW, LIABILITY_VARIANCE_REVIEW] | APPROVE [—] | The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims. |
+| conflict/material-b1 | REVIEW [FRAUD_REVIEW, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt. |
 | conflict/sub-threshold-b2 | REVIEW [INCOME_VARIANCE_REVIEW, LIABILITY_VARIANCE_REVIEW] | APPROVE [—] | The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims. |
+| conflict/material-b2 | REVIEW [FRAUD_REVIEW, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt. |
 | conflict/sub-threshold-b3 | REVIEW [INCOME_VARIANCE_REVIEW, LIABILITY_VARIANCE_REVIEW] | APPROVE [—] | The credit policy acts on HIGH fraud alerts only; both variances are MEDIUM (FR-001, FR-003), so it approves on the claims. |
+| conflict/material-b3 | REVIEW [FRAUD_REVIEW, UNDISCLOSED_LIABILITIES] | REVIEW [FRAUD_REVIEW] | Same decision, incomplete reasons: the credit policy reports every HIGH fraud alert as FRAUD_REVIEW and names no undisclosed-liability code, although FR-003 fires HIGH on the bureau debt. |
 | thin/credit-bureau-b1 | REVIEW [MISSING_DOCUMENT] | APPROVE [—] | Neither engine requires document presence: with the CREDIT_BUREAU missing, the credit policy approves on the claims. |
 | thin/employer-verification-b1 | REVIEW [MISSING_DOCUMENT] | REVIEW [FRAUD_REVIEW] | Sent to review by FR-001 comparing the claimed salary with W-2 wages (the fallback when employer verification is missing), not because the document is missing. |
 | thin/credit-bureau-b2 | REVIEW [MISSING_DOCUMENT] | APPROVE [—] | Neither engine requires document presence: with the CREDIT_BUREAU missing, the credit policy approves on the claims. |
