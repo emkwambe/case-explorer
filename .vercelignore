@@ -41,6 +41,12 @@
 !/data/public-record/events.json
 # Daily 10-year Treasury yields for the Funding & Rates rate paths.
 !/data/public-record/dgs10-daily.json
+# Public data (peer lenders, complaint counts, credit conditions, court-filing facts) and its config.
+!/data/public-record/public-data-config.json
+!/data/public-record/peers-quarterly.json
+!/data/public-record/cfpb-complaints.json
+!/data/public-record/macro-credit.json
+!/data/public-record/court-filings.json
 
 # Tests are not part of the build.
 /src/**/*.test.js

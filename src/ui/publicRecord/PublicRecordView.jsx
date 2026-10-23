@@ -7,8 +7,9 @@ import { styles } from "../theme.js";
 import { Callout } from "../components/primitives.jsx";
 import { LineChart, BarChart } from "../funding/LineChart.jsx";
 import { qLabel, toMillions, fmtM, fmtPct, fmtRate, eventX } from "./format.js";
+import { PeerPanel, ComplaintsPanel, CreditConditionsPanel, PublicDataProvenancePanel, CourtFilingsPanel } from "./PublicDataPanels.jsx";
 
-const filingIndexUrl = (accn) => `https://www.sec.gov/Archives/edgar/data/1821850/${accn.replace(/-/g, "")}/`;
+const filingIndexUrl = (accn, cik = 1821850) => `https://www.sec.gov/Archives/edgar/data/${cik}/${accn.replace(/-/g, "")}/`;
 
 /** A clickable value that opens its lineage. */
 export function Val({ refData, text, onSelect, testId }) {
@@ -44,7 +45,7 @@ function LineageDetail({ r, depth = 0 }) {
     return (
       <div style={indent}>
         SEC XBRL · us-gaap:{r.concept} · {r.form} filed {r.filed} · accession{" "}
-        <a href={filingIndexUrl(r.accn)} target="_blank" rel="noreferrer">{r.accn}</a> · period {r.start ? `${r.start} to ` : ""}{r.end} · {r.basis} · value {r.value.toLocaleString("en-US")} {r.unit}
+        <a href={filingIndexUrl(r.accn, r.cik)} target="_blank" rel="noreferrer">{r.accn}</a> · period {r.start ? `${r.start} to ` : ""}{r.end}{r.basis ? ` · ${r.basis}` : ""} · value {r.value.toLocaleString("en-US")} {r.unit}
       </div>
     );
   }
@@ -72,6 +73,23 @@ function LineageDetail({ r, depth = 0 }) {
   }
   if (r.citation) {
     return <div style={indent}>{r.citation.text} <a href={r.citation.source.url} target="_blank" rel="noreferrer">{r.citation.source.label}</a></div>;
+  }
+  if (r.court) {
+    return (
+      <div style={indent}>
+        {r.court.quotes.map((q, i) => <div key={i}>Quoted: {q.text} · {q.citation}</div>)}
+        <div>{r.document?.title}; {r.document?.exhibit}. <a href={r.court.source.url} target="_blank" rel="noreferrer">Open the exhibit</a>. The cited page's text is committed in data/public-record/filing-excerpts-court.json.</div>
+      </div>
+    );
+  }
+  if (r.cfpb) {
+    const { company: c, window: w, month, issue, count } = r.cfpb;
+    const scope = month ? `received in ${month.month}: ${month.count} complaint${month.count === 1 ? "" : "s"}${month.provisional ? " (provisional month)" : ""}` : issue ? `issue “${issue}”, ${w.from} to ${w.to}: ${count} complaints` : `received ${w.from} to ${w.to}: ${c.total} complaints`;
+    return <div style={indent}>CFPB Consumer Complaint Database · company {c.strings.map((s) => `“${s}”`).join(" + ")} · {scope} · counted by date received</div>;
+  }
+  if (r.fredObservation) {
+    const { series: s, observation: o } = r.fredObservation;
+    return <div style={indent}>FRED series <a href={s.url} target="_blank" rel="noreferrer">{s.id}</a> ({s.owner}) · observation dated {o.date} · {o.value === null ? "not published" : `${o.value}%`} · file SHA-256 {s.builtFrom.sha256.slice(0, 16)}…</div>;
   }
   return <div style={indent}>{JSON.stringify(r)}</div>;
 }
@@ -336,6 +354,16 @@ export function PublicRecordTab({ profile }) {
       <LiquidityPanel record={record} select={select} />
       <LeveragePanel record={record} select={select} />
       <ProvenancePanel record={record} />
+      {/* Public data comes after the provenance panel, so that panel's captured Findings image is unchanged. */}
+      {record.publicData && (
+        <>
+          <CourtFilingsPanel record={record} select={select} />
+          <PeerPanel record={record} select={select} />
+          <ComplaintsPanel record={record} select={select} />
+          <CreditConditionsPanel record={record} select={select} />
+          <PublicDataProvenancePanel record={record} />
+        </>
+      )}
     </div>
   );
 }

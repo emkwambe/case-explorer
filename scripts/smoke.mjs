@@ -8,7 +8,7 @@
 
 import { spawnSync } from "node:child_process";
 
-const REQUIRED_STRINGS = ["Credit Risk Mode", "Dealer View", "Funding & Rates", "Public record", "Findings", "Leverage and liquidity", "Policy Sandbox", "Rate paths during the hold", "Not a consumer report"];
+const REQUIRED_STRINGS = ["Credit Risk Mode", "Dealer View", "Funding & Rates", "Public record", "Findings", "Leverage and liquidity", "Policy Sandbox", "Rate paths during the hold", "Not a consumer report", "Peer lenders", "Complaint signals", "Credit conditions", "Public data provenance", "Court filings (quoted word for word)"];
 const TEST_SCRIPTS = ["test:credit", "test:dealers", "test:funding", "test:sandbox", "test"];
 
 const url = process.env.SMOKE_URL;

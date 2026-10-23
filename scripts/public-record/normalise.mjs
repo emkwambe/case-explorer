@@ -104,7 +104,7 @@ export function dedupeFacts(facts) {
 }
 
 /** USD facts of a concept, tagged with the unit. */
-function usdFacts(companyfacts, concept) {
+export function usdFacts(companyfacts, concept) {
   for (const taxonomy of Object.keys(companyfacts.facts ?? {})) {
     const units = companyfacts.facts[taxonomy]?.[concept]?.units;
     if (units?.USD) return units.USD.map((f) => ({ ...f, unit: "USD" }));
@@ -112,20 +112,38 @@ function usdFacts(companyfacts, concept) {
   return null;
 }
 
-/** Quarterly values for one duration metric, with YTD derivation and the 2021 stubs. */
-function durationSeries(concept, facts) {
+/**
+ * Year-to-date window for a quarter of a filer whose fiscal year starts in `fyStartMonth` (1–12):
+ * the fiscal-year start date and the previous quarter end. In the fiscal year's first quarter the
+ * year to date is the quarter itself, so there is no earlier window (prevEnd null). String dates only.
+ */
+export function fiscalYtd(qi, fyStartMonth) {
+  const startMonth = (qi.q - 1) * 3 + 1;
+  if (startMonth === fyStartMonth) return { ytdStart: qi.start, prevEnd: null };
+  const fyYear = startMonth > fyStartMonth ? qi.year : qi.year - 1;
+  return { ytdStart: `${fyYear}-${pad(fyStartMonth)}-01`, prevEnd: qi.q === 1 ? `${qi.year - 1}-12-31` : qi.previousEnd };
+}
+
+/**
+ * Quarterly values for one duration metric, with YTD derivation. With no options this is the
+ * case-study series (its quarters, the 2021 stubs, the Predecessor/Successor break). A filer
+ * passes `quarters`, `fyStartMonth` (its fiscal-year start) and `ref` (its fact reference), and
+ * then no stub or break rule applies.
+ */
+export function durationSeries(concept, facts, { quarters = QUARTERS, fyStartMonth = null, ref = factRef } = {}) {
+  const caseStudy = fyStartMonth === null;
   const byPeriod = new Map(facts.map((f) => [`${f.start}|${f.end}`, f]));
   const get = (start, end) => byPeriod.get(`${start}|${end}`);
   const out = {}, gaps = [];
-  for (const code of QUARTERS) {
+  for (const code of quarters) {
     const qi = quarterInfo(code);
-    if (code === "2021Q3") {
+    if (caseStudy && code === "2021Q3") {
       const pred = get("2021-07-01", BREAK.predecessorEnd);
       const succ = get(BREAK.successorStart, qi.end);
       out[code] = {
         stubs: {
-          predecessor: pred ? factRef(concept, pred, { label: "Predecessor, July 1–9, 2021" }) : null,
-          successor: succ ? factRef(concept, succ, { label: "Successor, July 10–September 30, 2021" }) : null
+          predecessor: pred ? ref(concept, pred, { label: "Predecessor, July 1–9, 2021" }) : null,
+          successor: succ ? ref(concept, succ, { label: "Successor, July 10–September 30, 2021" }) : null
         }
       };
       if (!pred) gaps.push({ quarter: code, detail: "Predecessor stub (July 1–9, 2021) not reported" });
@@ -133,18 +151,21 @@ function durationSeries(concept, facts) {
       continue;
     }
     const direct = get(qi.start, qi.end);
-    if (direct) { out[code] = factRef(concept, direct); continue; }
-    // Year-to-date start: January 1, or the Successor start for the rest of 2021.
-    const ytdStart = qi.year === 2021 && qi.q === 4 ? BREAK.successorStart : qi.yearStart;
-    const prevEnd = qi.year === 2021 && qi.q === 4 ? "2021-09-30" : qi.previousEnd;
+    if (direct) { out[code] = ref(concept, direct); continue; }
+    let ytdStart, prevEnd;
+    if (caseStudy) {
+      // Year-to-date start: January 1, or the Successor start for the rest of 2021.
+      ytdStart = qi.year === 2021 && qi.q === 4 ? BREAK.successorStart : qi.yearStart;
+      prevEnd = qi.year === 2021 && qi.q === 4 ? "2021-09-30" : qi.previousEnd;
+    } else ({ ytdStart, prevEnd } = fiscalYtd(qi, fyStartMonth));
     const ytd = get(ytdStart, qi.end);
     const prevYtd = prevEnd ? get(ytdStart, prevEnd) : null;
-    if (ytd && prevYtd && regime(ytdStart, qi.end) !== "crosses") {
+    if (ytd && prevYtd && (!caseStudy || regime(ytdStart, qi.end) !== "crosses")) {
       out[code] = {
         value: ytd.val - prevYtd.val, unit: "USD", concept, source: "xbrl", derived: true,
         method: `${ytdStart}–${qi.end} less ${ytdStart}–${prevEnd}`,
         start: qi.start, end: qi.end,
-        inputs: [factRef(concept, ytd), factRef(concept, prevYtd)]
+        inputs: [ref(concept, ytd), ref(concept, prevYtd)]
       };
     } else {
       out[code] = null;
@@ -155,12 +176,12 @@ function durationSeries(concept, facts) {
 }
 
 /** Quarterly values for one instant (balance-sheet) metric. */
-function instantSeries(concept, facts) {
+export function instantSeries(concept, facts, { quarters = QUARTERS, ref = factRef } = {}) {
   const byEnd = new Map(facts.map((f) => [f.end, f]));
   const out = {}, gaps = [];
-  for (const code of QUARTERS) {
+  for (const code of quarters) {
     const f = byEnd.get(quarterInfo(code).end);
-    out[code] = f ? factRef(concept, f) : null;
+    out[code] = f ? ref(concept, f) : null;
     if (!f) gaps.push({ quarter: code, detail: `No balance at ${quarterInfo(code).end}` });
   }
   return { out, gaps };

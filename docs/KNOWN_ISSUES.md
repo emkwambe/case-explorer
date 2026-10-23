@@ -77,6 +77,10 @@ The case views show it under one name, "Reference label", with the note "uses th
 - Swap-in performance is known here only because the data is synthetic. The conservative inferred view (swap-in PD × 1.5) is an assumption, not an estimate from data.
 - Fair-lending review is out of scope for synthetic data; the app makes no legal claims.
 
+## The public-record chunk is above Vite's 500 kB warning
+
+`npm run build` warns that `publicRecordData-*.js` is 514 kB (54 kB gzipped), because the Public record tab's lazily loaded data now includes the peer-lender snapshot (`peers-quarterly.json`, about 600 kB of JSON with full lineage) and the complaint counts. It is a warning only: the chunk loads when the tab opens, not with the main bundle, and the build and every check pass. **Later option:** split the peer data into its own lazy chunk, loaded when the peer panel is shown.
+
 ## Rate paths are Treasury-only
 
 The rate paths move the 10-year Treasury yield only. Credit spreads also widened in 2022, so these paths understate the loss on a loan sold into that market. The holding time (triangular, 30 to 90 days, most likely 60) is an assumption. Historical windows start on each 2022 business day; market holidays take the last prior observation and are not start dates. P50 and P95 are nearest-rank percentiles across start dates.

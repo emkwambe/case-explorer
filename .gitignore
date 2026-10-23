@@ -43,6 +43,8 @@ reports/
 
 # Filing documents used for manual extraction: hashed in the manifest, not committed
 data/public-record/raw/filings/
+# Court documents provided by hand (Sprint 8.5); only the cited-page excerpt is committed.
+data/public-record/raw/local/
 
 .vercel
 .env*

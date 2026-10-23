@@ -1,0 +1,62 @@
+{
+  "note": "Court-filing facts for the Public record timeline only (not events.json, which the Findings chart draws). Each quote appears word for word on its cited page of filing-excerpts-court.json; timing facts come from the Amended Plan, not Dkt. 95. The plan's date is from its cover (\"Dated: December 1, 2023\"); Dkt. 95's from the court stamp on the cited page (\"Filed 11/02/23\").",
+  "facts": [
+    {
+      "id": "dkt95-class3",
+      "date": "2023-11-02",
+      "dateLabel": "Nov 2, 2023",
+      "document": "dkt-95",
+      "title": "Court notice: Bank Partner's claims (Class 3) impaired and entitled to vote",
+      "quotes": [
+        { "text": "Class 3 CRB Claims Impaired Yes", "citation": "Dkt. 95, ECF p. 4", "page": "4", "form": "table row (class, impairment, entitled to vote)" }
+      ],
+      "source": { "label": "Dkt. 95, notice of commencement and combined hearing (EX-10.1 to Form 8-K, filed November 13, 2023)", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923117072/tm2330434d1_ex10-1.htm" }
+    },
+    {
+      "id": "plan-bank-partner",
+      "date": "2023-12-01",
+      "dateLabel": "Dec 1, 2023",
+      "document": "amended-plan",
+      "title": "Amended Plan: the Bank Partner as lender and program counterparty",
+      "quotes": [
+        { "text": "“CRB” means Cross River Bank, together with its respective successors and permitted assigns, as holder of (i) outstanding first lien secured debt obligations under the Loan and Security Agreement, (ii) outstanding obligations under the Solar Program Agreement, (iii) outstanding obligations under the HI Program Agreement, and (iv) outstanding Additional Advances under the Additional Advances Agreement.", "citation": "Plan § 1.34, p. 4", "page": "4" }
+      ],
+      "source": { "label": "Amended Joint Prepackaged Chapter 11 Plan of Reorganization (EX-2.1 to Form 8-K, filed December 7, 2023)", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923124299/tm2332394d1_ex2-1.htm" }
+    },
+    {
+      "id": "plan-allowed-claim",
+      "date": "2023-12-01",
+      "dateLabel": "Dec 1, 2023",
+      "document": "amended-plan",
+      "title": "Amended Plan: size of the Bank Partner's allowed secured claims",
+      "quotes": [
+        { "text": "The CRB Secured Claims are Allowed in the outstanding amount of not less than $114,247,926.34, plus all accrued interest, costs, charge offs, fees, and expenses under the Loan and Security Agreement, the Loan Program Agreements, and the Additional Advances Agreement.", "citation": "Plan § 4.3(b)(i), p. 22", "page": "22" }
+      ],
+      "source": { "label": "Amended Joint Prepackaged Chapter 11 Plan of Reorganization (EX-2.1 to Form 8-K, filed December 7, 2023)", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923124299/tm2332394d1_ex2-1.htm" }
+    },
+    {
+      "id": "plan-loan-program",
+      "date": "2023-12-01",
+      "dateLabel": "Dec 1, 2023",
+      "document": "amended-plan",
+      "title": "Amended Plan: loan program agreements amended and restated",
+      "quotes": [
+        { "text": "in respect of Allowed CRB Secured Claims arising under or based upon the Loan Program Agreements, (A) the Debtors’ entry into the Amended and Restated Loan Program Agreements and (B) payment in Cash on the date that is one year following the Effective Date in an amount equal to $850,000.", "citation": "Plan § 4.3(c)(ii), p. 23", "page": "23" }
+      ],
+      "source": { "label": "Amended Joint Prepackaged Chapter 11 Plan of Reorganization (EX-2.1 to Form 8-K, filed December 7, 2023)", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923124299/tm2332394d1_ex2-1.htm" }
+    },
+    {
+      "id": "plan-financing",
+      "date": "2023-12-01",
+      "dateLabel": "Dec 1, 2023",
+      "document": "amended-plan",
+      "title": "Amended Plan: postpetition financing and new money",
+      "quotes": [
+        { "text": "“DIP Orders” means the interim and Final Order(s) of the Bankruptcy Court approving the DIP Motion and authorizing, among other things, the Debtors to (i) obtain postpetition financing, (ii) use cash Collateral of CRB, and (iii) grant certain rights and protections to CRB.", "citation": "Plan § 1.44, p. 6", "page": "6" },
+        { "text": "“Convertible Notes” means the $20.0 million convertible notes due five (5) years from the Effective Date and issued pursuant to the Note Purchase Agreement.", "citation": "Plan § 1.33, p. 4", "page": "4" },
+        { "text": "“Direct Investment” means either (1) a $15.0 million Cash investment by EDUH in connection with the EDUH Transaction or (2) a $15.0 million Cash investment provided by CRB in connection with the CRB Transaction, in either case in accordance with the Investment Agreement.", "citation": "Plan § 1.45, p. 6", "page": "6" }
+      ],
+      "source": { "label": "Amended Joint Prepackaged Chapter 11 Plan of Reorganization (EX-2.1 to Form 8-K, filed December 7, 2023)", "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923124299/tm2332394d1_ex2-1.htm" }
+    }
+  ]
+}

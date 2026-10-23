@@ -6,6 +6,21 @@ export const fmtM = (v) => (v === null || v === undefined ? "—" : `${v < 0 ? "
 export const fmtPct = (v, d = 2) => (v === null || v === undefined ? "—" : `${(v * 100).toFixed(d)}%`);
 export const fmtRate = (v) => (v === null || v === undefined ? "—" : `${v.toFixed(2)}%`);
 
+const dayFraction = (y, m, d) => (d - 1) / new Date(Date.UTC(y, m, 0)).getUTCDate();
+
+/** x position of a dated event on a quarter axis whose points sit at x = 0, 1, … from quarter code `first` (each point at its quarter's start). */
+export function quarterAxisX(dateIso, first) {
+  const [y, m, d] = dateIso.split("-").map(Number);
+  const index = (y - Number(first.slice(0, 4))) * 4 + Math.floor((m - 1) / 3) - (Number(first.slice(5)) - 1);
+  return index + ((m - 1) % 3 + dayFraction(y, m, d)) / 3;
+}
+
+/** x position of a dated event on a month axis whose points sit at x = 0, 1, … from month code `first` ("2019-01"). */
+export function monthAxisX(dateIso, first) {
+  const [y, m, d] = dateIso.split("-").map(Number);
+  return (y - Number(first.slice(0, 4))) * 12 + (m - Number(first.slice(5, 7))) + dayFraction(y, m, d);
+}
+
 /** x position of a dated event on a quarter axis whose quarter-end points sit at x = 0, 1, … from Q1 2021. */
 export function eventX(dateIso) {
   const [y, m, d] = dateIso.split("-").map(Number);

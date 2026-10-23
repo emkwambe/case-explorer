@@ -1,0 +1,84 @@
+{
+  "note": "Sources for the public-data group (Sprint 8.5), read by scripts/fetch-public-record.mjs --group public-data. Company names, CIKs and complaint-database company strings live here, so the scripts stay name-free.",
+  "nameGuard": ["Upstart", "LendingClub", "Happen, Inc.", "Affirm", "Oportun", "OPORTUN", "OneMain", "ONEMAIN", "GreenSky", "GREENSKY", "Mosaic", "Dividend Finance"],
+  "terms": {
+    "sec": {
+      "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+      "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+      "url": "https://www.sec.gov/privacy"
+    },
+    "fred": {
+      "licence": "FRED: \"mention FRED as the service from which you retrieved the data and keep any copyright notices that appear with the data on FRED.\" The series pages show no copyright notice.",
+      "terms": "FRED Services Terms of Use; series owners are named per series.",
+      "url": "https://fred.stlouisfed.org/legal/"
+    },
+    "cfpb": {
+      "licence": "CFPB Consumer Complaint Database: \"All complaint data we publish is freely available for anyone to use, analyze, and build on.\"",
+      "terms": "\"This database is not a statistical sample of consumers' experiences in the marketplace, therefore these complaints are not representative of all consumers' experiences with a financial product or company.\" Complaints are published \"after the company responds, confirming a commercial relationship with the consumer, or after 15 days, whichever comes first.\"",
+      "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/"
+    }
+  },
+  "cfpb": {
+    "api": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/",
+    "windowStart": "2019-01",
+    "keptFields": ["date_received", "product", "sub_product", "issue", "sub_issue", "state", "company_response", "timely", "company"],
+    "droppedFields": ["complaint_what_happened", "zip_code", "tags", "complaint_id", "company_public_response", "submitted_via", "date_sent_to_company"],
+    "companies": [
+      { "id": "case-study", "label": "Sunlight Financial", "role": "case-study", "strings": ["Sunlight Financial LLC"] },
+      { "id": "mosaic", "label": "Solar Mosaic", "role": "peer", "strings": ["Solar Mosaic LLC"] },
+      {
+        "id": "greensky", "label": "GreenSky", "role": "peer", "strings": ["GreenSky, LLC", "GREENSKY OPERATIONS, LLC"],
+        "switch": { "date": "2023-01-27", "from": "GreenSky, LLC", "to": "GREENSKY OPERATIONS, LLC", "label": "Complaints are filed under \"GreenSky, LLC\" until January 21, 2023 and under \"GREENSKY OPERATIONS, LLC\" from January 27, 2023; the two are combined." }
+      },
+      { "id": "dividend", "label": "Dividend Finance", "role": "peer", "strings": ["Dividend Finance Inc."], "totalOnly": true }
+    ]
+  },
+  "edgar": {
+    "windowStart": "2019Q1",
+    "caseStudyWindow": { "from": "2021Q1", "to": "2023Q2" },
+    "caseStudy": { "label": "Sunlight Financial (case study)", "model": "platform", "snapshot": "sunlight-quarterly.json" },
+    "metrics": ["totalAssets", "totalLiabilities", "cash", "operatingCashFlow", "revenue", "netIncome"],
+    "filers": [
+      { "id": "upstart", "label": "Upstart", "cik": 1647639, "fiscalYearStartMonth": 1, "model": "platform" },
+      { "id": "lendingclub", "label": "LendingClub (Happen, Inc.)", "cik": 1409970, "fiscalYearStartMonth": 1, "model": "bank holding company" },
+      { "id": "affirm", "label": "Affirm", "cik": 1820953, "fiscalYearStartMonth": 7, "model": "platform with balance-sheet loans" },
+      { "id": "oportun", "label": "Oportun", "cik": 1538716, "fiscalYearStartMonth": 1, "model": "balance-sheet lender" },
+      { "id": "onemain", "label": "OneMain Holdings", "cik": 1584207, "fiscalYearStartMonth": 1, "model": "balance-sheet lender" },
+      { "id": "greensky", "label": "GreenSky", "cik": 1712923, "fiscalYearStartMonth": 1, "model": "platform", "optional": true }
+    ]
+  },
+  "fred": {
+    "windowStart": "2019-01-01",
+    "series": [
+      { "id": "DRCLACBS", "title": "Delinquency rate on consumer loans, all commercial banks", "units": "percent, seasonally adjusted", "frequency": "quarterly", "owner": "Board of Governors of the Federal Reserve System (US)" },
+      { "id": "CORCACBS", "title": "Charge-off rate on consumer loans, all commercial banks (annualized, net of recoveries)", "units": "percent, seasonally adjusted", "frequency": "quarterly", "owner": "Board of Governors of the Federal Reserve System (US)" },
+      { "id": "UNRATE", "title": "Unemployment rate", "units": "percent, seasonally adjusted", "frequency": "monthly", "owner": "U.S. Bureau of Labor Statistics" }
+    ]
+  },
+  "court": {
+    "case": "In re Sunlight Financial Holdings Inc., et al., Case No. 23-11794 (MFW), U.S. Bankruptcy Court, District of Delaware",
+    "caseNumber": "23-11794",
+    "documents": [
+      {
+        "id": "amended-plan",
+        "short": "Plan",
+        "title": "Amended Joint Prepackaged Chapter 11 Plan of Reorganization of Sunlight Financial Holdings Inc. and its Affiliated Debtors (as of December 1, 2023)",
+        "exhibit": "EX-2.1 to Form 8-K, accession 0001104659-23-124299, filed December 7, 2023",
+        "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923124299/tm2332394d1_ex2-1.htm",
+        "file": "raw/local/court-amended-plan-ex2-1.htm",
+        "pageMarker": "footer-field",
+        "pages": ["4", "6", "22", "23"]
+      },
+      {
+        "id": "dkt-95",
+        "short": "Dkt. 95",
+        "title": "Notice of (I) Commencement of Chapter 11 Bankruptcy Cases, (II) Combined Hearing on Disclosure Statement and Confirmation of Joint Prepackaged Chapter 11 Plan, and Related Matters (Doc 95, filed November 2, 2023)",
+        "exhibit": "EX-10.1 to Form 8-K, accession 0001104659-23-117072, filed November 13, 2023",
+        "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923117072/tm2330434d1_ex10-1.htm",
+        "file": "raw/local/court-dkt95-ex10-1.htm",
+        "pageMarker": "ecf-stamp",
+        "pages": ["4"]
+      }
+    ]
+  }
+}

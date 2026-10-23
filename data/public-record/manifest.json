@@ -130,5 +130,269 @@
       "bytes": 12227,
       "sha256": "6a1edfa5b718d4a5d4e82f578e104f373627f764440bd858e0d9dda511344270"
     }
-  ]
+  ],
+  "publicData": {
+    "generatedAt": "2026-10-23T01:19:31.666Z",
+    "userAgent": "Eddy Mkwambe [contact email redacted]",
+    "sources": [
+      {
+        "id": "cfpb-sunlight-financial-llc",
+        "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/?company=Sunlight%20Financial%20LLC&size=10000&no_aggs=true",
+        "file": "raw/local/cfpb-sunlight-financial-llc.json",
+        "committed": false,
+        "licence": "CFPB Consumer Complaint Database: \"All complaint data we publish is freely available for anyone to use, analyze, and build on.\"",
+        "terms": "\"This database is not a statistical sample of consumers' experiences in the marketplace, therefore these complaints are not representative of all consumers' experiences with a financial product or company.\" Complaints are published \"after the company responds, confirming a commercial relationship with the consumer, or after 15 days, whichever comes first.\"",
+        "termsUrl": "https://www.consumerfinance.gov/data-research/consumer-complaints/",
+        "bytes": 201971,
+        "sha256": "328c8739246e29d603d9f7da98e84c1b1debbc88cddbe70099e06acfa57ea291",
+        "retrievedAt": "2026-10-23T01:19:26.141Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "cfpb-solar-mosaic-llc",
+        "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/?company=Solar%20Mosaic%20LLC&size=10000&no_aggs=true",
+        "file": "raw/local/cfpb-solar-mosaic-llc.json",
+        "committed": false,
+        "licence": "CFPB Consumer Complaint Database: \"All complaint data we publish is freely available for anyone to use, analyze, and build on.\"",
+        "terms": "\"This database is not a statistical sample of consumers' experiences in the marketplace, therefore these complaints are not representative of all consumers' experiences with a financial product or company.\" Complaints are published \"after the company responds, confirming a commercial relationship with the consumer, or after 15 days, whichever comes first.\"",
+        "termsUrl": "https://www.consumerfinance.gov/data-research/consumer-complaints/",
+        "bytes": 588098,
+        "sha256": "51f2a3e97f90e36569ada5d7511402f998fe484e28bf5dc79e5b3c4c5034f5ca",
+        "retrievedAt": "2026-10-23T01:19:26.336Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "cfpb-greensky-llc",
+        "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/?company=GreenSky%2C%20LLC&size=10000&no_aggs=true",
+        "file": "raw/local/cfpb-greensky-llc.json",
+        "committed": false,
+        "licence": "CFPB Consumer Complaint Database: \"All complaint data we publish is freely available for anyone to use, analyze, and build on.\"",
+        "terms": "\"This database is not a statistical sample of consumers' experiences in the marketplace, therefore these complaints are not representative of all consumers' experiences with a financial product or company.\" Complaints are published \"after the company responds, confirming a commercial relationship with the consumer, or after 15 days, whichever comes first.\"",
+        "termsUrl": "https://www.consumerfinance.gov/data-research/consumer-complaints/",
+        "bytes": 424243,
+        "sha256": "6f7fe86791450fb8634a3a616d2c5aa1678a6996e8acb91741f11d8174b24802",
+        "retrievedAt": "2026-10-23T01:19:26.600Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "cfpb-greensky-operations-llc",
+        "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/?company=GREENSKY%20OPERATIONS%2C%20LLC&size=10000&no_aggs=true",
+        "file": "raw/local/cfpb-greensky-operations-llc.json",
+        "committed": false,
+        "licence": "CFPB Consumer Complaint Database: \"All complaint data we publish is freely available for anyone to use, analyze, and build on.\"",
+        "terms": "\"This database is not a statistical sample of consumers' experiences in the marketplace, therefore these complaints are not representative of all consumers' experiences with a financial product or company.\" Complaints are published \"after the company responds, confirming a commercial relationship with the consumer, or after 15 days, whichever comes first.\"",
+        "termsUrl": "https://www.consumerfinance.gov/data-research/consumer-complaints/",
+        "bytes": 344172,
+        "sha256": "6103506e56cd275cc88e8bf13923c9d471310adbf315d563fdf01b981ef639bb",
+        "retrievedAt": "2026-10-23T01:19:26.770Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "cfpb-dividend-finance-inc",
+        "url": "https://www.consumerfinance.gov/data-research/consumer-complaints/search/api/v1/?company=Dividend%20Finance%20Inc.&size=10000&no_aggs=true",
+        "file": "raw/local/cfpb-dividend-finance-inc.json",
+        "committed": false,
+        "licence": "CFPB Consumer Complaint Database: \"All complaint data we publish is freely available for anyone to use, analyze, and build on.\"",
+        "terms": "\"This database is not a statistical sample of consumers' experiences in the marketplace, therefore these complaints are not representative of all consumers' experiences with a financial product or company.\" Complaints are published \"after the company responds, confirming a commercial relationship with the consumer, or after 15 days, whichever comes first.\"",
+        "termsUrl": "https://www.consumerfinance.gov/data-research/consumer-complaints/",
+        "bytes": 25596,
+        "sha256": "f052f446d5b0806d470668fee3bb137084929141f079e3b0d275b6c9da7c9888",
+        "retrievedAt": "2026-10-23T01:19:27.083Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "sec-companyfacts-1647639",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001647639.json",
+        "file": "raw/sec-companyfacts-1647639.json",
+        "committed": true,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 1258742,
+        "sha256": "98112710e99795498fe45623236729dc083c9405cf0d3361f3f1e20a44b0d579",
+        "retrievedAt": "2026-10-23T01:19:27.638Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "sec-companyfacts-1409970",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001409970.json",
+        "file": "raw/sec-companyfacts-1409970.json",
+        "committed": true,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 3708964,
+        "sha256": "8e6b65a4f314bf9c7a69a846c760673fca376a733ddd852725fc5a487a569e08",
+        "retrievedAt": "2026-10-23T01:19:28.139Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "sec-companyfacts-1820953",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001820953.json",
+        "file": "raw/sec-companyfacts-1820953.json",
+        "committed": true,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 1800270,
+        "sha256": "d6c3425915ceb779a8520947af5aca51bc01563b9b8ec1f9388adaf044f00cd3",
+        "retrievedAt": "2026-10-23T01:19:28.569Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "sec-companyfacts-1538716",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001538716.json",
+        "file": "raw/sec-companyfacts-1538716.json",
+        "committed": true,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 1571038,
+        "sha256": "92efa659f93ff2e4ddb35d610d4b7c58e4ee2be04b588dd0d0e2ecc2a1b0afbc",
+        "retrievedAt": "2026-10-23T01:19:28.828Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "sec-companyfacts-1584207",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001584207.json",
+        "file": "raw/sec-companyfacts-1584207.json",
+        "committed": true,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 3630455,
+        "sha256": "4c6a20a6f175c0f85a1ac541763eea99fac16e34e3d1a70b1881634b1a4f37a6",
+        "retrievedAt": "2026-10-23T01:19:29.416Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "sec-companyfacts-1712923",
+        "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0001712923.json",
+        "file": "raw/sec-companyfacts-1712923.json",
+        "committed": true,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 897339,
+        "sha256": "65701a64963e3b4ea055fc2e29468198a25d7d2bf14abb6191012bbcac7b02a3",
+        "retrievedAt": "2026-10-23T01:19:29.700Z",
+        "contentType": "application/json"
+      },
+      {
+        "id": "fred-DRCLACBS",
+        "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=DRCLACBS",
+        "file": "raw/fred-DRCLACBS.csv",
+        "committed": true,
+        "licence": "FRED: \"mention FRED as the service from which you retrieved the data and keep any copyright notices that appear with the data on FRED.\" The series pages show no copyright notice.",
+        "terms": "FRED Services Terms of Use; series owners are named per series.",
+        "termsUrl": "https://fred.stlouisfed.org/legal/",
+        "bytes": 2554,
+        "sha256": "14ec07790b8919de23585e9c048a68ce1dcc003328cbd82a718bbd90d49a2c67",
+        "retrievedAt": "2026-10-23T01:19:30.377Z",
+        "contentType": "application/csv"
+      },
+      {
+        "id": "fred-CORCACBS",
+        "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=CORCACBS",
+        "file": "raw/fred-CORCACBS.csv",
+        "committed": true,
+        "licence": "FRED: \"mention FRED as the service from which you retrieved the data and keep any copyright notices that appear with the data on FRED.\" The series pages show no copyright notice.",
+        "terms": "FRED Services Terms of Use; series owners are named per series.",
+        "termsUrl": "https://fred.stlouisfed.org/legal/",
+        "bytes": 2682,
+        "sha256": "7ca2339f88e10cc6689afe96ccfeeb1dd7662f6a9f4477457153d8bae6a79069",
+        "retrievedAt": "2026-10-23T01:19:30.872Z",
+        "contentType": "application/csv"
+      },
+      {
+        "id": "fred-UNRATE",
+        "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE",
+        "file": "raw/fred-UNRATE.csv",
+        "committed": true,
+        "licence": "FRED: \"mention FRED as the service from which you retrieved the data and keep any copyright notices that appear with the data on FRED.\" The series pages show no copyright notice.",
+        "terms": "FRED Services Terms of Use; series owners are named per series.",
+        "termsUrl": "https://fred.stlouisfed.org/legal/",
+        "bytes": 14211,
+        "sha256": "621ff6fadf50910cb7a21ee20ba610c247cb043b29b4e05c4c1a72fadca2a06c",
+        "retrievedAt": "2026-10-23T01:19:30.923Z",
+        "contentType": "application/csv"
+      },
+      {
+        "id": "court-amended-plan",
+        "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923124299/tm2332394d1_ex2-1.htm",
+        "file": "raw/local/court-amended-plan-ex2-1.htm",
+        "committed": false,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 466427,
+        "sha256": "b1aed313838a9f558cf919a90de630d7cf8165d1b554ce3c0572b1d64e3d3976",
+        "retrievedAt": "2026-10-23T01:19:31.463Z",
+        "contentType": "text/html"
+      },
+      {
+        "id": "court-dkt-95",
+        "url": "https://www.sec.gov/Archives/edgar/data/1821850/000110465923117072/tm2330434d1_ex10-1.htm",
+        "file": "raw/local/court-dkt95-ex10-1.htm",
+        "committed": false,
+        "licence": "SEC website content: \"public information and may be copied or further distributed by users of the web site without the SEC's permission. Please consider appropriate citation to the SEC as the source.\"",
+        "terms": "SEC fair access: \"Current max request rate: 10 requests/second.\" Requests declare a User-Agent with a contact email.",
+        "termsUrl": "https://www.sec.gov/privacy",
+        "bytes": 41308,
+        "sha256": "6c51cb0f5f8f5eb8a6c011d16661b9b04ef83a4479d502fc8ab81d509ee18f5e",
+        "retrievedAt": "2026-10-23T01:19:31.666Z",
+        "contentType": "text/html"
+      }
+    ],
+    "derived": [
+      {
+        "id": "peers-quarterly",
+        "file": "peers-quarterly.json",
+        "builtFrom": [
+          "sec-companyfacts-1647639",
+          "sec-companyfacts-1409970",
+          "sec-companyfacts-1820953",
+          "sec-companyfacts-1538716",
+          "sec-companyfacts-1584207",
+          "sec-companyfacts-1712923"
+        ],
+        "bytes": 600384,
+        "sha256": "a306f5e83331127849c057f6610cbf2b34c36e9763018a8e8817dab3d7e1174c"
+      },
+      {
+        "id": "macro-credit",
+        "file": "macro-credit.json",
+        "builtFrom": [
+          "fred-DRCLACBS",
+          "fred-CORCACBS",
+          "fred-UNRATE"
+        ],
+        "bytes": 19557,
+        "sha256": "47992011e34876b4dbc0113e8b14fbd4e45bba362758091f76d889329b4f0275"
+      },
+      {
+        "id": "cfpb-complaints",
+        "file": "cfpb-complaints.json",
+        "builtFrom": [
+          "cfpb-sunlight-financial-llc",
+          "cfpb-solar-mosaic-llc",
+          "cfpb-greensky-llc",
+          "cfpb-greensky-operations-llc",
+          "cfpb-dividend-finance-inc"
+        ],
+        "bytes": 264776,
+        "sha256": "4dcc372b954c7f203be0cca385fd5bdc1df6d79da144eeb759e37528be5d21a7"
+      },
+      {
+        "id": "filing-excerpts-court",
+        "file": "filing-excerpts-court.json",
+        "builtFrom": [
+          "court-amended-plan",
+          "court-dkt-95"
+        ],
+        "bytes": 14298,
+        "sha256": "407248ecabfc288425ee67ffb37714e554bdeb8cc190bb15bd645f03bc6ec155"
+      }
+    ]
+  }
 }
