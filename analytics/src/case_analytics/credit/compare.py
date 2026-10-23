@@ -18,7 +18,7 @@ from typing import Any
 
 REL_TOL = 1e-3
 ABS_TOL = 1e-6
-FILES = ("credit-model-summary.json", "credit-model-cases.json")
+FILES = ("credit-model-summary.json", "credit-model-cases.json", "credit-model-properties.json")
 
 
 def differences(a: Any, b: Any, path: str = "$") -> list[str]:

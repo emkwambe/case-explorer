@@ -229,7 +229,174 @@ def control_sentence(acc: dict[str, Any]) -> str:
     return text
 
 
-def model_card(s: dict[str, Any]) -> str:
+CHAMPION = "bureau_score_policy"
+ATTRIBUTE_NAMES = {
+    "age_band": "Age band",
+    "geography_group": "Region (cost-of-living group)",
+    "zip3": "ZIP3 (ten largest, the rest as other)",
+    "income_band": "Income band",
+    "persona": "Persona (occupation)",
+    "regime": "Regime",
+    "family_status_scenario": "Family status (synthetic scenario)",
+    "disability_income_scenario": "Disability income (synthetic scenario)",
+}
+SET_NAMES = {
+    "opening_library": "Opening library",
+    "teaching_v1": "Teaching-v1",
+    "pool_seed_42": "Seed-42 pool",
+}
+# Display order for ordinal groups (the snapshot lists groups alphabetically).
+GROUP_ORDER = {"income_band": ("<50K", "50K-80K", "80K-120K", "120K-180K", "180K+")}
+LEGAL_STATUS = (
+    "**Legal status, as of October 2026.** ECOA disparate-impact liability was removed from Regulation B effective "
+    "July 21, 2026, and that change is being litigated (*NFHA v. CFPB*). Disparate impact remains relevant under the "
+    "Fair Housing Act where it applies, and under state laws such as New Jersey's LAD and Massachusetts law. Colorado "
+    "SB 26-189 takes effect January 1, 2027. These tables are monitoring evidence for a reviewer; they don't establish "
+    "or rule out legal compliance."
+)
+
+
+def rate_ci(r: dict[str, Any]) -> str:
+    lo, hi = r["rate_ci95"]
+    return f"{pct(r['rate'], 1)} ({pct(lo, 1)}–{pct(hi, 1)})"
+
+
+def air(r: dict[str, Any], with_ci: bool = True) -> str:
+    if not r["rated"]:
+        return "not rated"
+    if r["air_ci95"] is None or not with_ci:
+        return f3(r["adverse_impact_ratio"]) + (" (reference)" if r["air_ci95"] is None and with_ci else "")
+    lo, hi = r["air_ci95"]
+    return f"{f3(r['adverse_impact_ratio'])} ({f3(lo)}–{f3(hi)})"
+
+
+def flip_table(fl: dict[str, Any]) -> list[str]:
+    sets = [k for k in SET_NAMES if k in fl["sets"]]
+    L = [
+        "| Flip | Attribute | " + " | ".join(f"{SET_NAMES.get(k, k)}: flips, changed" for k in sets) + " |",
+        "|---|---|" + "---|" * len(sets),
+    ]
+    for i, r in enumerate(fl["sets"][sets[0]]):
+        if r["kind"] == "financial":
+            continue
+        cells = [f"{n(fl['sets'][k][i]['flips'])}, {n(fl['sets'][k][i]['changed'])}" for k in sets]
+        L.append(f"| {r['kind']} | `{r['attribute']}` | " + " | ".join(cells) + " |")
+    return L
+
+
+def financial_sentence(fl: dict[str, Any]) -> str:
+    parts = []
+    for k in [k for k in SET_NAMES if k in fl["sets"]]:
+        r = next(x for x in fl["sets"][k] if x["kind"] == "financial")
+        parts.append(
+            f"{SET_NAMES.get(k, k).lower()}: {n(r['flips'])} flips, DTI moved on {n(r['dti_moved'])}, the credit decision changed on "
+            f"{n(r['decision_changed'])}, and {n(r['changed_without_dti_move'])} changed anything without a DTI move"
+        )
+    return (
+        "**The financial channel, reported separately.** Moving an applicant to another region also moves their housing cost "
+        "(the current housing payment scaled by the target region's rent multiplier), so DTI follows and decisions can change. "
+        "That is a credit factor responding to a cost, not the engine reading region, and it is reported as its own category: "
+        + "; ".join(parts)
+        + ". A change the channel does not explain would have stopped the sprint; there were none."
+    )
+
+
+def group_md(name: str, g: dict[str, Any]) -> list[str]:
+    pol = g["policies"]
+    ch, xg, ai = pol[CHAMPION], pol["credit_pd_xgb_cutoff"], pol["as_is_policy_reference"]
+    L = [
+        f"**{ATTRIBUTE_NAMES.get(name, name)}** (overall approval rate {pct(ch['overall_rate'], 1)} under the champion)"
+        + (
+            ": a legitimate credit factor. Differences by income are expected and are not evidence of unfair treatment."
+            if g["legitimate_credit_factor"]
+            else ""
+        ),
+        "",
+        "| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    order = GROUP_ORDER.get(name)
+    rows = list(zip(ch["groups"], xg["groups"], ai["groups"]))
+    if order:
+        rows.sort(key=lambda t: order.index(t[0]["group"]) if t[0]["group"] in order else len(order))
+    for r, rx, ra in rows:
+        L.append(
+            f"| {r['group']} | {n(r['applicants'])} | {rate_ci(r)} | {100 * r['difference_from_overall']:+.1f} pts | {air(r)} | "
+            f"{pct(rx['rate'], 1)}, {air(rx, with_ci=False)} | {pct(ra['rate'], 1)} |"
+        )
+    below = ch["rated_groups_below_four_fifths"]
+    xbelow = xg["rated_groups_below_four_fifths"]
+    if below or xbelow:
+        L += [
+            "",
+            "Below four-fifths of the highest group's rate: champion "
+            + (", ".join(below) if below else "none")
+            + "; `credit_pd_xgb` cut-off "
+            + (", ".join(xbelow) if xbelow else "none")
+            + ".",
+        ]
+    return L + [""]
+
+
+def proxy_reading(a: dict[str, Any]) -> str:
+    if a["auc"] > 0.60:
+        return "usable proxy: " + ", ".join(f"`{f}`" for f in a["top_features"])
+    if a["auc_ci95"][0] <= 0.5 or a["auc"] < 0.55:
+        return "no usable proxy"
+    return "weak (0.55–0.60)"
+
+
+def fairness_md(p: dict[str, Any]) -> list[str]:
+    f = p["fairness"]
+    fl, pr = f["flips"], f["proxy"]["attributes"]
+    pols = f["policies"]
+    L = [
+        "## Fairness",
+        "",
+        "Monitoring evidence, not a legal conclusion. Three questions: does any engine use a sensitive attribute, do approval rates differ by group, and does a neutral feature stand in for a sensitive one?",
+        "",
+        "**Counterfactual flips.** Every case in three sets had each sensitive attribute flipped to every other value, in three ways: *audit* (the `flip_sensitive` mutation, the audit record only), *deep* (the attribute in every layer that holds a copy of it, nothing recomputed) and *financial* (below). Compared before and after: the credit-policy decision and reason codes, the underwriting decision and codes, every fraud-rule result, and the credit model's 14 features, which fix its PD and its stated reasons.",
+        "",
+        *flip_table(fl),
+        "",
+        (
+            "**No engine reads a sensitive attribute:** every audit and deep flip changed nothing."
+            if fl["clean"]
+            else "**A flip changed an output; see the table.**"
+        )
+        + " A test-only policy that reads the age band fails this check, so the check can fail; a second one that reads the true region is caught only by the deep flip, which is why the deep flip exists.",
+        "",
+        financial_sentence(fl),
+        "",
+        f"**Approval rates by group** on the seed-42 application pool. The champion is the bureau-score policy ({n(pols[CHAMPION]['approvals'])} approvals); the `credit_pd_xgb` cut-off approves the same number; the as-is policy ({n(pols['as_is_policy_reference']['approvals'])} approvals) reads the claimed FICO, which sees the true score, so it is not a fair benchmark and appears as a reference column only. AIR is the adverse impact ratio, the group's rate over the highest rated group's. Intervals: Wilson 95% for approval rates, Katz log-scale 95% for the AIR. Groups under {f['min_rated_group']} applicants are listed but not rated. Groups below four-fifths of the highest rate are listed as a monitoring reference only, not a legal test.",
+        "",
+    ]
+    for name in [k for k in ATTRIBUTE_NAMES if k in f["groups"]]:
+        L += group_md(name, f["groups"][name])
+    L += [
+        "The flips prove that no engine reads these attributes, so every difference above arrives through the decision inputs (FICO, DTI, liquidity and fraud review) and how they vary across groups. Region is the clearest case: it moves housing cost, and so DTI.",
+        "",
+        "**Proxy check.** Can the credit model's 14 features predict a sensitive attribute? "
+        + f["proxy"]["method"][0].upper()
+        + f["proxy"]["method"][1:]
+        + ". AUC near 0.5 means no usable proxy.",
+        "",
+        "| Attribute | Groups | AUC (95% CI) | Reading |",
+        "|---|---|---|---|",
+        *[
+            f"| {ATTRIBUTE_NAMES.get(k, k)} | {a['groups']} | {f3(a['auc'])} ({f3(a['auc_ci95'][0])}–{f3(a['auc_ci95'][1])}) | {proxy_reading(a)} |"
+            for k, a in ((k, pr[k]) for k in ATTRIBUTE_NAMES if k in pr)
+        ],
+        "",
+        "Income band is predicted by stated income, as it must be. The synthetic scenario attributes (family status, disability income) are drawn independently of every financial variable, so they are the control: a proxy there would be a defect. A strong proxy for region or persona means a model could reproduce group differences without ever seeing the attribute, which is why the group tables above are the evidence that matters, not the exclusion of the attribute.",
+        "",
+        LEGAL_STATUS,
+        "",
+    ]
+    return L
+
+
+def model_card(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
     x, lg = s["models"][XGB], s["models"][LOGIT]
     ce, d = s["ceilings"], s["data"]
     r, pv, dg = s["reasons"], s["policy_view"], s["diagnostic_all_applications"]
@@ -368,12 +535,17 @@ def model_card(s: dict[str, Any]) -> str:
         "",
         "A low score is a finding, not a failure to hide: it means the model predicts default but cannot tell an underwriter why in fraud terms, which supports keeping the fraud rules beside it. Tampering and fabrication are the hardest case by construction: the funded training books contain neither typology, so the model has only seen the small balance differences of clean loans.",
         "",
+        *(fairness_md(p) if p and "fairness" in p else []),
         "## Limitations",
         "",
         "- Synthetic data from a known, simple process (above); results do not transfer to real lending.",
         f"- {n(after['test']['defaults'])} test defaults: confidence intervals are wide.",
         "- Funded-only selection bias; no reject inference (Sprint 12).",
-        "- Fairness is not yet tested (Sprint 12). Sensitive and geographic attributes are excluded, which does not by itself establish fair outcomes.",
+        (
+            "- Fairness evidence is monitoring only (above): sensitive and geographic attributes are excluded and unread, but group outcomes still differ through the credit factors, and none of this is a legal conclusion."
+            if p and "fairness" in p
+            else "- Fairness is not yet tested (Sprint 12). Sensitive and geographic attributes are excluded, which does not by itself establish fair outcomes."
+        ),
         "- No out-of-time test (one as-of date). No drift monitoring (Sprint 12).",
         "- Generator defects the model sees (bureau scores above 850; one extra bureau account on most loans) are logged in [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md) for a future generator version.",
         "",
@@ -389,7 +561,7 @@ def model_card(s: dict[str, Any]) -> str:
     return "\n".join(L)
 
 
-def walkthrough(s: dict[str, Any]) -> str:
+def walkthrough(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
     x, lg, ce, d, r = s["models"][XGB], s["models"][LOGIT], s["ceilings"], s["data"], s["reasons"]
     after = d["after"]
     coef = lg["coefficients_per_sd"]
@@ -470,12 +642,19 @@ def walkthrough(s: dict[str, Any]) -> str:
         "",
         "## 10. Limits",
         "",
-        "This model recovers a simple, known simulated process; its numbers do not transfer to real data. It learns from funded loans only, has no out-of-time test, is untested for fairness, and is a second opinion beside the credit policy, never the decision. It must not be used for real lending.",
+        "This model recovers a simple, known simulated process; its numbers do not transfer to real data. It learns from funded loans only, has no out-of-time test, "
+        + (
+            "has fairness evidence that is monitoring only (step 11)"
+            if p and "fairness" in p
+            else "is untested for fairness"
+        )
+        + ", and is a second opinion beside the credit policy, never the decision. It must not be used for real lending.",
         "",
         "The policy view shows the funded-only limit in money. " + policy_paragraph(s),
         "",
         "*Check yourself:* name two things a real model risk review would ask for that this sprint does not provide.",
         "",
+        *(walkthrough_fairness(p) if p and "fairness" in p else []),
         "## Answer key",
         "",
         "1. A lender observes whether a loan defaulted, never its probability; the PD exists only inside the simulation.",
@@ -488,6 +667,34 @@ def walkthrough(s: dict[str, Any]) -> str:
         "8. Only the simulation knows each loan's true probability; a lender sees outcomes only.",
         "9. The fraud rules and document checks, which name the falsified field directly.",
         "10. Any two of: independent validation; out-of-time and drift testing; fairness and disparate-impact testing; reject inference; real data.",
+        *(
+            [
+                "11. No. The flips prove only that no engine reads age. The difference arrives through the decision inputs (FICO, DTI, liquidity and fraud review) as they vary with age, so it is evidence for a reviewer to weigh (is each factor justified by risk, and is there a less discriminatory alternative?), not proof of fair or unfair treatment."
+            ]
+            if p and "fairness" in p
+            else []
+        ),
         "",
     ]
     return "\n".join(L)
+
+
+def walkthrough_fairness(p: dict[str, Any]) -> list[str]:
+    f = p["fairness"]
+    age = f["groups"]["age_band"]["policies"][CHAMPION]
+    low = age["lowest_air"]
+    geo = f["proxy"]["attributes"]["geography_group"]
+    return [
+        "## 11. Fairness",
+        "",
+        "Three checks. **Counterfactual flips:** change one sensitive attribute and nothing else, and every output must stay the same; a test-only policy that reads age fails, so the check can fail. "
+        + (
+            "Here every flip of every case left every output unchanged, apart from the region flip's housing cost, which moves DTI (the financial channel, reported on its own)."
+            if f["flips"]["clean"]
+            else "Here a flip changed an output; see the model card."
+        )
+        + f" **Group outcomes:** approval rate by group and the adverse impact ratio, the group's rate over the highest group's. Under the champion the lowest age band is {low['group']}, at {f3(low['air'])}. **Proxy check:** can the 14 features predict the attribute? For region the AUC is {f3(geo['auc'])}, so a model could reproduce regional differences without seeing region.",
+        "",
+        f"*Check yourself:* the flips show no engine reads age, yet applicants aged {low['group']} are approved at {f3(low['air'])} of the highest group's rate. Is that proof of fair treatment?",
+        "",
+    ]

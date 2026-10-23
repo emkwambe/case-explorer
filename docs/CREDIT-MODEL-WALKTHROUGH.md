@@ -58,11 +58,17 @@ For loans whose falsified field is known, did the top reason name it? On the fun
 
 ## 10. Limits
 
-This model recovers a simple, known simulated process; its numbers do not transfer to real data. It learns from funded loans only, has no out-of-time test, is untested for fairness, and is a second opinion beside the credit policy, never the decision. It must not be used for real lending.
+This model recovers a simple, known simulated process; its numbers do not transfer to real data. It learns from funded loans only, has no out-of-time test, has fairness evidence that is monitoring only (step 11), and is a second opinion beside the credit policy, never the decision. It must not be used for real lending.
 
 The policy view shows the funded-only limit in money. **Why the logistic model's choice costs $7,064,313 against the policy's $4,413,431.** Trained on funded loans only, under a policy that already screens FICO and DTI, the model learns that credit score barely matters: its FICO coefficient is -0.038 per standard deviation. Applied to every applicant, the linear model extrapolates that flat slope to people the policy declined: of its 3,415 swap-ins, 1,466 were policy declines and 5.5% have a FICO below 660; their mean charge-off PD is 3.40% against 1.54% for the loans it swaps out. Monotonic trees flatten beyond the data instead of extrapolating a line, so `credit_pd_xgb` swaps in 1,134 (0.4% below FICO 660) at about the same PD as it swaps out, and costs $4,445,121. Both are scoring applicants outside their training population; Sprint 12's reject inference is the fix for that. The comparison also favours the policy: it reads the claimed FICO, which in this generator equals the true score, while both models read the noisier bureau score. So the models' loss figures are conservative, and part of the logistic model's $7,064,313 is that handicap, not only selection bias.
 
 *Check yourself:* name two things a real model risk review would ask for that this sprint does not provide.
+
+## 11. Fairness
+
+Three checks. **Counterfactual flips:** change one sensitive attribute and nothing else, and every output must stay the same; a test-only policy that reads age fails, so the check can fail. Here every flip of every case left every output unchanged, apart from the region flip's housing cost, which moves DTI (the financial channel, reported on its own). **Group outcomes:** approval rate by group and the adverse impact ratio, the group's rate over the highest group's. Under the champion the lowest age band is 22-29, at 0.660. **Proxy check:** can the 14 features predict the attribute? For region the AUC is 0.937, so a model could reproduce regional differences without seeing region.
+
+*Check yourself:* the flips show no engine reads age, yet applicants aged 22-29 are approved at 0.660 of the highest group's rate. Is that proof of fair treatment?
 
 ## Answer key
 
@@ -76,3 +82,4 @@ The policy view shows the funded-only limit in money. **Why the logistic model's
 8. Only the simulation knows each loan's true probability; a lender sees outcomes only.
 9. The fraud rules and document checks, which name the falsified field directly.
 10. Any two of: independent validation; out-of-time and drift testing; fairness and disparate-impact testing; reject inference; real data.
+11. No. The flips prove only that no engine reads age. The difference arrives through the decision inputs (FICO, DTI, liquidity and fraud review) as they vary with age, so it is evidence for a reviewer to weigh (is each factor justified by risk, and is there a less discriminatory alternative?), not proof of fair or unfair treatment.

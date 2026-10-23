@@ -97,6 +97,10 @@ Found while building the credit PD model (Sprint 11). Changing the generator wou
 - **Bureau scores above 850.** The credit bureau's `credit_score` exceeds the FICO scale's 850 maximum on some cases (up to 882 in the funded training books, 867 in the funded seed-42 book). The bureau noise is added without clamping.
 - **One extra bureau account on most loans.** The bureau lists one more account than the application on most clean loans (`undisclosed_accounts` = 1 on 59,550 of the 80,000 funded training loans), so the account-count gap is close to constant noise rather than a concealment signal. The credit model's `undisclosed_accounts` feature inherits it (`docs/MODEL-CARD-credit-pd.md`).
 
+## The shared feature policy misses two audit attributes
+
+`DEFAULT_POLICY.sensitive_attributes` (`analytics/src/case_analytics/features/policy.py`) lists `zip_code` but not its derivative `zip3`, and has no entry for `regime`, so the shared guard classifies both as PERMITTED. Found in Sprint 12, when a fairness test asked the credit model's guard to reject all eight audit attributes. The credit PD model is protected: `zip3` and `regime` are in its own `FORBIDDEN_INPUTS` (`analytics/src/case_analytics/credit/data.py`), and neither is one of its 14 features. Fixing the shared policy is deferred to a separate change, because the governed datasets and the model suite also read it; that change must run the benchmark and the answer-key checks first.
+
 ## The public-record chunk is above Vite's 500 kB warning
 
 `npm run build` warns that `publicRecordData-*.js` is about 517 kB (55 kB gzipped; 516.61 kB at the build of October 22, 2026), because the Public record tab's lazily loaded data now includes the peer-lender snapshot (`peers-quarterly.json`, about 600 kB of JSON with full lineage) and the complaint counts. It is a warning only: the chunk loads when the tab opens, not with the main bundle, and the build and every check pass. **Later option:** split the peer data into its own lazy chunk, loaded when the peer panel is shown.

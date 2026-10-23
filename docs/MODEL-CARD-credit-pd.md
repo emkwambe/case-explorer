@@ -141,12 +141,149 @@ The all-applications diagnostic names the asset discrepancy for 5 of 5 fabricati
 
 A low score is a finding, not a failure to hide: it means the model predicts default but cannot tell an underwriter why in fraud terms, which supports keeping the fraud rules beside it. Tampering and fabrication are the hardest case by construction: the funded training books contain neither typology, so the model has only seen the small balance differences of clean loans.
 
+## Fairness
+
+Monitoring evidence, not a legal conclusion. Three questions: does any engine use a sensitive attribute, do approval rates differ by group, and does a neutral feature stand in for a sensitive one?
+
+**Counterfactual flips.** Every case in three sets had each sensitive attribute flipped to every other value, in three ways: *audit* (the `flip_sensitive` mutation, the audit record only), *deep* (the attribute in every layer that holds a copy of it, nothing recomputed) and *financial* (below). Compared before and after: the credit-policy decision and reason codes, the underwriting decision and codes, every fraud-rule result, and the credit model's 14 features, which fix its PD and its stated reasons.
+
+| Flip | Attribute | Opening library: flips, changed | Teaching-v1: flips, changed | Seed-42 pool: flips, changed |
+|---|---|---|---|---|
+| audit | `age_band` | 52, 0 | 316, 0 | 74,696, 0 |
+| audit | `geography_group` | 26, 0 | 158, 0 | 37,348, 0 |
+| audit | `income_band` | 52, 0 | 316, 0 | 74,696, 0 |
+| audit | `family_status_scenario` | 39, 0 | 237, 0 | 56,022, 0 |
+| audit | `disability_income_scenario` | 13, 0 | 79, 0 | 18,674, 0 |
+| audit | `persona` | 104, 0 | 632, 0 | 149,392, 0 |
+| deep | `region` | 26, 0 | 158, 0 | 37,348, 0 |
+| deep | `persona` | 104, 0 | 632, 0 | 149,392, 0 |
+| deep | `regime` | 26, 0 | 158, 0 | 37,348, 0 |
+| deep | `zip_code` | 13, 0 | 79, 0 | 18,674, 0 |
+| deep | `age` | 13, 0 | 79, 0 | 18,674, 0 |
+
+**No engine reads a sensitive attribute:** every audit and deep flip changed nothing. A test-only policy that reads the age band fails this check, so the check can fail; a second one that reads the true region is caught only by the deep flip, which is why the deep flip exists.
+
+**The financial channel, reported separately.** Moving an applicant to another region also moves their housing cost (the current housing payment scaled by the target region's rent multiplier), so DTI follows and decisions can change. That is a credit factor responding to a cost, not the engine reading region, and it is reported as its own category: opening library: 26 flips, DTI moved on 26, the credit decision changed on 7, and 0 changed anything without a DTI move; teaching-v1: 158 flips, DTI moved on 158, the credit decision changed on 23, and 0 changed anything without a DTI move; seed-42 pool: 37,348 flips, DTI moved on 37,348, the credit decision changed on 9,556, and 0 changed anything without a DTI move. A change the channel does not explain would have stopped the sprint; there were none.
+
+**Approval rates by group** on the seed-42 application pool. The champion is the bureau-score policy (9,991 approvals); the `credit_pd_xgb` cut-off approves the same number; the as-is policy (10,000 approvals) reads the claimed FICO, which sees the true score, so it is not a fair benchmark and appears as a reference column only. AIR is the adverse impact ratio, the group's rate over the highest rated group's. Intervals: Wilson 95% for approval rates, Katz log-scale 95% for the AIR. Groups under 30 applicants are listed but not rated. Groups below four-fifths of the highest rate are listed as a monitoring reference only, not a legal test.
+
+**Age band** (overall approval rate 53.5% under the champion)
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| 22-29 | 4,383 | 42.8% (41.4%–44.3%) | -10.7 pts | 0.660 (0.621–0.703) | 42.8%, 0.661 | 42.8% |
+| 30-39 | 5,650 | 52.0% (50.7%–53.3%) | -1.5 pts | 0.802 (0.757–0.849) | 52.1%, 0.805 | 52.2% |
+| 40-49 | 5,232 | 58.3% (56.9%–59.6%) | +4.8 pts | 0.898 (0.849–0.950) | 58.4%, 0.903 | 58.3% |
+| 50-59 | 2,626 | 61.6% (59.7%–63.5%) | +8.1 pts | 0.950 (0.895–1.008) | 61.1%, 0.944 | 61.6% |
+| 60+ | 783 | 64.9% (61.5%–68.1%) | +11.4 pts | 1.000 (reference) | 64.8%, 1.000 | 64.6% |
+
+Below four-fifths of the highest group's rate: champion 22-29; `credit_pd_xgb` cut-off 22-29.
+
+**Region (cost-of-living group)** (overall approval rate 53.5% under the champion)
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| HIGH_COST | 4,708 | 45.8% (44.4%–47.3%) | -7.7 pts | 0.755 (0.726–0.785) | 51.9%, 0.912 | 45.9% |
+| LOW_COST | 4,591 | 60.7% (59.3%–62.1%) | +7.2 pts | 1.000 (reference) | 56.9%, 1.000 | 60.7% |
+| MEDIUM_COST | 9,375 | 53.8% (52.8%–54.8%) | +0.3 pts | 0.886 (0.860–0.913) | 52.6%, 0.925 | 53.9% |
+
+Below four-fifths of the highest group's rate: champion HIGH_COST; `credit_pd_xgb` cut-off none.
+
+**ZIP3 (ten largest, the rest as other)** (overall approval rate 53.5% under the champion)
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| 304 | 162 | 50.6% (43.0%–58.2%) | -2.9 pts | 0.898 (0.733–1.100) | 49.4%, 0.858 | 50.0% |
+| 551 | 166 | 50.6% (43.1%–58.1%) | -2.9 pts | 0.898 (0.734–1.098) | 51.8%, 0.900 | 50.6% |
+| 558 | 164 | 47.0% (39.5%–54.6%) | -6.6 pts | 0.833 (0.675–1.029) | 47.6%, 0.826 | 47.0% |
+| 559 | 161 | 54.0% (46.3%–61.6%) | +0.5 pts | 0.959 (0.788–1.166) | 54.7%, 0.949 | 54.0% |
+| 754 | 165 | 56.4% (48.7%–63.7%) | +2.9 pts | 1.000 (reference) | 57.6%, 1.000 | 57.0% |
+| 755 | 165 | 53.9% (46.3%–61.4%) | +0.4 pts | 0.957 (0.788–1.163) | 55.8%, 0.968 | 53.9% |
+| 801 | 164 | 49.4% (41.8%–57.0%) | -4.1 pts | 0.876 (0.714–1.076) | 46.3%, 0.805 | 50.0% |
+| 804 | 164 | 54.9% (47.2%–62.3%) | +1.4 pts | 0.974 (0.803–1.181) | 50.0%, 0.868 | 54.9% |
+| 855 | 161 | 49.7% (42.1%–57.3%) | -3.8 pts | 0.882 (0.718–1.083) | 49.7%, 0.863 | 49.7% |
+| 857 | 173 | 49.1% (41.8%–56.5%) | -4.4 pts | 0.872 (0.712–1.067) | 49.7%, 0.863 | 49.1% |
+| other | 17,029 | 53.7% (52.9%–54.4%) | +0.2 pts | 0.953 (0.832–1.090) | 53.7%, 0.933 | 53.7% |
+
+**Income band** (overall approval rate 53.5% under the champion): a legitimate credit factor. Differences by income are expected and are not evidence of unfair treatment.
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| <50K | 382 | 0.5% (0.1%–1.9%) | -53.0 pts | 0.007 (0.002–0.027) | 2.4%, 0.032 | 0.5% |
+| 50K-80K | 3,551 | 15.4% (14.2%–16.6%) | -38.1 pts | 0.200 (0.185–0.217) | 15.3%, 0.209 | 15.3% |
+| 80K-120K | 3,622 | 37.0% (35.4%–38.6%) | -16.5 pts | 0.482 (0.461–0.504) | 43.4%, 0.596 | 37.2% |
+| 120K-180K | 5,308 | 68.6% (67.4%–69.8%) | +15.1 pts | 0.894 (0.873–0.915) | 68.5%, 0.940 | 68.7% |
+| 180K+ | 5,811 | 76.8% (75.7%–77.8%) | +23.3 pts | 1.000 (reference) | 72.9%, 1.000 | 76.8% |
+
+Below four-fifths of the highest group's rate: champion 50K-80K, 80K-120K, <50K; `credit_pd_xgb` cut-off 50K-80K, 80K-120K, <50K.
+
+**Persona (occupation)** (overall approval rate 53.5% under the champion)
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| CONSTRUCTION_WORKER | 1,096 | 13.6% (11.7%–15.8%) | -39.9 pts | 0.178 (0.153–0.207) | 14.3%, 0.199 | 13.5% |
+| ENTREPRENEUR | 1,596 | 33.6% (31.3%–35.9%) | -19.9 pts | 0.439 (0.407–0.474) | 37.3%, 0.518 | 33.5% |
+| FINANCE_ANALYST | 2,857 | 71.2% (69.5%–72.8%) | +17.7 pts | 0.931 (0.895–0.968) | 66.9%, 0.927 | 71.4% |
+| NURSE | 2,846 | 66.4% (64.7%–68.1%) | +12.9 pts | 0.869 (0.834–0.905) | 66.7%, 0.925 | 66.4% |
+| PHYSICIAN_ASSISTANT | 1,185 | 76.5% (74.0%–78.8%) | +23.0 pts | 1.000 (reference) | 71.8%, 0.996 | 76.5% |
+| RELOCATED_PROFESSIONAL | 1,821 | 67.4% (65.2%–69.5%) | +13.9 pts | 0.882 (0.843–0.923) | 66.7%, 0.924 | 67.5% |
+| RETAIL_MANAGER | 1,840 | 16.2% (14.6%–18.0%) | -37.3 pts | 0.213 (0.191–0.237) | 18.8%, 0.260 | 16.3% |
+| SOFTWARE_ENGINEER | 2,701 | 76.0% (74.4%–77.6%) | +22.5 pts | 0.995 (0.958–1.033) | 72.1%, 1.000 | 76.0% |
+| TEACHER | 2,732 | 32.8% (31.1%–34.6%) | -20.7 pts | 0.429 (0.403–0.457) | 39.2%, 0.544 | 32.9% |
+
+Below four-fifths of the highest group's rate: champion CONSTRUCTION_WORKER, ENTREPRENEUR, RETAIL_MANAGER, TEACHER; `credit_pd_xgb` cut-off CONSTRUCTION_WORKER, ENTREPRENEUR, RETAIL_MANAGER, TEACHER.
+
+**Regime** (overall approval rate 53.5% under the champion)
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| PRIME | 15,773 | 54.7% (54.0%–55.5%) | +1.2 pts | 1.000 (reference) | 54.5%, 1.000 | 54.8% |
+| SELF_EMPLOYED | 1,943 | 48.7% (46.5%–50.9%) | -4.8 pts | 0.889 (0.848–0.933) | 51.6%, 0.946 | 48.7% |
+| SUBPRIME | 958 | 42.9% (39.8%–46.1%) | -10.6 pts | 0.784 (0.728–0.844) | 41.2%, 0.757 | 43.0% |
+
+Below four-fifths of the highest group's rate: champion SUBPRIME; `credit_pd_xgb` cut-off SUBPRIME.
+
+**Family status (synthetic scenario)** (overall approval rate 53.5% under the champion)
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| MARRIED | 6,670 | 52.6% (51.4%–53.8%) | -0.9 pts | 0.963 (0.929–0.999) | 53.1%, 0.983 | 52.6% |
+| SINGLE | 6,533 | 54.1% (52.9%–55.3%) | +0.6 pts | 0.992 (0.957–1.028) | 53.7%, 0.993 | 54.2% |
+| SINGLE_PARENT | 1,457 | 52.0% (49.5%–54.6%) | -1.5 pts | 0.953 (0.900–1.009) | 53.4%, 0.989 | 52.2% |
+| WITH_DEPENDENTS | 4,014 | 54.6% (53.0%–56.1%) | +1.1 pts | 1.000 (reference) | 54.0%, 1.000 | 54.6% |
+
+**Disability income (synthetic scenario)** (overall approval rate 53.5% under the champion)
+
+| Group | Applicants | Champion: approval rate (95% CI) | vs overall | Champion: AIR (95% CI) | `credit_pd_xgb` cut-off: rate, AIR | As-is reference: rate |
+|---|---|---|---|---|---|---|
+| 0 | 17,911 | 53.4% (52.7%–54.1%) | -0.1 pts | 0.954 (0.895–1.018) | 53.4%, 0.961 | 53.4% |
+| 1 | 763 | 56.0% (52.4%–59.4%) | +2.5 pts | 1.000 (reference) | 55.6%, 1.000 | 56.4% |
+
+The flips prove that no engine reads these attributes, so every difference above arrives through the decision inputs (FICO, DTI, liquidity and fraud review) and how they vary across groups. Region is the clearest case: it moves housing cost, and so DTI.
+
+**Proxy check.** Can the credit model's 14 features predict a sensitive attribute? Depth-2 XGBoost (100 trees) predicting the attribute from the 14 features; 5-fold cross-validated AUC, one-vs-rest macro-averaged for more than two groups; percentile interval from 200 bootstrap resamples; top three features by gain named above 0.6. AUC near 0.5 means no usable proxy.
+
+| Attribute | Groups | AUC (95% CI) | Reading |
+|---|---|---|---|
+| Age band | 5 | 0.591 (0.584–0.597) | weak (0.55–0.60) |
+| Region (cost-of-living group) | 3 | 0.937 (0.934–0.940) | usable proxy: `income_stated`, `dti_stated`, `checking_stated` |
+| ZIP3 (ten largest, the rest as other) | 11 | 0.626 (0.614–0.636) | usable proxy: `income_stated`, `undisclosed_debt`, `checking_statement` |
+| Income band | 5 | 1.000 (1.000–1.000) | usable proxy: `income_stated`, `checking_overstatement_pct`, `income_overstatement_pct` |
+| Persona (occupation) | 9 | 0.913 (0.912–0.915) | usable proxy: `income_stated`, `income_overstatement_pct`, `checking_overstatement_pct` |
+| Regime | 3 | 0.685 (0.675–0.696) | usable proxy: `checking_statement`, `tenure_months`, `fico_bureau` |
+| Family status (synthetic scenario) | 4 | 0.502 (0.495–0.507) | no usable proxy |
+| Disability income (synthetic scenario) | 2 | 0.513 (0.493–0.534) | no usable proxy |
+
+Income band is predicted by stated income, as it must be. The synthetic scenario attributes (family status, disability income) are drawn independently of every financial variable, so they are the control: a proxy there would be a defect. A strong proxy for region or persona means a model could reproduce group differences without ever seeing the attribute, which is why the group tables above are the evidence that matters, not the exclusion of the attribute.
+
+**Legal status, as of October 2026.** ECOA disparate-impact liability was removed from Regulation B effective July 21, 2026, and that change is being litigated (*NFHA v. CFPB*). Disparate impact remains relevant under the Fair Housing Act where it applies, and under state laws such as New Jersey's LAD and Massachusetts law. Colorado SB 26-189 takes effect January 1, 2027. These tables are monitoring evidence for a reviewer; they don't establish or rule out legal compliance.
+
 ## Limitations
 
 - Synthetic data from a known, simple process (above); results do not transfer to real lending.
 - 225 test defaults: confidence intervals are wide.
 - Funded-only selection bias; no reject inference (Sprint 12).
-- Fairness is not yet tested (Sprint 12). Sensitive and geographic attributes are excluded, which does not by itself establish fair outcomes.
+- Fairness evidence is monitoring only (above): sensitive and geographic attributes are excluded and unread, but group outcomes still differ through the credit factors, and none of this is a legal conclusion.
 - No out-of-time test (one as-of date). No drift monitoring (Sprint 12).
 - Generator defects the model sees (bureau scores above 850; one extra bureau account on most loans) are logged in [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md) for a future generator version.
 

@@ -1,0 +1,2869 @@
+{
+ "fairness": {
+  "flips": {
+   "clean": true,
+   "note": "audit: flip_sensitive changes the audit record only; deep: the attribute in every layer that holds it, nothing recomputed; financial: region moved with its housing cost (rent multiplier), so DTI follows. Compared: credit decision and reason codes, underwriting decision and codes, every fraud rule, and the credit model's 14 features (identical features give an identical PD and identical reasons).",
+   "sets": {
+    "opening_library": [
+     {
+      "attribute": "age_band",
+      "cases": 13,
+      "changed": 0,
+      "flips": 52,
+      "kind": "audit"
+     },
+     {
+      "attribute": "geography_group",
+      "cases": 13,
+      "changed": 0,
+      "flips": 26,
+      "kind": "audit"
+     },
+     {
+      "attribute": "income_band",
+      "cases": 13,
+      "changed": 0,
+      "flips": 52,
+      "kind": "audit"
+     },
+     {
+      "attribute": "family_status_scenario",
+      "cases": 13,
+      "changed": 0,
+      "flips": 39,
+      "kind": "audit"
+     },
+     {
+      "attribute": "disability_income_scenario",
+      "cases": 13,
+      "changed": 0,
+      "flips": 13,
+      "kind": "audit"
+     },
+     {
+      "attribute": "persona",
+      "cases": 13,
+      "changed": 0,
+      "flips": 104,
+      "kind": "audit"
+     },
+     {
+      "attribute": "region",
+      "cases": 13,
+      "changed": 0,
+      "flips": 26,
+      "kind": "deep"
+     },
+     {
+      "attribute": "persona",
+      "cases": 13,
+      "changed": 0,
+      "flips": 104,
+      "kind": "deep"
+     },
+     {
+      "attribute": "regime",
+      "cases": 13,
+      "changed": 0,
+      "flips": 26,
+      "kind": "deep"
+     },
+     {
+      "attribute": "zip_code",
+      "cases": 13,
+      "changed": 0,
+      "flips": 13,
+      "kind": "deep"
+     },
+     {
+      "attribute": "age",
+      "cases": 13,
+      "changed": 0,
+      "flips": 13,
+      "kind": "deep"
+     },
+     {
+      "attribute": "region",
+      "cases": 13,
+      "changed": 26,
+      "changed_without_dti_move": 0,
+      "decision_changed": 7,
+      "dti_moved": 26,
+      "flips": 26,
+      "kind": "financial"
+     }
+    ],
+    "pool_seed_42": [
+     {
+      "attribute": "age_band",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 74696,
+      "kind": "audit"
+     },
+     {
+      "attribute": "geography_group",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 37348,
+      "kind": "audit"
+     },
+     {
+      "attribute": "income_band",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 74696,
+      "kind": "audit"
+     },
+     {
+      "attribute": "family_status_scenario",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 56022,
+      "kind": "audit"
+     },
+     {
+      "attribute": "disability_income_scenario",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 18674,
+      "kind": "audit"
+     },
+     {
+      "attribute": "persona",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 149392,
+      "kind": "audit"
+     },
+     {
+      "attribute": "region",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 37348,
+      "kind": "deep"
+     },
+     {
+      "attribute": "persona",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 149392,
+      "kind": "deep"
+     },
+     {
+      "attribute": "regime",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 37348,
+      "kind": "deep"
+     },
+     {
+      "attribute": "zip_code",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 18674,
+      "kind": "deep"
+     },
+     {
+      "attribute": "age",
+      "cases": 18674,
+      "changed": 0,
+      "flips": 18674,
+      "kind": "deep"
+     },
+     {
+      "attribute": "region",
+      "cases": 18674,
+      "changed": 37348,
+      "changed_without_dti_move": 0,
+      "decision_changed": 9556,
+      "dti_moved": 37348,
+      "flips": 37348,
+      "kind": "financial"
+     }
+    ],
+    "teaching_v1": [
+     {
+      "attribute": "age_band",
+      "cases": 79,
+      "changed": 0,
+      "flips": 316,
+      "kind": "audit"
+     },
+     {
+      "attribute": "geography_group",
+      "cases": 79,
+      "changed": 0,
+      "flips": 158,
+      "kind": "audit"
+     },
+     {
+      "attribute": "income_band",
+      "cases": 79,
+      "changed": 0,
+      "flips": 316,
+      "kind": "audit"
+     },
+     {
+      "attribute": "family_status_scenario",
+      "cases": 79,
+      "changed": 0,
+      "flips": 237,
+      "kind": "audit"
+     },
+     {
+      "attribute": "disability_income_scenario",
+      "cases": 79,
+      "changed": 0,
+      "flips": 79,
+      "kind": "audit"
+     },
+     {
+      "attribute": "persona",
+      "cases": 79,
+      "changed": 0,
+      "flips": 632,
+      "kind": "audit"
+     },
+     {
+      "attribute": "region",
+      "cases": 79,
+      "changed": 0,
+      "flips": 158,
+      "kind": "deep"
+     },
+     {
+      "attribute": "persona",
+      "cases": 79,
+      "changed": 0,
+      "flips": 632,
+      "kind": "deep"
+     },
+     {
+      "attribute": "regime",
+      "cases": 79,
+      "changed": 0,
+      "flips": 158,
+      "kind": "deep"
+     },
+     {
+      "attribute": "zip_code",
+      "cases": 79,
+      "changed": 0,
+      "flips": 79,
+      "kind": "deep"
+     },
+     {
+      "attribute": "age",
+      "cases": 79,
+      "changed": 0,
+      "flips": 79,
+      "kind": "deep"
+     },
+     {
+      "attribute": "region",
+      "cases": 79,
+      "changed": 158,
+      "changed_without_dti_move": 0,
+      "decision_changed": 23,
+      "dti_moved": 158,
+      "flips": 158,
+      "kind": "financial"
+     }
+    ]
+   }
+  },
+  "four_fifths_note": "groups below 0.8 of the highest group's rate are listed as a monitoring reference only, not a legal test",
+  "groups": {
+   "age_band": {
+    "legitimate_credit_factor": false,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.663033,
+        "air_ci95": [
+         0.623119,
+         0.705504
+        ],
+        "applicants": 4383,
+        "approvals": 1878,
+        "difference_from_overall": -0.10703,
+        "group": "22-29",
+        "rate": 0.428474,
+        "rate_ci95": [
+         0.413892,
+         0.44318
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.807129,
+        "air_ci95": [
+         0.762008,
+         0.854922
+        ],
+        "applicants": 5650,
+        "approvals": 2947,
+        "difference_from_overall": -0.013911,
+        "group": "30-39",
+        "rate": 0.521593,
+        "rate_ci95": [
+         0.508557,
+         0.534599
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.902668,
+        "air_ci95": [
+         0.852946,
+         0.955288
+        ],
+        "applicants": 5232,
+        "approvals": 3052,
+        "difference_from_overall": 0.047829,
+        "group": "40-49",
+        "rate": 0.583333,
+        "rate_ci95": [
+         0.569918,
+         0.596626
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.952854,
+        "air_ci95": [
+         0.897375,
+         1.011763
+        ],
+        "applicants": 2626,
+        "approvals": 1617,
+        "difference_from_overall": 0.080262,
+        "group": "50-59",
+        "rate": 0.615765,
+        "rate_ci95": [
+         0.597005,
+         0.634188
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 783,
+        "approvals": 506,
+        "difference_from_overall": 0.110729,
+        "group": "60+",
+        "rate": 0.646232,
+        "rate_ci95": [
+         0.612102,
+         0.678935
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.663033,
+       "group": "22-29"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [
+       "22-29"
+      ],
+      "reference_group": "60+"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.660423,
+        "air_ci95": [
+         0.620816,
+         0.702557
+        ],
+        "applicants": 4383,
+        "approvals": 1878,
+        "difference_from_overall": -0.106548,
+        "group": "22-29",
+        "rate": 0.428474,
+        "rate_ci95": [
+         0.413892,
+         0.44318
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.801769,
+        "air_ci95": [
+         0.757121,
+         0.84905
+        ],
+        "applicants": 5650,
+        "approvals": 2939,
+        "difference_from_overall": -0.014845,
+        "group": "30-39",
+        "rate": 0.520177,
+        "rate_ci95": [
+         0.507141,
+         0.533186
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.897936,
+        "air_ci95": [
+         0.848686,
+         0.950043
+        ],
+        "applicants": 5232,
+        "approvals": 3048,
+        "difference_from_overall": 0.047547,
+        "group": "40-49",
+        "rate": 0.582569,
+        "rate_ci95": [
+         0.569151,
+         0.595866
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.94969,
+        "air_ci95": [
+         0.894629,
+         1.008139
+        ],
+        "applicants": 2626,
+        "approvals": 1618,
+        "difference_from_overall": 0.081124,
+        "group": "50-59",
+        "rate": 0.616146,
+        "rate_ci95": [
+         0.597389,
+         0.634564
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 783,
+        "approvals": 508,
+        "difference_from_overall": 0.113765,
+        "group": "60+",
+        "rate": 0.648787,
+        "rate_ci95": [
+         0.614699,
+         0.681422
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.660423,
+       "group": "22-29"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "22-29"
+      ],
+      "reference_group": "60+"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.661373,
+        "air_ci95": [
+         0.621629,
+         0.703659
+        ],
+        "applicants": 4383,
+        "approvals": 1877,
+        "difference_from_overall": -0.106776,
+        "group": "22-29",
+        "rate": 0.428245,
+        "rate_ci95": [
+         0.413665,
+         0.442951
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.804717,
+        "air_ci95": [
+         0.759821,
+         0.852266
+        ],
+        "applicants": 5650,
+        "approvals": 2944,
+        "difference_from_overall": -0.01396,
+        "group": "30-39",
+        "rate": 0.521062,
+        "rate_ci95": [
+         0.508026,
+         0.534069
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.902659,
+        "air_ci95": [
+         0.853069,
+         0.955131
+        ],
+        "applicants": 5232,
+        "approvals": 3058,
+        "difference_from_overall": 0.049458,
+        "group": "40-49",
+        "rate": 0.58448,
+        "rate_ci95": [
+         0.571069,
+         0.597767
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.943918,
+        "air_ci95": [
+         0.888938,
+         1.002297
+        ],
+        "applicants": 2626,
+        "approvals": 1605,
+        "difference_from_overall": 0.076174,
+        "group": "50-59",
+        "rate": 0.611196,
+        "rate_ci95": [
+         0.592401,
+         0.629665
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 783,
+        "approvals": 507,
+        "difference_from_overall": 0.112488,
+        "group": "60+",
+        "rate": 0.64751,
+        "rate_ci95": [
+         0.613401,
+         0.680178
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.661373,
+       "group": "22-29"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "22-29"
+      ],
+      "reference_group": "60+"
+     }
+    }
+   },
+   "disability_income_scenario": {
+    "legitimate_credit_factor": false,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.948087,
+        "air_ci95": [
+         0.889381,
+         1.010668
+        ],
+        "applicants": 17911,
+        "approvals": 9570,
+        "difference_from_overall": -0.001195,
+        "group": "0",
+        "rate": 0.534309,
+        "rate_ci95": [
+         0.526997,
+         0.541606
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 763,
+        "approvals": 430,
+        "difference_from_overall": 0.028061,
+        "group": "1",
+        "rate": 0.563565,
+        "rate_ci95": [
+         0.528143,
+         0.59835
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.948087,
+       "group": "0"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "1"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.954149,
+        "air_ci95": [
+         0.894628,
+         1.017631
+        ],
+        "applicants": 17911,
+        "approvals": 9564,
+        "difference_from_overall": -0.001048,
+        "group": "0",
+        "rate": 0.533974,
+        "rate_ci95": [
+         0.526661,
+         0.541271
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 763,
+        "approvals": 427,
+        "difference_from_overall": 0.024611,
+        "group": "1",
+        "rate": 0.559633,
+        "rate_ci95": [
+         0.524197,
+         0.594472
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.954149,
+       "group": "0"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "1"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.961202,
+        "air_ci95": [
+         0.900798,
+         1.025656
+        ],
+        "applicants": 17911,
+        "approvals": 9567,
+        "difference_from_overall": -0.000881,
+        "group": "0",
+        "rate": 0.534141,
+        "rate_ci95": [
+         0.526829,
+         0.541438
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 763,
+        "approvals": 424,
+        "difference_from_overall": 0.020679,
+        "group": "1",
+        "rate": 0.555701,
+        "rate_ci95": [
+         0.520253,
+         0.590592
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.961202,
+       "group": "0"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "1"
+     }
+    }
+   },
+   "family_status_scenario": {
+    "legitimate_credit_factor": false,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.964087,
+        "air_ci95": [
+         0.929756,
+         0.999686
+        ],
+        "applicants": 6670,
+        "approvals": 3510,
+        "difference_from_overall": -0.009267,
+        "group": "MARRIED",
+        "rate": 0.526237,
+        "rate_ci95": [
+         0.514242,
+         0.538201
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.992156,
+        "air_ci95": [
+         0.9571,
+         1.028497
+        ],
+        "applicants": 6533,
+        "approvals": 3538,
+        "difference_from_overall": 0.006054,
+        "group": "SINGLE",
+        "rate": 0.541558,
+        "rate_ci95": [
+         0.529455,
+         0.553613
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.956886,
+        "air_ci95": [
+         0.904198,
+         1.012644
+        ],
+        "applicants": 1457,
+        "approvals": 761,
+        "difference_from_overall": -0.013198,
+        "group": "SINGLE_PARENT",
+        "rate": 0.522306,
+        "rate_ci95": [
+         0.496633,
+         0.547862
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 4014,
+        "approvals": 2191,
+        "difference_from_overall": 0.010336,
+        "group": "WITH_DEPENDENTS",
+        "rate": 0.54584,
+        "rate_ci95": [
+         0.5304,
+         0.561191
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.956886,
+       "group": "SINGLE_PARENT"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "WITH_DEPENDENTS"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.962988,
+        "air_ci95": [
+         0.92868,
+         0.998564
+        ],
+        "applicants": 6670,
+        "approvals": 3506,
+        "difference_from_overall": -0.009385,
+        "group": "MARRIED",
+        "rate": 0.525637,
+        "rate_ci95": [
+         0.513642,
+         0.537602
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.991596,
+        "air_ci95": [
+         0.956551,
+         1.027924
+        ],
+        "applicants": 6533,
+        "approvals": 3536,
+        "difference_from_overall": 0.00623,
+        "group": "SINGLE",
+        "rate": 0.541252,
+        "rate_ci95": [
+         0.529148,
+         0.553307
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.953114,
+        "air_ci95": [
+         0.900475,
+         1.00883
+        ],
+        "applicants": 1457,
+        "approvals": 758,
+        "difference_from_overall": -0.014775,
+        "group": "SINGLE_PARENT",
+        "rate": 0.520247,
+        "rate_ci95": [
+         0.494575,
+         0.545813
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 4014,
+        "approvals": 2191,
+        "difference_from_overall": 0.010818,
+        "group": "WITH_DEPENDENTS",
+        "rate": 0.54584,
+        "rate_ci95": [
+         0.5304,
+         0.561191
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.953114,
+       "group": "SINGLE_PARENT"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "WITH_DEPENDENTS"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.982642,
+        "air_ci95": [
+         0.947529,
+         1.019058
+        ],
+        "applicants": 6670,
+        "approvals": 3540,
+        "difference_from_overall": -0.004287,
+        "group": "MARRIED",
+        "rate": 0.530735,
+        "rate_ci95": [
+         0.518744,
+         0.54269
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.99333,
+        "air_ci95": [
+         0.95785,
+         1.030123
+        ],
+        "applicants": 6533,
+        "approvals": 3505,
+        "difference_from_overall": 0.001485,
+        "group": "SINGLE",
+        "rate": 0.536507,
+        "rate_ci95": [
+         0.524397,
+         0.548574
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.98864,
+        "air_ci95": [
+         0.934966,
+         1.045396
+        ],
+        "applicants": 1457,
+        "approvals": 778,
+        "difference_from_overall": -0.001048,
+        "group": "SINGLE_PARENT",
+        "rate": 0.533974,
+        "rate_ci95": [
+         0.508304,
+         0.559465
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 4014,
+        "approvals": 2168,
+        "difference_from_overall": 0.005088,
+        "group": "WITH_DEPENDENTS",
+        "rate": 0.54011,
+        "rate_ci95": [
+         0.524661,
+         0.555482
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.982642,
+       "group": "MARRIED"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "WITH_DEPENDENTS"
+     }
+    }
+   },
+   "geography_group": {
+    "legitimate_credit_factor": false,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.755959,
+        "air_ci95": [
+         0.727185,
+         0.785872
+        ],
+        "applicants": 4708,
+        "approvals": 2159,
+        "difference_from_overall": -0.076923,
+        "group": "HIGH_COST",
+        "rate": 0.458581,
+        "rate_ci95": [
+         0.444387,
+         0.472842
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 4591,
+        "approvals": 2785,
+        "difference_from_overall": 0.071118,
+        "group": "LOW_COST",
+        "rate": 0.606622,
+        "rate_ci95": [
+         0.592408,
+         0.620657
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.889033,
+        "air_ci95": [
+         0.862864,
+         0.915995
+        ],
+        "applicants": 9375,
+        "approvals": 5056,
+        "difference_from_overall": 0.003803,
+        "group": "MEDIUM_COST",
+        "rate": 0.539307,
+        "rate_ci95": [
+         0.529203,
+         0.549378
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.755959,
+       "group": "HIGH_COST"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [
+       "HIGH_COST"
+      ],
+      "reference_group": "LOW_COST"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.754796,
+        "air_ci95": [
+         0.726072,
+         0.784656
+        ],
+        "applicants": 4708,
+        "approvals": 2158,
+        "difference_from_overall": -0.076653,
+        "group": "HIGH_COST",
+        "rate": 0.458369,
+        "rate_ci95": [
+         0.444176,
+         0.47263
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 4591,
+        "approvals": 2788,
+        "difference_from_overall": 0.072253,
+        "group": "LOW_COST",
+        "rate": 0.607275,
+        "rate_ci95": [
+         0.593065,
+         0.621306
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.886144,
+        "air_ci95": [
+         0.860058,
+         0.913022
+        ],
+        "applicants": 9375,
+        "approvals": 5045,
+        "difference_from_overall": 0.003111,
+        "group": "MEDIUM_COST",
+        "rate": 0.538133,
+        "rate_ci95": [
+         0.528028,
+         0.548207
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.754796,
+       "group": "HIGH_COST"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "HIGH_COST"
+      ],
+      "reference_group": "LOW_COST"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.912429,
+        "air_ci95": [
+         0.879039,
+         0.947086
+        ],
+        "applicants": 4708,
+        "approvals": 2444,
+        "difference_from_overall": -0.015906,
+        "group": "HIGH_COST",
+        "rate": 0.519116,
+        "rate_ci95": [
+         0.504835,
+         0.533367
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 4591,
+        "approvals": 2612,
+        "difference_from_overall": 0.033917,
+        "group": "LOW_COST",
+        "rate": 0.568939,
+        "rate_ci95": [
+         0.554562,
+         0.583201
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.925231,
+        "air_ci95": [
+         0.896393,
+         0.954996
+        ],
+        "applicants": 9375,
+        "approvals": 4935,
+        "difference_from_overall": -0.008622,
+        "group": "MEDIUM_COST",
+        "rate": 0.5264,
+        "rate_ci95": [
+         0.516284,
+         0.536494
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.912429,
+       "group": "HIGH_COST"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "LOW_COST"
+     }
+    }
+   },
+   "income_band": {
+    "legitimate_credit_factor": true,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.894064,
+        "air_ci95": [
+         0.87371,
+         0.914893
+        ],
+        "applicants": 5308,
+        "approvals": 3644,
+        "difference_from_overall": 0.151007,
+        "group": "120K-180K",
+        "rate": 0.686511,
+        "rate_ci95": [
+         0.6739,
+         0.698852
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 5811,
+        "approvals": 4462,
+        "difference_from_overall": 0.23235,
+        "group": "180K+",
+        "rate": 0.767854,
+        "rate_ci95": [
+         0.756824,
+         0.77853
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.199879,
+        "air_ci95": [
+         0.184783,
+         0.216208
+        ],
+        "applicants": 3551,
+        "approvals": 545,
+        "difference_from_overall": -0.382026,
+        "group": "50K-80K",
+        "rate": 0.153478,
+        "rate_ci95": [
+         0.141997,
+         0.165707
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.484329,
+        "air_ci95": [
+         0.463192,
+         0.50643
+        ],
+        "applicants": 3622,
+        "approvals": 1347,
+        "difference_from_overall": -0.16361,
+        "group": "80K-120K",
+        "rate": 0.371894,
+        "rate_ci95": [
+         0.356298,
+         0.387762
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.006818,
+        "air_ci95": [
+         0.001711,
+         0.027166
+        ],
+        "applicants": 382,
+        "approvals": 2,
+        "difference_from_overall": -0.530268,
+        "group": "<50K",
+        "rate": 0.005236,
+        "rate_ci95": [
+         0.001437,
+         0.018886
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.006818,
+       "group": "<50K"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [
+       "50K-80K",
+       "80K-120K",
+       "<50K"
+      ],
+      "reference_group": "180K+"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.893774,
+        "air_ci95": [
+         0.873412,
+         0.914611
+        ],
+        "applicants": 5308,
+        "approvals": 3642,
+        "difference_from_overall": 0.151112,
+        "group": "120K-180K",
+        "rate": 0.686134,
+        "rate_ci95": [
+         0.673519,
+         0.69848
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 5811,
+        "approvals": 4461,
+        "difference_from_overall": 0.23266,
+        "group": "180K+",
+        "rate": 0.767682,
+        "rate_ci95": [
+         0.756649,
+         0.778361
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.200291,
+        "air_ci95": [
+         0.185179,
+         0.216635
+        ],
+        "applicants": 3551,
+        "approvals": 546,
+        "difference_from_overall": -0.381262,
+        "group": "50K-80K",
+        "rate": 0.15376,
+        "rate_ci95": [
+         0.14227,
+         0.165997
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.48192,
+        "air_ci95": [
+         0.460811,
+         0.503996
+        ],
+        "applicants": 3622,
+        "approvals": 1340,
+        "difference_from_overall": -0.165061,
+        "group": "80K-120K",
+        "rate": 0.369961,
+        "rate_ci95": [
+         0.354384,
+         0.385814
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.00682,
+        "air_ci95": [
+         0.001712,
+         0.027172
+        ],
+        "applicants": 382,
+        "approvals": 2,
+        "difference_from_overall": -0.529786,
+        "group": "<50K",
+        "rate": 0.005236,
+        "rate_ci95": [
+         0.001437,
+         0.018886
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.00682,
+       "group": "<50K"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "50K-80K",
+       "80K-120K",
+       "<50K"
+      ],
+      "reference_group": "180K+"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.939624,
+        "air_ci95": [
+         0.917273,
+         0.96252
+        ],
+        "applicants": 5308,
+        "approvals": 3634,
+        "difference_from_overall": 0.149605,
+        "group": "120K-180K",
+        "rate": 0.684627,
+        "rate_ci95": [
+         0.671997,
+         0.69699
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 5811,
+        "approvals": 4234,
+        "difference_from_overall": 0.193596,
+        "group": "180K+",
+        "rate": 0.728618,
+        "rate_ci95": [
+         0.717037,
+         0.739897
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.209483,
+        "air_ci95": [
+         0.193557,
+         0.226719
+        ],
+        "applicants": 3551,
+        "approvals": 542,
+        "difference_from_overall": -0.382389,
+        "group": "50K-80K",
+        "rate": 0.152633,
+        "rate_ci95": [
+         0.14118,
+         0.164837
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.595668,
+        "air_ci95": [
+         0.572103,
+         0.620204
+        ],
+        "applicants": 3622,
+        "approvals": 1572,
+        "difference_from_overall": -0.101008,
+        "group": "80K-120K",
+        "rate": 0.434014,
+        "rate_ci95": [
+         0.417952,
+         0.450217
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.032335,
+        "air_ci95": [
+         0.016952,
+         0.061678
+        ],
+        "applicants": 382,
+        "approvals": 9,
+        "difference_from_overall": -0.511462,
+        "group": "<50K",
+        "rate": 0.02356,
+        "rate_ci95": [
+         0.012444,
+         0.044164
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.032335,
+       "group": "<50K"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "50K-80K",
+       "80K-120K",
+       "<50K"
+      ],
+      "reference_group": "180K+"
+     }
+    }
+   },
+   "persona": {
+    "legitimate_credit_factor": false,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.176426,
+        "air_ci95": [
+         0.151379,
+         0.205617
+        ],
+        "applicants": 1096,
+        "approvals": 148,
+        "difference_from_overall": -0.400467,
+        "group": "CONSTRUCTION_WORKER",
+        "rate": 0.135036,
+        "rate_ci95": [
+         0.116073,
+         0.156549
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.437957,
+        "air_ci95": [
+         0.40593,
+         0.472512
+        ],
+        "applicants": 1596,
+        "approvals": 535,
+        "difference_from_overall": -0.200291,
+        "group": "ENTREPRENEUR",
+        "rate": 0.335213,
+        "rate_ci95": [
+         0.312473,
+         0.358744
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.932434,
+        "air_ci95": [
+         0.896631,
+         0.969666
+        ],
+        "applicants": 2857,
+        "approvals": 2039,
+        "difference_from_overall": 0.178182,
+        "group": "FINANCE_ANALYST",
+        "rate": 0.713686,
+        "rate_ci95": [
+         0.696832,
+         0.729966
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.867178,
+        "air_ci95": [
+         0.832379,
+         0.903432
+        ],
+        "applicants": 2846,
+        "approvals": 1889,
+        "difference_from_overall": 0.128235,
+        "group": "NURSE",
+        "rate": 0.663739,
+        "rate_ci95": [
+         0.646171,
+         0.680864
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 1185,
+        "approvals": 907,
+        "difference_from_overall": 0.229897,
+        "group": "PHYSICIAN_ASSISTANT",
+        "rate": 0.765401,
+        "rate_ci95": [
+         0.74044,
+         0.788646
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.882483,
+        "air_ci95": [
+         0.843818,
+         0.922919
+        ],
+        "applicants": 1821,
+        "approvals": 1230,
+        "difference_from_overall": 0.139949,
+        "group": "RELOCATED_PROFESSIONAL",
+        "rate": 0.675453,
+        "rate_ci95": [
+         0.653599,
+         0.696569
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.213017,
+        "air_ci95": [
+         0.191169,
+         0.237363
+        ],
+        "applicants": 1840,
+        "approvals": 300,
+        "difference_from_overall": -0.37246,
+        "group": "RETAIL_MANAGER",
+        "rate": 0.163043,
+        "rate_ci95": [
+         0.14687,
+         0.180621
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.993544,
+        "air_ci95": [
+         0.956527,
+         1.031992
+        ],
+        "applicants": 2701,
+        "approvals": 2054,
+        "difference_from_overall": 0.224955,
+        "group": "SOFTWARE_ENGINEER",
+        "rate": 0.760459,
+        "rate_ci95": [
+         0.744001,
+         0.776178
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.429444,
+        "air_ci95": [
+         0.403558,
+         0.456991
+        ],
+        "applicants": 2732,
+        "approvals": 898,
+        "difference_from_overall": -0.206807,
+        "group": "TEACHER",
+        "rate": 0.328697,
+        "rate_ci95": [
+         0.311334,
+         0.346541
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.176426,
+       "group": "CONSTRUCTION_WORKER"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [
+       "CONSTRUCTION_WORKER",
+       "ENTREPRENEUR",
+       "RETAIL_MANAGER",
+       "TEACHER"
+      ],
+      "reference_group": "PHYSICIAN_ASSISTANT"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.177814,
+        "air_ci95": [
+         0.152654,
+         0.20712
+        ],
+        "applicants": 1096,
+        "approvals": 149,
+        "difference_from_overall": -0.399073,
+        "group": "CONSTRUCTION_WORKER",
+        "rate": 0.135949,
+        "rate_ci95": [
+         0.116925,
+         0.157516
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.43926,
+        "air_ci95": [
+         0.407161,
+         0.47389
+        ],
+        "applicants": 1596,
+        "approvals": 536,
+        "difference_from_overall": -0.199182,
+        "group": "ENTREPRENEUR",
+        "rate": 0.33584,
+        "rate_ci95": [
+         0.313088,
+         0.35938
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.930716,
+        "air_ci95": [
+         0.894863,
+         0.968006
+        ],
+        "applicants": 2857,
+        "approvals": 2033,
+        "difference_from_overall": 0.176564,
+        "group": "FINANCE_ANALYST",
+        "rate": 0.711586,
+        "rate_ci95": [
+         0.694698,
+         0.727904
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.868594,
+        "air_ci95": [
+         0.833702,
+         0.904947
+        ],
+        "applicants": 2846,
+        "approvals": 1890,
+        "difference_from_overall": 0.129068,
+        "group": "NURSE",
+        "rate": 0.66409,
+        "rate_ci95": [
+         0.646527,
+         0.681211
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 1185,
+        "approvals": 906,
+        "difference_from_overall": 0.229535,
+        "group": "PHYSICIAN_ASSISTANT",
+        "rate": 0.764557,
+        "rate_ci95": [
+         0.739569,
+         0.787835
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.88202,
+        "air_ci95": [
+         0.843284,
+         0.922535
+        ],
+        "applicants": 1821,
+        "approvals": 1228,
+        "difference_from_overall": 0.139333,
+        "group": "RELOCATED_PROFESSIONAL",
+        "rate": 0.674355,
+        "rate_ci95": [
+         0.652484,
+         0.695492
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.212541,
+        "air_ci95": [
+         0.1907,
+         0.236884
+        ],
+        "applicants": 1840,
+        "approvals": 299,
+        "difference_from_overall": -0.372522,
+        "group": "RETAIL_MANAGER",
+        "rate": 0.1625,
+        "rate_ci95": [
+         0.14635,
+         0.180056
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.99464,
+        "air_ci95": [
+         0.957524,
+         1.033195
+        ],
+        "applicants": 2701,
+        "approvals": 2054,
+        "difference_from_overall": 0.225437,
+        "group": "SOFTWARE_ENGINEER",
+        "rate": 0.760459,
+        "rate_ci95": [
+         0.744001,
+         0.776178
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.428961,
+        "air_ci95": [
+         0.403058,
+         0.456528
+        ],
+        "applicants": 2732,
+        "approvals": 896,
+        "difference_from_overall": -0.207057,
+        "group": "TEACHER",
+        "rate": 0.327965,
+        "rate_ci95": [
+         0.310613,
+         0.3458
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.177814,
+       "group": "CONSTRUCTION_WORKER"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "CONSTRUCTION_WORKER",
+       "ENTREPRENEUR",
+       "RETAIL_MANAGER",
+       "TEACHER"
+      ],
+      "reference_group": "PHYSICIAN_ASSISTANT"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.198621,
+        "air_ci95": [
+         0.171524,
+         0.229998
+        ],
+        "applicants": 1096,
+        "approvals": 157,
+        "difference_from_overall": -0.391774,
+        "group": "CONSTRUCTION_WORKER",
+        "rate": 0.143248,
+        "rate_ci95": [
+         0.123753,
+         0.165236
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.517784,
+        "air_ci95": [
+         0.483873,
+         0.554073
+        ],
+        "applicants": 1596,
+        "approvals": 596,
+        "difference_from_overall": -0.161588,
+        "group": "ENTREPRENEUR",
+        "rate": 0.373434,
+        "rate_ci95": [
+         0.350033,
+         0.397442
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.926955,
+        "air_ci95": [
+         0.895183,
+         0.959855
+        ],
+        "applicants": 2857,
+        "approvals": 1910,
+        "difference_from_overall": 0.133511,
+        "group": "FINANCE_ANALYST",
+        "rate": 0.668533,
+        "rate_ci95": [
+         0.651056,
+         0.685558
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.924692,
+        "air_ci95": [
+         0.892901,
+         0.957614
+        ],
+        "applicants": 2846,
+        "approvals": 1898,
+        "difference_from_overall": 0.131879,
+        "group": "NURSE",
+        "rate": 0.666901,
+        "rate_ci95": [
+         0.64937,
+         0.683982
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.995742,
+        "air_ci95": [
+         0.954132,
+         1.039166
+        ],
+        "applicants": 1185,
+        "approvals": 851,
+        "difference_from_overall": 0.183122,
+        "group": "PHYSICIAN_ASSISTANT",
+        "rate": 0.718143,
+        "rate_ci95": [
+         0.691854,
+         0.743023
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.924367,
+        "air_ci95": [
+         0.888072,
+         0.962145
+        ],
+        "applicants": 1821,
+        "approvals": 1214,
+        "difference_from_overall": 0.131645,
+        "group": "RELOCATED_PROFESSIONAL",
+        "rate": 0.666667,
+        "rate_ci95": [
+         0.644684,
+         0.687947
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.259978,
+        "air_ci95": [
+         0.235718,
+         0.286736
+        ],
+        "applicants": 1840,
+        "approvals": 345,
+        "difference_from_overall": -0.347522,
+        "group": "RETAIL_MANAGER",
+        "rate": 0.1875,
+        "rate_ci95": [
+         0.170324,
+         0.205978
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 2701,
+        "approvals": 1948,
+        "difference_from_overall": 0.186192,
+        "group": "SOFTWARE_ENGINEER",
+        "rate": 0.721214,
+        "rate_ci95": [
+         0.703999,
+         0.737801
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.544064,
+        "air_ci95": [
+         0.516381,
+         0.573231
+        ],
+        "applicants": 2732,
+        "approvals": 1072,
+        "difference_from_overall": -0.142635,
+        "group": "TEACHER",
+        "rate": 0.392387,
+        "rate_ci95": [
+         0.37424,
+         0.410835
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.198621,
+       "group": "CONSTRUCTION_WORKER"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "CONSTRUCTION_WORKER",
+       "ENTREPRENEUR",
+       "RETAIL_MANAGER",
+       "TEACHER"
+      ],
+      "reference_group": "SOFTWARE_ENGINEER"
+     }
+    }
+   },
+   "regime": {
+    "legitimate_credit_factor": false,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 15773,
+        "approvals": 8642,
+        "difference_from_overall": 0.012394,
+        "group": "PRIME",
+        "rate": 0.547898,
+        "rate_ci95": [
+         0.54012,
+         0.555653
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.888625,
+        "air_ci95": [
+         0.84715,
+         0.93213
+        ],
+        "applicants": 1943,
+        "approvals": 946,
+        "difference_from_overall": -0.048628,
+        "group": "SELF_EMPLOYED",
+        "rate": 0.486876,
+        "rate_ci95": [
+         0.464699,
+         0.509104
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.784931,
+        "air_ci95": [
+         0.728752,
+         0.845442
+        ],
+        "applicants": 958,
+        "approvals": 412,
+        "difference_from_overall": -0.105441,
+        "group": "SUBPRIME",
+        "rate": 0.430063,
+        "rate_ci95": [
+         0.399053,
+         0.461631
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.784931,
+       "group": "SUBPRIME"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [
+       "SUBPRIME"
+      ],
+      "reference_group": "PRIME"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 15773,
+        "approvals": 8634,
+        "difference_from_overall": 0.012369,
+        "group": "PRIME",
+        "rate": 0.547391,
+        "rate_ci95": [
+         0.539613,
+         0.555146
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.889448,
+        "air_ci95": [
+         0.847931,
+         0.932998
+        ],
+        "applicants": 1943,
+        "approvals": 946,
+        "difference_from_overall": -0.048146,
+        "group": "SELF_EMPLOYED",
+        "rate": 0.486876,
+        "rate_ci95": [
+         0.464699,
+         0.509104
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.783752,
+        "air_ci95": [
+         0.727544,
+         0.844303
+        ],
+        "applicants": 958,
+        "approvals": 411,
+        "difference_from_overall": -0.106003,
+        "group": "SUBPRIME",
+        "rate": 0.429019,
+        "rate_ci95": [
+         0.398023,
+         0.460582
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.783752,
+       "group": "SUBPRIME"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "SUBPRIME"
+      ],
+      "reference_group": "PRIME"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 15773,
+        "approvals": 8594,
+        "difference_from_overall": 0.009833,
+        "group": "PRIME",
+        "rate": 0.544855,
+        "rate_ci95": [
+         0.537074,
+         0.552615
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.946485,
+        "air_ci95": [
+         0.904486,
+         0.990435
+        ],
+        "applicants": 1943,
+        "approvals": 1002,
+        "difference_from_overall": -0.019325,
+        "group": "SELF_EMPLOYED",
+        "rate": 0.515697,
+        "rate_ci95": [
+         0.493467,
+         0.537866
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.756747,
+        "air_ci95": [
+         0.700711,
+         0.817264
+        ],
+        "applicants": 958,
+        "approvals": 395,
+        "difference_from_overall": -0.122705,
+        "group": "SUBPRIME",
+        "rate": 0.412317,
+        "rate_ci95": [
+         0.381557,
+         0.443778
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.756747,
+       "group": "SUBPRIME"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [
+       "SUBPRIME"
+      ],
+      "reference_group": "PRIME"
+     }
+    }
+   },
+   "zip3": {
+    "legitimate_credit_factor": false,
+    "policies": {
+     "as_is_policy_reference": {
+      "applicants": 18674,
+      "approvals": 10000,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.87766,
+        "air_ci95": [
+         0.716258,
+         1.075431
+        ],
+        "applicants": 162,
+        "approvals": 81,
+        "difference_from_overall": -0.035504,
+        "group": "304",
+        "rate": 0.5,
+        "rate_ci95": [
+         0.423902,
+         0.576098
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.888234,
+        "air_ci95": [
+         0.726906,
+         1.085366
+        ],
+        "applicants": 166,
+        "approvals": 84,
+        "difference_from_overall": -0.02948,
+        "group": "551",
+        "rate": 0.506024,
+        "rate_ci95": [
+         0.430697,
+         0.581079
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.824144,
+        "air_ci95": [
+         0.668117,
+         1.016608
+        ],
+        "applicants": 164,
+        "approvals": 77,
+        "difference_from_overall": -0.065992,
+        "group": "558",
+        "rate": 0.469512,
+        "rate_ci95": [
+         0.394705,
+         0.545715
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.948526,
+        "air_ci95": [
+         0.780772,
+         1.152325
+        ],
+        "applicants": 161,
+        "approvals": 87,
+        "difference_from_overall": 0.004869,
+        "group": "559",
+        "rate": 0.540373,
+        "rate_ci95": [
+         0.463347,
+         0.615517
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 165,
+        "approvals": 94,
+        "difference_from_overall": 0.034193,
+        "group": "754",
+        "rate": 0.569697,
+        "rate_ci95": [
+         0.493412,
+         0.64281
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.946809,
+        "air_ci95": [
+         0.780189,
+         1.149012
+        ],
+        "applicants": 165,
+        "approvals": 89,
+        "difference_from_overall": 0.00389,
+        "group": "755",
+        "rate": 0.539394,
+        "rate_ci95": [
+         0.463308,
+         0.613687
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.87766,
+        "air_ci95": [
+         0.716769,
+         1.074665
+        ],
+        "applicants": 164,
+        "approvals": 82,
+        "difference_from_overall": -0.035504,
+        "group": "801",
+        "rate": 0.5,
+        "rate_ci95": [
+         0.424357,
+         0.575643
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.963285,
+        "air_ci95": [
+         0.795046,
+         1.167124
+        ],
+        "applicants": 164,
+        "approvals": 90,
+        "difference_from_overall": 0.013277,
+        "group": "804",
+        "rate": 0.54878,
+        "rate_ci95": [
+         0.472374,
+         0.622954
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.872208,
+        "air_ci95": [
+         0.711031,
+         1.069921
+        ],
+        "applicants": 161,
+        "approvals": 80,
+        "difference_from_overall": -0.038609,
+        "group": "855",
+        "rate": 0.496894,
+        "rate_ci95": [
+         0.42064,
+         0.573294
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.86244,
+        "air_ci95": [
+         0.705098,
+         1.054893
+        ],
+        "applicants": 173,
+        "approvals": 85,
+        "difference_from_overall": -0.044174,
+        "group": "857",
+        "rate": 0.491329,
+        "rate_ci95": [
+         0.417836,
+         0.5652
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.943269,
+        "air_ci95": [
+         0.825519,
+         1.077814
+        ],
+        "applicants": 17029,
+        "approvals": 9151,
+        "difference_from_overall": 0.001874,
+        "group": "other",
+        "rate": 0.537377,
+        "rate_ci95": [
+         0.529881,
+         0.544857
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.824144,
+       "group": "558"
+      },
+      "overall_rate": 0.535504,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "754"
+     },
+     "bureau_score_policy": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.898049,
+        "air_ci95": [
+         0.733148,
+         1.100039
+        ],
+        "applicants": 162,
+        "approvals": 82,
+        "difference_from_overall": -0.028849,
+        "group": "304",
+        "rate": 0.506173,
+        "rate_ci95": [
+         0.429938,
+         0.582122
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.897785,
+        "air_ci95": [
+         0.733919,
+         1.098237
+        ],
+        "applicants": 166,
+        "approvals": 84,
+        "difference_from_overall": -0.028998,
+        "group": "551",
+        "rate": 0.506024,
+        "rate_ci95": [
+         0.430697,
+         0.581079
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.833006,
+        "air_ci95": [
+         0.674596,
+         1.028613
+        ],
+        "applicants": 164,
+        "approvals": 77,
+        "difference_from_overall": -0.06551,
+        "group": "558",
+        "rate": 0.469512,
+        "rate_ci95": [
+         0.394705,
+         0.545715
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.958726,
+        "air_ci95": [
+         0.788279,
+         1.166027
+        ],
+        "applicants": 161,
+        "approvals": 87,
+        "difference_from_overall": 0.005351,
+        "group": "559",
+        "rate": 0.540373,
+        "rate_ci95": [
+         0.463347,
+         0.615517
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 165,
+        "approvals": 93,
+        "difference_from_overall": 0.028614,
+        "group": "754",
+        "rate": 0.563636,
+        "rate_ci95": [
+         0.487369,
+         0.637008
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.956989,
+        "air_ci95": [
+         0.787686,
+         1.162682
+        ],
+        "applicants": 165,
+        "approvals": 89,
+        "difference_from_overall": 0.004372,
+        "group": "755",
+        "rate": 0.539394,
+        "rate_ci95": [
+         0.463308,
+         0.613687
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.876279,
+        "air_ci95": [
+         0.713856,
+         1.075657
+        ],
+        "applicants": 164,
+        "approvals": 81,
+        "difference_from_overall": -0.04112,
+        "group": "801",
+        "rate": 0.493902,
+        "rate_ci95": [
+         0.418405,
+         0.569679
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.973643,
+        "air_ci95": [
+         0.802679,
+         1.181021
+        ],
+        "applicants": 164,
+        "approvals": 90,
+        "difference_from_overall": 0.013759,
+        "group": "804",
+        "rate": 0.54878,
+        "rate_ci95": [
+         0.472374,
+         0.622954
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.881587,
+        "air_ci95": [
+         0.717906,
+         1.082586
+        ],
+        "applicants": 161,
+        "approvals": 80,
+        "difference_from_overall": -0.038128,
+        "group": "855",
+        "rate": 0.496894,
+        "rate_ci95": [
+         0.42064,
+         0.573294
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.871714,
+        "air_ci95": [
+         0.711905,
+         1.067397
+        ],
+        "applicants": 173,
+        "approvals": 85,
+        "difference_from_overall": -0.043692,
+        "group": "857",
+        "rate": 0.491329,
+        "rate_ci95": [
+         0.417836,
+         0.5652
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.952578,
+        "air_ci95": [
+         0.832301,
+         1.090236
+        ],
+        "applicants": 17029,
+        "approvals": 9143,
+        "difference_from_overall": 0.001886,
+        "group": "other",
+        "rate": 0.536908,
+        "rate_ci95": [
+         0.529411,
+         0.544388
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.833006,
+       "group": "558"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "754"
+     },
+     "credit_pd_xgb_cutoff": {
+      "applicants": 18674,
+      "approvals": 9991,
+      "groups": [
+       {
+        "adverse_impact_ratio": 0.8577,
+        "air_ci95": [
+         0.699689,
+         1.051394
+        ],
+        "applicants": 162,
+        "approvals": 80,
+        "difference_from_overall": -0.041195,
+        "group": "304",
+        "rate": 0.493827,
+        "rate_ci95": [
+         0.417878,
+         0.570062
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.89981,
+        "air_ci95": [
+         0.739154,
+         1.095384
+        ],
+        "applicants": 166,
+        "approvals": 86,
+        "difference_from_overall": -0.01695,
+        "group": "551",
+        "rate": 0.518072,
+        "rate_ci95": [
+         0.442515,
+         0.592812
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.826059,
+        "air_ci95": [
+         0.671389,
+         1.016361
+        ],
+        "applicants": 164,
+        "approvals": 78,
+        "difference_from_overall": -0.059412,
+        "group": "558",
+        "rate": 0.47561,
+        "rate_ci95": [
+         0.400613,
+         0.551723
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.94933,
+        "air_ci95": [
+         0.783318,
+         1.150526
+        ],
+        "applicants": 161,
+        "approvals": 88,
+        "difference_from_overall": 0.011562,
+        "group": "559",
+        "rate": 0.546584,
+        "rate_ci95": [
+         0.469494,
+         0.621502
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 1.0,
+        "air_ci95": null,
+        "applicants": 165,
+        "approvals": 95,
+        "difference_from_overall": 0.040736,
+        "group": "754",
+        "rate": 0.575758,
+        "rate_ci95": [
+         0.499466,
+         0.648602
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.968421,
+        "air_ci95": [
+         0.801843,
+         1.169605
+        ],
+        "applicants": 165,
+        "approvals": 92,
+        "difference_from_overall": 0.022554,
+        "group": "755",
+        "rate": 0.557576,
+        "rate_ci95": [
+         0.481337,
+         0.631194
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.804878,
+        "air_ci95": [
+         0.652147,
+         0.993378
+        ],
+        "applicants": 164,
+        "approvals": 76,
+        "difference_from_overall": -0.071607,
+        "group": "801",
+        "rate": 0.463415,
+        "rate_ci95": [
+         0.388807,
+         0.539697
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.868421,
+        "air_ci95": [
+         0.709979,
+         1.062221
+        ],
+        "applicants": 164,
+        "approvals": 82,
+        "difference_from_overall": -0.035022,
+        "group": "804",
+        "rate": 0.5,
+        "rate_ci95": [
+         0.424357,
+         0.575643
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.863027,
+        "air_ci95": [
+         0.70429,
+         1.057542
+        ],
+        "applicants": 161,
+        "approvals": 80,
+        "difference_from_overall": -0.038128,
+        "group": "855",
+        "rate": 0.496894,
+        "rate_ci95": [
+         0.42064,
+         0.573294
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.863401,
+        "air_ci95": [
+         0.70757,
+         1.053552
+        ],
+        "applicants": 173,
+        "approvals": 86,
+        "difference_from_overall": -0.037912,
+        "group": "857",
+        "rate": 0.49711,
+        "rate_ci95": [
+         0.423481,
+         0.570864
+        ],
+        "rated": true
+       },
+       {
+        "adverse_impact_ratio": 0.933034,
+        "air_ci95": [
+         0.817888,
+         1.064391
+        ],
+        "applicants": 17029,
+        "approvals": 9148,
+        "difference_from_overall": 0.002179,
+        "group": "other",
+        "rate": 0.537201,
+        "rate_ci95": [
+         0.529705,
+         0.544681
+        ],
+        "rated": true
+       }
+      ],
+      "lowest_air": {
+       "air": 0.804878,
+       "group": "801"
+      },
+      "overall_rate": 0.535022,
+      "rated_groups_below_four_fifths": [],
+      "reference_group": "754"
+     }
+    }
+   }
+  },
+  "interval_methods": "approval rate: Wilson 95%; adverse impact ratio: Katz log-scale 95%",
+  "matched_volume": 9991,
+  "min_rated_group": 30,
+  "policies": {
+   "as_is_policy_reference": {
+    "approvals": 10000,
+    "label": "as-is policy (claimed FICO): sees the true score; not a fair benchmark"
+   },
+   "bureau_score_policy": {
+    "approvals": 9991,
+    "label": "bureau-score policy (the champion): the credit policy's thresholds on the bureau FICO"
+   },
+   "credit_pd_xgb_cutoff": {
+    "approvals": 9991,
+    "label": "credit_pd_xgb: the lowest-PD applications up to the champion's approval count"
+   }
+  },
+  "proxy": {
+   "attributes": {
+    "age_band": {
+     "auc": 0.590731,
+     "auc_ci95": [
+      0.584177,
+      0.59698
+     ],
+     "groups": 5,
+     "resamples": 200,
+     "top_features": null
+    },
+    "disability_income_scenario": {
+     "auc": 0.512582,
+     "auc_ci95": [
+      0.492851,
+      0.534233
+     ],
+     "groups": 2,
+     "resamples": 200,
+     "top_features": null
+    },
+    "family_status_scenario": {
+     "auc": 0.501544,
+     "auc_ci95": [
+      0.495141,
+      0.507182
+     ],
+     "groups": 4,
+     "resamples": 200,
+     "top_features": null
+    },
+    "geography_group": {
+     "auc": 0.937036,
+     "auc_ci95": [
+      0.93441,
+      0.939506
+     ],
+     "groups": 3,
+     "resamples": 200,
+     "top_features": [
+      "income_stated",
+      "dti_stated",
+      "checking_stated"
+     ]
+    },
+    "income_band": {
+     "auc": 0.999663,
+     "auc_ci95": [
+      0.999552,
+      0.999739
+     ],
+     "groups": 5,
+     "resamples": 200,
+     "top_features": [
+      "income_stated",
+      "checking_overstatement_pct",
+      "income_overstatement_pct"
+     ]
+    },
+    "persona": {
+     "auc": 0.913358,
+     "auc_ci95": [
+      0.911588,
+      0.915037
+     ],
+     "groups": 9,
+     "resamples": 200,
+     "top_features": [
+      "income_stated",
+      "income_overstatement_pct",
+      "checking_overstatement_pct"
+     ]
+    },
+    "regime": {
+     "auc": 0.684882,
+     "auc_ci95": [
+      0.675239,
+      0.695618
+     ],
+     "groups": 3,
+     "resamples": 200,
+     "top_features": [
+      "checking_statement",
+      "tenure_months",
+      "fico_bureau"
+     ]
+    },
+    "zip3": {
+     "auc": 0.626228,
+     "auc_ci95": [
+      0.613743,
+      0.636077
+     ],
+     "groups": 11,
+     "resamples": 200,
+     "top_features": [
+      "income_stated",
+      "undisclosed_debt",
+      "checking_statement"
+     ]
+    }
+   },
+   "method": "depth-2 XGBoost (100 trees) predicting the attribute from the 14 features; 5-fold cross-validated AUC, one-vs-rest macro-averaged for more than two groups; percentile interval from 200 bootstrap resamples; top three features by gain named above 0.6"
+  }
+ },
+ "label": "Developer testing on synthetic data; the credit policy makes the decision.",
+ "snapshot_version": "1.0.0"
+}

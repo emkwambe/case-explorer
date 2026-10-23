@@ -1,0 +1,309 @@
+{
+  "produced_by": "node scripts/export_credit_features.mjs (scripts/lib/fairness.mjs)",
+  "clean": true,
+  "sets": {
+    "opening_library": [
+      {
+        "kind": "audit",
+        "attribute": "age_band",
+        "cases": 13,
+        "flips": 52,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "geography_group",
+        "cases": 13,
+        "flips": 26,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "income_band",
+        "cases": 13,
+        "flips": 52,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "family_status_scenario",
+        "cases": 13,
+        "flips": 39,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "disability_income_scenario",
+        "cases": 13,
+        "flips": 13,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "persona",
+        "cases": 13,
+        "flips": 104,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "region",
+        "cases": 13,
+        "flips": 26,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "persona",
+        "cases": 13,
+        "flips": 104,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "regime",
+        "cases": 13,
+        "flips": 26,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "zip_code",
+        "cases": 13,
+        "flips": 13,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "age",
+        "cases": 13,
+        "flips": 13,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "financial",
+        "attribute": "region",
+        "cases": 13,
+        "flips": 26,
+        "changed": 26,
+        "dti_moved": 26,
+        "decision_changed": 7,
+        "changed_without_dti_move": 0,
+        "examples": []
+      }
+    ],
+    "teaching_v1": [
+      {
+        "kind": "audit",
+        "attribute": "age_band",
+        "cases": 79,
+        "flips": 316,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "geography_group",
+        "cases": 79,
+        "flips": 158,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "income_band",
+        "cases": 79,
+        "flips": 316,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "family_status_scenario",
+        "cases": 79,
+        "flips": 237,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "disability_income_scenario",
+        "cases": 79,
+        "flips": 79,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "persona",
+        "cases": 79,
+        "flips": 632,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "region",
+        "cases": 79,
+        "flips": 158,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "persona",
+        "cases": 79,
+        "flips": 632,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "regime",
+        "cases": 79,
+        "flips": 158,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "zip_code",
+        "cases": 79,
+        "flips": 79,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "age",
+        "cases": 79,
+        "flips": 79,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "financial",
+        "attribute": "region",
+        "cases": 79,
+        "flips": 158,
+        "changed": 158,
+        "dti_moved": 158,
+        "decision_changed": 23,
+        "changed_without_dti_move": 0,
+        "examples": []
+      }
+    ],
+    "pool_seed_42": [
+      {
+        "kind": "audit",
+        "attribute": "age_band",
+        "cases": 18674,
+        "flips": 74696,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "geography_group",
+        "cases": 18674,
+        "flips": 37348,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "income_band",
+        "cases": 18674,
+        "flips": 74696,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "family_status_scenario",
+        "cases": 18674,
+        "flips": 56022,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "disability_income_scenario",
+        "cases": 18674,
+        "flips": 18674,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "audit",
+        "attribute": "persona",
+        "cases": 18674,
+        "flips": 149392,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "region",
+        "cases": 18674,
+        "flips": 37348,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "persona",
+        "cases": 18674,
+        "flips": 149392,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "regime",
+        "cases": 18674,
+        "flips": 37348,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "zip_code",
+        "cases": 18674,
+        "flips": 18674,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "deep",
+        "attribute": "age",
+        "cases": 18674,
+        "flips": 18674,
+        "changed": 0,
+        "examples": []
+      },
+      {
+        "kind": "financial",
+        "attribute": "region",
+        "cases": 18674,
+        "flips": 37348,
+        "changed": 37348,
+        "dti_moved": 37348,
+        "decision_changed": 9556,
+        "changed_without_dti_move": 0,
+        "examples": []
+      }
+    ]
+  }
+}

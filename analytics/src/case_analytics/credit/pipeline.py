@@ -28,6 +28,7 @@ from sklearn.metrics import log_loss, roc_auc_score
 from sklearn.model_selection import GroupKFold
 
 from . import evaluate as ev
+from . import fairness as fr
 from . import reasons as rs
 from .data import DATA_DIR, ROOT, Data, load_data
 from .models import (
@@ -45,6 +46,9 @@ from .models import (
 SNAPSHOT_DIR = ROOT / "artifacts" / "credit-model-snapshot"
 SUMMARY = "credit-model-summary.json"
 CASES = "credit-model-cases.json"
+# Sprint 12: properties only synthetic truth can prove (fairness, champion/challenger, reject inference,
+# drift), kept apart so the Sprint 11 summary and cases stay byte-identical.
+PROPERTIES = "credit-model-properties.json"
 CV_FOLDS = 4
 PACKAGES = ("xgboost", "scikit-learn", "numpy", "pandas", "scipy", "shap")
 
@@ -412,7 +416,14 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
             "reasons": reasons,
         }
     )
-    write_snapshot(out, {SUMMARY: summary, CASES: rounded(cases)}, data)
+    properties = rounded(
+        {
+            "snapshot_version": "1.0.0",
+            "label": "Developer testing on synthetic data; the credit policy makes the decision.",
+            "fairness": fr.fairness_section(data, pool_scores[XGB_NAME], log),
+        }
+    )
+    write_snapshot(out, {SUMMARY: summary, CASES: rounded(cases), PROPERTIES: properties}, data)
     return summary
 
 

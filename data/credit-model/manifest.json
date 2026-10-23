@@ -171,6 +171,66 @@
       "committed": false,
       "sha256": "3a21700d5a248e452a416d2eee4dcb1d360d5bd8a25e5ddb86e198bd360e4726"
     },
+    "books/decisions-seed-1001.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18600,
+      "committed": false,
+      "sha256": "ed305ba6ca9940b69f96311ae24678130257f227e3cfd4d5b9532dc6919583bd"
+    },
+    "books/decisions-seed-1002.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18789,
+      "committed": false,
+      "sha256": "9fb50124c41fa9661c0957429678a4e6aa0e167034d888e5509e6449e236261e"
+    },
+    "books/decisions-seed-1003.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18806,
+      "committed": false,
+      "sha256": "cd404c912f15fff5aa3c7303868cfc3fe9b1e5f8e66372e604312327d51256f0"
+    },
+    "books/decisions-seed-1004.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18839,
+      "committed": false,
+      "sha256": "6c4a1119257a7cd003cb650becefabc10cdc13f55099a2aff1b64bebe4c9ed86"
+    },
+    "books/decisions-seed-1005.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18839,
+      "committed": false,
+      "sha256": "979f38f54f29bf262a8294eb9df0fb7f06cdddf8854187b491c20ec4b740487c"
+    },
+    "books/decisions-seed-1006.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18751,
+      "committed": false,
+      "sha256": "86257031392d2bcab5deaad173956f6dbefd609ee150f72c5c88f1c1d3f161bf"
+    },
+    "books/decisions-seed-1007.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18705,
+      "committed": false,
+      "sha256": "129d5d942a87ca8c7b638d294784fd9bd32ad7071294839383c39415d122801d"
+    },
+    "books/decisions-seed-1008.csv": {
+      "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18841,
+      "committed": false,
+      "sha256": "70160668796cbadd1c45fd0a54d1617efb17323bf6b3d053f9cd61e133727664"
+    },
+    "books/decisions-seed-1009.csv": {
+      "role": "calibration book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18952,
+      "committed": false,
+      "sha256": "dae7b4fc30900b03eb1b1a8a68020a5d61b5882cbb27d8b5428efd800b8b0f2c"
+    },
+    "books/decisions-seed-1010.csv": {
+      "role": "calibration book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 19001,
+      "committed": false,
+      "sha256": "69110511ad4f4fc7df25371549b56bfa61af80b0194bf0bc185754678bb34c8f"
+    },
     "books/oracle-seed-1001.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18600,
@@ -231,6 +291,17 @@
       "committed": false,
       "sha256": "2326a2cb07a176d2d007fcfd233d18c9ebe5e45bfafa27046269724a8d1fe74e"
     },
+    "decisions-seed-42.csv": {
+      "role": "test book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18674,
+      "committed": true,
+      "sha256": "b0e0908a938a1fef8747109c217287402f5137d5dfceacc52c7ca47936973e7f"
+    },
+    "fairness-flips.json": {
+      "role": "counterfactual flips of every sensitive attribute (audit, deep and financial-channel) over the opening library, teaching-v1 and the seed-42 pool",
+      "committed": true,
+      "sha256": "20b2f226f2650876535dc7500eb81a44128fb8ea3ec27003815e84702f6808c1"
+    },
     "feature-spec.json": {
       "role": "features, monotonic directions, groups and reason statements (read by the Python model)",
       "committed": true,
@@ -247,6 +318,12 @@
       "rows": 18674,
       "committed": true,
       "sha256": "28aaf020db16641842eb3160e2eb2254200c7dcd965dfa0b7cdc5d77ea43088b"
+    },
+    "sensitive-seed-42.csv": {
+      "role": "test book: audit attributes (sensitive), for the fairness group tables and proxy check only — never a model input",
+      "rows": 18674,
+      "committed": true,
+      "sha256": "bb0e4302568df4c37f0d444486d474912e5ec5dab30a0c82f3ef29293f250130"
     },
     "teaching-v1.csv": {
       "role": "teaching-v1 cases (rebuilt from their recipes): decision-time features, for reasons and reason accuracy",

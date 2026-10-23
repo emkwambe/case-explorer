@@ -13,7 +13,7 @@ from typing import Any
 
 from .cards import model_card, walkthrough
 from .data import ROOT
-from .pipeline import SNAPSHOT_DIR, SUMMARY
+from .pipeline import PROPERTIES, SNAPSHOT_DIR, SUMMARY
 
 README = ROOT / "analytics" / "credit" / "README.md"
 MODEL_CARD = ROOT / "docs" / "MODEL-CARD-credit-pd.md"
@@ -46,6 +46,8 @@ def readme(s: dict[str, Any]) -> str:
         f"`node scripts/export_credit_features.mjs` reruns the Solar prime book pipeline (`buildSolarBook`, the same code that builds the locked seed-42 book) once per seed and writes `data/credit-model/`. The rule: **test** is seed {seeds['test']}, the locked book; **training** is seeds from 1001 upward until the training books' funded loans hold at least 2,000 defaults ({', '.join(map(str, seeds['training']))}); **calibration** is the next two seeds ({', '.join(map(str, seeds['calibration']))}). Each book funds 10,000 credit-policy approvals in seed order. Every application is simulated by the dealer engine, so all of them carry a 30+ DPD outcome; the headline model uses funded rows only, as a lender would.",
         "",
         "The seed-42 files, the teaching and opening-library features, the feature spec and the manifest are committed. The training and calibration books are regenerated (about 3 minutes) and gitignored; `data/credit-model/manifest.json` holds every file's SHA-256, and the Python loader refuses data that does not match it.",
+        "",
+        "**Fairness files** (Sprint 12), seed 42 only and committed: `sensitive-seed-42.csv`, the audit attributes of every application, read only by the fairness group tables and the proxy check and never a model input; `decisions-seed-42.csv`, the credit policy's decision on the claimed FICO (the app's policy, equal to the locked tape) and on the bureau FICO (the bureau-score policy, an evaluation variant only); and `fairness-flips.json`, the counterfactual flip table. Every book also gets its decisions file, gitignored with the book.",
         "",
         "| Seed | Role | Applications | Funded | Funded defaults | All-application defaults |",
         "|---|---|---|---|---|---|",
@@ -123,9 +125,13 @@ def readme(s: dict[str, Any]) -> str:
     return "\n".join(L)
 
 
+def load_properties(snapshot: Path = SNAPSHOT_DIR) -> dict[str, Any]:
+    return json.loads((snapshot / PROPERTIES).read_text(encoding="utf-8"))
+
+
 def documents(snapshot: Path = SNAPSHOT_DIR) -> dict[Path, str]:
-    s = load_summary(snapshot)
-    return {README: readme(s), MODEL_CARD: model_card(s), WALKTHROUGH: walkthrough(s)}
+    s, p = load_summary(snapshot), load_properties(snapshot)
+    return {README: readme(s), MODEL_CARD: model_card(s, p), WALKTHROUGH: walkthrough(s, p)}
 
 
 def main(argv: list[str] | None = None) -> int:
