@@ -1,4 +1,218 @@
 {
+ "champion_challenger": {
+  "applications": 18674,
+  "champion": "bureau_score_policy",
+  "fair_comparison_rule": "every challenger is compared with the bureau-score policy at its approval count; the as-is policy reads the claimed FICO, which in this generator equals the true score, so it is a reference only",
+  "labels": {
+   "as_is_policy_reference": "As-is policy (claimed FICO): sees the true score; not a fair benchmark",
+   "bureau_score_policy": "Champion: bureau-score policy",
+   "challenger_a_xgb_alone": "Challenger A: credit_pd_xgb alone, lowest PD up to the champion's count",
+   "challenger_b_overlay": "Challenger B: the policy with a credit_pd_xgb overlay"
+  },
+  "lgd": 0.85,
+  "overlay_tuning": {
+   "chosen_f": 0.05,
+   "criterion": "lowest total expected loss on the calibration books; ties to the smaller f; infeasible fractions excluded",
+   "grid": [
+    {
+     "expected_loss": 8871938.525744,
+     "f": 0.0,
+     "feasible": true
+    },
+    {
+     "expected_loss": 8552077.320191,
+     "f": 0.01,
+     "feasible": true
+    },
+    {
+     "expected_loss": 8225984.686022,
+     "f": 0.02,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7904887.613959,
+     "f": 0.03,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7614932.843143,
+     "f": 0.04,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7361923.196035,
+     "f": 0.05,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7362337.830644,
+     "f": 0.06,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7373783.22967,
+     "f": 0.07,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7380602.768273,
+     "f": 0.08,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7385896.402245,
+     "f": 0.09,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7395376.970962,
+     "f": 0.1,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7387233.276538,
+     "f": 0.11,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7395173.872671,
+     "f": 0.12,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7401436.18487,
+     "f": 0.13,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7421203.649728,
+     "f": 0.14,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7439936.560397,
+     "f": 0.15,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7452317.250685,
+     "f": 0.16,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7477608.902142,
+     "f": 0.17,
+     "feasible": true
+    },
+    {
+     "expected_loss": 7514824.374679,
+     "f": 0.18,
+     "feasible": true
+    },
+    {
+     "expected_loss": null,
+     "f": 0.19,
+     "feasible": false
+    },
+    {
+     "expected_loss": null,
+     "f": 0.2,
+     "feasible": false
+    }
+   ]
+  },
+  "policies": {
+   "as_is_policy_reference": {
+    "approvals": 10000,
+    "dpd30": 225,
+    "dpd30_rate": 0.0225,
+    "expected_loss": 4413430.525212,
+    "fraud_approved": 477,
+    "loss_per_approved_loan": 441.343053,
+    "swap_in": 44,
+    "swap_out": 35
+   },
+   "bureau_score_policy": {
+    "approvals": 9991,
+    "difference_vs_champion": {
+     "dpd30": {
+      "high": 0.0,
+      "low": 0.0,
+      "point": 0.0
+     },
+     "expected_loss": {
+      "high": 0.0,
+      "low": 0.0,
+      "point": 0.0
+     }
+    },
+    "dpd30": 226,
+    "dpd30_rate": 0.02262,
+    "expected_loss": 4415277.925287,
+    "fraud_approved": 476,
+    "loss_per_approved_loan": 441.925526,
+    "swap_in": 0,
+    "swap_out": 0
+   },
+   "challenger_a_xgb_alone": {
+    "approvals": 9991,
+    "difference_vs_champion": {
+     "dpd30": {
+      "high": 3.0,
+      "low": -48.0,
+      "point": -23.0
+     },
+     "expected_loss": {
+      "high": 190082.396821,
+      "low": -137109.760256,
+      "point": 17067.342995
+     }
+    },
+    "dpd30": 203,
+    "dpd30_rate": 0.020318,
+    "expected_loss": 4432345.268282,
+    "fraud_approved": 388,
+    "loss_per_approved_loan": 443.633797,
+    "swap_in": 1130,
+    "swap_in_by_champion_decision": {
+     "DECLINE": 216,
+     "REVIEW": 914
+    },
+    "swap_in_fraud_referrals": 470,
+    "swap_out": 1130
+   },
+   "challenger_b_overlay": {
+    "approvals": 9991,
+    "difference_vs_champion": {
+     "dpd30": {
+      "high": -32.0,
+      "low": -66.0,
+      "point": -49.0
+     },
+     "expected_loss": {
+      "high": -635143.477781,
+      "low": -857582.364926,
+      "point": -743193.354531
+     }
+    },
+    "dpd30": 177,
+    "dpd30_rate": 0.017716,
+    "expected_loss": 3672084.570757,
+    "fraud_approved": 6,
+    "loss_per_approved_loan": 367.539242,
+    "rule": {
+     "add_pd_at_most": 0.022657,
+     "added": "the 500 champion reviews with the lowest credit_pd_xgb PD, excluding fraud referrals",
+     "drop_pd_at_least": 0.029187,
+     "dropped": "the 500 champion approvals with the highest credit_pd_xgb PD",
+     "f": 0.05,
+     "k": 500
+    },
+    "swap_in": 500,
+    "swap_out": 500
+   }
+  }
+ },
  "fairness": {
   "air_reference_line": {
    "not_shown_for": [
@@ -2804,5 +3018,185 @@
   }
  },
  "label": "Developer testing on synthetic data; the credit policy makes the decision.",
+ "reject_inference": {
+  "approval_count": 9991,
+  "champion_expected_loss": 4415277.925287,
+  "families": {
+   "credit_pd_logistic": {
+    "funded_only": {
+     "auc_all_applications": 0.606317,
+     "auc_funded_test_book": 0.631289,
+     "auc_not_funded": 0.556844,
+     "expected_loss_at_champion_count": 7060868.029404,
+     "fico_coefficient_per_sd": -0.037574,
+     "fico_effect_per_sd": -0.036053
+    },
+    "fuzzy": {
+     "auc_all_applications": 0.580057,
+     "auc_funded_test_book": 0.648933,
+     "auc_not_funded": 0.546271,
+     "expected_loss_at_champion_count": 7947537.116789,
+     "fico_coefficient_per_sd": -0.037902,
+     "fico_effect_per_sd": -0.027151,
+     "gap_closed": {
+      "auc_all_applications": -0.230056,
+      "auc_not_funded": -0.090075,
+      "expected_loss_at_champion_count": -0.408659
+     }
+    },
+    "hard_cutoff": {
+     "auc_all_applications": 0.494662,
+     "auc_funded_test_book": 0.614317,
+     "auc_not_funded": 0.496078,
+     "expected_loss_at_champion_count": 9473520.336439,
+     "fico_coefficient_per_sd": 0.068576,
+     "fico_effect_per_sd": 0.050328,
+     "gap_closed": {
+      "auc_all_applications": -0.978168,
+      "auc_not_funded": -0.517681,
+      "expected_loss_at_champion_count": -1.111972
+     }
+    },
+    "oracle": {
+     "auc_all_applications": 0.720464,
+     "auc_funded_test_book": 0.5578,
+     "auc_not_funded": 0.674227,
+     "expected_loss_at_champion_count": 4891162.122603,
+     "fico_coefficient_per_sd": -0.194736,
+     "fico_effect_per_sd": -0.150331
+    }
+   },
+   "credit_pd_xgb": {
+    "funded_only": {
+     "auc_all_applications": 0.732444,
+     "auc_funded_test_book": 0.639727,
+     "auc_not_funded": 0.659962,
+     "expected_loss_at_champion_count": 4432345.268282,
+     "fico_effect_per_sd": -0.063223
+    },
+    "fuzzy": {
+     "auc_all_applications": 0.736319,
+     "auc_funded_test_book": 0.642271,
+     "auc_not_funded": 0.661612,
+     "expected_loss_at_champion_count": 4500634.225561,
+     "fico_effect_per_sd": -0.035904,
+     "gap_closed": {
+      "auc_all_applications": 0.121565,
+      "auc_not_funded": 0.024459,
+      "expected_loss_at_champion_count": -0.111848
+     }
+    },
+    "hard_cutoff": {
+     "auc_all_applications": 0.677876,
+     "auc_funded_test_book": 0.635597,
+     "auc_not_funded": 0.648316,
+     "expected_loss_at_champion_count": 5971649.176077,
+     "fico_effect_per_sd": -0.064782,
+     "gap_closed": {
+      "auc_all_applications": -1.712025,
+      "auc_not_funded": -0.172576,
+      "expected_loss_at_champion_count": -2.521175
+     }
+    },
+    "oracle": {
+     "auc_all_applications": 0.764318,
+     "auc_funded_test_book": 0.631769,
+     "auc_not_funded": 0.727444,
+     "expected_loss_at_champion_count": 3821795.039895,
+     "fico_effect_per_sd": -0.048263
+    }
+   }
+  },
+  "fico_effect_definition": "mean change in log-odds for +1 SD of bureau FICO (training funded SD), over the seed-42 pool",
+  "fico_sd": 39.423733,
+  "training_books": {
+   "all_defaults": 8171,
+   "applications": 150170,
+   "funded": 80000,
+   "funded_defaults": 2004,
+   "not_funded": 70170,
+   "seeds": [
+    1001,
+    1002,
+    1003,
+    1004,
+    1005,
+    1006,
+    1007,
+    1008
+   ]
+  },
+  "training_sets": {
+   "credit_pd_logistic": {
+    "fuzzy": {
+     "defaults": null,
+     "expected_reject_defaults": 12369.56135,
+     "rows": 220340,
+     "weighted_defaults": 14373.56135,
+     "weighted_rows": 150170.0
+    },
+    "hard_cutoff": {
+     "cutoff_pd": 0.241259,
+     "defaults": 14374,
+     "rejects_labelled_default": 12370,
+     "rows": 150170,
+     "weighted_defaults": null,
+     "weighted_rows": null
+    },
+    "oracle": {
+     "defaults": 8171,
+     "rows": 150170,
+     "weighted_defaults": null,
+     "weighted_rows": null
+    }
+   },
+   "credit_pd_xgb": {
+    "fuzzy": {
+     "defaults": null,
+     "expected_reject_defaults": 4160.847198,
+     "rows": 220340,
+     "weighted_defaults": 6164.847198,
+     "weighted_rows": 150170.0
+    },
+    "hard_cutoff": {
+     "cutoff_pd": 0.16925,
+     "defaults": 6165,
+     "rejects_labelled_default": 4161,
+     "rows": 150170,
+     "weighted_defaults": null,
+     "weighted_rows": null
+    },
+    "oracle": {
+     "defaults": 8171,
+     "rows": 150170,
+     "weighted_defaults": null,
+     "weighted_rows": null
+    }
+   }
+  }
+ },
+ "sandbox_candidates": {
+  "candidates": {
+   "bureau_score_policy": {
+    "approvals": 9991,
+    "bitmask": "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",
+    "label": "Champion: bureau-score policy"
+   },
+   "challenger_a_xgb_alone": {
+    "approvals": 9991,
+    "bitmask": "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",
+    "label": "Challenger A: credit_pd_xgb alone, lowest PD up to the champion's count"
+   },
+   "challenger_b_overlay": {
+    "approvals": 9991,
+    "bitmask": "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",
+    "label": "Challenger B: the policy with a credit_pd_xgb overlay"
+   }
+  },
+  "encoding": "base64 of numpy.packbits over the pool order (most significant bit first); 1 = approve",
+  "label": "model-based, evaluation only",
+  "pool_applications": 18674,
+  "pool_sha256": "91e3fcaeab47192978e2169392c8d0851bc5649e5e475707f98a033cf27d93a9"
+ },
  "snapshot_version": "1.0.0"
 }

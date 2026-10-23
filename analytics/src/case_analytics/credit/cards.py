@@ -173,7 +173,7 @@ def policy_paragraph(s: dict[str, Any]) -> str:
         f"{n(lg['swap_in_by_policy_decision']['DECLINE'])} were policy declines and {pct(lg['swap_in_share_fico_below_660'], 1)} have a FICO below 660; their mean charge-off PD is "
         f"{pct(lg['swap_in_mean_pd_chargeoff'])} against {pct(lg['swap_out_mean_pd_chargeoff'])} for the loans it swaps out. Monotonic trees flatten beyond the data instead of extrapolating a line, "
         f"so `{XGB}` swaps in {n(xg['swap_in'])} ({pct(xg['swap_in_share_fico_below_660'], 1)} below FICO 660) at about the same PD as it swaps out, and costs ${n(xg['model_expected_loss'])}. "
-        "Both are scoring applicants outside their training population; Sprint 12's reject inference is the fix for that. "
+        "Both are scoring applicants outside their training population; the reject-inference section measures how much of that standard methods recover. "
         "The comparison also favours the policy: it reads the claimed FICO, which in this generator equals the true score, while both models read the noisier bureau score. "
         f"So the models' loss figures are conservative, and part of the logistic model's ${n(lg['model_expected_loss'])} is that handicap, not only selection bias."
     )
@@ -412,7 +412,7 @@ def model_card(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         f"- **Training:** {n(after['training']['rows'])} funded loans from {len(d['seeds']['training'])} independent books (seeds {', '.join(map(str, d['seeds']['training']))}), {n(after['training']['defaults'])} defaults ({pct(after['training']['default_rate'])}).",
         f"- **Calibration:** {n(after['calibration']['rows'])} funded loans from seeds {', '.join(map(str, d['seeds']['calibration']))}, {n(after['calibration']['defaults'])} defaults.",
         f"- **Test:** the locked seed-42 book, {n(after['test']['rows'])} funded loans, {n(after['test']['defaults'])} defaults ({pct(after['test']['default_rate'])}). It played no part in tuning or calibration.",
-        "- **Selection bias:** outcomes exist only for funded loans, so the model learns from approved applicants only. Reject inference is Sprint 12.",
+        "- **Selection bias:** outcomes exist only for funded loans, so the model learns from approved applicants only. Reject inference is measured below.",
         "- **No out-of-time test:** every application in these books is submitted on the same as-of date (2026-01-15); the seed-42 book is out-of-sample by seed only.",
         "- " + fico_fields_sentence(s),
         "- Details, shapes before and after, and the feature list: [analytics/credit/README.md](../analytics/credit/README.md).",
@@ -469,7 +469,7 @@ def model_card(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         "",
         "## Policy view (reported only)",
         "",
-        f"At the credit policy's approval count on the seed-42 application pool ({n(pv['approvals'])} of {n(pv['applications'])}), approving the lowest-PD applications instead would swap {n(pv[XGB]['swap_in'])} loans in and out under `{XGB}` and {n(pv[LOGIT]['swap_in'])} under `{LOGIT}`. Expected loss (synthetic truth, LGD {pv['lgd']}): policy ${n(pv['policy_expected_loss'])}, `{XGB}` ${n(pv[XGB]['model_expected_loss'])}, `{LOGIT}` ${n(pv[LOGIT]['model_expected_loss'])}. Declined applicants are outside the training population, so their scores are extrapolation. The champion/challenger run through the Policy Sandbox is Sprint 12.",
+        f"At the credit policy's approval count on the seed-42 application pool ({n(pv['approvals'])} of {n(pv['applications'])}), approving the lowest-PD applications instead would swap {n(pv[XGB]['swap_in'])} loans in and out under `{XGB}` and {n(pv[LOGIT]['swap_in'])} under `{LOGIT}`. Expected loss (synthetic truth, LGD {pv['lgd']}): policy ${n(pv['policy_expected_loss'])}, `{XGB}` ${n(pv[XGB]['model_expected_loss'])}, `{LOGIT}` ${n(pv[LOGIT]['model_expected_loss'])}. Declined applicants are outside the training population, so their scores are extrapolation. The fair comparison, against the bureau-score policy at equal volume, is the champion/challenger section below.",
         "",
         policy_paragraph(s),
         "",
@@ -525,11 +525,17 @@ def model_card(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         "A low score is a finding, not a failure to hide: it means the model predicts default but cannot tell an underwriter why in fraud terms, which supports keeping the fraud rules beside it. Tampering and fabrication are the hardest case by construction: the funded training books contain neither typology, so the model has only seen the small balance differences of clean loans.",
         "",
         *(fairness_md(p) if p and "fairness" in p else []),
+        *(champion_md(p) if p and "champion_challenger" in p else []),
+        *(reject_md(p) if p and "reject_inference" in p else []),
         "## Limitations",
         "",
         "- Synthetic data from a known, simple process (above); results do not transfer to real lending.",
         f"- {n(after['test']['defaults'])} test defaults: confidence intervals are wide.",
-        "- Funded-only selection bias; no reject inference (Sprint 12).",
+        (
+            reject_limit(p)
+            if p and "reject_inference" in p
+            else "- Funded-only selection bias; no reject inference (Sprint 12)."
+        ),
         (
             "- Fairness evidence is monitoring only (above): sensitive and geographic attributes are excluded and unread, but group outcomes still differ through the credit factors, and none of this is a legal conclusion."
             if p and "fairness" in p
@@ -644,6 +650,8 @@ def walkthrough(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         "*Check yourself:* name two things a real model risk review would ask for that this sprint does not provide.",
         "",
         *(walkthrough_fairness(p) if p and "fairness" in p else []),
+        *(walkthrough_champion(p) if p and "champion_challenger" in p else []),
+        *(walkthrough_reject(p) if p and "reject_inference" in p else []),
         "## Answer key",
         "",
         "1. A lender observes whether a loan defaulted, never its probability; the PD exists only inside the simulation.",
@@ -661,6 +669,14 @@ def walkthrough(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
                 "11. No. The flips prove only that no engine reads age. The difference arrives through the decision inputs (FICO, DTI, liquidity and fraud review) as they vary with age, so it is evidence for a reviewer to weigh (is each factor justified by risk, and is there a less discriminatory alternative?), not proof of fair or unfair treatment."
             ]
             if p and "fairness" in p
+            else []
+        ),
+        *(
+            [
+                "12. Because the champion sees information the model does not: its review routing (fraud referrals, the DTI watch band and the liquidity check) comes from the fraud rules and the documents, which are not model inputs. Challenger A throws that away and approves applications the policy sent to fraud review; the overlay keeps it and lets the model remove the riskiest approvals, which here are mostly undetected fraud.",
+                "13. Augmentation labels the declined applicants with the funded-only model's own scores, so it can only teach the new model what the old one already believed, including its bias. Only real outcomes for declined applicants (the oracle here; in practice a test-and-learn sample of approvals below the cut-off, or bureau outcomes on loans taken elsewhere) add information.",
+            ]
+            if p and "reject_inference" in p
             else []
         ),
         "",
@@ -687,3 +703,188 @@ def walkthrough_fairness(p: dict[str, Any]) -> list[str]:
         f"*Check yourself:* the flips show no engine reads age, yet applicants aged {low['group']} are approved at {f3(low['air'])} of the highest group's rate. Is that proof of fair treatment?",
         "",
     ]
+
+
+CC_ORDER = ("bureau_score_policy", "challenger_a_xgb_alone", "challenger_b_overlay", "as_is_policy_reference")
+METHOD_NAMES = {
+    "funded_only": "Funded-only (Sprint 11)",
+    "hard_cutoff": "Hard cut-off augmentation",
+    "fuzzy": "Fuzzy augmentation",
+    "oracle": "Oracle: every application",
+}
+
+
+def money(v: float) -> str:
+    return f"−${n(-v)}" if v < 0 else f"+${n(v)}" if v > 0 else "$0"
+
+
+def diff_ci(d: dict[str, float], fmt) -> str:
+    return f"{fmt(d['point'])} ({fmt(d['low'])} to {fmt(d['high'])})"
+
+
+def count(v: float) -> str:
+    return signed(v, 0)
+
+
+def signed(v: float, d: int = 3) -> str:
+    """A signed number with a true minus sign."""
+    return f"{v:+,.{d}f}".replace("-", "−")
+
+
+def cc_reading(c: dict[str, Any]) -> str:
+    pol, lab = c["policies"], c["labels"]
+    a, b = pol["challenger_a_xgb_alone"], pol["challenger_b_overlay"]
+    da, db = a["difference_vs_champion"]["expected_loss"], b["difference_vs_champion"]["expected_loss"]
+
+    def verdict(name: str, d: dict[str, float]) -> str:
+        if d["high"] < 0:
+            return f"{lab[name].split(':', 1)[0]} beats the champion: expected loss is lower by ${n(-d['point'])} (95% interval ${n(-d['high'])} to ${n(-d['low'])})."
+        if d["low"] > 0:
+            return f"The champion beats {lab[name].split(':', 1)[0]}: its expected loss is lower by ${n(d['point'])} (95% interval ${n(d['low'])} to ${n(d['high'])})."
+        return f"{lab[name].split(':', 1)[0]} cannot be told apart from the champion on expected loss: the difference is {money(d['point'])}, and its 95% interval ({money(d['low'])} to {money(d['high'])}) contains 0."
+
+    L = [verdict("challenger_a_xgb_alone", da), verdict("challenger_b_overlay", db)]
+    if b["expected_loss"] < a["expected_loss"]:
+        L.append(
+            f"**Why the overlay beats the model alone.** The policy already uses information the model lacks: its review routing comes from the fraud rules and the documents, which are not model inputs. "
+            f"Challenger A ignores it, and {n(a['swap_in_fraud_referrals'])} of its {n(a['swap_in'])} swap-ins are applications the policy sent to fraud review. "
+            f"The overlay keeps the policy's routing and lets the model add fraud signal on top: the approvals it removes are the riskiest by PD, and the approved book holds {n(b['fraud_approved'])} loans with a hidden fraud against the champion's {n(pol['bureau_score_policy']['fraud_approved'])}."
+        )
+    elif a["expected_loss"] < b["expected_loss"]:
+        L.append(
+            "The model alone beats the overlay here: its ranking adds more than the policy's review routing."
+        )
+    return " ".join(L)
+
+
+def champion_md(p: dict[str, Any]) -> list[str]:
+    c = p["champion_challenger"]
+    pol, lab = c["policies"], c["labels"]
+    rule = pol["challenger_b_overlay"]["rule"]
+    tune = c["overlay_tuning"]
+    infeasible = [g["f"] for g in tune["grid"] if not g["feasible"]]
+    L = [
+        "## Champion/challenger",
+        "",
+        f"**The fair-comparison rule.** The champion is the bureau-score policy: the credit policy's thresholds and logic, reading the bureau FICO the models see. Every challenger approves the same number of applications ({n(pol['bureau_score_policy']['approvals'])} of {n(c['applications'])}) on the seed-42 application pool, where every applicant's simulated outcome is known. The as-is policy reads the claimed FICO, which in this generator equals the true score, so it is shown as a reference only. Expected loss is the simulation's charge-off PD × LGD ({c['lgd']}) × EAD; 30+ DPD is the simulated outcome. Differences are challenger minus champion, with percentile 95% intervals from 1,000 paired bootstrap resamples of the applications.",
+        "",
+        "| Policy | Approvals | Swapped in / out vs champion | Expected loss | Difference (95% CI) | 30+ DPD (rate) | Difference (95% CI) | Loss per approved loan | Hidden-fraud loans approved |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for name in CC_ORDER:
+        r = pol[name]
+        d = r.get("difference_vs_champion")
+        champ = name == "bureau_score_policy"
+        swaps = "—" if champ else f"{n(r['swap_in'])} / {n(r['swap_out'])}"
+        L.append(
+            f"| {lab[name]} | {n(r['approvals'])} | {swaps} | ${n(r['expected_loss'])} | "
+            f"{'—' if champ or d is None else diff_ci(d['expected_loss'], money)} | {n(r['dpd30'])} ({pct(r['dpd30_rate'])}) | "
+            f"{'—' if champ or d is None else diff_ci(d['dpd30'], count)} | ${n(r['loss_per_approved_loan'])} | {n(r['fraud_approved'])} |"
+        )
+    L += [
+        "",
+        f"**Challenger B's rule, exactly.** Start from the champion's approvals. Remove the {n(rule['k'])} with the highest `credit_pd_xgb` PD (here every PD of at least {rule['drop_pd_at_least']:.4f}); add the {n(rule['k'])} champion reviews with the lowest PD that are not fraud referrals (every PD up to {rule['add_pd_at_most']:.4f}). The count is k = f × the champion's approvals, with f = {rule['f']} chosen from 0 to 0.20 in steps of 0.01 by the lowest total expected loss on the two calibration books (ties to the smaller f)"
+        + (
+            f"; f = {' and '.join(f'{x:.2f}' for x in infeasible)} needed more non-fraud reviews than a calibration book holds, so they were not eligible"
+            if infeasible
+            else ""
+        )
+        + ". The seed-42 book played no part in choosing it. Fraud referrals are never added: the overlay can only overrule the policy's caution on credit grounds.",
+        "",
+        cc_reading(c),
+        "",
+        'In the Policy Sandbox the champion and both challengers are selectable as candidate policies, labelled "model-based, evaluation only", and read from the snapshot. None of them changes the app\'s decisions.',
+        "",
+    ]
+    return L
+
+
+def reject_md(p: dict[str, Any]) -> list[str]:
+    r = p["reject_inference"]
+    tb = r["training_books"]
+    L = [
+        "## Reject inference",
+        "",
+        f"The headline models learn from funded loans only. Every application in a simulation has an outcome, so the selection bias can be measured. Four training sets, built from the {len(tb['seeds'])} training books only ({n(tb['applications'])} applications: {n(tb['funded'])} funded, {n(tb['not_funded'])} not funded, that is declined or sent to review):",
+        "",
+        "1. **Funded-only:** the Sprint 11 headline models, unchanged.",
+        "2. **Hard cut-off:** score the not-funded applicants with the funded-only model and label the m highest as defaults, where m is the sum of their PDs rounded up (so the expected number of defaults is kept); retrain on funded plus not funded.",
+        "3. **Fuzzy:** add each not-funded applicant twice, as a default weighted by its funded-only PD and as a non-default weighted by 1 − PD; retrain.",
+        "4. **Oracle:** every application with its simulated outcome. Only synthetic data has it; it is the ceiling.",
+        "",
+        "Each family keeps its Sprint 11 settings. Scored on the seed-42 application pool; expected loss is that of the lowest-PD applications up to the champion's approval count "
+        + f"({n(r['approval_count'])}; the champion's own is ${n(r['champion_expected_loss'])}). The FICO effect is the {r['fico_effect_definition']}. Gap closed is (method − funded-only) ÷ (oracle − funded-only): 100% is the oracle, a negative share means the method made things worse.",
+        "",
+        "| Family | Method | AUC, every application | AUC, not funded | FICO effect per SD | Expected loss | Gap closed: expected loss | Gap closed: AUC |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    worse = []
+    for fam, rows in r["families"].items():
+        for m in METHOD_NAMES:
+            x = rows[m]
+            g = x.get("gap_closed")
+            L.append(
+                f"| `{fam}` | {METHOD_NAMES[m]} | {f3(x['auc_all_applications'])} | {f3(x['auc_not_funded'])} | {signed(x['fico_effect_per_sd'])} | ${n(x['expected_loss_at_champion_count'])} | "
+                f"{pct(g['expected_loss_at_champion_count'], 0).replace('-', '−') if g else '—'} | {pct(g['auc_all_applications'], 0).replace('-', '−') if g else '—'} |"
+            )
+            if g and g["expected_loss_at_champion_count"] < 0:
+                worse.append(f"{METHOD_NAMES[m].lower()} for `{fam}`")
+    lg = r["families"].get(LOGIT)
+    L += [""]
+    if worse:
+        L.append(
+            "**Augmentation made things worse.** These raised the expected loss of the chosen book: "
+            + "; ".join(worse)
+            + ". Both methods label the not-funded applicants with the funded-only model's own scores, so they reinforce its bias instead of correcting it: the new model learns what the old one already believed."
+        )
+    if lg:
+        L += [""]
+        L.append(
+            f"The logistic model's FICO coefficient goes from {signed(lg['funded_only']['fico_coefficient_per_sd'])} per SD (funded-only) to {signed(lg['hard_cutoff']['fico_coefficient_per_sd'])} (hard cut-off) and {signed(lg['fuzzy']['fico_coefficient_per_sd'])} (fuzzy); the oracle learns {signed(lg['oracle']['fico_coefficient_per_sd'])}."
+        )
+    L += [
+        "",
+        "Only real outcomes for declined applicants close the gap. In practice that means a small, controlled sample of approvals below the cut-off, or bureau outcomes on credit the applicant took elsewhere; the oracle row shows how much it is worth here. Shapes of the augmented sets are in the data README.",
+        "",
+    ]
+    return L
+
+
+def walkthrough_champion(p: dict[str, Any]) -> list[str]:
+    c = p["champion_challenger"]
+    pol = c["policies"]
+    b = pol["challenger_b_overlay"]
+    return [
+        "## 12. Champion/challenger",
+        "",
+        "A fair comparison holds everything equal except the decision rule: the same applicants, the same approval count and the same information. The app's policy reads the claimed FICO, which here is the true score, so the champion is the bureau-score policy instead: the same rules on the score the models see. "
+        + cc_reading(c).split(" **Why")[0]
+        + f" The overlay changes only {n(b['rule']['k'])} of {n(b['approvals'])} approvals.",
+        "",
+        "*Check yourself:* why can a policy-plus-model overlay beat the model on its own, when the model ranks risk better than the policy's thresholds?",
+        "",
+    ]
+
+
+def walkthrough_reject(p: dict[str, Any]) -> list[str]:
+    r = p["reject_inference"]
+    x = r["families"][XGB]
+    return [
+        "## 13. Reject inference",
+        "",
+        f"A lender sees outcomes only for loans it made. Reject inference guesses outcomes for the rest and retrains. Here every application has an outcome, so the guesses can be checked: for `{XGB}` the expected loss of the chosen book is ${n(x['funded_only']['expected_loss_at_champion_count'])} funded-only, ${n(x['hard_cutoff']['expected_loss_at_champion_count'])} with hard cut-off augmentation, ${n(x['fuzzy']['expected_loss_at_champion_count'])} with fuzzy augmentation and ${n(x['oracle']['expected_loss_at_champion_count'])} with the oracle's true outcomes.",
+        "",
+        "*Check yourself:* why can't augmentation that labels declined applicants with the funded-only model's own PD teach the new model anything the old one did not know?",
+        "",
+    ]
+
+
+def reject_limit(p: dict[str, Any]) -> str:
+    best = max(
+        rows[m]["gap_closed"]["expected_loss_at_champion_count"]
+        for rows in p["reject_inference"]["families"].values()
+        for m in ("hard_cutoff", "fuzzy")
+    )
+    if best <= 0:
+        return "- Funded-only selection bias. Neither augmentation method reduces it on these books (each raises the chosen book's expected loss); only the oracle, which a lender never has, closes the gap."
+    return f"- Funded-only selection bias. The best augmentation closes {pct(best, 0)} of the expected-loss gap to the oracle, which a lender never has."

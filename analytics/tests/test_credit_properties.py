@@ -1,14 +1,17 @@
-"""Sprint 12 properties: fairness (flips, group tables, proxy check), with Sprint 11's snapshot unchanged."""
+"""Sprint 12 properties: fairness, champion/challenger and reject inference, with Sprint 11's snapshot unchanged."""
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from case_analytics.credit import docs
-from case_analytics.credit.data import assert_no_leakage
+from case_analytics.credit.data import DATA_DIR, assert_no_leakage
 from case_analytics.credit.fairness import ATTRIBUTES, CHAMPION, MIN_RATED, ZIP3_TOP, katz, wilson
 from case_analytics.credit.pipeline import CASES, PROPERTIES, SNAPSHOT_DIR, SUMMARY
 
@@ -112,3 +115,77 @@ def test_air_has_a_reference_line_only_with_no_pass_fail_marking():
     assert "Below four-fifths" not in card
     income = card.split("**Income band**", 1)[1].split("\n\n**", 1)[0]
     assert "0.80" not in income and "reference line" not in income
+
+
+def test_comparison_block_names_the_bureau_score_policy_as_champion_at_equal_volume():
+    c = properties()["champion_challenger"]
+    assert c["champion"] == CHAMPION == "bureau_score_policy"
+    pol = c["policies"]
+    n = pol[CHAMPION]["approvals"]
+    assert n == 9991
+    for name in ("challenger_a_xgb_alone", "challenger_b_overlay"):
+        assert pol[name]["approvals"] == n, name
+        assert pol[name]["swap_in"] == pol[name]["swap_out"], name
+        assert "difference_vs_champion" in pol[name]
+    assert pol["as_is_policy_reference"]["approvals"] == 10000
+    # The as-is policy's approvals are the locked book: its expected loss is the locked number.
+    assert round(pol["as_is_policy_reference"]["expected_loss"]) == 4413431
+
+
+def test_overlay_rule_is_tuned_on_calibration_and_never_adds_a_fraud_referral():
+    c = properties()["champion_challenger"]
+    rule, tune = c["policies"]["challenger_b_overlay"]["rule"], c["overlay_tuning"]
+    feasible = [g for g in tune["grid"] if g["feasible"]]
+    best = min(feasible, key=lambda g: (g["expected_loss"], g["f"]))
+    assert rule["f"] == tune["chosen_f"] == best["f"]
+    assert rule["k"] == round(rule["f"] * c["policies"][CHAMPION]["approvals"])
+    assert c["policies"]["challenger_b_overlay"]["swap_in"] == rule["k"]
+    dec = pd.read_csv(DATA_DIR / "decisions-seed-42.csv")
+    b = bits(properties()["sandbox_candidates"]["candidates"]["challenger_b_overlay"]["bitmask"], len(dec))
+    champion = (dec["decision_bureau"] == "APPROVE").to_numpy()
+    added = b & ~champion
+    assert added.sum() == rule["k"]
+    assert (dec.loc[added, "decision_bureau"] == "REVIEW").all()
+    assert (dec.loc[added, "fraud_review"] == 0).all()
+
+
+def bits(b64: str, n: int) -> np.ndarray:
+    return np.unpackbits(np.frombuffer(base64.b64decode(b64), dtype=np.uint8))[:n].astype(bool)
+
+
+def test_sandbox_bitmasks_decode_to_the_reported_approvals_over_the_pool_order():
+    sb = properties()["sandbox_candidates"]
+    ids = pd.read_csv(DATA_DIR / "applications-seed-42.csv", usecols=["application_id"])["application_id"]
+    assert sb["pool_applications"] == len(ids) == 18674
+    assert sb["pool_sha256"] == hashlib.sha256("\n".join(ids).encode("utf-8")).hexdigest()
+    assert sb["label"] == "model-based, evaluation only"
+    pol = properties()["champion_challenger"]["policies"]
+    for name, cand in sb["candidates"].items():
+        assert bits(cand["bitmask"], len(ids)).sum() == cand["approvals"] == pol[name]["approvals"], name
+
+
+def test_reject_inference_uses_training_books_only_and_reproduces_sprint_11():
+    r = properties()["reject_inference"]
+    manifest = json.loads((DATA_DIR / "manifest.json").read_text(encoding="utf-8"))
+    training = manifest["seeds"]["training"]
+    assert r["training_books"]["seeds"] == training and 42 not in training
+    assert r["training_books"]["applications"] == sum(
+        manifest["books"][str(s)]["applications"] for s in training
+    )
+    summary = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))
+    for fam, sets in r["training_sets"].items():
+        assert sets["oracle"]["rows"] == r["training_books"]["applications"], fam
+        assert sets["hard_cutoff"]["rows"] == r["training_books"]["applications"], fam
+        assert (
+            sets["fuzzy"]["rows"] == r["training_books"]["funded"] + 2 * r["training_books"]["not_funded"]
+        ), fam
+        f0 = r["families"][fam]["funded_only"]
+        assert f0["auc_funded_test_book"] == pytest.approx(
+            summary["models"][fam]["test"]["metrics"]["auc"], abs=1e-6
+        )
+    lg = r["families"]["credit_pd_logistic"]["funded_only"]
+    assert lg["fico_coefficient_per_sd"] == pytest.approx(
+        summary["models"]["credit_pd_logistic"]["coefficients_per_sd"]["fico_bureau"], abs=1e-6
+    )
+    for fam in r["families"].values():
+        assert set(fam) == {"funded_only", "hard_cutoff", "fuzzy", "oracle"}

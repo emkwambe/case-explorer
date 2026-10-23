@@ -89,4 +89,19 @@ Missing values (training books, every application) come only from documents a ca
 | Test (funded, seed 42) | 10,000 | 225 | 2.25% |
 | Diagnostic training (every application) | 150,170 | 8,171 | 5.44% |
 
-**Selection bias, stated plainly.** Outcomes a lender observes exist only for funded loans, so the headline model learns from approved applicants only. The all-applications diagnostic shows what the simulation would let it learn otherwise; reject inference is Sprint 12.
+**Selection bias, stated plainly.** Outcomes a lender observes exist only for funded loans, so the headline model learns from approved applicants only. The all-applications diagnostic shows what the simulation would let it learn otherwise; the augmented sets below test standard reject inference.
+
+## Augmented training sets (reject inference)
+
+Built in memory by `python -m case_analytics.credit.pipeline` from the training books only (seeds 1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008); no seed-42 row is used, and a check refuses a set that contains one. Before augmentation the training books hold 150,170 applications: 80,000 funded with 2,004 defaults, and 70,170 not funded, whose outcomes a lender would not see (6,167 defaults in the simulation).
+
+| Family | Set | Rows | Defaults | How the not-funded rows are labelled |
+|---|---|---|---|---|
+| `credit_pd_logistic` | Funded-only | 80,000 | 2,004 | not used |
+| `credit_pd_logistic` | Hard cut-off | 150,170 | 14,374 | the 12,370 highest funded-only PDs (PD ≥ 0.2413) as defaults, the rest as non-defaults |
+| `credit_pd_logistic` | Fuzzy | 220,340 (weight 150,170) | 14,373.6 weighted | each twice: default with weight PD, non-default with weight 1 − PD (expected 12,369.6 defaults) |
+| `credit_pd_logistic` | Oracle | 150,170 | 8,171 | the simulated outcome |
+| `credit_pd_xgb` | Funded-only | 80,000 | 2,004 | not used |
+| `credit_pd_xgb` | Hard cut-off | 150,170 | 6,165 | the 4,161 highest funded-only PDs (PD ≥ 0.1693) as defaults, the rest as non-defaults |
+| `credit_pd_xgb` | Fuzzy | 220,340 (weight 150,170) | 6,164.8 weighted | each twice: default with weight PD, non-default with weight 1 − PD (expected 4,160.8 defaults) |
+| `credit_pd_xgb` | Oracle | 150,170 | 8,171 | the simulated outcome |

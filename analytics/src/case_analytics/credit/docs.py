@@ -32,7 +32,7 @@ def pct(v: float, d: int = 2) -> str:
     return f"{100 * v:.{d}f}%"
 
 
-def readme(s: dict[str, Any]) -> str:
+def readme(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
     d, seeds = s["data"], s["data"]["seeds"]
     before, after = d["before"], d["after"]
     feats = s["features"]
@@ -119,8 +119,9 @@ def readme(s: dict[str, Any]) -> str:
             )
         ],
         "",
-        "**Selection bias, stated plainly.** Outcomes a lender observes exist only for funded loans, so the headline model learns from approved applicants only. The all-applications diagnostic shows what the simulation would let it learn otherwise; reject inference is Sprint 12.",
+        "**Selection bias, stated plainly.** Outcomes a lender observes exist only for funded loans, so the headline model learns from approved applicants only. The all-applications diagnostic shows what the simulation would let it learn otherwise; the augmented sets below test standard reject inference.",
         "",
+        *(augmented_md(p) if p and "reject_inference" in p else []),
     ]
     return "\n".join(L)
 
@@ -129,9 +130,31 @@ def load_properties(snapshot: Path = SNAPSHOT_DIR) -> dict[str, Any]:
     return json.loads((snapshot / PROPERTIES).read_text(encoding="utf-8"))
 
 
+def augmented_md(p: dict[str, Any]) -> list[str]:
+    r = p["reject_inference"]
+    tb = r["training_books"]
+    L = [
+        "## Augmented training sets (reject inference)",
+        "",
+        f"Built in memory by `python -m case_analytics.credit.pipeline` from the training books only (seeds {', '.join(map(str, tb['seeds']))}); no seed-42 row is used, and a check refuses a set that contains one. Before augmentation the training books hold {n(tb['applications'])} applications: {n(tb['funded'])} funded with {n(tb['funded_defaults'])} defaults, and {n(tb['not_funded'])} not funded, whose outcomes a lender would not see ({n(tb['all_defaults'] - tb['funded_defaults'])} defaults in the simulation).",
+        "",
+        "| Family | Set | Rows | Defaults | How the not-funded rows are labelled |",
+        "|---|---|---|---|---|",
+    ]
+    for fam, sets in r["training_sets"].items():
+        h, fz, o = sets["hard_cutoff"], sets["fuzzy"], sets["oracle"]
+        L += [
+            f"| `{fam}` | Funded-only | {n(tb['funded'])} | {n(tb['funded_defaults'])} | not used |",
+            f"| `{fam}` | Hard cut-off | {n(h['rows'])} | {n(h['defaults'])} | the {n(h['rejects_labelled_default'])} highest funded-only PDs (PD ≥ {h['cutoff_pd']:.4f}) as defaults, the rest as non-defaults |",
+            f"| `{fam}` | Fuzzy | {n(fz['rows'])} (weight {n(fz['weighted_rows'])}) | {fz['weighted_defaults']:,.1f} weighted | each twice: default with weight PD, non-default with weight 1 − PD (expected {fz['expected_reject_defaults']:,.1f} defaults) |",
+            f"| `{fam}` | Oracle | {n(o['rows'])} | {n(o['defaults'])} | the simulated outcome |",
+        ]
+    return L + [""]
+
+
 def documents(snapshot: Path = SNAPSHOT_DIR) -> dict[Path, str]:
     s, p = load_summary(snapshot), load_properties(snapshot)
-    return {README: readme(s), MODEL_CARD: model_card(s, p), WALKTHROUGH: walkthrough(s, p)}
+    return {README: readme(s, p), MODEL_CARD: model_card(s, p), WALKTHROUGH: walkthrough(s, p)}
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -27,6 +27,7 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.metrics import log_loss, roc_auc_score
 from sklearn.model_selection import GroupKFold
 
+from . import challengers as ch
 from . import evaluate as ev
 from . import fairness as fr
 from . import reasons as rs
@@ -416,11 +417,19 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
             "reasons": reasons,
         }
     )
+    comparison_block, sandbox = ch.champion_challenger(
+        data, final[XGB_NAME], float(recon["loans"]["lgd"]), log
+    )
     properties = rounded(
         {
             "snapshot_version": "1.0.0",
             "label": "Developer testing on synthetic data; the credit policy makes the decision.",
             "fairness": fr.fairness_section(data, pool_scores[XGB_NAME], log),
+            "champion_challenger": comparison_block,
+            "sandbox_candidates": sandbox,
+            "reject_inference": ch.reject_inference(
+                data, final, {k: tuning[k]["winner"] for k in final}, float(recon["loans"]["lgd"]), log
+            ),
         }
     )
     write_snapshot(out, {SUMMARY: summary, CASES: rounded(cases), PROPERTIES: properties}, data)
