@@ -1,0 +1,36 @@
+{
+ "data_manifest_sha256": "7ac53efd9e0083ee9d78c97d00a18ba67cc10f6b0acea016f98b85ffc9897028",
+ "files": {
+  "credit-model-summary.json": {
+   "bytes": 42326,
+   "sha256": "762702e0028b0f9c92f11eec08a4238dbf4100eb8031f0f5b73a6cf8a945aaea"
+  }
+ },
+ "packages": {
+  "numpy": "2.4.0",
+  "pandas": "2.3.3",
+  "scikit-learn": "1.8.0",
+  "scipy": "1.16.3",
+  "shap": "0.52.0",
+  "xgboost": "3.4.1"
+ },
+ "produced_by": "python -m case_analytics.credit.pipeline",
+ "python": "3.13.7",
+ "seeds": {
+  "calibration": [
+   1009,
+   1010
+  ],
+  "test": 42,
+  "training": [
+   1001,
+   1002,
+   1003,
+   1004,
+   1005,
+   1006,
+   1007,
+   1008
+  ]
+ }
+}

@@ -27,14 +27,17 @@ export function demoConfig() {
 }
 
 /**
- * Build the book. `onCase(caseObj, record)` sees every generated application once, in seed order,
- * so callers can check per-case properties without keeping 18,674 full cases in memory.
+ * Build the book. `onCase(caseObj, record, index)` sees every generated application once, in seed
+ * order, so callers can check per-case properties without keeping 18,674 full cases in memory.
+ * `seed` builds an independent book from another seed (the credit model's training books); without
+ * it the book is the locked seed-42 book (the profile's portfolio seed).
  */
-export function buildSolarBook({ onCase } = {}) {
+export function buildSolarBook({ onCase, seed: seedOverride } = {}) {
   const solar = getProfile("SOLAR_PRIME");
   const settings = dealerSettings(solar.defaults.dealerView);
   const dealers = buildDealerNetwork(settings.network);
-  const { count, seed } = settings.portfolio;
+  const count = settings.portfolio.count;
+  const seed = seedOverride ?? settings.portfolio.seed;
   const config = applyProfile(demoConfig(), solar);
   const lgd = 1 - settings.dealerFailure.baseRecovery.value;
 
@@ -47,7 +50,7 @@ export function buildSolarBook({ onCase } = {}) {
       corruption.set(c.id, c.meta.corruption_type);
     }
     pool.push(record);
-    onCase?.(c, record);
+    onCase?.(c, record, i);
   }
   const loans = simulateLoans(inputs, dealers, settings);
   const rows = aggregateDealers(loans, dealers, settings);

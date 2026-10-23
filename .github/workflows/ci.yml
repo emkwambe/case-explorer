@@ -128,14 +128,24 @@ jobs:
         with:
           python-version-file: .python-version
           cache: pip
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev]" -c constraints-credit.txt
       - run: ruff check .
       - run: ruff format --check .
       - run: mypy src
       - name: Build governed datasets from the generator
         run: node scripts/build_datasets.js --out analytics/data --train 6000 --seed 42
         working-directory: .
+      - name: Regenerate the credit-model books and check every SHA-256 against the manifest
+        run: |
+          node scripts/export_credit_features.mjs
+          git diff --exit-code -- data/credit-model
+        working-directory: .
       - run: pytest -q
+      - name: Rebuild the credit PD snapshot and compare it numerically with the committed one
+        run: |
+          python -m case_analytics.credit.pipeline --out "$RUNNER_TEMP/credit-model-snapshot"
+          python -m case_analytics.credit.compare ../artifacts/credit-model-snapshot "$RUNNER_TEMP/credit-model-snapshot"
+          python -m case_analytics.credit.docs --check
       - name: Train, evaluate and validate the model suite
         run: python -m case_analytics.pipeline --data data --out artifacts
       - uses: actions/upload-artifact@v4

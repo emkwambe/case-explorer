@@ -1,0 +1,160 @@
+{
+  "spec_version": "1.0.0",
+  "target": "dpd30: 30+ days past due within 18 months (simulated), the Solar book's default flag",
+  "features": [
+    {
+      "name": "fico_bureau",
+      "group": "CREDIT_SCORE",
+      "monotone": -1,
+      "why": "A higher credit score never means higher risk."
+    },
+    {
+      "name": "dti_stated",
+      "group": "DEBT_BURDEN",
+      "monotone": 1,
+      "why": "More debt burden never means lower risk (the simulated hazard is flat below 36%, which the constraint allows)."
+    },
+    {
+      "name": "stated_monthly_debts",
+      "group": "DEBT_BURDEN",
+      "monotone": 1,
+      "why": "More stated debt never means lower risk."
+    },
+    {
+      "name": "income_stated",
+      "group": "INCOME_LEVEL",
+      "monotone": -1,
+      "why": "More income never means higher risk at the same obligations."
+    },
+    {
+      "name": "income_overstatement_pct",
+      "group": "INCOME_DISCREPANCY",
+      "monotone": 1,
+      "why": "Stating more income than the employer verifies is misrepresentation."
+    },
+    {
+      "name": "undisclosed_debt",
+      "group": "UNDISCLOSED_DEBT",
+      "monotone": 1,
+      "why": "Bureau debt the application leaves out is concealment."
+    },
+    {
+      "name": "undisclosed_accounts",
+      "group": "UNDISCLOSED_DEBT",
+      "monotone": 1,
+      "why": "Bureau accounts the application leaves out are concealment."
+    },
+    {
+      "name": "checking_overstatement_pct",
+      "group": "ASSET_DISCREPANCY",
+      "monotone": 1,
+      "why": "Stating more cash than the statement shows is fabrication."
+    },
+    {
+      "name": "statement_excess_pct",
+      "group": "ASSET_DISCREPANCY",
+      "monotone": 1,
+      "why": "A statement showing more cash than stated points to an altered document."
+    },
+    {
+      "name": "checking_stated",
+      "group": "LIQUIDITY",
+      "monotone": -1,
+      "why": "More stated reserves never mean higher risk."
+    },
+    {
+      "name": "checking_statement",
+      "group": "LIQUIDITY",
+      "monotone": -1,
+      "why": "More verified reserves never mean higher risk."
+    },
+    {
+      "name": "overdraft_count",
+      "group": "LIQUIDITY",
+      "monotone": 1,
+      "why": "More overdrafts never mean lower risk."
+    },
+    {
+      "name": "large_deposits_total",
+      "group": "UNSOURCED_DEPOSITS",
+      "monotone": 1,
+      "why": "Unseasoned deposits inflate apparent reserves."
+    },
+    {
+      "name": "tenure_months",
+      "group": "EMPLOYMENT",
+      "monotone": -1,
+      "why": "Longer employment never means higher risk."
+    }
+  ],
+  "groups": {
+    "CREDIT_SCORE": {
+      "statement": "Credit score below program standards",
+      "features": [
+        "fico_bureau"
+      ]
+    },
+    "DEBT_BURDEN": {
+      "statement": "Debt obligations too high relative to income",
+      "features": [
+        "dti_stated",
+        "stated_monthly_debts"
+      ]
+    },
+    "INCOME_LEVEL": {
+      "statement": "Income insufficient for the amount of credit requested",
+      "features": [
+        "income_stated"
+      ]
+    },
+    "INCOME_DISCREPANCY": {
+      "statement": "Income could not be verified at the amount stated",
+      "features": [
+        "income_overstatement_pct"
+      ]
+    },
+    "UNDISCLOSED_DEBT": {
+      "statement": "Credit report shows obligations not disclosed on the application",
+      "features": [
+        "undisclosed_debt",
+        "undisclosed_accounts"
+      ]
+    },
+    "ASSET_DISCREPANCY": {
+      "statement": "Stated account balance does not match the bank statement",
+      "features": [
+        "checking_overstatement_pct",
+        "statement_excess_pct"
+      ]
+    },
+    "LIQUIDITY": {
+      "statement": "Limited cash reserves",
+      "features": [
+        "checking_stated",
+        "checking_statement",
+        "overdraft_count"
+      ]
+    },
+    "UNSOURCED_DEPOSITS": {
+      "statement": "Recent large deposits are not sourced",
+      "features": [
+        "large_deposits_total"
+      ]
+    },
+    "EMPLOYMENT": {
+      "statement": "Length of employment",
+      "features": [
+        "tenure_months"
+      ]
+    }
+  },
+  "excluded": [
+    "age, region, zip_code, cost_of_living_index, persona, regime and every audit attribute (sensitive or geographic)",
+    "the credit bureau's persona field (a generator type, not a lender field)",
+    "dealer_id (dealer risk belongs to the Dealer View)",
+    "device and session metadata (fraud signals, not creditworthiness)",
+    "fraud-rule outputs (reasons come from the raw fields)",
+    "W-2 wages (a partial-year artefact for short tenures)",
+    "world truth, the corruption label, dealer quality and PD (answer key only)"
+  ]
+}
