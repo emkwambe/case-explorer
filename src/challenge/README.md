@@ -24,6 +24,8 @@ A session's order is seeded and deterministic (`orderPack`): a seeded shuffle, r
 - **Where the engine is wrong:** Every case where the teaching answer and the credit policy differ, in the decision or in its reasons.
 - **Full set:** All cases, easy to hard.
 
+**Gap kinds.** Each gap case carries `gap.gap_kind`, derived from its two answers (`src/challenge/gaps.js`): "decision" when the engine decides differently (8 cases), "reasons" when it reaches the same decision with different reason codes (7 cases). The teaching set itself is not changed.
+
 ## Scoring in brief
 
 Decision 50 (a matrix), reason codes 30 (coverage of the required codes, −10 per extra code), evidence 20 (the item that carries the deciding value); passed at 70. The full rules and worked examples are in [docs/SCORING.md](../../docs/SCORING.md).

@@ -58,6 +58,8 @@ The case views show it under one name, "Reference label", with the note "uses th
 
 **Challenge mode hides it (Sprint 10).** A blind decision is meaningless while the verdict, its reason codes or the integrity badge is on screen. While challenge mode is on, the shell renders only the challenge view: the application as submitted and its documents, without the fidelity score or document metadata. The reference label and the other case views open for a case only after the learner commits. `src/ui/challenge/ChallengeView.test.jsx` checks all 79 teaching cases for leaks.
 
+Challenge mode ships the teaching answers in the page (readable in devtools); fine for practice, graded assessment needs server-side scoring (Academy).
+
 ## Findings images are captured manually, not in CI
 
 `npm run capture:findings` (scripts/capture-findings.mjs) builds the app, generates the seed-42 funded portfolio in headless Chromium and writes the seven Findings PNGs and their captions to `docs/findings/`. It runs only on demand: no CI job runs it, so the committed images can fall behind the app until someone re-runs the script. The script needs Playwright's Chromium on the machine (`npx playwright install chromium`) and takes a few minutes, most of it the 10,000-loan portfolio.

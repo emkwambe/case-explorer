@@ -15,6 +15,7 @@ import { scoreAttempt, DECISION_POINTS, PASS_MARK, REASON_POINTS, EXTRA_CODE_PEN
 import { keyEvidence, evidenceLabel, EVIDENCE_ITEMS } from "../src/challenge/evidence.js";
 import { REASON_CODE_TEXT } from "../src/challenge/reasonCodes.js";
 import { buildPacks } from "../src/challenge/packs.js";
+import { gapKind } from "../src/challenge/gaps.js";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const set = JSON.parse(fs.readFileSync(path.join(ROOT, "benchmarks", "case-sets.json"), "utf8")).sets.find((s) => s.kind === "teaching");
@@ -39,7 +40,7 @@ export function challengeData() {
     id: e.id, group: e.group, ...(e.pair ? { pair: e.pair, role: e.role } : {}), typology: e.typology,
     base: e.base, mutations: e.mutations, key_fact: e.key_fact, difficulty: e.difficulty, expected: e.expected,
     system: { decision: e.system.decision, reason_codes: e.system.reason_codes, fraud_rules: e.system.fraud_rules, hash: e.system.hash },
-    ...(e.gap ? { gap: e.gap } : {})
+    ...(e.gap ? { gap: { ...e.gap, gap_kind: gapKind(e) } } : {})
   }));
   return { teaching_set: header.id, teaching_sha256: sha, profile: header.profile, seed: header.seed, as_of: header.as_of, rubric: header.rubric, cases: entries, packs: buildPacks(entries) };
 }
@@ -113,6 +114,8 @@ export function challengeReadme() {
     L.push(`| **${p.name}** | ${p.skill} | ${xs.length} | ${fmt(tally(xs.map((e) => e.typology)))} | ${fmt(tally(xs.map((e) => e.difficulty)))} | ${fmt(tally(xs.map((e) => e.expected.decision)))} |`);
   }
   L.push("", ...data.packs.map((p) => `- **${p.name}:** ${p.description}`), "");
+  const kinds = tally(data.cases.filter((e) => e.gap).map((e) => e.gap.gap_kind));
+  L.push(`**Gap kinds.** Each gap case carries \`gap.gap_kind\`, derived from its two answers (\`src/challenge/gaps.js\`): "decision" when the engine decides differently (${kinds.decision ?? 0} cases), "reasons" when it reaches the same decision with different reason codes (${kinds.reasons ?? 0} cases). The teaching set itself is not changed.`, "");
   L.push("## Scoring in brief", "", `Decision 50 (a matrix), reason codes ${REASON_POINTS} (coverage of the required codes, −${EXTRA_CODE_PENALTY} per extra code), evidence ${EVIDENCE_POINTS} (the item that carries the deciding value); passed at ${PASS_MARK}. The full rules and worked examples are in [docs/SCORING.md](../../docs/SCORING.md).`, "");
   return L.join("\n");
 }

@@ -14,6 +14,7 @@ import { teachingContext, buildTeachingCase } from "../../challenge/teachingCase
 import { scoreAttempt } from "../../challenge/score.js";
 import { keyEvidence } from "../../challenge/evidence.js";
 import { REASON_CODES } from "../../challenge/reasonCodes.js";
+import { GAP_KIND_TEXT } from "../../challenge/gaps.js";
 import { createProgressStore, summarize, STORAGE_KEY } from "../../challenge/progress.js";
 import { ActiveProfileProvider } from "../../profiles/activeProfile.js";
 import { REFERENCE_LABEL } from "../theme.js";
@@ -84,7 +85,11 @@ describe("the reveal", () => {
       expect(text).toContain(DATA.rubric[e.expected.rubric]);
       expect(text).toContain(e.key_fact.field);
       for (const code of e.expected.reason_codes) expect(text).toContain(code);
-      if (e.gap) { expect(within(container).getByTestId("challenge-gap").textContent).toContain(e.gap.reason); }
+      if (e.gap) {
+        const box = within(container).getByTestId("challenge-gap");
+        expect(box.textContent).toContain(e.gap.reason);
+        expect(within(box).getByTestId("challenge-gap-kind").textContent).toBe(GAP_KIND_TEXT[e.gap.gap_kind]);
+      }
       else expect(within(container).queryByTestId("challenge-gap")).toBeNull();
       unmount();
     }
@@ -179,6 +184,12 @@ describe("browser progress", () => {
     expect(confirm.mock.calls[0][0]).toContain(STORAGE_KEY);
     expect(storage.keys()).toEqual(["another-app"]);
     confirm.mockRestore();
+  });
+
+  it("the gap pack's card counts decision gaps and reasons gaps; other packs show no such line", () => {
+    render(<ChallengeView store={createProgressStore(memoryStorage())} />);
+    expect(screen.getByTestId("gap-kinds-engine-limits").textContent).toBe("8 where the decision differs, 7 where only the reasons differ.");
+    expect(screen.queryByTestId("gap-kinds-full-set")).toBeNull();
   });
 
   it("lists the codes most often missed", () => {

@@ -13,6 +13,7 @@ import { keyEvidence, evidenceItemsFor, EVIDENCE_ITEMS } from "../src/challenge/
 import { REASON_CODES } from "../src/challenge/reasonCodes.js";
 import { PACK_RULES, buildPacks, orderPack } from "../src/challenge/packs.js";
 import { teachingContext, buildTeachingCase } from "../src/challenge/teachingCases.js";
+import { gapKind } from "../src/challenge/gaps.js";
 import { challengeData, teachingSet, scoringMarkdown, challengeReadme, openingPair, WORKED_EXAMPLES, DATA_FILE, OPENING_FILE, SCORING_DOC, CHALLENGE_README } from "./challenge-docs.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -136,6 +137,19 @@ check("seeded order: a permutation, deterministic, never two same-base cases adj
     assert.notDeepEqual(orderPack(p, data.cases, 1), orderPack(p, data.cases, 2), `${p.id}: the seed changes the order`);
   }
   assert.throws(() => orderPack(data.packs[0], data.cases, ""));
+});
+
+check("gap kinds are derived from the two answers and total 8 decision gaps and 7 reasons gaps", () => {
+  const gaps = data.cases.filter((e) => e.gap);
+  for (const e of data.cases) {
+    if (!e.gap) { assert.equal(gapKind(e), null, e.id); continue; }
+    assert.equal(e.gap.gap_kind, e.expected.decision !== e.system.decision ? "decision" : "reasons", e.id);
+    if (e.gap.gap_kind === "reasons") assert.notDeepEqual([...e.expected.reason_codes].sort(), [...e.system.reason_codes].sort(), e.id);
+  }
+  const count = (k) => gaps.filter((e) => e.gap.gap_kind === k).length;
+  assert.deepEqual([count("decision"), count("reasons")], [8, 7]);
+  assert.deepEqual(gaps.filter((e) => e.gap.gap_kind === "reasons").map((e) => e.id).sort(), ["concealment-4/fraud", "concealment-5/fraud", "conflict/material-b1", "conflict/material-b2", "conflict/material-b3", "thin/employer-verification-b1", "thin/employer-verification-b2"]);
+  assert.ok(!teachingSet().cases.some((e) => e.gap?.gap_kind), "the teaching set itself carries no gap_kind");
 });
 
 check("the opening pair (concealment pair 1) rebuilds to its teaching cases: clean approves, fraud hides the debt", () => {

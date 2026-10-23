@@ -13,6 +13,7 @@ import { scoreAttempt } from "../../challenge/score.js";
 import { evidenceItemsFor, keyEvidence, evidenceLabel, EVIDENCE_ITEMS } from "../../challenge/evidence.js";
 import { REASON_CODES, REASON_CODE_TEXT } from "../../challenge/reasonCodes.js";
 import { orderPack } from "../../challenge/packs.js";
+import { GAP_KIND_TEXT } from "../../challenge/gaps.js";
 import { teachingContext, buildTeachingCase } from "../../challenge/teachingCases.js";
 import { createProgressStore, summarize, splitBySha, STORAGE_KEY } from "../../challenge/progress.js";
 import { createRng } from "../../utils/prng.js";
@@ -249,7 +250,8 @@ export function Reveal({ entry, caseObj, attempt, score, headingRef, twin, explo
           <p style={{ margin: 0, fontSize: 14, color: C.text }}><strong>Where it is:</strong> {keys.map(evidenceLabel).join(" or ")}{highlight.length ? "; the document is outlined below." : "."}</p>
         </div>
         {entry.gap && (
-          <div role="note" data-testid="challenge-gap" style={{ border: `2px solid ${C.warnBorder}`, background: C.warnBg, color: C.warnText, borderRadius: 6, padding: "10px 14px", margin: "12px 0" }}>
+          <div role="note" data-testid="challenge-gap" data-gap-kind={entry.gap.gap_kind} style={{ border: `2px solid ${C.warnBorder}`, background: C.warnBg, color: C.warnText, borderRadius: 6, padding: "10px 14px", margin: "12px 0" }}>
+            <p style={{ margin: "0 0 6px", fontWeight: 700 }} data-testid="challenge-gap-kind">{GAP_KIND_TEXT[entry.gap.gap_kind]}</p>
             <strong>What the engine does:</strong> {DECISION_LABELS[entry.system.decision]} ({codesText(entry.system.reason_codes)}). <strong>Why it differs:</strong> {entry.gap.reason} You are scored against the teaching answer only.
           </div>
         )}
@@ -300,6 +302,14 @@ function ProgressPanel({ store, record, onReset }) {
   );
 }
 
+/** For a pack made of gap cases: how many differ in the decision and how many only in the reasons. */
+function gapCounts(pack) {
+  const xs = pack.caseIds.map((id) => BY_ID.get(id));
+  if (!xs.every((e) => e.gap)) return null;
+  const n = (k) => xs.filter((e) => e.gap.gap_kind === k).length;
+  return `${n("decision")} where the decision differs, ${n("reasons")} where only the reasons differ.`;
+}
+
 function PackList({ record, onStart, onResume }) {
   const s = summarize(record, DATA);
   const open = new Map();
@@ -314,6 +324,7 @@ function PackList({ record, onStart, onResume }) {
             <div key={p.id} style={{ ...styles.panel, marginBottom: 0 }} data-testid={`pack-${p.id}`}>
               <h3 style={{ ...styles.panelTitle, marginBottom: 4 }}>{p.name}</h3>
               <p style={{ fontSize: 13, color: C.text, margin: "0 0 4px" }}>{p.description}</p>
+              {gapCounts(p) && <p style={{ fontSize: 12, color: C.text, margin: "0 0 4px" }} data-testid={`gap-kinds-${p.id}`}>{gapCounts(p)}</p>}
               <p style={{ fontSize: 12, color: C.muted, margin: "0 0 8px" }}>Skill: {p.skill}. {p.caseIds.length} cases. {stats.attempted ? `Attempted ${stats.attempted}, passed ${stats.passed}, mean ${stats.meanScore.toFixed(0)}.` : "Not started."}</p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button type="button" style={btnPrimary} onClick={() => onStart(p)} data-testid={`start-${p.id}`}>Start {p.name}</button>
