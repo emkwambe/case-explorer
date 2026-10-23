@@ -58,17 +58,48 @@ def group_matrix(values: np.ndarray, spec: Spec) -> tuple[np.ndarray, list[str]]
     return out, groups
 
 
-def top_groups(row: np.ndarray, groups: list[str], k: int = TOP_REASONS) -> list[str]:
-    """The up-to-k groups with positive contribution, largest first (ties by group name)."""
-    order = sorted((g for g in range(len(groups)) if row[g] > 0), key=lambda g: (-row[g], groups[g]))
+def top_groups(row: np.ndarray, groups: list[str], k: int = TOP_REASONS, minimum: float = 0.0) -> list[str]:
+    """The up-to-k groups whose contribution exceeds `minimum` (0: any positive one), largest first
+    (ties by group name). With the materiality threshold as `minimum`, these are the stated reasons."""
+    order = sorted((g for g in range(len(groups)) if row[g] > minimum), key=lambda g: (-row[g], groups[g]))
     return [groups[g] for g in order[:k]]
 
 
-def reasons_for(row: np.ndarray, groups: list[str], spec: Spec) -> list[dict[str, Any]]:
+def reasons_for(row: np.ndarray, groups: list[str], spec: Spec, minimum: float = 0.0) -> list[dict[str, Any]]:
     return [
         {"group": g, "statement": spec.groups[g]["statement"], "contribution": float(row[groups.index(g)])}
-        for g in top_groups(row, groups)
+        for g in top_groups(row, groups, minimum=minimum)
     ]
+
+
+MATERIALITY_TARGET = 0.05
+
+
+def false_reason_rate(gm: np.ndarray, groups: list[str], minimum: float) -> float:
+    """Share of rows given at least one discrepancy reason (for clean loans, a false reason)."""
+    if len(gm) == 0:
+        return 0.0
+    hits = sum(
+        1 for i in range(len(gm)) if set(top_groups(gm[i], groups, minimum=minimum)) & set(DISCREPANCY_GROUPS)
+    )
+    return hits / len(gm)
+
+
+def choose_materiality(gm_clean: np.ndarray, groups: list[str], target: float = MATERIALITY_TARGET) -> float:
+    """The smallest contribution threshold at which at most `target` of these clean loans are given a
+    discrepancy reason, from each loan's largest discrepancy contribution
+    among its top four groups (0 when it has none). Chosen on the calibration books only."""
+    index = [groups.index(g) for g in DISCREPANCY_GROUPS]
+    largest = np.zeros(len(gm_clean))
+    for i in range(len(gm_clean)):
+        top = set(top_groups(gm_clean[i], groups))
+        values = [gm_clean[i, j] for j in index if groups[j] in top]
+        largest[i] = max(values) if values else 0.0
+    # At most floor(target · n) loans may exceed the threshold, so it is the (floor(target · n) + 1)-th
+    # largest value: every loan above it is one of the allowed few, and any lower threshold admits one more.
+    allowed = int(np.floor(target * len(largest)))
+    ordered = np.sort(largest)[::-1]
+    return float(ordered[min(allowed, len(ordered) - 1)])
 
 
 def global_importance(values: np.ndarray, spec: Spec) -> dict[str, Any]:
@@ -80,11 +111,14 @@ def global_importance(values: np.ndarray, spec: Spec) -> dict[str, Any]:
     }
 
 
-def accuracy(gm: np.ndarray, groups: list[str], typologies: list[str]) -> dict[str, Any]:
+def accuracy(
+    gm: np.ndarray, groups: list[str], typologies: list[str], minimum: float = 0.0
+) -> dict[str, Any]:
     """Per typology: how often the top reason, and how often any of the top four, is an expected group.
-    Clean rows (NONE) are the control: how often a discrepancy group is blamed when none exists."""
+    Clean rows (NONE) are the control: how often a discrepancy group is blamed when none exists.
+    `minimum` is the materiality threshold (0: every positive contribution counts)."""
     out: dict[str, Any] = {}
-    tops = [top_groups(gm[i], groups) for i in range(len(typologies))]
+    tops = [top_groups(gm[i], groups, minimum=minimum) for i in range(len(typologies))]
     for t in sorted(set(typologies)):
         rows = [i for i, x in enumerate(typologies) if x == t]
         if t == "NONE":

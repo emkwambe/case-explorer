@@ -96,7 +96,11 @@ Method: TreeSHAP splits each prediction's log-odds into one contribution per fea
 | UNDISCLOSED_DEBT | Credit report shows obligations not disclosed on the application | `undisclosed_debt`, `undisclosed_accounts` | 0.0043 |
 | UNSOURCED_DEPOSITS | Recent large deposits are not sourced | `large_deposits_total` | 0.0614 |
 
-**Stability.** Across 20 retrains on resampled training data, a test loan's top reason matched the headline model's 54% of the time on average; 14% of loans kept the same top reason in at least 80% of retrains and 39% in fewer than half. Over all loans the top reason is **unstable**: most loans sit near the average PD, where every contribution is small and the ranking flips easily. In the riskiest tenth of the book, where a reason statement would actually be sent, agreement averages 89% (84% of those loans at 80% or more): stable.
+**Stability.** Across 20 retrains on resampled training data, a test loan's top reason matched the headline model's 54% of the time on average; 14% of loans kept the same top reason in at least 80% of retrains and 39% in fewer than half. Over all loans the top reason is **unstable**: most loans sit near the average PD, where every contribution is small and the ranking flips easily. In the riskiest tenth of the book, where a reason statement would actually be sent, agreement averages 89% (84% of those loans at 80% or more): stable. (Stability is measured on the top positive contribution, before the materiality threshold below.)
+
+## Reason materiality
+
+A reason group is stated only if its SHAP contribution exceeds **0.005412 log-odds**. The threshold was chosen on the clean funded loans of the calibration books (19,051 loans; the test book plays no part): the smallest value at which at most 5% of clean loans are given a discrepancy reason (on those loans: 41.5% before, 4.4% after). Measured afterwards on the 9,523 clean test loans: 41.8% were given a false discrepancy reason before the threshold and 4.1% after. In the riskiest tenth of the test book (1,000 loans), 0 lose every stated reason (0 had none before). The case view and the case snapshot show stated reasons only.
 
 ## Reason accuracy against the hidden truth
 
@@ -104,27 +108,29 @@ Did the reason name the field that was actually falsified? The expected group pe
 
 **Teaching-v1 twins** (seed-42 bases, unseen in training; the conflicting cases count a hit for either expected group):
 
-| Typology | Cases | Expected group | Top reason correct | Any of top 4 correct | Diagnostic: top / top 4 |
-|---|---|---|---|---|---|
-| INFLATION | 5 | INCOME_DISCREPANCY | 5 (100%) | 5 (100%) | 5 / 5 |
-| CONCEALMENT | 5 | UNDISCLOSED_DEBT | 5 (100%) | 5 (100%) | 5 / 5 |
-| EVIDENCE_TAMPERING | 5 | ASSET_DISCREPANCY | 0 (0%) | 5 (100%) | 0 / 0 |
-| FABRICATION | 5 | ASSET_DISCREPANCY | 1 (20%) | 5 (100%) | 5 / 5 |
-| INFLATION+CONCEALMENT | 6 | INCOME_DISCREPANCY, UNDISCLOSED_DEBT | 6 (100%) | 6 (100%) | 6 / 6 |
-| NONE (control) | 20 | none: blaming a discrepancy is a false alarm | 0 blamed one (0.0%) | 9 (45.0%) | 0 / 0 |
+| Typology | Cases | Expected group | Top reason, any positive | Top 4, any positive | Top reason, stated | Any stated reason | Diagnostic: top / top 4 |
+|---|---|---|---|---|---|---|---|
+| INFLATION | 5 | INCOME_DISCREPANCY | 5 (100%) | 5 (100%) | 5 (100%) | 5 (100%) | 5 / 5 |
+| CONCEALMENT | 5 | UNDISCLOSED_DEBT | 5 (100%) | 5 (100%) | 5 (100%) | 5 (100%) | 5 / 5 |
+| EVIDENCE_TAMPERING | 5 | ASSET_DISCREPANCY | 0 (0%) | 5 (100%) | 0 (0%) | 2 (40%) | 0 / 0 |
+| FABRICATION | 5 | ASSET_DISCREPANCY | 1 (20%) | 5 (100%) | 0 (0%) | 0 (0%) | 5 / 5 |
+| INFLATION+CONCEALMENT | 6 | INCOME_DISCREPANCY, UNDISCLOSED_DEBT | 6 (100%) | 6 (100%) | 6 (100%) | 6 (100%) | 6 / 6 |
+| NONE (control) | 20 | none: a discrepancy reason is a false alarm | 0 (0%) | 9 (45%) | 0 (0%) | 0 (0%) | 0 / 0 |
 
 **The funded seed-42 book** (the funded book holds no tampering or fabrication loans: those are routed to review):
 
-| Typology | Cases | Expected group | Top reason correct | Any of top 4 correct | Diagnostic: top / top 4 |
-|---|---|---|---|---|---|
-| INFLATION | 357 | INCOME_DISCREPANCY | 357 (100%) | 357 (100%) | 357 / 357 |
-| CONCEALMENT | 7 | UNDISCLOSED_DEBT | 5 (71%) | 5 (71%) | 6 / 6 |
-| ASSET_SEASONING | 113 | UNSOURCED_DEPOSITS | 109 (96%) | 109 (96%) | 113 / 113 |
-| NONE (control) | 9,523 | none: blaming a discrepancy is a false alarm | 100 blamed one (1.1%) | 3,979 (41.8%) | 6 / 6 |
+| Typology | Cases | Expected group | Top reason, any positive | Top 4, any positive | Top reason, stated | Any stated reason | Diagnostic: top / top 4 |
+|---|---|---|---|---|---|---|---|
+| INFLATION | 357 | INCOME_DISCREPANCY | 357 (100%) | 357 (100%) | 357 (100%) | 357 (100%) | 357 / 357 |
+| CONCEALMENT | 7 | UNDISCLOSED_DEBT | 5 (71%) | 5 (71%) | 5 (71%) | 5 (71%) | 6 / 6 |
+| ASSET_SEASONING | 113 | UNSOURCED_DEPOSITS | 109 (96%) | 109 (96%) | 109 (96%) | 109 (96%) | 113 / 113 |
+| NONE (control) | 9,523 | none: a discrepancy reason is a false alarm | 100 (1%) | 3,979 (42%) | 5 (0%) | 386 (4%) | 6 / 6 |
 
 On the 9,523 clean funded loans the false alarms come from: ASSET_DISCREPANCY 3,979 in the top four (100 as the top reason). All of them are asset discrepancies: stated and statement balances already differ slightly in most clean loans.
 
-**Tampering cannot be separated from clean-loan noise.** The asset discrepancy was the top reason for 0 of 5 tampering twins and in the top four for 5; but the same group is in the top four for 3,979 of 9,523 clean funded loans (42%) and 9 of 20 clean twins, because stated and statement balances already differ slightly in most clean loans. A top-four asset-discrepancy reason for tampering therefore carries no information.
+**Tampering cannot be separated from clean-loan noise.** Counting every positive contribution, the asset discrepancy was the top reason for 0 of 5 tampering twins and in the top four for 5, but it was also in the top four for 42% of clean funded loans, because stated and statement balances already differ slightly in most clean loans. After the materiality threshold it is stated for 2 of 5 tampering twins (top reason for 0) and for 4.1% of clean funded loans. It is never the top reason, so the model still cannot tell an underwriter that a statement was altered.
+
+**Inflation's perfect score is perfect by construction.** In this simulation an income discrepancy occurs only on fraud loans (0 clean training loans carry one), so any income gap is a fraud signal and the model cannot get it wrong. Real files have benign discrepancies (bonuses, rounding, pay changes), and a real model would have to tell them apart; this score says nothing about that.
 
 A low score is a finding, not a failure to hide: it means the model predicts default but cannot tell an underwriter why in fraud terms, which supports keeping the fraud rules beside it. Tampering and fabrication are the hardest case by construction: the funded training books contain neither typology, so the model has only seen the small balance differences of clean loans.
 

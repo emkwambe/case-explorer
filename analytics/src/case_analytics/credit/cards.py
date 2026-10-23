@@ -50,27 +50,27 @@ def verdict(s: dict[str, Any]) -> str:
     )
 
 
-def accuracy_table(acc: dict[str, Any], diag: dict[str, Any] | None = None) -> list[str]:
-    head = "| Typology | Cases | Expected group | Top reason correct | Any of top 4 correct |" + (
-        " Diagnostic: top / top 4 |" if diag else ""
-    )
-    rule = "|---|---|---|---|---|" + ("---|" if diag else "")
-    rows = [head, rule]
+def accuracy_table(before: dict[str, Any], after: dict[str, Any], diag: dict[str, Any]) -> list[str]:
+    """Reason accuracy by typology: every positive contribution counted (before), only reasons above the
+    materiality threshold (stated, after), and the all-applications diagnostic (every positive one)."""
+    rows = [
+        "| Typology | Cases | Expected group | Top reason, any positive | Top 4, any positive | Top reason, stated | Any stated reason | Diagnostic: top / top 4 |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+    share = lambda k, a: f"{n(k)} ({pct(k / a['n'], 0)})"  # noqa: E731
     for t in TYPOLOGY_ORDER:
-        if t not in acc:
+        if t not in before:
             continue
-        a = acc[t]
-        if a.get("control"):
-            line = f"| NONE (control) | {n(a['n'])} | none: blaming a discrepancy is a false alarm | {n(a['top1_blames_discrepancy'])} blamed one ({pct(a['top1_blames_discrepancy'] / a['n'], 1)}) | {n(a['top4_blames_discrepancy'])} ({pct(a['top4_blames_discrepancy'] / a['n'], 1)}) |"
-            if diag:
-                b = diag[t]
-                line += f" {n(b['top1_blames_discrepancy'])} / {n(b['top4_blames_discrepancy'])} |"
+        b, a, d = before[t], after[t], diag[t]
+        if b.get("control"):
+            k1, k4 = "top1_blames_discrepancy", "top4_blames_discrepancy"
+            label, expected = "NONE (control)", "none: a discrepancy reason is a false alarm"
         else:
-            line = f"| {t} | {n(a['n'])} | {', '.join(a['expected_groups'])} | {n(a['top1_hits'])} ({pct(a['top1_hits'] / a['n'], 0)}) | {n(a['top4_hits'])} ({pct(a['top4_hits'] / a['n'], 0)}) |"
-            if diag:
-                b = diag[t]
-                line += f" {n(b['top1_hits'])} / {n(b['top4_hits'])} |"
-        rows.append(line)
+            k1, k4 = "top1_hits", "top4_hits"
+            label, expected = t, ", ".join(b["expected_groups"])
+        rows.append(
+            f"| {label} | {n(b['n'])} | {expected} | {share(b[k1], b)} | {share(b[k4], b)} | {share(a[k1], a)} | {share(a[k4], a)} | {n(d[k1])} / {n(d[k4])} |"
+        )
     return rows
 
 
@@ -101,27 +101,48 @@ def stability_sentence(st: dict[str, Any]) -> str:
     )
 
 
-def tampering_sentence(acc: dict[str, Any]) -> str:
-    """Whether tampering's asset-discrepancy reasons stand out from the noise clean loans show."""
-    teach, book = acc["teaching_twins_and_conflicting"], acc["funded_test_book"]
-    t = teach["EVIDENCE_TAMPERING"]
-    asset_book, asset_teach = (
-        book["NONE"]["by_group"]["ASSET_DISCREPANCY"],
-        teach["NONE"]["by_group"]["ASSET_DISCREPANCY"],
+def tampering_sentence(before: dict[str, Any], after: dict[str, Any]) -> str:
+    """Whether tampering's asset-discrepancy reasons stand out from the noise clean loans show, judged on
+    the stated reasons (after the materiality threshold)."""
+    tb, ta = (
+        before["teaching_twins_and_conflicting"]["EVIDENCE_TAMPERING"],
+        after["teaching_twins_and_conflicting"]["EVIDENCE_TAMPERING"],
     )
-    top1 = t["top1_hits"] / t["n"]
-    false4 = asset_book["top4"] / book["NONE"]["n"]
-    separable = top1 > false4
+    cb, ca = before["funded_test_book"]["NONE"], after["funded_test_book"]["NONE"]
+    false_before = cb["by_group"]["ASSET_DISCREPANCY"]["top4"] / cb["n"]
+    false_after = ca["by_group"]["ASSET_DISCREPANCY"]["top4"] / ca["n"]
+    separable = ta["top1_hits"] / ta["n"] > false_after
     return (
-        f"**Tampering {'can' if separable else 'cannot'} be separated from clean-loan noise.** The asset discrepancy was the top reason for "
-        f"{n(t['top1_hits'])} of {n(t['n'])} tampering twins and in the top four for {n(t['top4_hits'])}; but the same group is in the top four for "
-        f"{n(asset_book['top4'])} of {n(book['NONE']['n'])} clean funded loans ({pct(false4, 0)}) and {n(asset_teach['top4'])} of {n(teach['NONE']['n'])} clean twins, "
+        f"**Tampering {'can' if separable else 'cannot'} be separated from clean-loan noise.** Counting every positive contribution, the asset discrepancy was the top reason for "
+        f"{n(tb['top1_hits'])} of {n(tb['n'])} tampering twins and in the top four for {n(tb['top4_hits'])}, but it was also in the top four for {pct(false_before, 0)} of clean funded loans, "
         "because stated and statement balances already differ slightly in most clean loans. "
+        f"After the materiality threshold it is stated for {n(ta['top4_hits'])} of {n(ta['n'])} tampering twins (top reason for {n(ta['top1_hits'])}) and for {pct(false_after, 1)} of clean funded loans. "
         + (
-            "A top-four asset-discrepancy reason for tampering therefore carries no information."
+            "It is never the top reason, so the model still cannot tell an underwriter that a statement was altered."
             if not separable
             else ""
         )
+    )
+
+
+def materiality_paragraph(m: dict[str, Any]) -> str:
+    fr, risky = m["false_reason_rate"], m["riskiest_decile"]
+    return (
+        f"A reason group is stated only if its SHAP contribution exceeds **{m['threshold_log_odds']:.6f} log-odds**. The threshold was chosen on the "
+        f"{m['chosen_on']}: the smallest value at which at most {pct(m['target_false_reason_rate'], 0)} of clean loans are given a discrepancy reason "
+        f"(on those loans: {pct(fr['calibration_clean_before'], 1)} before, {pct(fr['calibration_clean_after'], 1)} after). Measured afterwards on the "
+        f"{n(fr['test_clean_loans'])} clean test loans: {pct(fr['test_clean_before'], 1)} were given a false discrepancy reason before the threshold and "
+        f"{pct(fr['test_clean_after'], 1)} after. In the riskiest tenth of the test book ({n(risky['loans'])} loans), {n(risky['without_a_stated_reason_after'])} "
+        f"lose every stated reason ({n(risky['without_a_stated_reason_before'])} had none before). The case view and the case snapshot show stated reasons only."
+    )
+
+
+def inflation_sentence(m: dict[str, Any]) -> str:
+    k = m["clean_training_loans_with_an_income_discrepancy"]
+    return (
+        f"**Inflation's perfect score is perfect by construction.** In this simulation an income discrepancy occurs only on fraud loans "
+        f"({n(k)} clean training loans carry one), so any income gap is a fraud signal and the model cannot get it wrong. Real files have benign "
+        "discrepancies (bonuses, rounding, pay changes), and a real model would have to tell them apart; this score says nothing about that."
     )
 
 
@@ -148,6 +169,7 @@ def model_card(s: dict[str, Any]) -> str:
     ce, d = s["ceilings"], s["data"]
     r, pv, dg = s["reasons"], s["policy_view"], s["diagnostic_all_applications"]
     acc = r["accuracy"]
+    mat = r["materiality"]
     after = d["after"]
     L = [
         "# Model card: `credit_pd_xgb` (Solar prime probability of default)",
@@ -240,7 +262,11 @@ def model_card(s: dict[str, Any]) -> str:
             for g, v in r["groups"].items()
         ],
         "",
-        f"**Stability.** {stability_sentence(r['stability'])}",
+        f"**Stability.** {stability_sentence(r['stability'])} (Stability is measured on the top positive contribution, before the materiality threshold below.)",
+        "",
+        "## Reason materiality",
+        "",
+        materiality_paragraph(r["materiality"]),
         "",
         "## Reason accuracy against the hidden truth",
         "",
@@ -249,19 +275,24 @@ def model_card(s: dict[str, Any]) -> str:
         "**Teaching-v1 twins** (seed-42 bases, unseen in training; the conflicting cases count a hit for either expected group):",
         "",
         *accuracy_table(
-            acc["headline"]["teaching_twins_and_conflicting"],
+            mat["accuracy_before"]["teaching_twins_and_conflicting"],
+            mat["accuracy_after"]["teaching_twins_and_conflicting"],
             acc["diagnostic_all_applications"]["teaching_twins_and_conflicting"],
         ),
         "",
         "**The funded seed-42 book** (the funded book holds no tampering or fabrication loans: those are routed to review):",
         "",
         *accuracy_table(
-            acc["headline"]["funded_test_book"], acc["diagnostic_all_applications"]["funded_test_book"]
+            mat["accuracy_before"]["funded_test_book"],
+            mat["accuracy_after"]["funded_test_book"],
+            acc["diagnostic_all_applications"]["funded_test_book"],
         ),
         "",
-        control_sentence(acc["headline"]),
+        control_sentence(mat["accuracy_before"]),
         "",
-        tampering_sentence(acc["headline"]),
+        tampering_sentence(mat["accuracy_before"], mat["accuracy_after"]),
+        "",
+        inflation_sentence(mat),
         "",
         "A low score is a finding, not a failure to hide: it means the model predicts default but cannot tell an underwriter why in fraud terms, which supports keeping the fraud rules beside it. Tampering and fabrication are the hardest case by construction: the funded training books contain neither typology, so the model has only seen the small balance differences of clean loans.",
         "",
@@ -359,7 +390,9 @@ def walkthrough(s: dict[str, Any]) -> str:
             if infl
             else ""
         )
-        + " The model card has every typology, the teaching twins and the clean controls.",
+        + " That score is perfect by construction: in this simulation only fraud loans have an income gap, while real files have benign ones (bonuses, rounding, pay changes). "
+        + f"Reasons are stated only above a materiality threshold ({r['materiality']['threshold_log_odds']:.6f} log-odds, chosen on the calibration books), which cut false discrepancy reasons on clean test loans from {pct(r['materiality']['false_reason_rate']['test_clean_before'], 1)} to {pct(r['materiality']['false_reason_rate']['test_clean_after'], 1)}. "
+        + "The model card has every typology, the teaching twins and the clean controls.",
         "",
         "*Check yourself:* if reason accuracy were low but AUC high, what would you keep beside the model?",
         "",

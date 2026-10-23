@@ -52,7 +52,7 @@ The simulation knows each loan's true probability. `credit_pd_xgb`'s predictions
 
 ## 9. Reason accuracy
 
-For loans whose falsified field is known, did the top reason name it? On the funded test book's 357 income-inflation loans the top reason was the income discrepancy 357 times (100%). The model card has every typology, the teaching twins and the clean controls.
+For loans whose falsified field is known, did the top reason name it? On the funded test book's 357 income-inflation loans the top reason was the income discrepancy 357 times (100%). That score is perfect by construction: in this simulation only fraud loans have an income gap, while real files have benign ones (bonuses, rounding, pay changes). Reasons are stated only above a materiality threshold (0.005412 log-odds, chosen on the calibration books), which cut false discrepancy reasons on clean test loans from 41.8% to 4.1%. The model card has every typology, the teaching twins and the clean controls.
 
 *Check yourself:* if reason accuracy were low but AUC high, what would you keep beside the model?
 

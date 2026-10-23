@@ -374,6 +374,52 @@ def reason_section(
 
     headline, diagnostic = accuracy_for(model), accuracy_for(diag)
 
+    # Materiality (owner decision): a reason is stated only if its group contribution exceeds a threshold
+    # chosen on the clean funded loans of the calibration books, never the test book.
+    cal = data.frame(data.calibration)
+    cal_clean = cal[cal["corruption_type"].astype(str) == "NONE"].reset_index(drop=True)
+    cv, _ = rs.shap_values(model, data.X(cal_clean))
+    cal_gm, _ = rs.group_matrix(cv, spec)
+    tau = rs.choose_materiality(cal_gm, groups)
+    teach_gm = rs.group_matrix(rs.shap_values(model, data.X(scored))[0], spec)[0]
+    clean_test = np.array([t == "NONE" for t in book_labels])
+    riskiest = np.argsort(-predict(model, Xte), kind="mergesort")[: len(Xte) // 10]
+    stated_after = {
+        "teaching_twins_and_conflicting": rs.accuracy(teach_gm, groups, labels, minimum=tau),
+        "funded_test_book": rs.accuracy(gm, groups, book_labels, minimum=tau),
+    }
+    train_clean = data.frame(data.training)
+    benign_income = int(
+        (
+            (train_clean["corruption_type"].astype(str) == "NONE")
+            & (train_clean["income_overstatement_pct"].fillna(0) > 0)
+        ).sum()
+    )
+    materiality = {
+        "threshold_log_odds": tau,
+        "target_false_reason_rate": rs.MATERIALITY_TARGET,
+        "chosen_on": f"clean funded loans of the calibration books ({len(cal_clean):,} loans; the test book plays no part)",
+        "rule": "a reason group is stated only if its SHAP contribution exceeds the threshold",
+        "false_reason_rate": {
+            "calibration_clean_before": rs.false_reason_rate(cal_gm, groups, 0.0),
+            "calibration_clean_after": rs.false_reason_rate(cal_gm, groups, tau),
+            "test_clean_before": rs.false_reason_rate(gm[clean_test], groups, 0.0),
+            "test_clean_after": rs.false_reason_rate(gm[clean_test], groups, tau),
+            "test_clean_loans": int(clean_test.sum()),
+        },
+        "riskiest_decile": {
+            "loans": len(riskiest),
+            "without_a_stated_reason_before": sum(1 for i in riskiest if not rs.top_groups(gm[i], groups)),
+            "without_a_stated_reason_after": sum(
+                1 for i in riskiest if not rs.top_groups(gm[i], groups, minimum=tau)
+            ),
+        },
+        "accuracy_before": headline,
+        "accuracy_after": stated_after,
+        "clean_training_loans_with_an_income_discrepancy": benign_income,
+    }
+    log(f"  reasons: materiality threshold {tau:.6f} log-odds")
+
     def diff(a: dict[str, Any], b: dict[str, Any]) -> dict[str, Any]:
         out: dict[str, Any] = {}
         for where in a:
@@ -396,7 +442,10 @@ def reason_section(
         g, _ = rs.group_matrix(v, spec)
         p = predict(model, X)
         return {
-            str(frame[key].iloc[i]): {"pd": float(p[i]), "reasons": rs.reasons_for(g[i], groups, spec)}
+            str(frame[key].iloc[i]): {
+                "pd": float(p[i]),
+                "reasons": rs.reasons_for(g[i], groups, spec, minimum=tau),
+            }
             for i in range(len(frame))
         }
 
@@ -411,6 +460,7 @@ def reason_section(
         "global": rs.global_importance(values, spec),
         "top1_distribution_test_book": {g: top1.count(g) for g in [*groups, ""]},
         "stability": stab,
+        "materiality": materiality,
         "expected_group_by_typology": {k: list(v) for k, v in rs.EXPECTED_GROUP.items()},
         "accuracy": {
             "headline": headline,
@@ -422,6 +472,7 @@ def reason_section(
         "label": "Second opinion only: the credit policy makes the decision.",
         "model": XGB_NAME,
         "base_value_log_odds": base,
+        "materiality_threshold_log_odds": tau,
         "teaching": case_rows(teaching, "teaching_id"),
         "opening_library": case_rows(opening, "case_id"),
     }

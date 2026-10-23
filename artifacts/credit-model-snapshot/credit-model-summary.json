@@ -1985,6 +1985,279 @@
     "statement": "Recent large deposits are not sourced"
    }
   },
+  "materiality": {
+   "accuracy_after": {
+    "funded_test_book": {
+     "ASSET_SEASONING": {
+      "expected_groups": [
+       "UNSOURCED_DEPOSITS"
+      ],
+      "n": 113,
+      "no_positive_reason": 0,
+      "top1_hits": 109,
+      "top4_hits": 109
+     },
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 7,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 357,
+      "no_positive_reason": 0,
+      "top1_hits": 357,
+      "top4_hits": 357
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 5,
+        "top4": 386
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 9523,
+      "top1_blames_discrepancy": 5,
+      "top4_blames_discrepancy": 386
+     }
+    },
+    "teaching_twins_and_conflicting": {
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "EVIDENCE_TAMPERING": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 0,
+      "top4_hits": 2
+     },
+     "FABRICATION": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 1,
+      "top1_hits": 0,
+      "top4_hits": 0
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION+CONCEALMENT": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY",
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 6,
+      "no_positive_reason": 0,
+      "top1_hits": 6,
+      "top4_hits": 6
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 20,
+      "top1_blames_discrepancy": 0,
+      "top4_blames_discrepancy": 0
+     }
+    }
+   },
+   "accuracy_before": {
+    "funded_test_book": {
+     "ASSET_SEASONING": {
+      "expected_groups": [
+       "UNSOURCED_DEPOSITS"
+      ],
+      "n": 113,
+      "no_positive_reason": 0,
+      "top1_hits": 109,
+      "top4_hits": 109
+     },
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 7,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 357,
+      "no_positive_reason": 0,
+      "top1_hits": 357,
+      "top4_hits": 357
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 100,
+        "top4": 3979
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 9523,
+      "top1_blames_discrepancy": 100,
+      "top4_blames_discrepancy": 3979
+     }
+    },
+    "teaching_twins_and_conflicting": {
+     "CONCEALMENT": {
+      "expected_groups": [
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "EVIDENCE_TAMPERING": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 0,
+      "top4_hits": 5
+     },
+     "FABRICATION": {
+      "expected_groups": [
+       "ASSET_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 1,
+      "top4_hits": 5
+     },
+     "INFLATION": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY"
+      ],
+      "n": 5,
+      "no_positive_reason": 0,
+      "top1_hits": 5,
+      "top4_hits": 5
+     },
+     "INFLATION+CONCEALMENT": {
+      "expected_groups": [
+       "INCOME_DISCREPANCY",
+       "UNDISCLOSED_DEBT"
+      ],
+      "n": 6,
+      "no_positive_reason": 0,
+      "top1_hits": 6,
+      "top4_hits": 6
+     },
+     "NONE": {
+      "by_group": {
+       "ASSET_DISCREPANCY": {
+        "top1": 0,
+        "top4": 9
+       },
+       "INCOME_DISCREPANCY": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNDISCLOSED_DEBT": {
+        "top1": 0,
+        "top4": 0
+       },
+       "UNSOURCED_DEPOSITS": {
+        "top1": 0,
+        "top4": 0
+       }
+      },
+      "control": true,
+      "n": 20,
+      "top1_blames_discrepancy": 0,
+      "top4_blames_discrepancy": 9
+     }
+    }
+   },
+   "chosen_on": "clean funded loans of the calibration books (19,051 loans; the test book plays no part)",
+   "clean_training_loans_with_an_income_discrepancy": 0,
+   "false_reason_rate": {
+    "calibration_clean_after": 0.044355,
+    "calibration_clean_before": 0.415096,
+    "test_clean_after": 0.040533,
+    "test_clean_before": 0.417831,
+    "test_clean_loans": 9523
+   },
+   "riskiest_decile": {
+    "loans": 1000,
+    "without_a_stated_reason_after": 0,
+    "without_a_stated_reason_before": 0
+   },
+   "rule": "a reason group is stated only if its SHAP contribution exceeds the threshold",
+   "target_false_reason_rate": 0.05,
+   "threshold_log_odds": 0.005412
+  },
   "method": "TreeSHAP (shap.TreeExplainer) on credit_pd_xgb in log-odds; contributions summed by feature group; up to the top four groups that raise risk become reason statements",
   "stability": {
    "bootstraps": 20,

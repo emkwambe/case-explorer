@@ -40,7 +40,7 @@ export function CaseCreditModel({ caseKey, cases }) {
             Probability of 30+ days past due within 18 months: <strong>{pct(entry.pd)}</strong>
           </p>
           {entry.reasons.length === 0 ? (
-            <Note>No feature raises this case's risk above the model's average.</Note>
+            <Note>No reason group raises this case's risk by more than the materiality threshold.</Note>
           ) : (
             <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: INK }} data-testid="credit-model-reasons">
               {entry.reasons.map((r) => (
@@ -104,7 +104,7 @@ export function AboutCreditModel({ summary }) {
   const s = summary.data, x = s.models.credit_pd_xgb, lg = s.models.credit_pd_logistic, ce = s.ceilings;
   const d = s.comparison.xgb_minus_logistic.auc_difference;
   const statements = Object.fromEntries(Object.entries(s.reasons.groups).map(([g, v]) => [g, v.statement]));
-  const acc = s.reasons.accuracy.headline;
+  const mat = s.reasons.materiality, acc = mat.accuracy_after;
   return (
     <section style={styles.panel} data-testid="credit-model-about" aria-labelledby="cm-about">
       <h3 id="cm-about" style={styles.panelTitle}>About the model</h3>
@@ -126,7 +126,8 @@ export function AboutCreditModel({ summary }) {
       <Note>
         Rank correlation with true PD {f3(x.test.learned_vs_true.spearman)}; with the dealer-blind true PD {f3(x.test.learned_vs_true_without_dealer_term.spearman)}. Only synthetic data allows this comparison. Recalibration: {x.calibration_books.recalibrated ? "applied (isotonic)" : "not needed by the pre-registered rule"}.
       </Note>
-      <h4 style={{ fontSize: 13, margin: "14px 0 4px", color: INK }}>Reason accuracy against the hidden truth</h4>
+      <h4 style={{ fontSize: 13, margin: "14px 0 4px", color: INK }}>Reason accuracy against the hidden truth (stated reasons)</h4>
+      <Note>A reason is stated only if its contribution exceeds {mat.threshold_log_odds.toFixed(6)} log-odds, chosen on the calibration books so that at most {pct(mat.target_false_reason_rate, 0)} of clean loans get a false discrepancy reason (clean test loans: {pct(mat.false_reason_rate.test_clean_before, 1)} before, {pct(mat.false_reason_rate.test_clean_after, 1)} after). Inflation's score is perfect by construction: only fraud loans have an income gap in this simulation.</Note>
       <Table testId="credit-model-accuracy-teaching" head={["Teaching twins", "Cases", "Expected group", "Top reason correct", "Any of top 4"]} rows={accuracyRows(acc.teaching_twins_and_conflicting)} />
       <Table testId="credit-model-accuracy-book" head={["Funded test book", "Loans", "Expected group", "Top reason correct", "Any of top 4"]} rows={accuracyRows(acc.funded_test_book)} />
     </section>

@@ -159,6 +159,33 @@ def test_case_snapshot_covers_the_teaching_set_and_the_opening_library():
         assert all(r["contribution"] > 0 and r["statement"] for r in entry["reasons"])
 
 
+def test_materiality_threshold_is_chosen_on_calibration_and_keeps_false_reasons_at_most_5pct():
+    from case_analytics.credit import reasons as rs
+
+    m = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))["reasons"]["materiality"]
+    assert m["threshold_log_odds"] > 0
+    assert "calibration books" in m["chosen_on"] and "test book plays no part" in m["chosen_on"]
+    assert m["false_reason_rate"]["calibration_clean_after"] <= rs.MATERIALITY_TARGET
+    assert (
+        m["false_reason_rate"]["calibration_clean_after"] < m["false_reason_rate"]["calibration_clean_before"]
+    )
+    # The rule on a hand-built example: 20 clean rows, one discrepancy contribution each.
+    groups = list(load_spec().groups)
+    j = groups.index("ASSET_DISCREPANCY")
+    gm = np.zeros((20, len(groups)))
+    gm[:, j] = np.arange(1, 21) / 100
+    tau = rs.choose_materiality(gm, groups, target=0.05)
+    assert rs.false_reason_rate(gm, groups, tau) <= 0.05
+    assert rs.false_reason_rate(gm, groups, tau - 1e-9) > 0.05 or tau == 0
+
+
+def test_case_snapshot_states_only_reasons_above_the_threshold():
+    cases = json.loads((SNAPSHOT_DIR / "credit-model-cases.json").read_text(encoding="utf-8"))
+    tau = cases["materiality_threshold_log_odds"]
+    for entry in [*cases["teaching"].values(), *cases["opening_library"].values()]:
+        assert all(r["contribution"] > tau for r in entry["reasons"])
+
+
 def test_model_card_headline_numbers_are_the_snapshot_values():
     summary = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))
     card = (docs.MODEL_CARD).read_text(encoding="utf-8")
