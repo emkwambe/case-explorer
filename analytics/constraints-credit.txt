@@ -12,3 +12,6 @@ shap==0.52.0
 matplotlib==3.10.8
 numba==0.67.0
 llvmlite==0.49.0
+# The formatter too: an unpinned newer ruff formats differently from an older one and fails
+# `ruff format --check` on unchanged code.
+ruff==0.17.2

@@ -16,6 +16,7 @@ import hashlib
 import importlib.metadata
 import json
 import sys
+from functools import partial
 from itertools import product
 from pathlib import Path
 from typing import Any
@@ -81,13 +82,17 @@ def tune(data: Data, log) -> dict[str, Any]:
     train = data.frame(data.training)
     X, y, groups = data.X(train), data.y(train), train["seed"].to_numpy()
     results: dict[str, Any] = {}
-    for name, space, make in (
-        (LOGIT_NAME, LOGIT_GRID, lambda p: (lambda: logistic(**p))),
-        (XGB_NAME, XGB_GRID, lambda p: (lambda: xgb(data.spec.monotone, **p))),
-    ):
+
+    def build_logistic(params: dict[str, Any]) -> Any:
+        return logistic(**params)
+
+    def build_xgb(params: dict[str, Any]) -> Any:
+        return xgb(data.spec.monotone, **params)
+
+    for name, space, build in ((LOGIT_NAME, LOGIT_GRID, build_logistic), (XGB_NAME, XGB_GRID, build_xgb)):
         rows = []
         for params in grid(space):
-            score = cross_validate(make(params), X, y, groups)
+            score = cross_validate(partial(build, params), X, y, groups)
             rows.append({"params": params, **score})
             log(f"  {name} {params}: log loss {score['log_loss']:.6f}, AUC {score['auc']:.4f}")
         best = min(rows, key=lambda r: (r["log_loss"], json.dumps(r["params"], sort_keys=True)))
