@@ -9,6 +9,7 @@ import { getRule } from "../../decisioning/fraud-rules/rules.js";
 import { artifactUrl, useArtifact, modelProvenance } from "../hooks/useArtifacts.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
 import { showsSolarLoan } from "../../profiles/index.js";
+import { importanceRows } from "./importance.js";
 
 // The integrity check underwrites its own way (verified income, proposed mortgage PITI), which can
 // differ from the credit policy's profile DTI; the label says so.
@@ -181,7 +182,10 @@ export function ExplanationTab({ scored }) {
         </Panel>
       </div>
 
-      <Panel title="Model explainability (Python pipeline)">
+      <Panel title="Fraud model from the original mortgage suite (Python pipeline)">
+        <div style={{ ...styles.note, marginTop: 0 }} data-testid="fraud-model-note">
+          This is the mortgage fraud-detection model (the analytics workbench's champion), not the Solar credit PD model, which has its own Credit model tab. Near-perfect scores are by construction: in this simulation, discrepancies occur only on fraud cases.
+        </div>
         {models.status === "unavailable" && (
           <Callout tone="warn">
             Model artifacts are not published here. Run <code>npm run datasets</code> then the analytics pipeline
@@ -200,13 +204,13 @@ export function ExplanationTab({ scored }) {
             {importance && (
               <div style={styles.tableContainer}>
                 <table style={styles.table}>
-                  <thead><tr>{["Feature", "Importance", "Reason code"].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>
+                  <thead><tr>{["Feature", "Permutation importance (drop in average precision)", "Native importance (share)"].map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>
                   <tbody>
-                    {(Array.isArray(importance) ? importance : Object.entries(importance).map(([feature, value]) => ({ feature, value }))).slice(0, 12).map((row) => (
-                      <tr key={row.feature}>
+                    {importanceRows(importance).slice(0, 12).map((row) => (
+                      <tr key={row.feature} data-testid="importance-row">
                         <td style={styles.td}>{titleCase(row.feature)}</td>
-                        <td style={styles.td}>{Number(row.importance ?? row.value ?? 0).toFixed(4)}</td>
-                        <td style={styles.td}>{row.reason_code ? <Chip color={CATEGORY_COLORS[REASON_CODES[row.reason_code]?.category] ?? "#64748b"}>{row.reason_code}</Chip> : "—"}</td>
+                        <td style={styles.td}>{row.permutation === null ? "—" : row.permutation.toFixed(4)}</td>
+                        <td style={styles.td}>{row.native === null ? "—" : row.native.toFixed(4)}</td>
                       </tr>
                     ))}
                   </tbody>

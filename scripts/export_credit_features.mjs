@@ -36,7 +36,7 @@ export const FIRST_TRAINING_SEED = 1001;
 export const MIN_TRAINING_DEFAULTS = 2000;
 export const CALIBRATION_BOOKS = 2;
 export const APP_COLUMNS = ["application_id", "seed", "index", "funded", "ead", "dpd30", ...FEATURE_NAMES];
-export const ORACLE_COLUMNS = ["application_id", "p_dpd30_true", "p_dpd30_no_dealer", "pd_chargeoff", "fraud_true", "corruption_type"];
+export const ORACLE_COLUMNS = ["application_id", "p_dpd30_true", "p_dpd30_dealer_averaged", "pd_chargeoff", "fraud_true", "corruption_type"];
 
 const sha256 = (text) => crypto.createHash("sha256").update(text).digest("hex");
 const cell = (v) => (v === null || v === undefined ? "" : typeof v === "boolean" ? (v ? "1" : "0") : String(v));
@@ -56,7 +56,7 @@ export function bookRows(seed) {
   const byLoan = new Map(book.loans.map((l) => [l.id, l]));
   for (const s of sims) if (fundedIds.has(s.id) && byLoan.get(s.id).dpd30 !== s.dpd30) throw new Error(`book ${seed}: pool simulation differs from the book for ${s.id}`);
   const apps = sims.map((s) => ({ application_id: s.id, seed, index: index.get(s.id), funded: fundedIds.has(s.id), ead: s.ead, dpd30: s.dpd30, ...feats.get(s.id) }));
-  const oracle = sims.map((s) => ({ application_id: s.id, ...oracleRow(s, dealerById.get(s.dealerId), book.settings, corruption.get(s.id)) }));
+  const oracle = sims.map((s) => ({ application_id: s.id, ...oracleRow(s, dealerById.get(s.dealerId), book.settings, corruption.get(s.id), book.dealers) }));
   const fundedDefaults = apps.filter((a) => a.funded && a.dpd30).length;
   return { seed, apps, oracle, counts: { applications: apps.length, funded: fundedIds.size, funded_defaults: fundedDefaults, all_defaults: apps.filter((a) => a.dpd30).length } };
 }

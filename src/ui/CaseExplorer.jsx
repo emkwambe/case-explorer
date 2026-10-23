@@ -3,6 +3,7 @@
 import React, { Suspense, lazy, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase, scenarioLabel, REFERENCE_LABEL, REFERENCE_LABEL_NOTE } from "./theme.js";
 import { CaseCard, CreditCaseCard, Chip } from "./components/primitives.jsx";
+import { cardLabels } from "./components/cardLabels.js";
 import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
 import { useScoredCase, useInvestigation, useCounterfactualCheck } from "./hooks/useCaseAnalysis.js";
 import { OverviewTab, TimelineTab, AlignmentTab, TruthGraphTab, EvidenceTab, MetadataTab } from "./tabs/caseTabs.jsx";
@@ -75,6 +76,8 @@ function CaseExplorerShell() {
   // Challenge mode: while it is on, the shell renders only the challenge view (the one gate).
   const [challenge, setChallenge] = useState(false);
   const steps = useMemo(() => tourSteps(Boolean(openingId)), [openingId]);
+  // Library cards tell repeated applicant names apart by a short case number (display only).
+  const labels = useMemo(() => cardLabels(cases), [cases]);
   // One set of credit assessments feeds the cards, the header counts and Credit Risk Mode, so they
   // cannot disagree. Computed when Credit Risk Mode is on or the profile uses the credit lens.
   const creditLens = profile.headerLens === "credit";
@@ -206,8 +209,8 @@ function CaseExplorerShell() {
           <div ref={caseListRef} style={{ flex: 1, minHeight: 120, overflowY: "auto" }} className="ce-case-list" data-testid="case-list">
             {cases.slice().reverse().map((c) => (
               creditLens
-                ? <CreditCaseCard key={c.id} caseData={c} selected={c.id === selectedId} assessment={assessments.get(c.id)} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
-                : <CaseCard key={c.id} caseData={c} selected={c.id === selectedId} loanAmount={showsSolarLoan(profile) ? proposedSolarLoan(c, profile)?.amount : undefined} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
+                ? <CreditCaseCard key={c.id} caseData={c} displayName={labels.get(c.id)} selected={c.id === selectedId} assessment={assessments.get(c.id)} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
+                : <CaseCard key={c.id} caseData={c} displayName={labels.get(c.id)} selected={c.id === selectedId} loanAmount={showsSolarLoan(profile) ? proposedSolarLoan(c, profile)?.amount : undefined} accentColor={creditMode ? CREDIT_DECISION_COLORS[assessments.get(c.id)?.policyDecision] : undefined} onClick={() => { select(c.id); if (tourStep === null) setActiveTab("overview"); }} />
             ))}
           </div>
           <details style={styles.generatorPanel} data-testid="generator-panel">

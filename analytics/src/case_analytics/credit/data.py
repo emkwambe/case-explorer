@@ -20,7 +20,7 @@ from case_analytics.features.policy import DEFAULT_POLICY
 ROOT = Path(__file__).resolve().parents[4]
 DATA_DIR = ROOT / "data" / "credit-model"
 TARGET = "dpd30"
-ORACLE_COLUMNS = ("p_dpd30_true", "p_dpd30_no_dealer", "pd_chargeoff", "fraud_true", "corruption_type")
+ORACLE_COLUMNS = ("p_dpd30_true", "p_dpd30_dealer_averaged", "pd_chargeoff", "fraud_true", "corruption_type")
 # Never model inputs: the oracle, identifiers, the book's own bookkeeping, dealer and geography.
 FORBIDDEN_INPUTS = (*ORACLE_COLUMNS, "application_id", "seed", "index", "funded", "ead", TARGET, "dealer_id")
 

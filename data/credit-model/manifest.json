@@ -175,61 +175,61 @@
       "role": "training book: answer key — never a model input",
       "rows": 18600,
       "committed": false,
-      "sha256": "10db9d9a6adab82f980a72cb4adb579bf109b01a82d13ab96f197fb81616125f"
+      "sha256": "55f26cdc24ff7f2e6f82203b086639a60da08340c458adfa64ae9e18f7bc7270"
     },
     "books/oracle-seed-1002.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18789,
       "committed": false,
-      "sha256": "d0872fffa0d6fb215b206e1413c26a2222433f037317b06e34cc455bb868d1a8"
+      "sha256": "f0df627e615df30bb8b5a0cb6f7ecfd1722e76116863e12f1362c89d46c28b4d"
     },
     "books/oracle-seed-1003.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18806,
       "committed": false,
-      "sha256": "217ab1933135f66a2f899f82afcd6673a26dc02c7fac5d772c7cab1db9cda61a"
+      "sha256": "81a81d1f6b29e3a6ab800761860c94a690ee3b95bfaacb293f5aea5bc8f12d47"
     },
     "books/oracle-seed-1004.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18839,
       "committed": false,
-      "sha256": "fcfbcd1261652f442fd032535182d4ddbe9ad940aeb9fc3b329d2273283be432"
+      "sha256": "d2e240f84ff4c76f14b45a8016b85b8b52f72664ce58fe77ba3603dd5787190d"
     },
     "books/oracle-seed-1005.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18839,
       "committed": false,
-      "sha256": "9b645a7df6a6d056641092a47f69d8d1bf992fb9c3594628cca5e61c72c18a53"
+      "sha256": "d8a5bd01f17525d61c8ea68e603f53992b7fdee3a1ca06eb1ee1ee5aa0003f12"
     },
     "books/oracle-seed-1006.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18751,
       "committed": false,
-      "sha256": "769f6df338874468114d236f870a85b6fb1061152ff783d11bd9de27d06574e3"
+      "sha256": "1bb05fe44c9393c18003cd850ef1de14c6a555039e9fa1c5f6c3180dd536ccf0"
     },
     "books/oracle-seed-1007.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18705,
       "committed": false,
-      "sha256": "9a3535a7f21e412821ac9b94a9c231d63a24d9da499a2495d5ac3cbdc688f977"
+      "sha256": "82206e6913e661c804c08227e611ed2582deffda3e9db760cfe0758a26289ebf"
     },
     "books/oracle-seed-1008.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18841,
       "committed": false,
-      "sha256": "25c76f3752018d158965d30243f3c086ec721c07686a91e1f082c858dc00e913"
+      "sha256": "c5db1f4e083126749373983acc49622770e0e67fca292a68f612bef2cefb13c7"
     },
     "books/oracle-seed-1009.csv": {
       "role": "calibration book: answer key — never a model input",
       "rows": 18952,
       "committed": false,
-      "sha256": "153061d4c1a89c03b78e0c8661192fcad99af478d143acb0f4a34393a43d47f1"
+      "sha256": "e14909148acff675fe561f38cd0ac447bf7ce48dfe4dfc425659dae438728b39"
     },
     "books/oracle-seed-1010.csv": {
       "role": "calibration book: answer key — never a model input",
       "rows": 19001,
       "committed": false,
-      "sha256": "196afefd5f31c3de40cd45ddfd20254f5d22531c18d6b8903ec0bdda495516bc"
+      "sha256": "2326a2cb07a176d2d007fcfd233d18c9ebe5e45bfafa27046269724a8d1fe74e"
     },
     "feature-spec.json": {
       "role": "features, monotonic directions, groups and reason statements (read by the Python model)",
@@ -246,7 +246,7 @@
       "role": "test book: answer key — never a model input",
       "rows": 18674,
       "committed": true,
-      "sha256": "b2ebf13d53941fb2f051c1273445986fd013a2fbe6f81ab868acc0411e4d6d40"
+      "sha256": "28aaf020db16641842eb3160e2eb2254200c7dcd965dfa0b7cdc5d77ea43088b"
     },
     "teaching-v1.csv": {
       "role": "teaching-v1 cases (rebuilt from their recipes): decision-time features, for reasons and reason accuracy",

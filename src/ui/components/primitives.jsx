@@ -65,7 +65,7 @@ export function ComparisonRow({ label, truth, pres }) {
 }
 
 /** `loanAmount` replaces the generator's mortgage amount, for example with a profile's solar loan. */
-export function CaseCard({ caseData, selected, onClick, accentColor, loanAmount }) {
+export function CaseCard({ caseData, selected, onClick, accentColor, loanAmount, displayName }) {
   const { applicant, label } = caseData;
   return (
     <div
@@ -74,7 +74,7 @@ export function CaseCard({ caseData, selected, onClick, accentColor, loanAmount 
       style={{ ...styles.caseCard, borderLeft: `4px solid ${accentColor ?? ALIGNMENT_COLORS[label.alignment_level]}`, background: selected ? "#f0f9ff" : "white" }}
     >
       <div style={styles.cardHeader}>
-        <strong>{applicant.name}</strong>
+        <strong>{displayName ?? applicant.name}</strong>
         <Badge color={ALIGNMENT_COLORS[label.alignment_level]} title={ALIGNMENT_DESCRIPTIONS[label.alignment_level]}>{label.alignment_level}</Badge>
       </div>
       <div style={styles.cardMeta}>Age {applicant.age} · ${(loanAmount ?? caseData.application.loan_amount).toLocaleString()} · {scenarioLabel(caseData.meta?.corruption_type)}</div>
@@ -91,7 +91,7 @@ export function CaseCard({ caseData, selected, onClick, accentColor, loanAmount 
  * the top reason is the subtitle, and a reference-label badge appears only when the reference label
  * cites a fraud indicator or a verification failure.
  */
-export function CreditCaseCard({ caseData, selected, onClick, assessment }) {
+export function CreditCaseCard({ caseData, selected, onClick, assessment, displayName }) {
   const decision = assessment.policyDecision;
   const color = CREDIT_DECISION_COLORS[decision];
   const integrity = integrityBadge(assessment, caseData.label);
@@ -103,7 +103,7 @@ export function CreditCaseCard({ caseData, selected, onClick, assessment }) {
       style={{ ...styles.caseCard, borderLeft: `4px solid ${color}`, background: selected ? "#f0f9ff" : "white" }}
     >
       <div style={styles.cardHeader}>
-        <strong>{caseData.applicant.name}</strong>
+        <strong>{displayName ?? caseData.applicant.name}</strong>
         <span style={{ ...styles.badge, background: color }} data-testid="card-status">{CREDIT_DECISION_LABELS[decision]}</span>
       </div>
       <div style={{ ...styles.cardMeta, color: "#334155" }} data-testid="card-reason">{cardReason(assessment)}</div>

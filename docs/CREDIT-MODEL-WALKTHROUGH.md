@@ -34,19 +34,19 @@ A boosted model adds small trees one at a time, each correcting the last. Monoto
 
 ## 6. Evaluation
 
-AUC is the chance a random defaulter scores above a random non-defaulter: `credit_pd_xgb` 0.640 (0.600–0.678). KS is the largest gap between the two score distributions: 0.272 (0.218–0.337). Brier is the mean squared error of the probabilities: 0.0215 (0.0188–0.0243). Calibration by decile compares mean predicted PD with the observed rate in each tenth of the book; in the riskiest decile here 6.52% was predicted and 7.90% observed. **`credit_pd_xgb` does not clearly beat the logistic baseline.** Its AUC is higher by 0.008, but the paired 95% interval (-0.024 to 0.043) contains 0, so this test book of 225 defaults cannot tell them apart.
+AUC is the chance a random defaulter scores above a random non-defaulter: `credit_pd_xgb` 0.640 (0.600–0.678). KS is the largest gap between the cumulative score distributions of defaulters and non-defaulters: 0.272 (0.218–0.337). Brier is the mean squared error of the probabilities: 0.0215 (0.0188–0.0243). Calibration by decile compares mean predicted PD with the observed rate in each tenth of the book; in the riskiest decile here 6.52% was predicted and 7.90% observed. **`credit_pd_xgb` does not clearly beat the logistic baseline.** Its AUC is higher by 0.008, but the paired 95% interval (-0.024 to 0.043) contains 0, so this test book of 225 defaults cannot tell them apart.
 
 *Check yourself:* a model with high AUC but poor calibration: which committee question can it answer, and which can't it?
 
 ## 7. SHAP
 
-Each prediction's log-odds equal a base value (-3.666) plus one contribution per feature; this was checked on all 10,000 test loans. Contributions are summed by group so one cause is not reported twice, and the groups that raise risk most become reasons. Largest groups on average: INCOME_DISCREPANCY 0.1915; UNSOURCED_DEPOSITS 0.0614; CREDIT_SCORE 0.0285. Across 20 retrains on resampled training data, a test loan's top reason matched the headline model's 54% of the time on average; 14% of loans kept the same top reason in at least 80% of retrains and 39% in fewer than half. Over all loans the top reason is **unstable**: most loans sit near the average PD, where every contribution is small and the ranking flips easily. In the riskiest tenth of the book, where a reason statement would actually be sent, agreement averages 89% (84% of those loans at 80% or more): stable.
+Each prediction's log-odds equal a base value (-3.666, which is a PD of 1 / (1 + e^3.666) ≈ 2.5%) plus one contribution per feature; this was checked on all 10,000 test loans. Contributions are summed by group so one cause is not reported twice, and the groups that raise risk most become reasons. Largest groups on average: INCOME_DISCREPANCY 0.1915; UNSOURCED_DEPOSITS 0.0614; CREDIT_SCORE 0.0285. Across 20 retrains on resampled training data, a test loan's top reason matched the headline model's 54% of the time on average; 14% of loans kept the same top reason in at least 80% of retrains and 39% in fewer than half. Over all loans the top reason is **unstable**: most loans sit near the average PD, where every contribution is small and the ranking flips easily. In the riskiest tenth of the book, where a reason statement would actually be sent, agreement averages 89% (84% of those loans at 80% or more): stable.
 
 *Check yourself:* why sum `dti_stated` and `stated_monthly_debts` into one reason?
 
 ## 8. Learned PD against true PD
 
-The simulation knows each loan's true probability. `credit_pd_xgb`'s predictions rank-correlate 0.196 with it, and 0.569 with the true PD once the dealer term is removed. The fair ceiling, the dealer-blind true PD itself, reaches AUC 0.650 (0.619–0.683): that is how close a dealer-blind model could get.
+The simulation knows each loan's true probability. `credit_pd_xgb`'s predictions rank-correlate 0.196 with it, and 0.569 with the true PD averaged over the dealers each loan could have been assigned to. The fair ceiling, that dealer-averaged true PD itself, reaches AUC 0.650 (0.619–0.683): that is how close a dealer-blind model could get.
 
 *Check yourself:* why can't a real lender run this comparison?
 
@@ -60,4 +60,19 @@ For loans whose falsified field is known, did the top reason name it? On the fun
 
 This model recovers a simple, known simulated process; its numbers do not transfer to real data. It learns from funded loans only, has no out-of-time test, is untested for fairness, and is a second opinion beside the credit policy, never the decision. It must not be used for real lending.
 
+The policy view shows the funded-only limit in money. **Why the logistic model's choice costs $7,064,313 against the policy's $4,413,431.** Trained on funded loans only, under a policy that already screens FICO and DTI, the model learns that credit score barely matters: its FICO coefficient is -0.038 per standard deviation. Applied to every applicant, the linear model extrapolates that flat slope to people the policy declined: of its 3,415 swap-ins, 1,466 were policy declines and 5.5% have a FICO below 660; their mean charge-off PD is 3.40% against 1.54% for the loans it swaps out. Monotonic trees flatten beyond the data instead of extrapolating a line, so `credit_pd_xgb` swaps in 1,134 (0.4% below FICO 660) at about the same PD as it swaps out, and costs $4,445,121. Both are scoring applicants outside their training population; Sprint 12's reject inference is the fix for that. The comparison also favours the policy: it reads the claimed FICO, which in this generator equals the true score, while both models read the noisier bureau score. So the models' loss figures are conservative, and part of the logistic model's $7,064,313 is that handicap, not only selection bias.
+
 *Check yourself:* name two things a real model risk review would ask for that this sprint does not provide.
+
+## Answer key
+
+1. A lender observes whether a loan defaulted, never its probability; the PD exists only inside the simulation.
+2. The hyperparameters would fit the test book's noise, so its score would be optimistic and stop being an honest estimate of performance on new loans.
+3. The model would memorise dealers instead of learning borrower risk, and a new dealer would have no history. Dealer risk is watched separately, in the Dealer View.
+4. The odds multiply by e^−0.5 ≈ 0.61: about 39% lower odds of default for a score one standard deviation higher.
+5. Reweighting changes the default rate the model sees, so its outputs stop being probabilities; pricing, expected loss and capital need real probabilities, while a ranking model only needs the order.
+6. It can answer "does it rank risk?" (who is riskier) but not "how many will default?" (what to price or provision for), which needs calibration.
+7. Both measure one cause, the debt burden; stated separately they would repeat one reason and crowd out a different one.
+8. Only the simulation knows each loan's true probability; a lender sees outcomes only.
+9. The fraud rules and document checks, which name the falsified field directly.
+10. Any two of: independent validation; out-of-time and drift testing; fairness and disparate-impact testing; reject inference; real data.

@@ -98,19 +98,27 @@ export function featureRow(caseObj, profile) {
 
 /**
  * Answer-key columns for one simulated loan (never model inputs): the true probability of a 30+ DPD
- * event, the same with the dealer term removed (the fair ceiling for a dealer-blind model), and the
- * generator's corruption label. P(30+ DPD) = 1 − (1 − h)^months; the simulation's pd is that times
- * chargeOffGivenDpd30, which is checked here.
+ * event at its own dealer; the same averaged over the dealers it could have been assigned to,
+ * weighted exactly as assignDealer weights them (the dealer-blind expectation, the fair ceiling for a
+ * model that may not see the dealer); the simulation's charge-off PD at full precision (so expected
+ * loss reconciles to the dollar with the locked tape); and the generator's corruption label.
+ * P(30+ DPD) = 1 − (1 − h)^months, and pd is that times chargeOffGivenDpd30 (checked here).
  */
-export function oracleRow(loan, dealer, settings, corruptionType) {
-  const perf = settings.performance, months = perf.monthsOnBook;
+export function oracleRow(loan, dealer, settings, corruptionType, dealers) {
+  const perf = settings.performance, months = perf.monthsOnBook, strength = settings.dealerEffect.strength;
   const p = (h) => 1 - Math.pow(1 - h, months);
-  const pTrue = p(monthlyHazard(loan, dealer, perf, settings.dealerEffect.strength));
+  const pTrue = p(monthlyHazard(loan, dealer, perf, strength));
   if (Math.abs(pTrue * perf.chargeOffGivenDpd30 - loan.pd) > 1e-12) throw new Error(`oracle: P(30+ DPD) × ${perf.chargeOffGivenDpd30} differs from pd for ${loan.id}`);
+  let weighted = 0, total = 0;
+  for (const d of dealers) {
+    const w = d.volumeWeight * (loan.fraud ? 1 + settings.assignment.fraudLowQualityFactor * strength * (1 - d.quality) : 1);
+    weighted += w * p(monthlyHazard(loan, d, perf, strength));
+    total += w;
+  }
   return {
     p_dpd30_true: round6(pTrue),
-    p_dpd30_no_dealer: round6(p(monthlyHazard(loan, dealer, perf, 0))),
-    pd_chargeoff: round6(loan.pd),
+    p_dpd30_dealer_averaged: round6(weighted / total),
+    pd_chargeoff: loan.pd,
     fraud_true: loan.fraud ? 1 : 0,
     corruption_type: corruptionType
   };

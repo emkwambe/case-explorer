@@ -7,6 +7,7 @@ by code from that number, not written by hand.
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 XGB, LOGIT = "credit_pd_xgb", "credit_pd_logistic"
@@ -125,6 +126,70 @@ def tampering_sentence(before: dict[str, Any], after: dict[str, Any]) -> str:
     )
 
 
+def flat_calibration_paragraph(s: dict[str, Any]) -> str:
+    """Why deciles 1–9 are flat, how decile 10 is made up, and the over- and under-prediction."""
+    fb, x = s["funded_book_profile"], s["models"][XGB]["test"]
+    d10, top = fb["decile_10"], x["deciles"][-1]
+    types = "; ".join(
+        f"{k} {n(v)}" for k, v in sorted(d10["by_typology"].items(), key=lambda kv: -kv[1]) if k != "NONE"
+    )
+    observed, predicted = x["metrics"]["observed_rate"], x["metrics"]["mean_predicted"]
+    rel = (predicted - observed) / observed
+    under = top["mean_predicted"] < top["observed_rate"]
+    return (
+        f"**Why deciles 1–9 are flat.** The credit policy screens out most of the simulated credit drivers before a loan is funded. In the funded test book the bureau FICO runs "
+        f"{fb['fico_bureau_range'][0]:.0f}–{fb['fico_bureau_range'][1]:.0f} and the stated back-end DTI {pct(fb['dti_stated_range'][0], 1)}–{pct(fb['dti_stated_range'][1], 1)}: "
+        f"only {pct(fb['share_true_dti_above_36pct'], 2)} of funded loans have a true DTI above 36%, where the simulated hazard starts to rise, and {pct(fb['share_true_fico_below_700'], 1)} have a true FICO below 700, where FICO adds risk. "
+        f"The rest of the remaining risk is fraud ({pct(fb['share_fraud'], 1)} of funded loans) and dealer quality, which the model may not see. So most loans sit near the base rate and the first nine deciles barely separate. "
+        f"Decile 10 holds the signal: of its {n(d10['loans'])} loans, {pct(d10['share_fraud'], 1)} are fraud ({types}; {n(d10['by_typology'].get('NONE', 0))} are clean) and {pct(d10['share_true_fico_below_700'], 1)} have a true FICO below 700. "
+        f"It is {'under' if under else 'over'}-predicted: {pct(top['mean_predicted'])} predicted against {pct(top['observed_rate'])} observed. "
+        f"Overall the test book is over-predicted by {pct(rel, 0)} relative ({pct(predicted)} against {pct(observed)}), because the seed-42 book defaults below the training books' {pct(fb['training_default_rate'])}; "
+        "calibration was fitted on other books, as it would be in production, and one book's rate differs by chance."
+    )
+
+
+def fico_fields_sentence(s: dict[str, Any]) -> str:
+    ff = s["funded_book_profile"]["fico_fields"]
+    g = ff["bureau_minus_claimed"]
+    low = ff["claimed_range_of_those"]
+    return (
+        f"**Two FICO fields.** The credit policy reads the applicant's claimed FICO; the model reads the bureau's (`fico_bureau`). No funded loan claims below the 660 floor "
+        f"({n(ff['funded_with_claimed_below_660'])}), but {n(ff['funded_with_bureau_below_660'])} funded loans have a bureau score below 660"
+        + (f", all claiming {low[0]:.0f}–{low[1]:.0f}" if low else "")
+        + f", which is why the funded book's bureau FICO starts below 660. In this generator the claimed FICO equals the true score on {pct(ff['claimed_equals_true_share'], 1)} of funded loans, "
+        f"while the bureau score is the true score plus noise: bureau minus claimed averages {g['mean']:+.2f} points (standard deviation {g['sd']:.2f}, range {g['min']:+.0f} to {g['max']:+.0f}) and is exactly equal on "
+        f"{pct(ff['bureau_equals_claimed_share'], 1)}; {n(ff['funded_with_bureau_above_850'])} funded loans have a bureau score above 850. The model therefore reads a noisier copy of the FICO that drives the "
+        "simulated default, which weakens its FICO signal. This is a generator defect, logged in [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md); the bureau field is kept because it is the one a real lender would use."
+    )
+
+
+def policy_paragraph(s: dict[str, Any]) -> str:
+    pv, coef = s["policy_view"], s["models"][LOGIT]["coefficients_per_sd"]["fico_bureau"]
+    lg, xg = pv[LOGIT], pv[XGB]
+    return (
+        f"**Why the logistic model's choice costs ${n(lg['model_expected_loss'])} against the policy's ${n(pv['policy_expected_loss'])}.** Trained on funded loans only, under a policy that "
+        f"already screens FICO and DTI, the model learns that credit score barely matters: its FICO coefficient is {coef:+.3f} per standard deviation. "
+        f"Applied to every applicant, the linear model extrapolates that flat slope to people the policy declined: of its {n(lg['swap_in'])} swap-ins, "
+        f"{n(lg['swap_in_by_policy_decision']['DECLINE'])} were policy declines and {pct(lg['swap_in_share_fico_below_660'], 1)} have a FICO below 660; their mean charge-off PD is "
+        f"{pct(lg['swap_in_mean_pd_chargeoff'])} against {pct(lg['swap_out_mean_pd_chargeoff'])} for the loans it swaps out. Monotonic trees flatten beyond the data instead of extrapolating a line, "
+        f"so `{XGB}` swaps in {n(xg['swap_in'])} ({pct(xg['swap_in_share_fico_below_660'], 1)} below FICO 660) at about the same PD as it swaps out, and costs ${n(xg['model_expected_loss'])}. "
+        "Both are scoring applicants outside their training population; Sprint 12's reject inference is the fix for that. "
+        "The comparison also favours the policy: it reads the claimed FICO, which in this generator equals the true score, while both models read the noisier bureau score. "
+        f"So the models' loss figures are conservative, and part of the logistic model's ${n(lg['model_expected_loss'])} is that handicap, not only selection bias."
+    )
+
+
+def diagnostic_reason_sentence(s: dict[str, Any]) -> str:
+    d = s["reasons"]["accuracy"]["diagnostic_all_applications"]["teaching_twins_and_conflicting"]
+    h = s["reasons"]["materiality"]["accuracy_after"]["teaching_twins_and_conflicting"]
+    fab, tam, hfab = d["FABRICATION"], d["EVIDENCE_TAMPERING"], h["FABRICATION"]
+    return (
+        f"The all-applications diagnostic names the asset discrepancy for {n(fab['top4_hits'])} of {n(fab['n'])} fabrication twins (headline, stated: {n(hfab['top4_hits'])} of {n(hfab['n'])}), "
+        "which confirms that funded-only selection, not the method, is what hides fabrication. "
+        f"It names it for {n(tam['top4_hits'])} of {n(tam['n'])} tampering twins: an open question. The diagnostic does see tampered applications in training, but the generator's tampering also adds large unsourced deposits, which the teaching twins (one altered balance) lack; that is one possible reason, not yet tested."
+    )
+
+
 def materiality_paragraph(m: dict[str, Any]) -> str:
     fr, risky = m["false_reason_rate"], m["riskiest_decile"]
     return (
@@ -193,6 +258,7 @@ def model_card(s: dict[str, Any]) -> str:
         f"- **Test:** the locked seed-42 book, {n(after['test']['rows'])} funded loans, {n(after['test']['defaults'])} defaults ({pct(after['test']['default_rate'])}). It played no part in tuning or calibration.",
         "- **Selection bias:** outcomes exist only for funded loans, so the model learns from approved applicants only. Reject inference is Sprint 12.",
         "- **No out-of-time test:** every application in these books is submitted on the same as-of date (2026-01-15); the seed-42 book is out-of-sample by seed only.",
+        "- " + fico_fields_sentence(s),
         "- Details, shapes before and after, and the feature list: [analytics/credit/README.md](../analytics/credit/README.md).",
         "",
         "**Features** (decision-time only; monotonic direction in brackets): "
@@ -215,9 +281,9 @@ def model_card(s: dict[str, Any]) -> str:
         f"| `{XGB}` | {ci(x['test'], 'auc')} | {ci(x['test'], 'ks')} | {ci(x['test'], 'brier', 4)} | {pct(x['test']['metrics']['mean_predicted'])} | {pct(x['test']['metrics']['observed_rate'])} |",
         f"| `{LOGIT}` | {ci(lg['test'], 'auc')} | {ci(lg['test'], 'ks')} | {ci(lg['test'], 'brier', 4)} | {pct(lg['test']['metrics']['mean_predicted'])} | {pct(lg['test']['metrics']['observed_rate'])} |",
         f"| Ceiling: the simulation's true PD | {ci(ce['true_pd'], 'auc')} | {ci(ce['true_pd'], 'ks')} | {ci(ce['true_pd'], 'brier', 4)} | {pct(ce['true_pd']['metrics']['mean_predicted'])} | |",
-        f"| Fair ceiling: true PD without the dealer term | {ci(ce['true_pd_without_dealer_term'], 'auc')} | {ci(ce['true_pd_without_dealer_term'], 'ks')} | {ci(ce['true_pd_without_dealer_term'], 'brier', 4)} | {pct(ce['true_pd_without_dealer_term']['metrics']['mean_predicted'])} | |",
+        f"| Fair ceiling: true PD averaged over dealers | {ci(ce['true_pd_dealer_averaged'], 'auc')} | {ci(ce['true_pd_dealer_averaged'], 'ks')} | {ci(ce['true_pd_dealer_averaged'], 'brier', 4)} | {pct(ce['true_pd_dealer_averaged']['metrics']['mean_predicted'])} | |",
         "",
-        f"With {n(after['test']['defaults'])} test defaults the intervals are wide. {verdict(s)} The true-PD ceiling shows the best any model could do on this book; the fair ceiling removes the dealer-quality term the model is barred from seeing, so it is the benchmark for a dealer-blind model.",
+        f"With {n(after['test']['defaults'])} test defaults the intervals are wide. {verdict(s)} The true-PD ceiling shows the best any model could do on this book. The fair ceiling averages each loan's true PD over the dealers it could have been assigned to (weighted as the simulation assigns them), so it is the expected PD of a model that cannot see the dealer: the benchmark for a dealer-blind model.",
         "",
         "## Calibration",
         "",
@@ -230,6 +296,8 @@ def model_card(s: dict[str, Any]) -> str:
         "",
         *deciles_table(x["test"]["deciles"]),
         "",
+        flat_calibration_paragraph(s),
+        "",
         "## Learned PD against true PD",
         "",
         "Only synthetic data has the true probability. The comparison is the headline result.",
@@ -237,15 +305,17 @@ def model_card(s: dict[str, Any]) -> str:
         "| Model | Rank correlation with true PD | Mean absolute error | Rank correlation with dealer-blind true PD | Mean absolute error |",
         "|---|---|---|---|---|",
         *[
-            f"| `{m}` | {f3(c['test']['learned_vs_true']['spearman'])} | {pct(c['test']['learned_vs_true']['mean_absolute_error'])} | {f3(c['test']['learned_vs_true_without_dealer_term']['spearman'])} | {pct(c['test']['learned_vs_true_without_dealer_term']['mean_absolute_error'])} |"
+            f"| `{m}` | {f3(c['test']['learned_vs_true']['spearman'])} | {pct(c['test']['learned_vs_true']['mean_absolute_error'])} | {f3(c['test']['learned_vs_true_dealer_averaged']['spearman'])} | {pct(c['test']['learned_vs_true_dealer_averaged']['mean_absolute_error'])} |"
             for m, c in ((XGB, x), (LOGIT, lg))
         ],
         "",
-        "The gap to the full true PD is mostly the dealer term, which the model cannot see by design; the dealer-blind comparison is the fair one.",
+        "The gap to the full true PD is mostly the dealer, which the model cannot see by design; the comparison with the dealer-averaged true PD is the fair one.",
         "",
         "## Policy view (reported only)",
         "",
         f"At the credit policy's approval count on the seed-42 application pool ({n(pv['approvals'])} of {n(pv['applications'])}), approving the lowest-PD applications instead would swap {n(pv[XGB]['swap_in'])} loans in and out under `{XGB}` and {n(pv[LOGIT]['swap_in'])} under `{LOGIT}`. Expected loss (synthetic truth, LGD {pv['lgd']}): policy ${n(pv['policy_expected_loss'])}, `{XGB}` ${n(pv[XGB]['model_expected_loss'])}, `{LOGIT}` ${n(pv[LOGIT]['model_expected_loss'])}. Declined applicants are outside the training population, so their scores are extrapolation. The champion/challenger run through the Policy Sandbox is Sprint 12.",
+        "",
+        policy_paragraph(s),
         "",
         "## All-applications diagnostic (not the headline model)",
         "",
@@ -294,6 +364,8 @@ def model_card(s: dict[str, Any]) -> str:
         "",
         inflation_sentence(mat),
         "",
+        diagnostic_reason_sentence(s),
+        "",
         "A low score is a finding, not a failure to hide: it means the model predicts default but cannot tell an underwriter why in fraud terms, which supports keeping the fraud rules beside it. Tampering and fabrication are the hardest case by construction: the funded training books contain neither typology, so the model has only seen the small balance differences of clean loans.",
         "",
         "## Limitations",
@@ -303,7 +375,7 @@ def model_card(s: dict[str, Any]) -> str:
         "- Funded-only selection bias; no reject inference (Sprint 12).",
         "- Fairness is not yet tested (Sprint 12). Sensitive and geographic attributes are excluded, which does not by itself establish fair outcomes.",
         "- No out-of-time test (one as-of date). No drift monitoring (Sprint 12).",
-        "- Generator quirks the model sees: the bureau records one more account than the application lists on most loans (`undisclosed_accounts` = 1), and bureau scores can exceed 850.",
+        "- Generator defects the model sees (bureau scores above 850; one extra bureau account on most loans) are logged in [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md) for a future generator version.",
         "",
         "## How this would run in production",
         "",
@@ -364,13 +436,13 @@ def walkthrough(s: dict[str, Any]) -> str:
         "",
         "## 6. Evaluation",
         "",
-        f"AUC is the chance a random defaulter scores above a random non-defaulter: `{XGB}` {ci(x['test'], 'auc')}. KS is the largest gap between the two score distributions: {ci(x['test'], 'ks')}. Brier is the mean squared error of the probabilities: {ci(x['test'], 'brier', 4)}. Calibration by decile compares mean predicted PD with the observed rate in each tenth of the book; in the riskiest decile here {pct(x['test']['deciles'][-1]['mean_predicted'])} was predicted and {pct(x['test']['deciles'][-1]['observed_rate'])} observed. {verdict(s)}",
+        f"AUC is the chance a random defaulter scores above a random non-defaulter: `{XGB}` {ci(x['test'], 'auc')}. KS is the largest gap between the cumulative score distributions of defaulters and non-defaulters: {ci(x['test'], 'ks')}. Brier is the mean squared error of the probabilities: {ci(x['test'], 'brier', 4)}. Calibration by decile compares mean predicted PD with the observed rate in each tenth of the book; in the riskiest decile here {pct(x['test']['deciles'][-1]['mean_predicted'])} was predicted and {pct(x['test']['deciles'][-1]['observed_rate'])} observed. {verdict(s)}",
         "",
         "*Check yourself:* a model with high AUC but poor calibration: which committee question can it answer, and which can't it?",
         "",
         "## 7. SHAP",
         "",
-        f"Each prediction's log-odds equal a base value ({r['base_value_log_odds']:.3f}) plus one contribution per feature; this was checked on all {n(r['additivity']['rows_checked'])} test loans. Contributions are summed by group so one cause is not reported twice, and the groups that raise risk most become reasons. Largest groups on average: "
+        f"Each prediction's log-odds equal a base value ({r['base_value_log_odds']:.3f}, which is a PD of 1 / (1 + e^{-r['base_value_log_odds']:.3f}) ≈ {pct(1 / (1 + math.exp(-r['base_value_log_odds'])), 1)}) plus one contribution per feature; this was checked on all {n(r['additivity']['rows_checked'])} test loans. Contributions are summed by group so one cause is not reported twice, and the groups that raise risk most become reasons. Largest groups on average: "
         + "; ".join(f"{g} {v:.4f}" for g, v in gi[:3])
         + f". {stability_sentence(r['stability'])}",
         "",
@@ -378,7 +450,7 @@ def walkthrough(s: dict[str, Any]) -> str:
         "",
         "## 8. Learned PD against true PD",
         "",
-        f"The simulation knows each loan's true probability. `{XGB}`'s predictions rank-correlate {f3(x['test']['learned_vs_true']['spearman'])} with it, and {f3(x['test']['learned_vs_true_without_dealer_term']['spearman'])} with the true PD once the dealer term is removed. The fair ceiling, the dealer-blind true PD itself, reaches AUC {ci(ce['true_pd_without_dealer_term'], 'auc')}: that is how close a dealer-blind model could get.",
+        f"The simulation knows each loan's true probability. `{XGB}`'s predictions rank-correlate {f3(x['test']['learned_vs_true']['spearman'])} with it, and {f3(x['test']['learned_vs_true_dealer_averaged']['spearman'])} with the true PD averaged over the dealers each loan could have been assigned to. The fair ceiling, that dealer-averaged true PD itself, reaches AUC {ci(ce['true_pd_dealer_averaged'], 'auc')}: that is how close a dealer-blind model could get.",
         "",
         "*Check yourself:* why can't a real lender run this comparison?",
         "",
@@ -400,7 +472,22 @@ def walkthrough(s: dict[str, Any]) -> str:
         "",
         "This model recovers a simple, known simulated process; its numbers do not transfer to real data. It learns from funded loans only, has no out-of-time test, is untested for fairness, and is a second opinion beside the credit policy, never the decision. It must not be used for real lending.",
         "",
+        "The policy view shows the funded-only limit in money. " + policy_paragraph(s),
+        "",
         "*Check yourself:* name two things a real model risk review would ask for that this sprint does not provide.",
+        "",
+        "## Answer key",
+        "",
+        "1. A lender observes whether a loan defaulted, never its probability; the PD exists only inside the simulation.",
+        "2. The hyperparameters would fit the test book's noise, so its score would be optimistic and stop being an honest estimate of performance on new loans.",
+        "3. The model would memorise dealers instead of learning borrower risk, and a new dealer would have no history. Dealer risk is watched separately, in the Dealer View.",
+        "4. The odds multiply by e^−0.5 ≈ 0.61: about 39% lower odds of default for a score one standard deviation higher.",
+        "5. Reweighting changes the default rate the model sees, so its outputs stop being probabilities; pricing, expected loss and capital need real probabilities, while a ranking model only needs the order.",
+        '6. It can answer "does it rank risk?" (who is riskier) but not "how many will default?" (what to price or provision for), which needs calibration.',
+        "7. Both measure one cause, the debt burden; stated separately they would repeat one reason and crowd out a different one.",
+        "8. Only the simulation knows each loan's true probability; a lender sees outcomes only.",
+        "9. The fraud rules and document checks, which name the falsified field directly.",
+        "10. Any two of: independent validation; out-of-time and drift testing; fairness and disparate-impact testing; reject inference; real data.",
         "",
     ]
     return "\n".join(L)

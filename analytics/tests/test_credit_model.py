@@ -82,8 +82,11 @@ def test_training_books_hold_at_least_2000_defaults_and_the_test_book_is_the_loc
 
 def test_oracle_true_pd_matches_the_charge_off_pd():
     oracle = pd.read_csv(DATA_DIR / "oracle-seed-42.csv")
-    np.testing.assert_allclose(oracle["p_dpd30_true"] * 0.45, oracle["pd_chargeoff"], atol=2e-6)
-    assert (oracle["p_dpd30_no_dealer"] <= oracle["p_dpd30_true"] + 1e-6).all()
+    np.testing.assert_allclose(oracle["p_dpd30_true"] * 0.45, oracle["pd_chargeoff"], atol=1e-6)
+    # The dealer-averaged PD is an expectation over the assignment distribution, not the dealer term
+    # removed, so on average it matches the realised-dealer PD rather than sitting below it.
+    mean_true, mean_avg = oracle["p_dpd30_true"].mean(), oracle["p_dpd30_dealer_averaged"].mean()
+    assert abs(mean_avg - mean_true) < 0.1 * mean_true, (mean_avg, mean_true)
 
 
 def test_monotonic_constraints_hold_on_a_sample_of_test_loans(data):
@@ -186,13 +189,33 @@ def test_case_snapshot_states_only_reasons_above_the_threshold():
         assert all(r["contribution"] > tau for r in entry["reasons"])
 
 
+def test_policy_view_expected_loss_reconciles_to_the_locked_number():
+    summary = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))
+    recon = json.loads(
+        (DATA_DIR.parent / "credit-tape" / "credit-tape-reconciliation.json").read_text(encoding="utf-8")
+    )
+    assert (
+        round(summary["policy_view"]["policy_expected_loss"]) == recon["loans"]["expected_loss"] == 4_413_431
+    )
+
+
+def test_fair_ceiling_is_the_dealer_averaged_true_pd_at_the_true_level():
+    summary = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))
+    full, fair = (
+        summary["ceilings"]["true_pd"]["metrics"],
+        summary["ceilings"]["true_pd_dealer_averaged"]["metrics"],
+    )
+    assert abs(fair["mean_predicted"] - full["mean_predicted"]) < 0.1 * full["mean_predicted"]
+    assert fair["auc"] < full["auc"]
+
+
 def test_model_card_headline_numbers_are_the_snapshot_values():
     summary = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))
     card = (docs.MODEL_CARD).read_text(encoding="utf-8")
     x = summary["models"]["credit_pd_xgb"]["test"]
     auc, low, high = x["metrics"]["auc"], x["ci95"]["auc"]["low"], x["ci95"]["auc"]["high"]
     assert f"{auc:.3f} ({low:.3f}–{high:.3f})" in card
-    fair = summary["ceilings"]["true_pd_without_dealer_term"]["metrics"]["auc"]
+    fair = summary["ceilings"]["true_pd_dealer_averaged"]["metrics"]["auc"]
     assert f"{fair:.3f}" in card
     assert "developer testing, not independent validation" in card
     assert "does not transfer to real data" in card

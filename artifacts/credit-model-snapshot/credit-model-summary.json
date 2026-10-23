@@ -1,6 +1,6 @@
 {
  "ceilings": {
-  "note": "AUC of the simulation's own probabilities on the test book: the first is the best any model could do; the second removes the dealer-quality term the model is barred from using, the fair benchmark for a dealer-blind model.",
+  "note": "AUC of the simulation's own probabilities on the test book: the first is the best any model could do; the second averages each loan's true PD over the dealers it could have been assigned to (the dealer the model is barred from seeing), the fair benchmark for a dealer-blind model.",
   "true_pd": {
    "calibration_in_the_large": {
     "mean_predicted": 0.025489,
@@ -141,10 +141,10 @@
     "mean_true": 0.025489,
     "spearman": 1.0
    },
-   "learned_vs_true_without_dealer_term": {
-    "mean_absolute_error": 0.01092,
+   "learned_vs_true_dealer_averaged": {
+    "mean_absolute_error": 0.010047,
     "mean_learned": 0.025489,
-    "mean_true": 0.014569,
+    "mean_true": 0.025427,
     "spearman": 0.344944
    },
    "metrics": {
@@ -156,9 +156,9 @@
     "observed_rate": 0.0225
    }
   },
-  "true_pd_without_dealer_term": {
+  "true_pd_dealer_averaged": {
    "calibration_in_the_large": {
-    "mean_predicted": 0.014569,
+    "mean_predicted": 0.025427,
     "observed": 0.0225
    },
    "ci95": {
@@ -168,8 +168,8 @@
      "resamples": 1000
     },
     "brier": {
-     "high": 0.024555,
-     "low": 0.018922,
+     "high": 0.024258,
+     "low": 0.018768,
      "resamples": 1000
     },
     "ks": {
@@ -182,7 +182,7 @@
     {
      "decile": 1,
      "defaults": 14,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.020674,
      "n": 1000,
      "observed_high": 0.023362,
@@ -193,29 +193,29 @@
     {
      "decile": 2,
      "defaults": 19,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.020773,
      "n": 1000,
      "observed_high": 0.029485,
      "observed_low": 0.012197,
      "observed_rate": 0.019,
-     "prediction_inside_interval": false
+     "prediction_inside_interval": true
     },
     {
      "decile": 3,
      "defaults": 9,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.020776,
      "n": 1000,
      "observed_high": 0.017016,
      "observed_low": 0.004742,
      "observed_rate": 0.009,
-     "prediction_inside_interval": true
+     "prediction_inside_interval": false
     },
     {
      "decile": 4,
      "defaults": 15,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.021057,
      "n": 1000,
      "observed_high": 0.024601,
@@ -226,7 +226,7 @@
     {
      "decile": 5,
      "defaults": 17,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.020489,
      "n": 1000,
      "observed_high": 0.027056,
@@ -237,7 +237,7 @@
     {
      "decile": 6,
      "defaults": 16,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.02111,
      "n": 1000,
      "observed_high": 0.025832,
@@ -248,18 +248,18 @@
     {
      "decile": 7,
      "defaults": 19,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.020625,
      "n": 1000,
      "observed_high": 0.029485,
      "observed_low": 0.012197,
      "observed_rate": 0.019,
-     "prediction_inside_interval": false
+     "prediction_inside_interval": true
     },
     {
      "decile": 8,
      "defaults": 15,
-     "mean_predicted": 0.012082,
+     "mean_predicted": 0.020774,
      "mean_true": 0.020999,
      "n": 1000,
      "observed_high": 0.024601,
@@ -270,44 +270,44 @@
     {
      "decile": 9,
      "defaults": 22,
-     "mean_predicted": 0.012474,
+     "mean_predicted": 0.021442,
      "mean_true": 0.021686,
      "n": 1000,
      "observed_high": 0.033086,
      "observed_low": 0.014573,
      "observed_rate": 0.022,
-     "prediction_inside_interval": false
+     "prediction_inside_interval": true
     },
     {
      "decile": 10,
      "defaults": 79,
-     "mean_predicted": 0.03656,
+     "mean_predicted": 0.066634,
      "mean_true": 0.066706,
      "n": 1000,
      "observed_high": 0.097375,
      "observed_low": 0.063847,
      "observed_rate": 0.079,
-     "prediction_inside_interval": false
+     "prediction_inside_interval": true
     }
    ],
    "learned_vs_true": {
-    "mean_absolute_error": 0.01092,
-    "mean_learned": 0.014569,
+    "mean_absolute_error": 0.010047,
+    "mean_learned": 0.025427,
     "mean_true": 0.025489,
     "spearman": 0.344944
    },
-   "learned_vs_true_without_dealer_term": {
+   "learned_vs_true_dealer_averaged": {
     "mean_absolute_error": 0.0,
-    "mean_learned": 0.014569,
-    "mean_true": 0.014569,
+    "mean_learned": 0.025427,
+    "mean_true": 0.025427,
     "spearman": 1.0
    },
    "metrics": {
     "auc": 0.64982,
-    "brier": 0.021693,
+    "brier": 0.021492,
     "ks": 0.279614,
-    "log_loss": 0.103519,
-    "mean_predicted": 0.014569,
+    "log_loss": 0.101637,
+    "mean_predicted": 0.025427,
     "observed_rate": 0.0225
    }
   }
@@ -832,10 +832,10 @@
     "mean_true": 0.025489,
     "spearman": 0.283136
    },
-   "learned_vs_true_without_dealer_term": {
-    "mean_absolute_error": 0.015874,
+   "learned_vs_true_dealer_averaged": {
+    "mean_absolute_error": 0.006226,
     "mean_learned": 0.030437,
-    "mean_true": 0.014569,
+    "mean_true": 0.025427,
     "spearman": 0.760787
    },
    "metrics": {
@@ -945,6 +945,51 @@
    "why": "Longer employment never means higher risk."
   }
  ],
+ "funded_book_profile": {
+  "decile_10": {
+   "by_typology": {
+    "ASSET_SEASONING": 112,
+    "CONCEALMENT": 5,
+    "INFLATION": 357,
+    "NONE": 526
+   },
+   "defaults": 79,
+   "loans": 1000,
+   "share_fraud": 0.474,
+   "share_true_fico_below_700": 0.576
+  },
+  "dti_stated_range": [
+   0.061181,
+   0.359956
+  ],
+  "fico_bureau_range": [
+   646.0,
+   867.0
+  ],
+  "fico_fields": {
+   "bureau_equals_claimed_share": 0.0511,
+   "bureau_minus_claimed": {
+    "max": 28.0,
+    "mean": 0.1126,
+    "min": -28.0,
+    "sd": 7.465674
+   },
+   "claimed_equals_true_share": 1.0,
+   "claimed_range_of_those": [
+    660.0,
+    673.0
+   ],
+   "funded_with_bureau_above_850": 47,
+   "funded_with_bureau_below_660": 44,
+   "funded_with_claimed_below_660": 0,
+   "model_reads": "bureau FICO (credit report)",
+   "policy_reads": "claimed FICO (application)"
+  },
+  "share_fraud": 0.0477,
+  "share_true_dti_above_36pct": 0.0019,
+  "share_true_fico_below_700": 0.1076,
+  "training_default_rate": 0.02505
+ },
  "label": "Second opinion only: the credit policy makes the decision.",
  "models": {
   "credit_pd_logistic": {
@@ -1231,10 +1276,10 @@
      "mean_true": 0.025489,
      "spearman": 0.196993
     },
-    "learned_vs_true_without_dealer_term": {
-     "mean_absolute_error": 0.010643,
+    "learned_vs_true_dealer_averaged": {
+     "mean_absolute_error": 0.002954,
      "mean_learned": 0.025021,
-     "mean_true": 0.014569,
+     "mean_true": 0.025427,
      "spearman": 0.446296
     },
     "metrics": {
@@ -1526,10 +1571,10 @@
      "mean_true": 0.025489,
      "spearman": 0.196032
     },
-    "learned_vs_true_without_dealer_term": {
-     "mean_absolute_error": 0.010547,
+    "learned_vs_true_dealer_averaged": {
+     "mean_absolute_error": 0.001506,
      "mean_learned": 0.025066,
-     "mean_true": 0.014569,
+     "mean_true": 0.025427,
      "spearman": 0.568774
     },
     "metrics": {
@@ -1548,21 +1593,38 @@
   "applications": 18674,
   "approvals": 10000,
   "credit_pd_logistic": {
-   "model_expected_loss": 7064313.99009,
+   "model_expected_loss": 7064312.894373,
    "swap_in": 3415,
-   "swap_in_expected_loss": 4678032.96796,
+   "swap_in_by_policy_decision": {
+    "DECLINE": 1466,
+    "REVIEW": 1949
+   },
+   "swap_in_expected_loss": 4678031.285482,
+   "swap_in_mean_fico_bureau": 734.529722,
+   "swap_in_mean_pd_chargeoff": 0.034014,
+   "swap_in_share_fico_below_660": 0.054758,
    "swap_out": 3415,
-   "swap_out_expected_loss": 2027148.448545
+   "swap_out_expected_loss": 2027148.916321,
+   "swap_out_mean_pd_chargeoff": 0.015449
   },
   "credit_pd_xgb": {
-   "model_expected_loss": 4445120.29004,
+   "model_expected_loss": 4445121.249979,
    "swap_in": 1134,
-   "swap_in_expected_loss": 1262880.849855,
+   "swap_in_by_policy_decision": {
+    "DECLINE": 216,
+    "REVIEW": 918
+   },
+   "swap_in_expected_loss": 1262880.268264,
+   "swap_in_mean_fico_bureau": 749.447972,
+   "swap_in_mean_pd_chargeoff": 0.026896,
+   "swap_in_share_fico_below_660": 0.003527,
    "swap_out": 1134,
-   "swap_out_expected_loss": 1231190.03049
+   "swap_out_expected_loss": 1231189.543497,
+   "swap_out_mean_pd_chargeoff": 0.027456
   },
   "lgd": 0.85,
-  "policy_expected_loss": 4413429.470675
+  "policy_expected_loss": 4413430.525212,
+  "policy_mean_fico_bureau": 750.3934
  },
  "reasons": {
   "accuracy": {

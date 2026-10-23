@@ -117,7 +117,7 @@ def calibration_report(y: np.ndarray, p: np.ndarray, truth: np.ndarray | None = 
 
 
 def test_report(
-    y: np.ndarray, p: np.ndarray, truth: np.ndarray, truth_no_dealer: np.ndarray
+    y: np.ndarray, p: np.ndarray, truth: np.ndarray, truth_dealer_averaged: np.ndarray
 ) -> dict[str, Any]:
     ci = ev.bootstrap_ci(
         y,
@@ -134,7 +134,7 @@ def test_report(
         "calibration_in_the_large": {"mean_predicted": float(np.mean(p)), "observed": float(np.mean(y))},
         "deciles": ev.deciles(y, p, truth),
         "learned_vs_true": ev.learned_vs_true(p, truth),
-        "learned_vs_true_without_dealer_term": ev.learned_vs_true(p, truth_no_dealer),
+        "learned_vs_true_dealer_averaged": ev.learned_vs_true(p, truth_dealer_averaged),
     }
 
 
@@ -153,6 +153,15 @@ def policy_view(data: Data, scores: dict[str, np.ndarray], lgd: float) -> dict[s
         "lgd": lgd,
         "policy_expected_loss": float(el[policy].sum()),
     }
+    # The credit policy's own decision for every pool application (the locked tape's pool file).
+    decision = (
+        pd.read_csv(ROOT / "data" / "credit-tape" / "credit-tape-pool.csv")
+        .set_index("application_id")["decision"]
+        .loc[pool["application_id"]]
+        .to_numpy()
+    )
+    fico = pool["fico_bureau"].to_numpy()
+    out["policy_mean_fico_bureau"] = float(np.nanmean(fico[policy]))
     for name, p in scores.items():
         order = np.argsort(p, kind="mergesort")
         approve = np.zeros(len(p), dtype=bool)
@@ -164,8 +173,74 @@ def policy_view(data: Data, scores: dict[str, np.ndarray], lgd: float) -> dict[s
             "model_expected_loss": float(el[approve].sum()),
             "swap_in_expected_loss": float(el[swap_in].sum()),
             "swap_out_expected_loss": float(el[swap_out].sum()),
+            "swap_in_by_policy_decision": {
+                k: int((decision[swap_in] == k).sum()) for k in ("REVIEW", "DECLINE")
+            },
+            "swap_in_mean_fico_bureau": float(np.nanmean(fico[swap_in])) if swap_in.any() else None,
+            "swap_in_share_fico_below_660": float(np.nanmean(fico[swap_in] < 660)) if swap_in.any() else None,
+            "swap_in_mean_pd_chargeoff": float(pool["pd_chargeoff"].to_numpy()[swap_in].mean())
+            if swap_in.any()
+            else None,
+            "swap_out_mean_pd_chargeoff": float(pool["pd_chargeoff"].to_numpy()[swap_out].mean())
+            if swap_out.any()
+            else None,
         }
     return out
+
+
+def funded_book_profile(data: Data, test: pd.DataFrame, p_xgb: np.ndarray) -> dict[str, Any]:
+    """Why calibration is flat in deciles 1–9: what the credit policy leaves in the funded test book,
+    and what the riskiest tenth by predicted PD is made of. True FICO and DTI come from the locked
+    tape's oracle (evaluation only)."""
+    truth = pd.read_csv(ROOT / "data" / "credit-tape" / "credit-tape-oracle.csv").set_index("loan_id")
+    t = truth.loc[test["application_id"]]
+    # The credit policy reads the claimed FICO; the model reads the bureau's. Compare the two.
+    claimed = (
+        pd.read_csv(ROOT / "data" / "credit-tape" / "credit-tape-loans.csv")
+        .set_index("loan_id")["fico_presented"]
+        .loc[test["application_id"]]
+        .to_numpy()
+    )
+    bureau = test["fico_bureau"].to_numpy()
+    gap = bureau - claimed
+    fico_fields = {
+        "policy_reads": "claimed FICO (application)",
+        "model_reads": "bureau FICO (credit report)",
+        "funded_with_claimed_below_660": int((claimed < 660).sum()),
+        "funded_with_bureau_below_660": int((bureau < 660).sum()),
+        "claimed_range_of_those": [float(claimed[bureau < 660].min()), float(claimed[bureau < 660].max())]
+        if (bureau < 660).any()
+        else None,
+        "claimed_equals_true_share": float(np.mean(claimed == t["fico_true"].to_numpy())),
+        "bureau_equals_claimed_share": float(np.mean(gap == 0)),
+        "bureau_minus_claimed": {
+            "mean": float(gap.mean()),
+            "sd": float(gap.std(ddof=1)),
+            "min": float(gap.min()),
+            "max": float(gap.max()),
+        },
+        "funded_with_bureau_above_850": int((bureau > 850).sum()),
+    }
+    top = np.argsort(-p_xgb, kind="mergesort")[: len(p_xgb) // 10]
+    d10 = test.iloc[top]
+    return {
+        "fico_bureau_range": [float(test["fico_bureau"].min()), float(test["fico_bureau"].max())],
+        "dti_stated_range": [float(test["dti_stated"].min()), float(test["dti_stated"].max())],
+        "share_true_fico_below_700": float((t["fico_true"] < 700).mean()),
+        "share_true_dti_above_36pct": float((t["dti_true"] > 0.36).mean()),
+        "share_fraud": float((test["corruption_type"].astype(str) != "NONE").mean()),
+        "decile_10": {
+            "loans": len(d10),
+            "defaults": int(d10["dpd30"].sum()),
+            "by_typology": {
+                k: int(v) for k, v in d10["corruption_type"].astype(str).value_counts().sort_index().items()
+            },
+            "share_fraud": float((d10["corruption_type"].astype(str) != "NONE").mean()),
+            "share_true_fico_below_700": float((truth.loc[d10["application_id"]]["fico_true"] < 700).mean()),
+        },
+        "training_default_rate": float(data.frame(data.training)["dpd30"].mean()),
+        "fico_fields": fico_fields,
+    }
 
 
 def data_profile(data: Data) -> dict[str, Any]:
@@ -220,7 +295,7 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
     Xtr, ytr = data.X(train), data.y(train)
     Xcal, ycal = data.X(cal), data.y(cal)
     Xte, yte = data.X(test), data.y(test)
-    truth, truth_nd = test["p_dpd30_true"].to_numpy(), test["p_dpd30_no_dealer"].to_numpy()
+    truth, truth_nd = test["p_dpd30_true"].to_numpy(), test["p_dpd30_dealer_averaged"].to_numpy()
     log(
         f"training {len(train)} loans ({int(ytr.sum())} defaults), "
         f"calibration {len(cal)} ({int(ycal.sum())}), test {len(test)} ({int(yte.sum())})"
@@ -273,10 +348,11 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
 
     ceilings = {
         "true_pd": test_report(yte, truth, truth, truth_nd),
-        "true_pd_without_dealer_term": test_report(yte, truth_nd, truth, truth_nd),
+        "true_pd_dealer_averaged": test_report(yte, truth_nd, truth, truth_nd),
         "note": (
             "AUC of the simulation's own probabilities on the test book: the first is the best any model could do; "
-            "the second removes the dealer-quality term the model is barred from using, the fair benchmark for a "
+            "the second averages each loan's true PD over the dealers it could have been assigned to "
+            "(the dealer the model is barred from seeing), the fair benchmark for a "
             "dealer-blind model."
         ),
     }
@@ -331,6 +407,7 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
             "ceilings": ceilings,
             "comparison": comparison,
             "policy_view": policy,
+            "funded_book_profile": funded_book_profile(data, test, test_scores[XGB_NAME]),
             "diagnostic_all_applications": diagnostic,
             "reasons": reasons,
         }
