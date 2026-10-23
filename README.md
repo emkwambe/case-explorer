@@ -46,9 +46,11 @@ Two design rules carry the project. **World truth is never a decision input:** r
 npm ci && npm run benchmark && npm run dev
 ```
 
-Open the app and press **Start guided walkthrough**. Ten steps take you through one complete case:
+Open the app and press **Start guided walkthrough**. Twelve steps take you through one complete case (eleven under the Mortgage profile, which skips step 2):
 
-1. Generate a borrower, 2. inspect world truth, 3. compare the applicant's claims, 4. review supporting evidence, 5. see rule and model alerts, 6. view the model explanation, 7. review fairness checks, 8. make a manual disposition, 9. open the audit record, 10. export the validation package.
+1. Generate a borrower, 2. change one fact (Solar prime opens on a clean applicant; this step swaps in the same applicant with one debt hidden from the application), 3. inspect world truth, 4. compare the applicant's claims, 5. review supporting evidence, 6. see rule and model alerts, 7. see what actually happened, 8. view the model explanation, 9. review fairness checks, 10. make a manual disposition, 11. open the audit record, 12. export the validation package.
+
+Press **Challenge mode** to work teaching cases blind: commit a decision, reason codes and the strongest evidence, then see the teaching answer and a rubric score ([docs/SCORING.md](docs/SCORING.md)). Progress stays in your browser.
 
 The demo reads the published benchmark and model artifacts. Where an artifact is missing it says so rather than showing a number it cannot support.
 

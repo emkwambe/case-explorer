@@ -7,6 +7,7 @@ import { MetricCard, Panel, KV, Badge, ComparisonRow, CitationList, Callout } fr
 import { caseDti } from "../../creditRisk.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
 import { showsSolarLoan } from "../../profiles/index.js";
+import { useChallengeGate } from "../challenge/challengeGate.js";
 
 export function OverviewTab({ caseData }) {
   const { profile } = useActiveProfile();
@@ -218,8 +219,11 @@ export function TruthGraphTab({ caseData }) {
   );
 }
 
-export function EvidenceTab({ caseData }) {
-  const docMeta = caseData.application_metadata?.documents ?? [];
+export function EvidenceTab({ caseData, highlight }) {
+  // While a challenge case is blind, the generator's fidelity score and the document-metadata line
+  // are dropped: neither is part of the documents a lender reads.
+  const { blind } = useChallengeGate();
+  const docMeta = blind ? [] : caseData.application_metadata?.documents ?? [];
   const bySource = Object.fromEntries(docMeta.map((d) => [d.source, d]));
   return (
     <div>
@@ -229,11 +233,12 @@ export function EvidenceTab({ caseData }) {
       {caseData.evidence.map((ev) => {
         const doc = bySource[ev.source];
         return (
-          <div key={ev.source} style={styles.evidenceCard}>
+          <div key={ev.source} style={{ ...styles.evidenceCard, ...(highlight?.includes(ev.source) ? { outline: "3px solid #1d4ed8" } : null) }} data-testid={`evidence-${ev.source}`}>
             <div style={styles.evidenceHeader}>
               <strong>{titleCase(ev.source)}</strong>
               <span style={styles.evidenceDate}>{ev.date}</span>
-              <span style={styles.fidelityBadge}>Fidelity {(ev.fidelity * 100).toFixed(0)}%</span>
+              {!blind && <span style={styles.fidelityBadge}>Fidelity {(ev.fidelity * 100).toFixed(0)}%</span>}
+              {highlight?.includes(ev.source) && <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: "#1d4ed8" }}>Holds the deciding value</span>}
             </div>
             {doc && (
               <div style={{ padding: "8px 16px", background: doc.days_before_submission <= 2 ? "#fffbeb" : "#f8fafc", fontSize: 12, color: "#475569", borderBottom: "1px solid #e2e8f0" }}>

@@ -1,74 +1,92 @@
 // src/ui/demo/tour.js — The guided walkthrough a reviewer follows through one complete case.
 //
 // Each step names the tab it opens and what the reviewer should look for. The tour drives the
-// same UI a user drives by hand; it does not fake any data.
+// same UI a user drives by hand; it does not fake any data. Under a profile that opens on a causal
+// pair (Solar prime), the walkthrough starts on the clean twin and its second step swaps in the
+// fraud twin: the same applicant with one hidden debt. Other profiles skip that step.
+
+import OPENING from "../../challenge/opening-pair.json";
+
+const hidden = OPENING.fraud.mutations.find((m) => m.type === "hide_debt")?.params.monthly ?? 0;
 
 export const TOUR_STEPS = [
   {
     id: "generate",
-    title: "1. Generate a borrower",
+    title: "Generate a borrower",
     tab: "overview",
-    body: "A seeded synthetic applicant with a complete financial life: employment, income, liabilities, assets, housing history and a closed-loop monthly ledger. The seed is shown in the header, so this exact case is reproducible.",
-    action: "generate"
+    action: "generate",
+    twin: "clean",
+    body: "A seeded synthetic applicant with a complete financial life: employment, income, liabilities, assets, housing history and a closed-loop monthly ledger. The seed is shown in the header, so this exact case is reproducible."
+  },
+  {
+    id: "swap",
+    title: "Change one fact",
+    tab: "evidence",
+    twin: "fraud",
+    opening: true,
+    body: `The same applicant, with one fact changed: a $${hidden.toLocaleString("en-US")}/mo debt that the credit bureau reports but the application leaves out. Everything else is identical. Compare the bureau's tradelines with the stated debts: on verified figures the debt takes the DTI past the 45% cap, turning an approval into a decline. The rest of the walkthrough follows this case.`
   },
   {
     id: "truth",
-    title: "2. Inspect world truth",
+    title: "Inspect world truth",
     tab: "timeline",
     body: "The world truth is the ground truth the simulation knows and a lender never sees. Every event here is what actually happened to this borrower."
   },
   {
     id: "claims",
-    title: "3. Compare applicant claims",
+    title: "Compare applicant claims",
     tab: "overview",
     body: "The claimed truth is what the applicant put on the application. Green means the claim matches world truth; red marks a discrepancy the underwriter must resolve from evidence, not from truth."
   },
   {
     id: "evidence",
-    title: "4. Review supporting evidence",
+    title: "Review supporting evidence",
     tab: "evidence",
     body: "Six documents: W-2, employer verification, bank statement, credit bureau, rent verification and geographic verification. Each carries a fidelity score and document metadata such as how many days before submission it was created."
   },
   {
     id: "alerts",
-    title: "5. See rule and model alerts",
+    title: "See rule and model alerts",
     tab: "decision",
     body: "The rule engine reads only claims, evidence and metadata. Each alert names the rule and version that fired, its severity, its governed reason code and the evidence that supports it."
   },
   {
     id: "outcome",
-    title: "6. See what actually happened",
+    title: "See what actually happened",
     tab: "outcome",
     body: "Every case is simulated forward as if the loan were funded, including the ones the policy declines. That observed outcome is the label the policy is graded against, replacing the generator's own opinion of the right decision. No rule and no model can see any of it."
   },
   {
     id: "explanation",
-    title: "7. View the model explanation",
+    title: "View the model explanation",
     tab: "explanation",
     body: "Feature contributions from the trained model, mapped to governed reason codes with their evidence source. SHAP summary plots from the Python pipeline appear here when the analytics artifacts are published."
   },
   {
     id: "fairness",
-    title: "8. Review fairness checks",
+    title: "Review fairness checks",
     tab: "fairness",
     body: "Sensitive attributes are isolated from decision inputs. This runs the counterfactual test live: flip each attribute on this exact case and confirm the outcome and reason codes do not move."
   },
   {
     id: "disposition",
-    title: "9. Make a manual disposition",
+    title: "Make a manual disposition",
     tab: "investigation",
     body: "Triage, review, cite evidence, then propose a disposition. A different actor with the reviewer role must approve it before the case can close."
   },
   {
     id: "audit",
-    title: "10. Open the audit record",
+    title: "Open the audit record",
     tab: "investigation",
     body: "Every consequential action produced an immutable, hash-chained audit event: who acted, when, on which case, policy and model version, and what changed."
   },
   {
     id: "validation",
-    title: "11. Export the validation package",
+    title: "Export the validation package",
     tab: "validation",
     body: "Release gates, the three independent evaluation layers, and the model validation package. Every number is generated by npm run benchmark and the Python pipeline, never typed by hand."
   }
 ];
+
+/** The steps for a library: the swap step only when the library opens on the causal pair. */
+export const tourSteps = (opensOnPair) => TOUR_STEPS.filter((s) => opensOnPair || !s.opening);

@@ -13,7 +13,7 @@ import { keyEvidence, evidenceItemsFor, EVIDENCE_ITEMS } from "../src/challenge/
 import { REASON_CODES } from "../src/challenge/reasonCodes.js";
 import { PACK_RULES, buildPacks, orderPack } from "../src/challenge/packs.js";
 import { teachingContext, buildTeachingCase } from "../src/challenge/teachingCases.js";
-import { challengeData, teachingSet, scoringMarkdown, challengeReadme, WORKED_EXAMPLES, DATA_FILE, SCORING_DOC, CHALLENGE_README } from "./challenge-docs.mjs";
+import { challengeData, teachingSet, scoringMarkdown, challengeReadme, openingPair, WORKED_EXAMPLES, DATA_FILE, OPENING_FILE, SCORING_DOC, CHALLENGE_README } from "./challenge-docs.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const baseConfig = JSON.parse(fs.readFileSync(path.join(ROOT, "src/distribution_config.json"), "utf8"));
@@ -138,9 +138,21 @@ check("seeded order: a permutation, deterministic, never two same-base cases adj
   assert.throws(() => orderPack(data.packs[0], data.cases, ""));
 });
 
-check("challenge data, docs/SCORING.md and the packs README are current, and carry the teaching set's SHA-256", () => {
+check("the opening pair (concealment pair 1) rebuilds to its teaching cases: clean approves, fraud hides the debt", () => {
+  const opening = openingPair();
+  assert.equal(opening.pair, "concealment-1");
+  for (const role of ["clean", "fraud"]) {
+    const c = buildTeachingCase(opening[role], opening, teachingContext(opening, baseConfig));
+    assert.equal(crypto.createHash("sha256").update(JSON.stringify(c)).digest("hex").slice(0, 16), byId.get(`concealment-1/${role}`).system.hash, role);
+  }
+  assert.equal(byId.get("concealment-1/clean").system.decision, "APPROVE");
+  assert.equal(byId.get("concealment-1/fraud").expected.decision, "DECLINE");
+});
+
+check("challenge data, the opening pair, docs/SCORING.md and the packs README are current, and carry the teaching set's SHA-256", () => {
   assert.equal(data.teaching_sha256, teachingSet().sha);
   assert.equal(fs.readFileSync(DATA_FILE, "utf8"), `${JSON.stringify(data, null, 1)}\n`);
+  assert.equal(fs.readFileSync(OPENING_FILE, "utf8"), `${JSON.stringify(openingPair(), null, 1)}\n`);
   assert.equal(fs.readFileSync(SCORING_DOC, "utf8"), scoringMarkdown());
   assert.equal(fs.readFileSync(CHALLENGE_README, "utf8"), challengeReadme());
 });

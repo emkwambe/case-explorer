@@ -7,8 +7,8 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, within, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import CaseExplorer from "./CaseExplorer.jsx";
-import { buildInitialCases, demoConfig } from "./hooks/useCaseLibrary.js";
-import { TOUR_STEPS } from "./demo/tour.js";
+import { buildInitialCases, demoConfig, openingTwin } from "./hooks/useCaseLibrary.js";
+import { tourSteps } from "./demo/tour.js";
 import { scoreCase } from "../decisioning/index.js";
 import { PROFILES, DEFAULT_PROFILE_ID, getProfile, applyProfile } from "../profiles/index.js";
 import { TAB_GROUPS } from "./navigation.js";
@@ -147,13 +147,35 @@ describe("CaseExplorer", () => {
   it("walks the full guided tour from generation to the validation package", async () => {
     render(<CaseExplorer />);
     await userEvent.click(screen.getByTestId("start-tour"));
-    for (let i = 0; i < TOUR_STEPS.length; i++) {
+    // Mortgage has no opening pair, so the swap step is skipped.
+    const steps = tourSteps(false);
+    expect(steps.some((s) => s.opening)).toBe(false);
+    for (let i = 0; i < steps.length; i++) {
       const banner = await screen.findByTestId("tour-banner");
-      expect(within(banner).getByText(TOUR_STEPS[i].title)).toBeInTheDocument();
-      expect(within(banner).getByText(`${i + 1} of ${TOUR_STEPS.length}`)).toBeInTheDocument();
+      expect(within(banner).getByText(steps[i].title)).toBeInTheDocument();
+      expect(within(banner).getByText(`${i + 1} of ${steps.length}`)).toBeInTheDocument();
       await userEvent.click(screen.getByTestId("tour-next"));
     }
     expect(screen.queryByTestId("tour-banner")).toBeNull();
+  });
+
+  it("under Solar prime, opens on the clean concealment twin and the walkthrough swaps in the fraud twin", async () => {
+    window.history.replaceState(null, "", "/?profile=solar-prime");
+    render(<CaseExplorer />);
+    const clean = openingTwin(getProfile("SOLAR_PRIME"), "clean");
+    expect(screen.getByText(`Clean application · ${clean.id}`)).toBeInTheDocument();
+    const cards = screen.getAllByTestId("case-card").length;
+    await userEvent.click(screen.getByTestId("start-tour"));
+    const steps = tourSteps(true);
+    expect(within(screen.getByTestId("tour-banner")).getByText(`1 of ${steps.length}`)).toBeInTheDocument();
+    await userEvent.click(screen.getByTestId("tour-next"));
+    const banner = screen.getByTestId("tour-banner");
+    expect(within(banner).getByText("Change one fact")).toBeInTheDocument();
+    // The same applicant and id, now the fraud twin, in the clean twin's slot: no card is added.
+    expect(screen.getByText(`Concealment · ${clean.id}`)).toBeInTheDocument();
+    expect(screen.getAllByTestId("case-card")).toHaveLength(cards);
+    await userEvent.click(within(banner).getByText("Back"));
+    expect(screen.getByText(`Clean application · ${clean.id}`)).toBeInTheDocument();
   });
 
   it("generates new cases into the portfolio table", async () => {
@@ -244,7 +266,8 @@ describe("Credit Risk Mode", () => {
     expect(kvLabels()).toHaveLength(0);
     expect(screen.getByTestId("solar-generator-note")).toHaveTextContent("Borrower profiles reuse the mortgage generator; mortgage-specific application fields are hidden.");
     const solar = getProfile("SOLAR_PRIME");
-    const selected = buildInitialCases(applyProfile(demoConfig, solar), solar.openingLibrary)[0];
+    // Solar prime opens on the opening pair's clean twin (teaching-v1 concealment pair 1).
+    const selected = openingTwin(solar, "clean");
     const loan = caseDti(selected, solar).proposedLoan;
     const block = within(screen.getByTestId("proposed-solar-loan"));
     expect(block.getByText(`$${loan.amount.toLocaleString()}`)).toBeInTheDocument();
@@ -546,16 +569,17 @@ describe("navigation and header", () => {
     expect(screen.getByTestId("header-subtitle")).toHaveTextContent(/^Mortgage risk simulation, fraud analytics and model validation · generator 2\.0\.0 · 12 cases$/);
     expect(screen.getByTestId("header-counts")).toHaveTextContent(/^Reference label\s*Approve \d+\s*Review \d+\s*Decline \d+$/);
     await userEvent.selectOptions(screen.getByTestId("portfolio-profile"), "SOLAR_PRIME");
-    expect(screen.getByTestId("header-subtitle")).toHaveTextContent("Prime solar lending: credit policy, dealer channel, funding stress and public record · generator 2.0.0 · 12 cases");
+    // The opening library: the 12 blended cases plus the opening pair's clean twin (an approval).
+    expect(screen.getByTestId("header-subtitle")).toHaveTextContent("Prime solar lending: credit policy, dealer channel, funding stress and public record · generator 2.0.0 · 13 cases");
     expect(screen.getByTestId("header-counts")).toHaveAttribute("aria-label", "Case counts by credit policy");
-    expect(screen.getByTestId("count-approve")).toHaveTextContent("Approve 6");
+    expect(screen.getByTestId("count-approve")).toHaveTextContent("Approve 7");
     expect(screen.getByTestId("count-review")).toHaveTextContent("Review 4");
     expect(screen.getByTestId("count-decline")).toHaveTextContent("Decline 2");
-    // The opening mix: 8 clean cases of 12, read from the Portfolio table's Scenario column.
+    // The opening mix: 8 clean cases of the 12 blended, plus the clean twin, read from the Portfolio table's Scenario column.
     await openTab("Portfolio");
     const scenarios = within(screen.getByRole("table")).getAllByRole("row").slice(1).map((r) => r.children[1].textContent);
-    expect(scenarios).toHaveLength(12);
-    expect(scenarios.filter((t) => t === "Clean application")).toHaveLength(8);
+    expect(scenarios).toHaveLength(13);
+    expect(scenarios.filter((t) => t === "Clean application")).toHaveLength(9);
     expect(scenarios).not.toContain("None");
   });
 

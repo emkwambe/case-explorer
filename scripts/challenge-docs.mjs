@@ -117,7 +117,16 @@ export function challengeReadme() {
   return L.join("\n");
 }
 
-const outputs = () => [[DATA_FILE, `${JSON.stringify(challengeData(), null, 1)}\n`], [SCORING_DOC, scoringMarkdown()], [CHALLENGE_README, challengeReadme()]];
+/** The opening pair (Sprint 10): the Solar prime library opens on its clean twin; the walkthrough swaps in the fraud twin. */
+export const OPENING_PAIR = "concealment-1";
+export const OPENING_FILE = path.join(ROOT, "src", "challenge", "opening-pair.json");
+export function openingPair() {
+  const d = challengeData();
+  const recipe = (role) => { const e = d.cases.find((x) => x.id === `${OPENING_PAIR}/${role}`); return { id: e.id, base: e.base, mutations: e.mutations, hash: e.system.hash }; };
+  return { pair: OPENING_PAIR, teaching_sha256: d.teaching_sha256, profile: d.profile, seed: d.seed, as_of: d.as_of, clean: recipe("clean"), fraud: recipe("fraud") };
+}
+
+const outputs = () => [[DATA_FILE, `${JSON.stringify(challengeData(), null, 1)}\n`], [OPENING_FILE, `${JSON.stringify(openingPair(), null, 1)}\n`], [SCORING_DOC, scoringMarkdown()], [CHALLENGE_README, challengeReadme()]];
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const mode = process.argv[2];

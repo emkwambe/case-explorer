@@ -1,6 +1,6 @@
 // src/ui/CaseExplorer.jsx — Application shell: case library, tab routing and the guided tour.
 
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { styles, ALIGNMENT_COLORS, ALIGNMENT_DESCRIPTIONS, titleCase, scenarioLabel, REFERENCE_LABEL, REFERENCE_LABEL_NOTE } from "./theme.js";
 import { CaseCard, CreditCaseCard, Chip } from "./components/primitives.jsx";
 import { useCaseLibrary, DEMO_SEED } from "./hooks/useCaseLibrary.js";
@@ -10,7 +10,8 @@ import { DecisionTab, ExplanationTab, FairnessTab, InvestigationTab } from "./ta
 import { TryAChangePanel } from "./tabs/TryAChangePanel.jsx";
 import { OutcomeTab } from "./tabs/outcomeTab.jsx";
 import { DataTableTab, NetworkTab, EconomicsTab, ValidationTab } from "./tabs/analyticsTabs.jsx";
-import { TOUR_STEPS } from "./demo/tour.js";
+import { tourSteps } from "./demo/tour.js";
+import { ChallengeGateContext } from "./challenge/challengeGate.js";
 import { GENERATOR_VERSION } from "../core/case.js";
 import { ActiveProfileProvider, useActiveProfile } from "../profiles/activeProfile.js";
 import { profileIdFromSearch, showsSolarLoan } from "../profiles/index.js";
@@ -25,6 +26,9 @@ import { PublicRecordTab } from "./publicRecord/PublicRecordView.jsx";
 import { FindingsTab } from "./findings/FindingsView.jsx";
 import { PolicySandboxTab } from "./sandbox/PolicySandboxView.jsx";
 import { TAB_GROUPS, visibleTabs, groupOfTab } from "./navigation.js";
+
+// Challenge mode loads on demand, with the teaching set it needs.
+const ChallengeView = lazy(() => import("./challenge/ChallengeView.jsx"));
 
 const SCENARIOS = [
   ["MIXED", "Realistic mix (blended portfolio)"],
@@ -63,10 +67,13 @@ function CaseExplorerShell() {
     if (caseListRef.current) caseListRef.current.scrollTop = 0;
   }, [library.cases]);
   const { registry, profileId, setProfileId, profile } = useActiveProfile();
-  const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config } = library;
+  const { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, config, openingId, showOpening } = library;
   const [activeTab, setActiveTab] = useState("overview");
   const [tourStep, setTourStep] = useState(null);
   const [creditMode, setCreditMode] = useState(false);
+  // Challenge mode: while it is on, the shell renders only the challenge view (the one gate).
+  const [challenge, setChallenge] = useState(false);
+  const steps = useMemo(() => tourSteps(Boolean(openingId)), [openingId]);
   // One set of credit assessments feeds the cards, the header counts and Credit Risk Mode, so they
   // cannot disagree. Computed when Credit Risk Mode is on or the profile uses the credit lens.
   const creditLens = profile.headerLens === "credit";
@@ -77,20 +84,23 @@ function CaseExplorerShell() {
   const investigation = useInvestigation(selectedCase, scored);
   const counterfactual = useCounterfactualCheck(selectedCase, config);
 
+  // The walkthrough opens on the opening pair's clean twin when the library has one (its steps swap
+  // twins in place); otherwise on a freshly generated altered-bank-statement case.
   const startTour = useCallback(() => {
-    const c = generateOne("EVIDENCE_TAMPERING", "HIGH", `${DEMO_SEED}-tour`);
-    select(c.id);
-    setActiveTab(TOUR_STEPS[0].tab);
+    if (openingId) showOpening(steps[0].twin);
+    else select(generateOne("EVIDENCE_TAMPERING", "HIGH", `${DEMO_SEED}-tour`).id);
+    setActiveTab(steps[0].tab);
     setTourStep(0);
-  }, [generateOne, select]);
+  }, [generateOne, select, openingId, showOpening, steps]);
 
   const goToStep = useCallback((index) => {
-    if (index < 0 || index >= TOUR_STEPS.length) { setTourStep(null); return; }
+    if (index < 0 || index >= steps.length) { setTourStep(null); return; }
+    if (openingId && steps[index].twin) showOpening(steps[index].twin);
     setTourStep(index);
-    setActiveTab(TOUR_STEPS[index].tab);
-  }, []);
+    setActiveTab(steps[index].tab);
+  }, [steps, openingId, showOpening]);
 
-  const step = tourStep === null ? null : TOUR_STEPS[tourStep];
+  const step = tourStep === null ? null : steps[tourStep];
   // The selected tab picks the section; a tab the active profile cannot show falls back to the
   // first tab of its section.
   const group = groupOfTab(activeTab);
@@ -109,6 +119,30 @@ function CaseExplorerShell() {
     }
     return byOutcome;
   }, [cases, creditLens, assessments]);
+
+  if (challenge) {
+    return (
+      <ChallengeGateContext.Provider value={{ active: true, blind: false }}>
+        <div style={styles.app} className="ce-app">
+          <header className="ce-header" data-testid="app-header">
+            <div className="ce-header-text">
+              <h1 className="ce-header-title">Case Explorer: challenge mode</h1>
+              <p className="ce-header-subtitle">Teaching cases, worked blind and scored after you commit</p>
+            </div>
+            <div className="ce-header-controls">
+              <button type="button" className="ce-header-button" onClick={() => setChallenge(false)} data-testid="challenge-leave">Leave challenge mode</button>
+            </div>
+          </header>
+          <main style={{ ...styles.main, padding: "16px 20px" }} className="ce-main">
+            <Suspense fallback={<p role="status">Loading challenge mode…</p>}>
+              <ChallengeView />
+            </Suspense>
+          </main>
+          <ComplianceFooter />
+        </div>
+      </ChallengeGateContext.Provider>
+    );
+  }
 
   return (
     <div style={styles.app} className="ce-app">
@@ -145,14 +179,14 @@ function CaseExplorerShell() {
       {step && (
         <div style={{ background: "#0f172a", color: "white", padding: "12px 28px", display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }} className="ce-no-print" data-testid="tour-banner">
           <div style={{ flex: "1 1 420px" }}>
-            <strong style={{ fontSize: 14 }}>{step.title}</strong>
+            <strong style={{ fontSize: 14 }}>{tourStep + 1}. <span>{step.title}</span></strong>
             <div style={{ fontSize: 13, color: "#cbd5e1", marginTop: 2 }}>{step.body}</div>
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>{tourStep + 1} of {TOUR_STEPS.length}</span>
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>{tourStep + 1} of {steps.length}</span>
             <button style={{ ...styles.btnSmall, background: "transparent", color: "white", borderColor: "#475569" }} onClick={() => goToStep(tourStep - 1)} disabled={tourStep === 0}>Back</button>
             <button style={{ ...styles.btnSmall, background: "#2563eb", color: "white", borderColor: "#2563eb" }} onClick={() => goToStep(tourStep + 1)} data-testid="tour-next">
-              {tourStep === TOUR_STEPS.length - 1 ? "Finish" : "Next"}
+              {tourStep === steps.length - 1 ? "Finish" : "Next"}
             </button>
             <button style={{ ...styles.btnSmall, background: "transparent", color: "#94a3b8", borderColor: "#475569" }} onClick={() => setTourStep(null)}>Exit</button>
           </div>
@@ -161,6 +195,12 @@ function CaseExplorerShell() {
 
       <div style={styles.layout} className="ce-layout">
         <aside style={styles.sidebar} className="ce-library">
+          {/* The challenge-mode entry sits in the library, not the header: a header control would move
+              the page under it and change the captured Findings images. */}
+          <button type="button" onClick={() => { setTourStep(null); setChallenge(true); }} data-testid="challenge-mode"
+            style={{ ...styles.btnSecondary, marginBottom: 12, fontWeight: 600, color: "#1d4ed8", borderColor: "#1d4ed8" }}>
+            Challenge mode: work cases blind
+          </button>
           <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Case library</div>
           <div ref={caseListRef} style={{ flex: 1, minHeight: 120, overflowY: "auto" }} className="ce-case-list" data-testid="case-list">
             {cases.slice().reverse().map((c) => (

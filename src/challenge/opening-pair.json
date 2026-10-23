@@ -1,0 +1,36 @@
+{
+ "pair": "concealment-1",
+ "teaching_sha256": "4f6884254c4e00b7a65a9b6b086472e76fb8743b84d05af5ca8bc88360102330",
+ "profile": "SOLAR_PRIME",
+ "seed": "42",
+ "as_of": "2026-01-15",
+ "clean": {
+  "id": "concealment-1/clean",
+  "base": {
+   "profile": "SOLAR_PRIME",
+   "seed": "42",
+   "index": 4,
+   "case_id": "case-gen-4-fd62ad7a"
+  },
+  "mutations": [],
+  "hash": "2c0ddf9544acf5a3"
+ },
+ "fraud": {
+  "id": "concealment-1/fraud",
+  "base": {
+   "profile": "SOLAR_PRIME",
+   "seed": "42",
+   "index": 4,
+   "case_id": "case-gen-4-fd62ad7a"
+  },
+  "mutations": [
+   {
+    "type": "hide_debt",
+    "params": {
+     "monthly": 3819
+    }
+   }
+  ],
+  "hash": "16f4882109a4f0ce"
+ }
+}

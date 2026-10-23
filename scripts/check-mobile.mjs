@@ -3,7 +3,8 @@
 // Builds the app, serves the build with `vite preview`, and opens ?profile=<slug> in headless
 // Chromium at 375×812 and 2× scale. It visits Findings (with the seed-42 funded portfolio
 // generated), Policy Sandbox, Public record, Dealer View, Funding & Rates (with the rate paths), and the case views with Credit Risk Mode
-// on (Overview and Decision, with the underwriting sidebar and the case list). On each it fails when
+// on (Overview and Decision, with the underwriting sidebar and the case list), then challenge mode (the
+// packs, a blind case with its answer form, and the reveal). On each it fails when
 // the page scrolls sideways or a chart is wider than its container or draws text outside itself,
 // and it saves a full-page screenshot. Screenshots go outside the repository. Run manually; there
 // is no CI job for it.
@@ -163,6 +164,20 @@ try {
   await check("Credit lab: Overview with Credit Risk Mode", "credit-overview.png");
   await openTab(page, "case", "Decision");
   await check("Credit lab: Decision with Credit Risk Mode", "credit-decision.png");
+
+  // Challenge mode: the pack list, a blind case with its answer form, and the reveal.
+  await (await need(page.getByTestId("challenge-mode"), "challenge-mode")).click();
+  await need(page.getByTestId("challenge-view"), "challenge-view", 30_000);
+  await check("Challenge mode: packs and progress", "challenge-packs.png");
+  await (await need(page.getByTestId("start-first-week"), "start-first-week")).click();
+  await need(page.getByTestId("challenge-blind-case"), "challenge-blind-case");
+  await check("Challenge mode: blind case and answer form", "challenge-blind.png");
+  const form = page.getByTestId("challenge-attempt");
+  await form.getByLabel("Review", { exact: true }).check();
+  await form.locator('input[name="evidence"]').first().check();
+  await (await need(page.getByTestId("challenge-commit"), "challenge-commit")).click();
+  await need(page.getByTestId("challenge-reveal"), "challenge-reveal");
+  await check("Challenge mode: reveal", "challenge-reveal.png");
 } catch (err) {
   console.error(`check:mobile: ${err instanceof MissingTarget ? err.message : err.stack ?? err}`);
   exitCode = 1;

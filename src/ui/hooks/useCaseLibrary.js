@@ -8,6 +8,8 @@ import CONFIG from "../../distribution_config.json";
 import { generateCase, generateBlendedCase } from "../../generator.js";
 import { applyProfile } from "../../profiles/index.js";
 import { useActiveProfile } from "../../profiles/activeProfile.js";
+import OPENING from "../../challenge/opening-pair.json";
+import { teachingContext, buildTeachingCase } from "../../challenge/teachingCases.js";
 
 export const DEMO_SEED = "demo-2026";
 export const DEMO_AS_OF = "2026-01-15";
@@ -33,12 +35,32 @@ export function buildInitialCases(config = demoConfig, opening) {
   return curated.map(([type, sev], i) => generateCase(i, config, type, sev, `${DEMO_SEED}-${type}-${i}`));
 }
 
+/**
+ * A profile that names the opening pair (`openingCase`, Solar prime) also opens on its clean twin:
+ * teaching-v1's concealment pair 1, rebuilt from its recipe. The walkthrough swaps in the fraud twin.
+ * Twins share their base case's id, so the library holds one of them at a time.
+ */
+const opensOnPair = (profile) => profile.openingCase === OPENING.pair && profile.id === OPENING.profile;
+
+export function openingTwin(profile, role) {
+  return opensOnPair(profile) ? buildTeachingCase(OPENING[role], OPENING, teachingContext(OPENING, CONFIG)) : null;
+}
+
+function openingCases(config, profile) {
+  const twin = openingTwin(profile, "clean");
+  return [...buildInitialCases(config, profile.openingLibrary), ...(twin ? [twin] : [])];
+}
+
+/** The case a fresh library opens on: the opening twin when present, otherwise the first case. */
+const firstSelection = (fresh, profile) => (opensOnPair(profile) ? OPENING.clean.base.case_id : fresh[0].id);
+
 export function useCaseLibrary() {
   const { profile } = useActiveProfile();
   const config = useMemo(() => applyProfile(demoConfig, profile), [profile]);
   // The opening library is built once for the profile active at mount; profile switches rebuild it below.
-  const [cases, setCases] = useState(() => buildInitialCases(config, profile.openingLibrary));
-  const [selectedId, setSelectedId] = useState(() => cases[0].id);
+  // It opens on the opening twin when the profile has one (the newest card, so the top of the list).
+  const [cases, setCases] = useState(() => openingCases(config, profile));
+  const [selectedId, setSelectedId] = useState(() => firstSelection(cases, profile));
   const [genConfig, setGenConfig] = useState({ corruptionType: "MIXED", severity: "HIGH", count: 10, seed: "", adversarial: false });
 
   const selectedCase = useMemo(() => cases.find((c) => c.id === selectedId) ?? cases[0], [cases, selectedId]);
@@ -68,17 +90,27 @@ export function useCaseLibrary() {
   }, [addCases, config]);
 
   const select = useCallback((id) => setSelectedId(id), []);
-  const reset = useCallback(() => { const fresh = buildInitialCases(config, profile.openingLibrary); setCases(fresh); setSelectedId(fresh[0].id); }, [config, profile.openingLibrary]);
+  const openingId = opensOnPair(profile) ? OPENING.clean.base.case_id : null;
+  const reset = useCallback(() => { const fresh = openingCases(config, profile); setCases(fresh); setSelectedId(firstSelection(fresh, profile)); }, [config, profile]);
+
+  /** Put the opening pair's clean or fraud twin in the library (in its own slot) and select it. */
+  const showOpening = useCallback((role) => {
+    const twin = openingTwin(profile, role);
+    if (!twin) return null;
+    setCases((prev) => (prev.some((c) => c.id === twin.id) ? prev.map((c) => (c.id === twin.id ? twin : c)) : [...prev, twin]));
+    setSelectedId(twin.id);
+    return twin;
+  }, [profile]);
 
   // Switching the active lender profile regenerates the opening library under that profile.
   const libraryProfile = useRef(profile.id);
   useEffect(() => {
     if (libraryProfile.current === profile.id) return;
     libraryProfile.current = profile.id;
-    const fresh = buildInitialCases(config, profile.openingLibrary);
+    const fresh = openingCases(config, profile);
     setCases(fresh);
-    setSelectedId(fresh[0].id);
-  }, [profile.id, config, profile.openingLibrary]);
+    setSelectedId(firstSelection(fresh, profile));
+  }, [profile, config]);
 
-  return { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, addCases, reset, config };
+  return { cases, selectedCase, selectedId, select, genConfig, setGenConfig, generate, generateOne, addCases, reset, config, openingId, showOpening };
 }
