@@ -1,14 +1,14 @@
 {
   "manifest": {
     "benchmark_version": "1.0.0",
-    "generated_at": "2026-09-03T06:36:42.707Z",
+    "generated_at": "2026-10-23T02:48:40.721Z",
     "generator_version": "2.0.0",
     "case_schema_version": "2.0.0",
     "ruleset_version": "1.3.0",
     "policy_version": "2.1.0",
     "reason_code_catalog_version": "1.0.0",
     "feature_policy_version": "1.0.0",
-    "generator_commit": "7e5685616da4dfc77b6d38f2745957a89d970450",
+    "generator_commit": "a748ae6a219e5a68cb7351c753c76971cdae0446",
     "configuration_hash": "sha256:e984ec798beee74c88e4a25089df2071c5d9b9cd5acc8cc0471fba2b3f386a7b",
     "seed": "42",
     "as_of_date": "2026-01-15",
@@ -16,7 +16,7 @@
     "record_count": 2000,
     "stratified_record_count": 2250,
     "node_version": "v22.18.0",
-    "duration_seconds": 8.1
+    "duration_seconds": 5.1
   },
   "gates": {
     "passed": true,
@@ -224,7 +224,7 @@
     "false_decline_rate": 0.9178,
     "reference_label_agreement": 0.9889,
     "reason_code_adverse_action_overlap": 0.8979,
-    "reason_code_mean_jaccard": 0.8481,
+    "reason_code_mean_jaccard": 0.8482,
     "prohibited_variable_violations": 0,
     "counterfactual_invariance": 1,
     "fairness_status": "WARN",
@@ -638,7 +638,7 @@
       }
     ],
     "reason_codes": {
-      "mean_jaccard": 0.8481,
+      "mean_jaccard": 0.8482,
       "exact_match_rate": 0.6694,
       "adverse_action_overlap_rate": 0.8979
     },

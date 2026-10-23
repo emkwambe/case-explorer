@@ -1,6 +1,6 @@
 # Validation Report
 
-Generated 2026-09-03T06:36:42.707Z · seed `42` · 2,000 blended + 2,250 stratified cases · generator 2.0.0 · commit `7e568561` · config `e984ec798bee`
+Generated 2026-10-23T02:48:40.721Z · seed `42` · 2,000 blended + 2,250 stratified cases · generator 2.0.0 · commit `a748ae6a` · config `e984ec798bee`
 
 ## Release gates — **PASS**
 
@@ -153,7 +153,7 @@ Answers: can rules identify injected fraud, which types are missed, what is the 
 | FR-006@1.0.0 | HIGH | 347 | 347 | 0 | 1.000 | 1.000 | 0.0% |
 | FR-007@1.0.0 | MEDIUM | 201 | 201 | 0 | 1.000 | 0.584 | 0.0% |
 | FR-008@1.0.0 | LOW | 130 | 130 | 0 | 1.000 | 0.378 | 0.0% |
-| FR-009@1.1.0 | HIGH | 170 | 170 | 0 | 1.000 | 0.994 | 0.0% |
+| FR-009@1.1.0 | HIGH | 169 | 169 | 0 | 1.000 | 0.994 | 0.0% |
 | FR-010@1.0.0 | MEDIUM | 980 | 972 | 8 | 0.992 | 0.412 | 0.4% |
 | FR-011@1.0.0 | MEDIUM | 1015 | 1015 | 0 | 1.000 | 0.430 | 0.0% |
 | FR-012@1.0.0 | LOW | 1156 | 1123 | 33 | 0.972 | 0.476 | 1.7% |

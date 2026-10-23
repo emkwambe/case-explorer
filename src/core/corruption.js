@@ -7,9 +7,10 @@ import {
   roundToInt
 } from "../utils/distributions.js";
 
+// Date arithmetic here is in UTC throughout, so a case is identical in every process time zone.
 function monthsBefore(asOf, months) {
   const d = asOf ? new Date(asOf) : new Date();
-  d.setMonth(d.getMonth() - months);
+  d.setUTCMonth(d.getUTCMonth() - months);
   return d;
 }
 
@@ -115,7 +116,7 @@ export function corruptPresentation(truth, corruptionType, severity, config, rng
         payment: Math.round(fakeSalary * 0.01)
       },
       {
-        t: new Date(syntheticStart.getFullYear(), syntheticStart.getMonth() + 3, 1).toISOString().split('T')[0],
+        t: new Date(Date.UTC(syntheticStart.getUTCFullYear(), syntheticStart.getUTCMonth() + 3, 1)).toISOString().split('T')[0],
         type: "LIABILITY_OPENED",
         type_detail: "AUTO_LOAN",
         payment: Math.round(fakeSalary * 0.015)
@@ -124,7 +125,7 @@ export function corruptPresentation(truth, corruptionType, severity, config, rng
 
     // Add synthetic payment-history events at regular intervals to simulate seasoning.
     for (let m = 6; m < 24; m += 3) {
-      const paymentDate = new Date(syntheticStart.getFullYear(), syntheticStart.getMonth() + m, 1);
+      const paymentDate = new Date(Date.UTC(syntheticStart.getUTCFullYear(), syntheticStart.getUTCMonth() + m, 1));
       presentation.events.push({
         t: paymentDate.toISOString().split('T')[0],
         type: "PAYMENT_MADE",
@@ -186,7 +187,7 @@ export function applyTypologyEvidence(truth, presentation, evidence, corruptionT
   if (!bank) return evidence;
   const p = presentation.current_state;
   const asOfDate = asOf ? new Date(asOf) : new Date();
-  const dateDaysAgo = (d) => { const x = new Date(asOfDate); x.setDate(x.getDate() - d); return x.toISOString().split('T')[0]; };
+  const dateDaysAgo = (d) => { const x = new Date(asOfDate); x.setUTCDate(x.getUTCDate() - d); return x.toISOString().split('T')[0]; };
 
   if (corruptionType === "GIFT_FUND_MISREPRESENTATION") {
     const gift = p.gift_funds_claimed;
@@ -248,7 +249,7 @@ export function corruptWorldTruth(truth, rng = { random: () => Math.random() }, 
     const housingEvents = truth.events.filter(e => e.type === "ADDRESS_CHANGE");
     if (housingEvents.length > 0) {
       const leaseStart = new Date(housingEvents[0].t);
-      leaseStart.setMonth(leaseStart.getMonth() - 3); // rent paid BEFORE the lease existed
+      leaseStart.setUTCMonth(leaseStart.getUTCMonth() - 3); // rent paid BEFORE the lease existed
       truth.events.push({
         t: leaseStart.toISOString().split('T')[0],
         type: "RENT_PAYMENT",
@@ -261,7 +262,7 @@ export function corruptWorldTruth(truth, rng = { random: () => Math.random() }, 
     const empStart = truth.events.find(e => e.type === "EMPLOYMENT_START");
     if (empStart) {
       const depositDate = new Date(empStart.t);
-      depositDate.setMonth(depositDate.getMonth() - 2); // salary deposited BEFORE employment began
+      depositDate.setUTCMonth(depositDate.getUTCMonth() - 2); // salary deposited BEFORE employment began
       truth.events.push({
         t: depositDate.toISOString().split('T')[0],
         type: "SALARY_DEPOSIT",

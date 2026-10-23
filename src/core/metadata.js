@@ -22,10 +22,11 @@ function generateDocumentMetadata(source, submissionDate, isFraud, rng) {
   const maxAgeDays = isFraud ? 3 : 180;
   const minAgeDays = isFraud ? 0 : 14;
   const ageDays = minAgeDays + Math.floor(rng.random() * (maxAgeDays - minAgeDays + 1));
+  // UTC arithmetic, so the dates are the same in every process time zone.
   const created = new Date(submitted);
-  created.setDate(created.getDate() - ageDays);
+  created.setUTCDate(created.getUTCDate() - ageDays);
   const modified = new Date(created);
-  modified.setHours(modified.getHours() + Math.floor(rng.random() * 24));
+  modified.setUTCHours(modified.getUTCHours() + Math.floor(rng.random() * 24));
   return {
     source,
     created: created.toISOString().split('T')[0],
@@ -57,7 +58,7 @@ export function generateApplicationMetadata(submissionDate, corruptionType, seve
     dayOfWeek = randomInt(1, 5, rng);
   }
   const submitted = new Date(submissionDate);
-  submitted.setHours(hour, randomInt(0, 59, rng), 0, 0);
+  submitted.setUTCHours(hour, randomInt(0, 59, rng), 0, 0);
 
   // IP / device
   const ipRiskBase = isFraud ? 0.55 : 0.08;

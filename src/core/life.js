@@ -155,7 +155,7 @@ function generateLiabilities(salary, config, rng, financialHealth = 0, regime = 
 function generateHousingHistory(startDate, tenureMonths, rng, rentMultiplier = 1.0) {
   const events = [];
   const moveInDate = new Date(startDate);
-  moveInDate.setMonth(moveInDate.getMonth() - Math.min(tenureMonths + randomInt(6, 36, rng), 120));
+  moveInDate.setUTCMonth(moveInDate.getUTCMonth() - Math.min(tenureMonths + randomInt(6, 36, rng), 120));
   const firstRent = Math.round(randomInt(1000, 2200, rng) * rentMultiplier);
   events.push({
     t: moveInDate.toISOString().split('T')[0],
@@ -166,7 +166,7 @@ function generateHousingHistory(startDate, tenureMonths, rng, rentMultiplier = 1
   });
   if (rng.random() < 0.35) {
     const moveDate = new Date(moveInDate);
-    moveDate.setMonth(moveDate.getMonth() + randomInt(12, 48, rng));
+    moveDate.setUTCMonth(moveDate.getUTCMonth() + randomInt(12, 48, rng));
     if (moveDate < startDate) {
       events.push({
         t: moveDate.toISOString().split('T')[0],
@@ -290,7 +290,7 @@ function simulateMonthlyLedger(truth, config, months, rng) {
 
   for (let i = 0; i < months; i++) {
     const monthDate = new Date(applicationDate);
-    monthDate.setMonth(monthDate.getMonth() - i);
+    monthDate.setUTCMonth(monthDate.getUTCMonth() - i);
     const monthRent = currentHousing.monthly_payment || expenses.rent;
 
     // Payroll deposits vary slightly month-to-month
@@ -394,10 +394,11 @@ export function generateLifeScript(entityId, config, rng = { random: () => Math.
   assets.checkingBalance = roundToInt(assets.checkingBalance * (geoParams.checking_multiplier || 1.0));
   const creditScore = generateCreditScore(liab.dti, config, rng, financialHealth, regime, copulaPrimitives?.credit_score);
   // Anchor the life script to the simulation as-of date so tenure and history are measured to origination.
+  // Date arithmetic is in UTC throughout, so a case is identical in every process time zone.
   const startDate = config.generation?.as_of_date ? new Date(config.generation.as_of_date) : new Date();
   const events = [];
   const empStartDate = new Date(startDate);
-  empStartDate.setMonth(empStartDate.getMonth() - emp.tenureMonths);
+  empStartDate.setUTCMonth(empStartDate.getUTCMonth() - emp.tenureMonths);
   const employerName = emp.isSelfEmployed ? `${randomChoice(["Smith", "Johnson", "Williams", "Brown"], rng)} Consulting LLC` : emp.industry + " Corp";
   events.push({
     t: empStartDate.toISOString().split('T')[0],
@@ -407,7 +408,7 @@ export function generateLifeScript(entityId, config, rng = { random: () => Math.
   });
   if (emp.tenureMonths > 18 && rng.random() > 0.4) {
     const raiseDate = new Date(empStartDate);
-    raiseDate.setMonth(raiseDate.getMonth() + randomInt(12, emp.tenureMonths, rng));
+    raiseDate.setUTCMonth(raiseDate.getUTCMonth() + randomInt(12, emp.tenureMonths, rng));
     if (raiseDate < startDate) {
       events.push({
         t: raiseDate.toISOString().split('T')[0],
@@ -426,7 +427,7 @@ export function generateLifeScript(entityId, config, rng = { random: () => Math.
   }
   if (liab.autoPayment > 0) {
     const autoDate = new Date(empStartDate);
-    autoDate.setMonth(autoDate.getMonth() + randomInt(3, Math.min(24, emp.tenureMonths), rng));
+    autoDate.setUTCMonth(autoDate.getUTCMonth() + randomInt(3, Math.min(24, emp.tenureMonths), rng));
     if (autoDate < startDate) {
       events.push({
         t: autoDate.toISOString().split('T')[0],
