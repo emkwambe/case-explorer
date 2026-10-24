@@ -14,7 +14,8 @@ import { money } from "../theme.js";
 import { generateBlendedCase } from "../../generator.js";
 import { CREDIT_POLICY } from "../../creditRisk.js";
 import { buildDealerNetwork, dealerSettings, isFundedLoan } from "../../dealers.js";
-import { poolRecord, simulatePool, swapSet, applyPreset, POLICY_PRESETS } from "../../policySandbox.js";
+import { poolRecord, simulatePool, swapSet, applyPreset, POLICY_PRESETS, decide, poolSha256 } from "../../policySandbox.js";
+import { MODEL_CANDIDATE_TAG } from "./PolicySandboxView.jsx";
 
 beforeEach(() => {
   cleanup();
@@ -45,7 +46,7 @@ function buildPool(profile) {
   }
   const loans = simulatePool(pool, dealers, settings);
   const lgd = 1 - settings.dealerFailure.baseRecovery.value;
-  return { pool, run: (policy, opts = {}) => swapSet(pool, CREDIT_POLICY, policy, { loans, lgd, dealers, ...opts }) };
+  return { pool, run: (policy, opts = {}) => swapSet(pool, CREDIT_POLICY, policy, { loans, lgd, dealers, ...opts }), runPair: (a, b) => swapSet(pool, a, b, { loans, lgd, dealers }) };
 }
 
 const preset = (id) => POLICY_PRESETS.find((p) => p.id === id);
@@ -56,6 +57,41 @@ async function openSandbox() {
   await userEvent.click(screen.getByRole("tab", { name: "Policy Sandbox" }));
   return screen.getByTestId("policy-sandbox");
 }
+
+/** Base64 of the approvals packed most significant bit first, as numpy.packbits writes them. */
+function packBits(approvals) {
+  const bytes = new Uint8Array(Math.ceil(approvals.length / 8));
+  approvals.forEach((on, i) => { if (on) bytes[i >> 3] |= 0x80 >> (i & 7); });
+  return btoa(String.fromCharCode(...bytes));
+}
+
+/** A properties payload for a test pool: a champion and an overlay that swaps its first three approvals. */
+async function modelPayload(pool, { hash } = {}) {
+  const champion = pool.map((a) => decide(a, CREDIT_POLICY) === "APPROVE");
+  const out = champion.flatMap((on, i) => (on ? [i] : [])).slice(0, 3);
+  const inn = champion.flatMap((on, i) => (on ? [] : [i])).slice(0, 3);
+  const overlay = champion.map((on, i) => (out.includes(i) ? false : inn.includes(i) ? true : on));
+  const cand = (label, approvals) => ({ label, approvals: approvals.filter(Boolean).length, bitmask: packBits(approvals) });
+  return {
+    masks: { champion, overlay },
+    payload: {
+      sandbox_candidates: {
+        label: "model-based, evaluation only",
+        pool_applications: pool.length,
+        pool_sha256: hash ?? (await poolSha256(pool)),
+        candidates: {
+          bureau_score_policy: cand("Champion: bureau-score policy", champion),
+          challenger_a_xgb_alone: cand("Challenger A: test", champion),
+          challenger_b_overlay: cand("Challenger B: the policy with a credit_pd_xgb overlay", overlay)
+        }
+      },
+      champion_challenger: { policies: { challenger_a_xgb_alone: {}, challenger_b_overlay: { rule: { f: 0.05, dropped: "the 3 champion approvals with the highest credit_pd_xgb PD", added: "the 3 champion reviews with the lowest credit_pd_xgb PD, excluding fraud referrals" } } } }
+    }
+  };
+}
+
+const serveProperties = (payload) =>
+  vi.stubGlobal("fetch", vi.fn((url) => (String(url).endsWith("credit-model-properties.json") ? Promise.resolve({ ok: true, json: () => Promise.resolve(payload) }) : Promise.resolve({ ok: false, status: 404 }))));
 
 describe("Policy Sandbox tab", () => {
   it("is shown only for profiles with policySandbox on: Solar prime, not Mortgage", async () => {
@@ -167,5 +203,50 @@ describe("Policy Sandbox tab", () => {
     await userEvent.click(screen.getByTestId("sandbox-print"));
     expect(print).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId("compliance-footer")).toBeInTheDocument();
+  }, 60000);
+
+  it("offers the model's challengers as read-only candidates against the bureau-score champion", async () => {
+    const expected = buildPool(SMALL_SOLAR);
+    const { masks, payload } = await modelPayload(expected.pool);
+    serveProperties(payload);
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await openSandbox();
+    await userEvent.click(screen.getByTestId("sandbox-generate"));
+    await screen.findByTestId("swap-table", {}, { timeout: 30000 });
+    expect(screen.getByTestId("candidate-source-challenger_b_overlay").closest("label")).toHaveTextContent(MODEL_CANDIDATE_TAG);
+
+    await userEvent.click(screen.getByTestId("candidate-source-challenger_b_overlay"));
+    const run = expected.runPair({ approvals: masks.champion }, { approvals: masks.overlay });
+    await waitFor(() => expect(screen.getByTestId("swap-count-swapIn")).toHaveTextContent("3"));
+    expect(screen.getByTestId("swap-count-swapOut")).toHaveTextContent("3");
+    expect(screen.getByTestId("kpi-el-b")).toHaveTextContent(money(run.totals.B.expectedLoss));
+    expect(screen.getByTestId("kpi-el-a")).toHaveTextContent(money(run.totals.A.expectedLoss));
+    expect(screen.getByTestId("sandbox-baseline")).toHaveTextContent("Baseline: bureau-score policy (read-only)");
+    expect(screen.getByTestId("sandbox-baseline-champion")).toHaveTextContent("An evaluation variant, not the app's policy.");
+    expect(screen.getByTestId("sandbox-model-candidate")).toHaveTextContent("remove the 3 champion approvals with the highest credit_pd_xgb PD");
+    expect(screen.queryByTestId("candidate-ficoDecline")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("swap-review-swapIn")).not.toBeInTheDocument();
+    expect(screen.getByTestId("summary-change")).toHaveTextContent(`Challenger B: the policy with a credit_pd_xgb overlay (${MODEL_CANDIDATE_TAG}) against the bureau-score policy`);
+    expect(screen.getByTestId("summary-swaps")).not.toHaveTextContent("from review");
+
+    // Back to the editable policy: the app's policy is the baseline again, and the candidate starts at it.
+    await userEvent.click(screen.getByTestId("candidate-source-policy"));
+    await waitFor(() => expect(screen.getByTestId("swap-count-swapIn")).toHaveTextContent("0"));
+    expect(screen.getByTestId("sandbox-baseline")).toHaveTextContent("Baseline policy (read-only)");
+    expect(screen.getByTestId("candidate-ficoDecline")).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledTimes(1);
+  }, 60000);
+
+  it("refuses the model's challengers when they were scored on a different pool", async () => {
+    const expected = buildPool(SMALL_SOLAR);
+    const { payload } = await modelPayload(expected.pool, { hash: "0".repeat(64) });
+    serveProperties(payload);
+    render(<CaseExplorer profileRegistry={REGISTRY} />);
+    await openSandbox();
+    await userEvent.click(screen.getByTestId("sandbox-generate"));
+    await screen.findByTestId("swap-table", {}, { timeout: 30000 });
+    await userEvent.click(screen.getByTestId("candidate-source-challenger_a_xgb_alone"));
+    expect(await screen.findByTestId("sandbox-model-status")).toHaveTextContent("this pool is not that one, so they are not shown");
+    expect(screen.queryByTestId("swap-table")).not.toBeInTheDocument();
   }, 60000);
 });

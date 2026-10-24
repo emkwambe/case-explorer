@@ -17,8 +17,9 @@ const SNAPSHOT = path.join(ROOT, "artifacts", "model-snapshot");
 const MARKER = path.join(DEST, "model-snapshot.json");
 const SOURCES = [
   [path.join(ROOT, "artifacts"), ["validation-summary.json", "validation-report.md", "decision-results.csv", "rule-analytics.csv", "fairness-results.csv", "reconciliation-results.csv", "distribution-tests.csv", "correlation-results.csv", "network-results.csv", "benchmark-manifest.json"]],
-  // The credit PD model's committed snapshot (analytics/src/case_analytics/credit/), read by the Credit model tab.
-  [path.join(ROOT, "artifacts", "credit-model-snapshot"), ["credit-model-summary.json", "credit-model-cases.json"]],
+  // The credit PD model's committed snapshot (analytics/src/case_analytics/credit/), read by the Credit model
+  // tab; the properties file also carries the Policy Sandbox's model-based candidates.
+  [path.join(ROOT, "artifacts", "credit-model-snapshot"), ["credit-model-summary.json", "credit-model-cases.json", "credit-model-properties.json"]],
   [path.join(ROOT, "analytics", "artifacts"), ["model-summary.json", "model-comparison.md", "validation-package.md", "threshold-economics.csv", "fairness-report.json", "monitoring-report.json", "registry.json", "pr_curves.png", "calibration.png", "pdp.png", "shap_summary_random_forest.png", "shap_summary_gradient_boosting.png", "shap_summary_logistic_regression.png"], SNAPSHOT]
 ];
 

@@ -1,14 +1,14 @@
 // scripts/smoke.mjs — Production smoke test. Run: SMOKE_URL=https://… npm run smoke
 //
 // Checks that the deployed page returns HTTP 200, finds its main bundle, confirms the bundle
-// contains each view and the compliance footer, then runs the five test scripts
+// contains each view and the compliance footer, checks the credit-model properties snapshot is served, then runs the five test scripts
 // (test:credit, test:dealers, test:funding, test:sandbox and the vitest suite). Exits non-zero on any failure.
 // The bundle is only read as text, so which profile the app opens on is checked by the vitest
 // suite ("opens on Solar prime at the bare URL"), which this script runs.
 
 import { spawnSync } from "node:child_process";
 
-const REQUIRED_STRINGS = ["Credit Risk Mode", "Dealer View", "Funding & Rates", "Public record", "Findings", "Leverage and liquidity", "Policy Sandbox", "Rate paths during the hold", "Not a consumer report", "Peer lenders", "Complaint signals", "Credit conditions", "Public data provenance", "Court filings (quoted word for word)", "Try a change", "Challenge mode", "Second opinion only: the credit policy makes the decision."];
+const REQUIRED_STRINGS = ["Credit Risk Mode", "Dealer View", "Funding & Rates", "Public record", "Findings", "Leverage and liquidity", "Policy Sandbox", "Rate paths during the hold", "Not a consumer report", "Peer lenders", "Complaint signals", "Credit conditions", "Public data provenance", "Court filings (quoted word for word)", "Try a change", "Challenge mode", "Second opinion only: the credit policy makes the decision.", "Tested properties", "model-based, evaluation only"];
 const TEST_SCRIPTS = ["test:credit", "test:dealers", "test:funding", "test:sandbox", "test"];
 
 const url = process.env.SMOKE_URL;
@@ -37,6 +37,11 @@ if (bundlePath) {
   const js = await bundle.text();
   for (const s of REQUIRED_STRINGS) result(js.includes(s), `bundle contains "${s}"`);
 }
+
+// The credit model's properties snapshot feeds the Credit model tab and the Sandbox's model-based candidates.
+const props = await fetch(new URL("artifacts/credit-model-properties.json", url).href);
+const propsJson = props.status === 200 ? await props.json().catch(() => null) : null;
+result(Boolean(propsJson?.sandbox_candidates && propsJson?.champion_challenger), `credit-model-properties.json served (HTTP ${props.status}) with the Sandbox candidates`);
 
 for (const script of TEST_SCRIPTS) {
   const run = spawnSync("npm", ["run", "--silent", script], { stdio: "inherit", shell: process.platform === "win32" });

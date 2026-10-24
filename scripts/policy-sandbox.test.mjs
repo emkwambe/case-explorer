@@ -13,7 +13,7 @@ import { applyProfile, getProfile } from "../src/profiles/index.js";
 import { assessCredit, CREDIT_POLICY } from "../src/creditRisk.js";
 import { buildDealerNetwork, dealerSettings, isFundedLoan, loanInputs, simulateLoans } from "../src/dealers.js";
 import { expectedLoss } from "../src/fundingStress.js";
-import { poolRecord, decide, simulatePool, swapSet, maxFundedDti, applyPreset, POLICY_PRESETS, CELLS, SANDBOX_DEFAULTS } from "../src/policySandbox.js";
+import { poolRecord, decide, simulatePool, swapSet, maxFundedDti, applyPreset, POLICY_PRESETS, CELLS, SANDBOX_DEFAULTS, decodeApprovals, poolSha256 } from "../src/policySandbox.js";
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const BASE = JSON.parse(fs.readFileSync(path.join(root, "src", "distribution_config.json"), "utf8"));
@@ -194,6 +194,36 @@ check("dealer mix: the top 10 dealers by baseline volume plus the rest add up to
     close(rows.reduce((s, d) => s + d[side].expectedLoss, 0), r.totals[side].expectedLoss, 1e-3);
   }
   assert.ok(r.dealerMix.top.every((d) => /^Dealer [A-Z]{2}-\d{2} \(/.test(d.dealer)), "dealers are synthetic IDs");
+});
+
+// Model-based candidates (Sprint 12, evaluation only): the snapshot's approval masks over this pool.
+const PROPS = JSON.parse(fs.readFileSync(path.join(root, "artifacts", "credit-model-snapshot", "credit-model-properties.json"), "utf8"));
+const SB = PROPS.sandbox_candidates, CC = PROPS.champion_challenger.policies;
+const poolHash = await poolSha256(pool);
+const mask = (name) => ({ approvals: decodeApprovals(SB.candidates[name].bitmask, pool.length) });
+
+check("the snapshot's challengers were scored on this pool: same size and SHA-256 of the application IDs", () => {
+  assert.equal(SB.pool_applications, pool.length);
+  assert.equal(poolHash, SB.pool_sha256);
+  assert.equal(SB.label, "model-based, evaluation only");
+  for (const [name, c] of Object.entries(SB.candidates)) assert.equal(mask(name).approvals.filter(Boolean).length, c.approvals, name);
+  assert.throws(() => decodeApprovals(SB.candidates.challenger_b_overlay.bitmask, pool.length + 8), /bitmask holds/);
+});
+
+check("against the bureau-score champion, each challenger's swap set and expected loss match the model card", () => {
+  const champ = mask("bureau_score_policy");
+  const champRun = swapSet(pool, champ, champ, { loans, lgd, dealers });
+  close(champRun.totals.A.expectedLoss, CC.bureau_score_policy.expected_loss, 1, "champion EL");
+  for (const name of ["challenger_a_xgb_alone", "challenger_b_overlay"]) {
+    const r = swapSet(pool, champ, mask(name), { loans, lgd, dealers });
+    assert.deepEqual(swaps(r), { in: CC[name].swap_in, out: CC[name].swap_out }, name);
+    assert.equal(r.totals.B.funded, r.totals.A.funded, `${name}: equal volume`);
+    close(r.totals.B.expectedLoss, CC[name].expected_loss, 1, `${name} EL`);
+    close(r.totals.B.expectedLoss - r.totals.A.expectedLoss, CC[name].difference_vs_champion.expected_loss.point, 1, `${name} difference`);
+    assert.equal(r.cells.swapIn.reviewA + r.cells.swapOut.reviewB, 0, "a mask has no review split");
+  }
+  // The bureau-score champion against the app's policy: the FICO field alone moves 44 in and 35 out.
+  assert.deepEqual(swaps(swapSet(pool, CREDIT_POLICY, champ, { loans, lgd, dealers })), { in: CC.as_is_policy_reference.swap_out, out: CC.as_is_policy_reference.swap_in });
 });
 
 check("a policy change recomputes in under 100 ms over the pool (median of 7 runs)", () => {

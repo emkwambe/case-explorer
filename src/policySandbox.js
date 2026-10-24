@@ -15,6 +15,9 @@
 //     so the baseline-funded subset re-simulates to the existing book exactly.
 //   * Swap-in performance is never observed by a real lender. "Synthetic truth" uses the model PD;
 //     "conservative inferred" multiplies swap-in PDs by a labelled assumption.
+//   * Model-based candidates (evaluation only) are approval masks over the pool order, read from the
+//     credit-model snapshot; a mask stands in for a policy anywhere swapSet takes one. A mask has no
+//     review/decline split, so its non-approvals count as neither.
 
 import { assessCredit, CREDIT_POLICY } from "./creditRisk.js";
 import { loanInputs, simulateLoans } from "./dealers.js";
@@ -67,6 +70,28 @@ export function decide(app, policy = CREDIT_POLICY) {
   const watch = app.dti !== null && app.dti >= policy.dtiWatchLow;
   const liquidity = app.checking !== null && app.checking < policy.liquidityCheckingMin && app.dti !== null && app.dti > policy.liquidityDtiMin;
   return app.fraudReview || liquidity || watch ? "REVIEW" : "APPROVE";
+}
+
+/** A policy object or an approval mask ({ approvals }): the decision for pool application i. */
+function decisionOf(policy, app, i) {
+  if (policy.approvals) return policy.approvals[i] ? "APPROVE" : "NOT_APPROVED";
+  return decide(app, policy);
+}
+
+/** Decode a snapshot approval bitmask (base64 of numpy.packbits, most significant bit first) over n applications. */
+export function decodeApprovals(b64, n) {
+  const bytes = Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0));
+  if (bytes.length !== Math.ceil(n / 8)) throw new Error(`bitmask holds ${bytes.length * 8} bits, pool has ${n}`);
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) out[i] = ((bytes[i >> 3] >> (7 - (i & 7))) & 1) === 1;
+  return out;
+}
+
+/** SHA-256 (hex) of the pool's application IDs joined by newlines: the snapshot's pool_sha256. */
+export async function poolSha256(pool) {
+  const data = new TextEncoder().encode(pool.map((a) => a.id).join("\n"));
+  const digest = await globalThis.crypto.subtle.digest("SHA-256", data);
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 /**
@@ -126,7 +151,7 @@ function finishTotals(t, poolSize) {
 }
 
 /**
- * Swap set of policy B against policy A over the pool. `loans` are simulatePool's rows (aligned with
+ * Swap set of policy B against policy A over the pool; either may be an approval mask. `loans` are simulatePool's rows (aligned with
  * the pool); `lgd` is 1 − recovery. Returns the four cells, each policy's totals (both risk views;
  * the inferred view changes only swap-in PDs, so it equals the synthetic truth for policy A), the
  * decision moves between review and decline that change no funding, and the dealer mix: the
@@ -146,7 +171,7 @@ export function swapSet(pool, policyA, policyB, { loans, lgd, inferredMultiplier
 
   for (let i = 0; i < pool.length; i++) {
     const app = pool[i], loan = loans[i];
-    const dA = decide(app, policyA), dB = decide(app, policyB);
+    const dA = decisionOf(policyA, app, i), dB = decisionOf(policyB, app, i);
     const fundedA = dA === "APPROVE", fundedB = dB === "APPROVE";
     const key = cellOf(fundedA, fundedB);
     const pdInferred = key === "swapIn" ? Math.min(1, loan.pd * inferredMultiplier) : loan.pd;

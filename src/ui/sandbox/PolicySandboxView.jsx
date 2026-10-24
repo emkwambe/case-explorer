@@ -2,18 +2,57 @@
 // pool scored under the baseline credit policy and an editable candidate policy. Shows the swap set,
 // the change in volume, presented credit quality and expected loss under two views of swap-in risk,
 // the dealer mix, and a printable one-page impact summary. Every figure comes from
-// src/policySandbox.js; this component names no lender.
+// src/policySandbox.js; this component names no lender. The candidate can also be one of the credit
+// model's two challengers (model-based, evaluation only), read from the credit-model snapshot; the
+// baseline is then the bureau-score champion, so the swap set follows the fair-comparison rule.
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { styles, money, pct } from "../theme.js";
 import { Callout } from "../components/primitives.jsx";
 import { Val, LineagePanel } from "../publicRecord/PublicRecordView.jsx";
 import { CREDIT_POLICY } from "../../creditRisk.js";
 import { dealerSettings } from "../../dealers.js";
-import { SANDBOX_DEFAULTS, CANDIDATE_RANGES, POLICY_PRESETS, CELL_LABELS, applyPreset, simulatePool, swapSet, maxFundedDti } from "../../policySandbox.js";
+import { SANDBOX_DEFAULTS, CANDIDATE_RANGES, POLICY_PRESETS, CELL_LABELS, applyPreset, decide, simulatePool, swapSet, maxFundedDti, decodeApprovals, poolSha256 } from "../../policySandbox.js";
+import { artifactUrl } from "../hooks/useArtifacts.js";
 
 const DEBOUNCE_MS = 150;
 const REVIEW_NOTE = "Review treated as not funded, matching the baseline book.";
+export const MODEL_CANDIDATE_TAG = "model-based, evaluation only";
+const CHALLENGERS = ["challenger_a_xgb_alone", "challenger_b_overlay"];
+const CHAMPION = "bureau_score_policy";
+
+/** The snapshot's model-based candidates as approval masks over this pool, or why they cannot be used. */
+async function loadModelCandidates(pool) {
+  try {
+    const r = await fetch(artifactUrl("credit-model-properties.json"));
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const props = await r.json();
+    const sb = props.sandbox_candidates;
+    if (sb.pool_applications !== pool.length || (await poolSha256(pool)) !== sb.pool_sha256) return { status: "mismatch", applications: sb.pool_applications };
+    const masks = Object.fromEntries(Object.entries(sb.candidates).map(([k, c]) => [k, { approvals: decodeApprovals(c.bitmask, pool.length), label: c.label }]));
+    return { status: "ready", masks, policies: props.champion_challenger.policies };
+  } catch (e) {
+    return { status: "unavailable", error: e.message };
+  }
+}
+
+/** Loads the model-based candidates the first time one is chosen; the pool is fixed for a Sandbox. */
+function useModelCandidates(pool, enabled) {
+  const [state, setState] = useState({ status: "idle" });
+  const done = useRef(false);
+  useEffect(() => {
+    if (!enabled || done.current) return;
+    let cancelled = false;
+    setState({ status: "loading" });
+    loadModelCandidates(pool).then((s) => {
+      if (cancelled) return;
+      done.current = true;
+      setState(s);
+    });
+    return () => { cancelled = true; };
+  }, [enabled, pool]);
+  return state;
+}
 
 const FIELDS = [
   { key: "ficoDecline", label: "FICO floor (decline below)", format: (v) => String(v) },
@@ -76,9 +115,10 @@ function kpiRows(result, inferred) {
   ];
 }
 
-function SwapCell({ id, cell, select, inferred, multiplier }) {
+function SwapCell({ id, cell, select, inferred, multiplier, model }) {
   const el = id === "swapIn" && inferred ? cell.expectedLossInferred : cell.expectedLoss;
-  const review = id === "swapIn" ? `${count(cell.reviewA)} came from review` : id === "swapOut" ? `${count(cell.reviewB)} go to review` : id === "neither" ? `${count(cell.reviewA)} in review under the baseline, ${count(cell.reviewB)} under the candidate` : null;
+  // An approval mask has no review/decline split, so model-based comparisons show no review counts.
+  const review = model ? null : id === "swapIn" ? `${count(cell.reviewA)} came from review` : id === "swapOut" ? `${count(cell.reviewB)} go to review` : id === "neither" ? `${count(cell.reviewA)} in review under the baseline, ${count(cell.reviewB)} under the candidate` : null;
   return (
     <td style={{ ...styles.td, verticalAlign: "top", background: id === "swapIn" ? "#ecfdf5" : id === "swapOut" ? "#fef2f2" : "white" }} data-testid={`swap-cell-${id}`}>
       <div style={{ fontWeight: 700, fontSize: 12, color: "#334155" }}>{CELL_LABELS[id]}</div>
@@ -99,10 +139,10 @@ function SwapCell({ id, cell, select, inferred, multiplier }) {
   );
 }
 
-function ImpactSummary({ baseline, candidate, result, inferred, rows, mixShifts, onPrint }) {
+function ImpactSummary({ baseline, candidate, result, inferred, rows, mixShifts, onPrint, model }) {
   const [why, setWhy] = useState("");
   const [bound, setBound] = useState("");
-  const changes = changeList(baseline, candidate);
+  const changes = model ? [`${model} (${MODEL_CANDIDATE_TAG}) against the bureau-score policy, the credit policy's thresholds on the bureau FICO the model sees`] : changeList(baseline, candidate);
   const c = result.cells;
   const assumption = inferred
     ? `Swap-in risk shown as conservative inferred: swap-in PD × ${result.inferredMultiplier} (assumption).`
@@ -125,7 +165,7 @@ function ImpactSummary({ baseline, candidate, result, inferred, rows, mixShifts,
           {rows.map((r) => `${r.label} ${r.fmt(r.a)} → ${r.fmt(r.b)} (${r.delta(r.a, r.b)})`).join("; ")}.
         </li>
         <li data-testid="summary-swaps">
-          <strong>Swap set</strong> over {count(result.poolSize)} applications: {count(c.keep.count)} funded under both, {count(c.swapIn.count)} swap-ins ({count(c.swapIn.reviewA)} from review), {count(c.swapOut.count)} swap-outs ({count(c.swapOut.reviewB)} to review), {count(c.neither.count)} funded under neither. {REVIEW_NOTE} {assumption}
+          <strong>Swap set</strong> over {count(result.poolSize)} applications: {count(c.keep.count)} funded under both, {count(c.swapIn.count)} swap-ins{model ? "" : ` (${count(c.swapIn.reviewA)} from review)`}, {count(c.swapOut.count)} swap-outs{model ? "" : ` (${count(c.swapOut.reviewB)} to review)`}, {count(c.neither.count)} funded under neither. {REVIEW_NOTE} {assumption}
         </li>
         <li data-testid="summary-mix">
           <strong>Mix shifts</strong> (share of funded volume): {mixShifts.length ? mixShifts.map((m) => `${m.dealer} ${pct(m.shareA)} → ${pct(m.shareB)}`).join("; ") : "none"}. Dealer ratings are not recomputed under the candidate.
@@ -149,31 +189,119 @@ function ImpactSummary({ baseline, candidate, result, inferred, rows, mixShifts,
   );
 }
 
+const MODEL_STATUS = {
+  idle: "Loading the model-based candidates…",
+  loading: "Loading the model-based candidates…",
+  unavailable: "The credit-model snapshot is not published here, so the model-based candidates are unavailable."
+};
+
+function ModelCandidateNote({ name, label, policies }) {
+  const r = policies[name];
+  return (
+    <div style={{ fontSize: 13, lineHeight: 1.55 }} data-testid="sandbox-model-candidate">
+      <p style={{ margin: "0 0 6px" }}><strong>{label}</strong></p>
+      <p style={{ margin: "0 0 6px" }}>
+        {r.rule
+          ? `Start from the bureau-score policy's approvals, remove ${r.rule.dropped} and add ${r.rule.added} (f = ${r.rule.f}, chosen on the calibration books).`
+          : "Approves the applications with the lowest credit_pd_xgb PD, up to the bureau-score policy's approval count."}
+      </p>
+      <p style={{ ...styles.note, fontSize: 12, margin: 0 }}>Read-only approvals precomputed offline by the credit model (Python) and published in its snapshot; nothing runs a model in the browser, and no app decision changes.</p>
+    </div>
+  );
+}
+
 function Sandbox({ pool, dealers, settings, applications }) {
   const [candidate, setCandidate] = useState({ ...CREDIT_POLICY });
+  const [source, setSource] = useState("policy");
   const [inferred, setInferred] = useState(false);
   const [multiplier, setMultiplier] = useState(SANDBOX_DEFAULTS.inferredMultiplier.value);
   const [selected, setSelected] = useState(null);
   const select = (title, ref) => ref && setSelected({ title, ref });
   const policy = useDebounced(candidate, DEBOUNCE_MS);
   const mult = useDebounced(multiplier, DEBOUNCE_MS);
+  const modelMode = source !== "policy";
+  const models = useModelCandidates(pool, modelMode);
 
   // Dealer, PD and outcome per application depend only on the dealer settings: simulated once here,
   // then every policy change only re-filters.
   const loans = useMemo(() => simulatePool(pool, dealers, settings), [pool, dealers, settings]);
   const lgd = 1 - settings.dealerFailure.baseRecovery.value;
-  const result = useMemo(() => swapSet(pool, CREDIT_POLICY, policy, { loans, lgd, inferredMultiplier: mult, dealers }), [pool, policy, loans, lgd, mult, dealers]);
+  // Model-based candidates are compared with the bureau-score champion (the fair-comparison rule).
+  const sideA = !modelMode ? CREDIT_POLICY : models.status === "ready" ? models.masks[CHAMPION] : null;
+  const sideB = !modelMode ? policy : models.status === "ready" ? models.masks[source] : null;
+  const result = useMemo(() => (sideA && sideB ? swapSet(pool, sideA, sideB, { loans, lgd, inferredMultiplier: mult, dealers }) : null), [pool, sideA, sideB, loans, lgd, mult, dealers]);
   const baselineMaxDti = useMemo(() => maxFundedDti(pool, CREDIT_POLICY), [pool]);
-  const rows = kpiRows(result, inferred);
+  const baselineFunded = useMemo(() => pool.filter((a) => decide(a, CREDIT_POLICY) === "APPROVE").length, [pool]);
+  const modelLabel = modelMode && models.status === "ready" ? models.masks[source].label : null;
 
   const setField = (key) => (value) => setCandidate((c) => {
     const next = { ...c, [key]: value };
     if (key === "dtiDecline" && next.dtiWatchLow > value) next.dtiWatchLow = value;
     return next;
   });
+
+  const controls = (
+    <>
+      <p style={styles.note} className="ce-no-print" data-testid="sandbox-pool">
+        Pool: the {count(pool.length)} synthetic applications the baseline needed to fund {count(baselineFunded)} loans ({count(applications)} generated, seed {settings.portfolio.seed}). Funded means credit-policy APPROVE. <strong data-testid="sandbox-review-note">{REVIEW_NOTE}</strong> <span data-testid="sandbox-strength">Loan outcomes are simulated at the profile's default dealer-effect strength, {settings.dealerEffect.strength}<AssumptionTag status={settings.dealerEffect.status} />; a strength chosen in the Dealer View does not apply here.</span>
+      </p>
+      <div className="ce-no-print"><LineagePanel selected={selected} onClose={() => setSelected(null)} /></div>
+
+      <div style={styles.grid2} className="ce-no-print">
+        <section style={styles.panel} data-testid="sandbox-baseline">
+          {modelMode ? (
+            <>
+              <h3 style={styles.panelTitle}>Baseline: bureau-score policy (read-only)</h3>
+              <p style={{ fontSize: 13, lineHeight: 1.55, margin: "0 0 6px" }} data-testid="sandbox-baseline-champion">The credit policy's thresholds reading the bureau FICO the model sees: the champion for a fair comparison. An evaluation variant, not the app's policy.</p>
+            </>
+          ) : (
+            <h3 style={styles.panelTitle}>Baseline policy (read-only)</h3>
+          )}
+          <ul style={{ fontSize: 13, lineHeight: 1.7, paddingLeft: 18, margin: 0 }}>
+            {FIELDS.map((f) => <li key={f.key}>{f.label}: <strong>{f.format(CREDIT_POLICY[f.key])}</strong></li>)}
+            {modelMode && <li>FICO read: <strong>bureau score</strong> (the app's policy reads the claimed score)</li>}
+          </ul>
+        </section>
+        <section style={styles.panel} data-testid="sandbox-candidate">
+          <h3 style={styles.panelTitle}>Candidate policy</h3>
+          <div role="radiogroup" aria-label="Candidate" style={{ fontSize: 13, display: "grid", gap: 4, marginBottom: 10 }}>
+            <label><input type="radio" name="candidate-source" checked={!modelMode} onChange={() => setSource("policy")} data-testid="candidate-source-policy" /> Editable policy</label>
+            {CHALLENGERS.map((k) => (
+              <label key={k}>
+                <input type="radio" name="candidate-source" checked={source === k} onChange={() => setSource(k)} data-testid={`candidate-source-${k}`} />{" "}
+                {k === "challenger_a_xgb_alone" ? "Challenger A: the credit model alone" : "Challenger B: the policy with a credit-model overlay"}{" "}
+                <span style={{ ...styles.chip, background: "white", color: "#1e3a8a", border: "1px solid #1d4ed8", fontSize: 11 }}>{MODEL_CANDIDATE_TAG}</span>
+              </label>
+            ))}
+          </div>
+          {!modelMode ? (
+            <>
+              {FIELDS.map((f) => (
+                <PolicySlider key={f.key} field={f} value={candidate[f.key]} onChange={setField(f.key)} max={f.key === "dtiWatchLow" ? candidate.dtiDecline : undefined} />
+              ))}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }} role="group" aria-label="Presets">
+                {POLICY_PRESETS.map((p) => (
+                  <button key={p.id} type="button" style={styles.btnSmall} onClick={() => setCandidate(applyPreset(p))} data-testid={`preset-${p.id}`}>{p.label}</button>
+                ))}
+              </div>
+            </>
+          ) : models.status === "ready" ? (
+            <ModelCandidateNote name={source} label={modelLabel} policies={models.policies} />
+          ) : (
+            <p style={{ ...styles.note, fontSize: 12 }} data-testid="sandbox-model-status">
+              {models.status === "mismatch" ? `These candidates were scored offline on the seed-42 Solar pool (${count(models.applications)} applications); this pool is not that one, so they are not shown.` : MODEL_STATUS[models.status]}
+            </p>
+          )}
+        </section>
+      </div>
+    </>
+  );
+  if (!result) return controls;
+
+  const rows = kpiRows(result, inferred);
   const { cells } = result;
   const swaps = cells.swapIn.count + cells.swapOut.count;
-  const capChanged = policy.dtiDecline !== CREDIT_POLICY.dtiDecline;
+  const capChanged = !modelMode && policy.dtiDecline !== CREDIT_POLICY.dtiDecline;
   const watchBinds = capChanged && baselineMaxDti !== null && baselineMaxDti < Math.min(policy.dtiDecline, CREDIT_POLICY.dtiDecline) && policy.dtiWatchLow <= Math.min(policy.dtiDecline, CREDIT_POLICY.dtiDecline);
   const volA = result.totals.A.volume, volB = result.totals.B.volume;
   const elKey = inferred ? "expectedLossInferred" : "expectedLoss";
@@ -183,43 +311,21 @@ function Sandbox({ pool, dealers, settings, applications }) {
     .filter((m) => Math.abs(m.shareB - m.shareA) >= 0.0005)
     .sort((a, b) => Math.abs(b.shareB - b.shareA) - Math.abs(a.shareB - a.shareA))
     .slice(0, 3);
+  const cell = (id) => <SwapCell id={id} cell={cells[id]} select={select} inferred={inferred} multiplier={mult} model={modelMode} />;
 
   return (
     <>
-      <p style={styles.note} className="ce-no-print" data-testid="sandbox-pool">
-        Pool: the {count(pool.length)} synthetic applications the baseline needed to fund {count(result.totals.A.funded)} loans ({count(applications)} generated, seed {settings.portfolio.seed}). Funded means credit-policy APPROVE. <strong data-testid="sandbox-review-note">{REVIEW_NOTE}</strong> <span data-testid="sandbox-strength">Loan outcomes are simulated at the profile's default dealer-effect strength, {settings.dealerEffect.strength}<AssumptionTag status={settings.dealerEffect.status} />; a strength chosen in the Dealer View does not apply here.</span>
-      </p>
-      <div className="ce-no-print"><LineagePanel selected={selected} onClose={() => setSelected(null)} /></div>
-
-      <div style={styles.grid2} className="ce-no-print">
-        <section style={styles.panel} data-testid="sandbox-baseline">
-          <h3 style={styles.panelTitle}>Baseline policy (read-only)</h3>
-          <ul style={{ fontSize: 13, lineHeight: 1.7, paddingLeft: 18, margin: 0 }}>
-            {FIELDS.map((f) => <li key={f.key}>{f.label}: <strong>{f.format(CREDIT_POLICY[f.key])}</strong></li>)}
-          </ul>
-        </section>
-        <section style={styles.panel} data-testid="sandbox-candidate">
-          <h3 style={styles.panelTitle}>Candidate policy</h3>
-          {FIELDS.map((f) => (
-            <PolicySlider key={f.key} field={f} value={candidate[f.key]} onChange={setField(f.key)} max={f.key === "dtiWatchLow" ? candidate.dtiDecline : undefined} />
-          ))}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }} role="group" aria-label="Presets">
-            {POLICY_PRESETS.map((p) => (
-              <button key={p.id} type="button" style={styles.btnSmall} onClick={() => setCandidate(applyPreset(p))} data-testid={`preset-${p.id}`}>{p.label}</button>
-            ))}
-          </div>
-        </section>
-      </div>
+      {controls}
 
       <section style={{ ...styles.panel, marginBottom: 16 }} className="ce-no-print" data-testid="panel-swap-set">
         <h3 style={styles.panelTitle}>1. Swap set</h3>
         <div style={styles.tableContainer}>
           <table style={styles.table} data-testid="swap-table">
-            <caption style={{ captionSide: "top", textAlign: "left", padding: "6px 10px", fontSize: 12, color: "#475569" }}>Rows: baseline policy. Columns: candidate policy. {REVIEW_NOTE}</caption>
+            <caption style={{ captionSide: "top", textAlign: "left", padding: "6px 10px", fontSize: 12, color: "#475569" }}>Rows: {modelMode ? "bureau-score policy" : "baseline policy"}. Columns: {modelMode ? "model-based candidate" : "candidate policy"}. {REVIEW_NOTE}</caption>
             <thead><tr><th style={styles.th} /><th style={styles.th}>Candidate: funded</th><th style={styles.th}>Candidate: not funded</th></tr></thead>
             <tbody>
-              <tr><th style={styles.th} scope="row">Baseline: funded</th><SwapCell id="keep" cell={cells.keep} select={select} inferred={inferred} multiplier={mult} /><SwapCell id="swapOut" cell={cells.swapOut} select={select} inferred={inferred} multiplier={mult} /></tr>
-              <tr><th style={styles.th} scope="row">Baseline: not funded</th><SwapCell id="swapIn" cell={cells.swapIn} select={select} inferred={inferred} multiplier={mult} /><SwapCell id="neither" cell={cells.neither} select={select} inferred={inferred} multiplier={mult} /></tr>
+              <tr><th style={styles.th} scope="row">Baseline: funded</th>{cell("keep")}{cell("swapOut")}</tr>
+              <tr><th style={styles.th} scope="row">Baseline: not funded</th>{cell("swapIn")}{cell("neither")}</tr>
             </tbody>
           </table>
         </div>
@@ -289,7 +395,7 @@ function Sandbox({ pool, dealers, settings, applications }) {
         </div>
       </section>
 
-      <ImpactSummary baseline={CREDIT_POLICY} candidate={policy} result={result} inferred={inferred} rows={rows} mixShifts={mixShifts} onPrint={() => window.print()} />
+      <ImpactSummary baseline={CREDIT_POLICY} candidate={policy} result={result} inferred={inferred} rows={rows} mixShifts={mixShifts} onPrint={() => window.print()} model={modelLabel} />
     </>
   );
 }

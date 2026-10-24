@@ -1,25 +1,21 @@
 // src/ui/tabs/CreditModelTab.jsx — The credit PD model, read-only, from the committed snapshot
 // (artifacts/credit-model-snapshot/, copied to public/artifacts by the prebuild). Two parts: this
 // case's PD and reasons (precomputed for the opening library and the teaching cases), and "About the
-// model" with the portfolio results. The model is a second opinion; the credit policy decides.
-// Hidden whenever a challenge case is blind.
+// model" with the portfolio results, then the Sprint 12 properties (CreditModelProperties.jsx). The
+// model is a second opinion; the credit policy decides. Hidden whenever a challenge case is blind.
 
 import React from "react";
 import { styles } from "../theme.js";
 import { useArtifact } from "../hooks/useArtifacts.js";
 import { useChallengeGate } from "../challenge/challengeGate.js";
+import { INK, MUTED, BAR, TRACK, pct, f3 } from "./creditModelFormat.js";
+import { Note, Table } from "./creditModelParts.jsx";
+import { ModelProperties } from "./CreditModelProperties.jsx";
 
 export const CREDIT_MODEL_LABEL = "Second opinion only: the credit policy makes the decision.";
 export const MODEL_CARD_URL = "https://github.com/emkwambe/case-explorer/blob/main/docs/MODEL-CARD-credit-pd.md";
 
-const INK = "#0f172a", MUTED = "#475569", BAR = "#1d4ed8", TRACK = "#e2e8f0";
-const pct = (v, d = 2) => (v === null || v === undefined ? "—" : `${(100 * v).toFixed(d)}%`);
-const f3 = (v) => (v === null || v === undefined ? "—" : v.toFixed(3));
 const ci = (t, k, d = 3) => `${t.metrics[k].toFixed(d)} (${t.ci95[k].low.toFixed(d)}–${t.ci95[k].high.toFixed(d)})`;
-
-function Note({ children }) {
-  return <p style={{ ...styles.note, color: MUTED }}>{children}</p>;
-}
 
 /** PD and the top reasons for one case, from the precomputed case snapshot. */
 export function CaseCreditModel({ caseKey, cases }) {
@@ -73,17 +69,6 @@ function GlobalShapBars({ groups, statements }) {
         ))}
       </div>
     </figure>
-  );
-}
-
-function Table({ head, rows, testId }) {
-  return (
-    <div style={styles.tableContainer}>
-      <table style={{ ...styles.table, fontSize: 12 }} data-testid={testId}>
-        <thead><tr>{head.map((h) => <th key={h} style={styles.th}>{h}</th>)}</tr></thead>
-        <tbody>{rows.map((r, i) => <tr key={i}>{r.map((c, j) => <td key={j} style={styles.td}>{c}</td>)}</tr>)}</tbody>
-      </table>
-    </div>
   );
 }
 
@@ -141,6 +126,7 @@ export function AboutCreditModel({ summary }) {
 export function CreditModelTab({ caseData }) {
   const summary = useArtifact("credit-model-summary.json");
   const cases = useArtifact("credit-model-cases.json");
+  const properties = useArtifact("credit-model-properties.json");
   const { blind } = useChallengeGate();
   if (blind) return null;
   return (
@@ -148,6 +134,7 @@ export function CreditModelTab({ caseData }) {
       <p style={{ fontSize: 14, color: INK, fontWeight: 700, margin: "0 0 10px" }}>{CREDIT_MODEL_LABEL}</p>
       <CaseCreditModel caseKey={caseData.id} cases={cases} />
       <AboutCreditModel summary={summary} />
+      <ModelProperties properties={properties} />
     </div>
   );
 }
