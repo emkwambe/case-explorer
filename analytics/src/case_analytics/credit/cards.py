@@ -767,7 +767,26 @@ def cc_reading(c: dict[str, Any]) -> str:
         L.append(
             "The model alone beats the overlay here: its ranking adds more than the policy's review routing."
         )
-    return " ".join(L)
+    return " ".join([*L, overlay_source(b, db)]).strip()
+
+
+def overlay_source(b: dict[str, Any], db: dict[str, float]) -> str:
+    """Where the overlay's advantage comes from, by hidden typology of its swap set."""
+    sw = b["swaps_by_hidden_typology"]
+    removed = sum(v["expected_loss"] for v in sw["swap_out"].values())
+    added = sum(v["expected_loss"] for v in sw["swap_in"].values())
+    inf = sw["swap_out"].get("INFLATION")
+    adv = -db["point"]
+    if db["high"] >= 0 or not inf:
+        return ""
+    share = inf["expected_loss"] / adv
+    of_adv = "more than the whole" if share > 1 else f"{100 * share:.0f}% of the"
+    return (
+        f"**Where the overlay's advantage comes from: mostly income-inflation fraud.** Its swap-outs remove ${n(removed)} of expected loss and its swap-ins add ${n(added)}. "
+        f"The {n(inf['loans'])} income-inflation loans among the swap-outs carry ${n(inf['expected_loss'])} of the removed loss ({100 * inf['expected_loss'] / removed:.0f}%), {of_adv} ${n(adv)} advantage; "
+        f"everything else in the swap set together changes expected loss by {money(inf['expected_loss'] - adv)}. "
+        "The model catches income inflation perfectly by construction in this simulation, because only fraud loans have an income gap (see Reason accuracy), so this margin does not transfer to real data."
+    )
 
 
 def champion_md(p: dict[str, Any]) -> list[str]:

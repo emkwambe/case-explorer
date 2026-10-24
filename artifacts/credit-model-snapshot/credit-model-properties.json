@@ -209,7 +209,33 @@
      "k": 500
     },
     "swap_in": 500,
-    "swap_out": 500
+    "swap_out": 500,
+    "swaps_by_hidden_typology": {
+     "swap_in": {
+      "NONE": {
+       "expected_loss": 209842.774508,
+       "loans": 500
+      }
+     },
+     "swap_out": {
+      "ASSET_SEASONING": {
+       "expected_loss": 185292.581705,
+       "loans": 108
+      },
+      "CONCEALMENT": {
+       "expected_loss": 10232.787581,
+       "loans": 5
+      },
+      "INFLATION": {
+       "expected_loss": 743852.188633,
+       "loans": 357
+      },
+      "NONE": {
+       "expected_loss": 13658.57112,
+       "loans": 30
+      }
+     }
+    }
    }
   }
  },

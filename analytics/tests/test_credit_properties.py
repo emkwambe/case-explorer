@@ -149,6 +149,20 @@ def test_overlay_rule_is_tuned_on_calibration_and_never_adds_a_fraud_referral():
     assert (dec.loc[added, "fraud_review"] == 0).all()
 
 
+def test_overlay_swaps_by_typology_add_up_to_its_difference_and_the_card_names_inflation():
+    b = properties()["champion_challenger"]["policies"]["challenger_b_overlay"]
+    sw = b["swaps_by_hidden_typology"]
+    out = sum(v["expected_loss"] for v in sw["swap_out"].values())
+    added = sum(v["expected_loss"] for v in sw["swap_in"].values())
+    assert sum(v["loans"] for v in sw["swap_out"].values()) == b["swap_out"]
+    assert sum(v["loans"] for v in sw["swap_in"].values()) == b["swap_in"]
+    assert added - out == pytest.approx(b["difference_vs_champion"]["expected_loss"]["point"], abs=0.01)
+    card = docs.MODEL_CARD.read_text(encoding="utf-8")
+    cc = card.split("## Champion/challenger", 1)[1].split("\n## ", 1)[0]
+    assert "mostly income-inflation fraud" in cc
+    assert "does not transfer to real data" in cc
+
+
 def bits(b64: str, n: int) -> np.ndarray:
     return np.unpackbits(np.frombuffer(base64.b64decode(b64), dtype=np.uint8))[:n].astype(bool)
 

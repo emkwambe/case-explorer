@@ -139,6 +139,24 @@ def policy_row(mask: np.ndarray, champion: np.ndarray, el: np.ndarray, dpd: np.n
     return row
 
 
+def swaps_by_typology(
+    champion: np.ndarray, mask: np.ndarray, typology: np.ndarray, el: np.ndarray
+) -> dict[str, dict[str, dict[str, Any]]]:
+    """Where a challenger's expected-loss difference comes from: its swap-outs (expected loss removed) and
+    swap-ins (added), split by the hidden corruption type. Synthetic truth, used only to evaluate."""
+
+    def split(cell: np.ndarray) -> dict[str, dict[str, Any]]:
+        return {
+            t: {
+                "loans": int((cell & (typology == t)).sum()),
+                "expected_loss": float(el[cell & (typology == t)].sum()),
+            }
+            for t in sorted(set(typology[cell]))
+        }
+
+    return {"swap_out": split(champion & ~mask), "swap_in": split(mask & ~champion)}
+
+
 def champion_challenger(
     data: Data, model: Any, lgd: float, log=print
 ) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -192,6 +210,9 @@ def champion_challenger(
         (AS_IS, as_is),
     ):
         rows[name]["fraud_approved"] = int((mask & fraud_true).sum())
+    rows[CHALLENGER_B]["swaps_by_hidden_typology"] = swaps_by_typology(
+        champion, b_mask, pool["corruption_type"].to_numpy(dtype=str), el
+    )
     block: dict[str, Any] = {
         "champion": CHAMPION,
         "fair_comparison_rule": (
