@@ -189,3 +189,64 @@ def test_reject_inference_uses_training_books_only_and_reproduces_sprint_11():
     )
     for fam in r["families"].values():
         assert set(fam) == {"funded_only", "hard_cutoff", "fuzzy", "oracle"}
+
+
+def test_psi_matches_a_hand_computed_example():
+    from case_analytics.monitoring.drift import psi
+
+    expected = np.arange(100)  # ten deciles of ten values each
+    # The actual sample doubles the first two deciles (20 values each), keeps 10 in each of the next six,
+    # and leaves the last two (80–99) empty, which take the 1e-6 floor. PSI = Σ (a − e) ln(a / e):
+    actual = np.concatenate([np.arange(0, 10).repeat(2), np.arange(10, 20).repeat(2), np.arange(20, 80)])
+    e, a, floor = 0.1, 0.2, 1e-6
+    hand = 2 * (a - e) * np.log(a / e) + 2 * (floor - e) * np.log(floor / e)
+    assert psi(expected, actual) == pytest.approx(hand, rel=1e-9)
+
+
+def test_control_book_psi_is_under_0_10_on_every_feature_and_the_score():
+    control = properties()["drift"]["books"]["control"]
+    assert control["setting"] == "unchanged"
+    assert control["max_feature_psi"] < 0.10
+    assert all(v["psi"] < 0.10 for v in control["psi_features"].values())
+    assert control["psi_score"]["psi"] < 0.10
+    assert control["features_at_watch_or_act"] == []
+
+
+def test_drift_books_are_new_seeds_kept_apart_from_the_model_books():
+    manifest = json.loads((DATA_DIR / "manifest.json").read_text(encoding="utf-8"))
+    drift = manifest["drift_books"]
+    assert set(drift) == {"control", "lower_fico", "more_fraud", "weaker_dealers"}
+    used = {manifest["seeds"]["test"], *manifest["seeds"]["training"], *manifest["seeds"]["calibration"]}
+    assert not used & {d["seed"] for d in drift.values()}
+    assert "drift" not in manifest["seeds"] and not set(manifest["books"]) & {
+        str(d["seed"]) for d in drift.values()
+    }
+    for name, d in drift.items():
+        assert manifest["files"][f"books/applications-seed-{d['seed']}.csv"]["sha256"], name
+        assert properties()["drift"]["books"][name]["setting"] == d["setting"]
+
+
+def test_decay_is_a_failed_calibration_test_or_an_auc_difference_interval_wholly_below_0():
+    d = properties()["drift"]
+    test = json.loads((SNAPSHOT_DIR / SUMMARY).read_text(encoding="utf-8"))["models"]["credit_pd_xgb"]["test"]
+    # The test book's resamples use the summary's bootstrap seed, so its interval is the summary's.
+    assert d["test_book_auc"]["auc"] == pytest.approx(test["metrics"]["auc"], abs=1e-6)
+    assert d["test_book_auc"]["ci95"] == pytest.approx(
+        [test["ci95"]["auc"]["low"], test["ci95"]["auc"]["high"]], abs=1e-6
+    )
+    for name, r in d["books"].items():
+        diff = r["auc_difference_vs_test"]
+        assert diff["difference"] == pytest.approx(r["auc"] - test["metrics"]["auc"], abs=2e-6), name
+        assert diff["ci95"][0] <= diff["difference"] <= diff["ci95"][1], name
+        assert r["auc_decayed"] == (diff["ci95"][1] < 0), name
+        assert r["decayed"] == (r["calibration_test"]["off"] or r["auc_decayed"]), name
+    # An unchanged book must not read as decayed.
+    assert d["books"]["control"]["decayed"] is False
+    card = docs.MODEL_CARD.read_text(encoding="utf-8")
+    assert (
+        "the calibration test fails, or the AUC test fires" in card and "| AUC − test book (95% CI) |" in card
+    )
+    assert (
+        "AUC can't reliably detect drops of about 0.05" in card
+        and "Calibration is the more sensitive monitor here" in card
+    )

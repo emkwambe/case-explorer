@@ -42,6 +42,19 @@ export const TEST_SEED = 42;
 export const FIRST_TRAINING_SEED = 1001;
 export const MIN_TRAINING_DEFAULTS = 2000;
 export const CALIBRATION_BOOKS = 2;
+// Drift (Sprint 12): an unchanged control book and three shifted books, each a new seed with one
+// stated change to an existing setting. No generator code changes.
+export const DRIFT_BOOKS = [
+  { name: "control", seed: 1011, setting: "unchanged" },
+  { name: "lower_fico", seed: 1012, setting: "credit.score_base.mean 755 → 725 (true FICO; claimed and bureau scores move with it)", configOverrides: { credit: { score_base: { mean: 725 } } } },
+  {
+    name: "more_fraud",
+    seed: 1013,
+    setting: "corruption.blend clean 0.79 → 0.69; concealment 0.06 → 0.11 and inflation 0.04 → 0.09",
+    configOverrides: { corruption: { blend: { clean: 0.69, concealment: 0.11, inflation: 0.09 } } }
+  },
+  { name: "weaker_dealers", seed: 1014, setting: "dealerEffect.strength 1 → 2 (dealer quality drives default twice as hard; no applicant feature changes)", dealerEffectStrength: 2 }
+];
 export const APP_COLUMNS = ["application_id", "seed", "index", "funded", "ead", "dpd30", ...FEATURE_NAMES];
 export const ORACLE_COLUMNS = ["application_id", "p_dpd30_true", "p_dpd30_dealer_averaged", "pd_chargeoff", "fraud_true", "corruption_type"];
 export const SENSITIVE_COLUMNS = ["application_id", "age_band", "geography_group", "zip3", "income_band", "persona", "regime", "family_status_scenario", "disability_income_scenario"];
@@ -55,10 +68,12 @@ const csv = (columns, rows) => [columns.join(","), ...rows.map((r) => columns.ma
  * One book's application, oracle, decision and audit-attribute rows. `flips` (optional) is a flip
  * accumulator (createFlipTable) that sees every application as it is generated.
  */
-export function bookRows(seed, { flips } = {}) {
+export function bookRows(seed, { flips, configOverrides, dealerEffectStrength } = {}) {
   const feats = new Map(), corruption = new Map(), index = new Map(), sensitive = new Map();
   const book = buildSolarBook({
     seed,
+    configOverrides,
+    dealerEffectStrength,
     onCase: (c, _record, i) => {
       feats.set(c.id, featureRow(c, getProfile("SOLAR_PRIME")));
       corruption.set(c.id, c.meta.corruption_type);
@@ -114,7 +129,7 @@ export function creditModelFiles({ log = () => {} } = {}) {
     meta[`${dir}decisions-seed-${b.seed}.csv`] = { role: `${role} book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)`, rows: b.decisions.length, committed: role === "test" };
     meta[`${dir}applications-seed-${b.seed}.csv`] = { role: `${role} book: decision-time features, funded flag and simulated outcome for every application`, rows: b.apps.length, committed: role === "test" };
     meta[`${dir}oracle-seed-${b.seed}.csv`] = { role: `${role} book: answer key — never a model input`, rows: b.oracle.length, committed: role === "test" };
-    perSeed[b.seed] = { role, ...b.counts };
+    if (!role.startsWith("drift")) perSeed[b.seed] = { role, ...b.counts };
     log(`  seed ${b.seed} (${role}): ${b.counts.funded} funded, ${b.counts.funded_defaults} funded defaults, ${b.counts.all_defaults} defaults over ${b.counts.applications} applications`);
   };
   const solar = getProfile("SOLAR_PRIME");
@@ -134,6 +149,15 @@ export function creditModelFiles({ log = () => {} } = {}) {
     const b = bookRows(seed++);
     seeds.calibration.push(b.seed);
     addBook(b, "calibration");
+  }
+  // Drift books are listed under their own manifest key: the seeds and books keys feed the Sprint 11
+  // snapshot's data profile, which must not change.
+  const drift = {};
+  for (const d of DRIFT_BOOKS) {
+    if (d.seed === TEST_SEED || seeds.training.includes(d.seed) || seeds.calibration.includes(d.seed)) throw new Error(`drift seed ${d.seed} is already a book`);
+    const b = bookRows(d.seed, { configOverrides: d.configOverrides, dealerEffectStrength: d.dealerEffectStrength });
+    drift[d.name] = { seed: d.seed, setting: d.setting, ...b.counts };
+    addBook(b, `drift (${d.name})`);
   }
   const teachingSet = teachingCases(), library = openingCases();
   const teaching = teachingRows(teachingSet), opening = openingRows(library);
@@ -162,6 +186,7 @@ export function creditModelFiles({ log = () => {} } = {}) {
     seeds,
     books: perSeed,
     training_funded_defaults: trainingDefaults,
+    drift_books: drift,
     files: Object.fromEntries(Object.keys(files).sort().map((name) => [name, { ...meta[name], sha256: sha256(files[name]) }]))
   };
   files["manifest.json"] = JSON.stringify(manifest, null, 2) + "\n";

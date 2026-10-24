@@ -213,6 +213,459 @@
    }
   }
  },
+ "drift": {
+  "auc_test": "both books bootstrapped independently (1,000 resamples each); the 95% percentile interval of (book AUC \u2212 test-book AUC); the AUC has decayed only if that whole interval is below 0",
+  "books": {
+   "control": {
+    "all_defaults": 1078,
+    "applications": 19023,
+    "auc": 0.583963,
+    "auc_ci95": [
+     0.545732,
+     0.622979
+    ],
+    "auc_decayed": false,
+    "auc_difference_vs_test": {
+     "ci95": [
+      -0.114515,
+      0.002352
+     ],
+     "difference": -0.055763,
+     "resamples": 1000
+    },
+    "calibration_in_the_large": {
+     "mean_predicted": 0.02512,
+     "observed": 0.0249,
+     "true_pd": 0.025439
+    },
+    "calibration_test": {
+     "expected_defaults": 251.201717,
+     "observed_defaults": 249,
+     "off": false,
+     "z": -0.141814
+    },
+    "decayed": false,
+    "default_rate": 0.0249,
+    "defaults": 249,
+    "expected_loss": {
+     "model": 9571751.118595,
+     "relative_error": -0.010702,
+     "true": 9675300.770055
+    },
+    "features_at_watch_or_act": [],
+    "funded": 10000,
+    "max_feature_psi": 0.001637,
+    "mean_fico_bureau": 749.9817,
+    "psi_features": {
+     "checking_overstatement_pct": {
+      "psi": 0.000306,
+      "rating": "stable"
+     },
+     "checking_stated": {
+      "psi": 0.000826,
+      "rating": "stable"
+     },
+     "checking_statement": {
+      "psi": 0.00088,
+      "rating": "stable"
+     },
+     "dti_stated": {
+      "psi": 0.001536,
+      "rating": "stable"
+     },
+     "fico_bureau": {
+      "psi": 0.001637,
+      "rating": "stable"
+     },
+     "income_overstatement_pct": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "income_stated": {
+      "psi": 0.001216,
+      "rating": "stable"
+     },
+     "large_deposits_total": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "overdraft_count": {
+      "psi": 0.000118,
+      "rating": "stable"
+     },
+     "stated_monthly_debts": {
+      "psi": 0.001504,
+      "rating": "stable"
+     },
+     "statement_excess_pct": {
+      "psi": 0.001093,
+      "rating": "stable"
+     },
+     "tenure_months": {
+      "psi": 0.000619,
+      "rating": "stable"
+     },
+     "undisclosed_accounts": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "undisclosed_debt": {
+      "psi": 0.0,
+      "rating": "stable"
+     }
+    },
+    "psi_score": {
+     "psi": 0.001445,
+     "rating": "stable"
+    },
+    "psi_warned": false,
+    "seed": 1011,
+    "setting": "unchanged",
+    "share_fraud": 0.0478
+   },
+   "lower_fico": {
+    "all_defaults": 1295,
+    "applications": 20491,
+    "auc": 0.577337,
+    "auc_ci95": [
+     0.538421,
+     0.613652
+    ],
+    "auc_decayed": true,
+    "auc_difference_vs_test": {
+     "ci95": [
+      -0.118491,
+      -0.006338
+     ],
+     "difference": -0.06239,
+     "resamples": 1000
+    },
+    "calibration_in_the_large": {
+     "mean_predicted": 0.025022,
+     "observed": 0.0281,
+     "true_pd": 0.025414
+    },
+    "calibration_test": {
+     "expected_defaults": 250.222532,
+     "observed_defaults": 281,
+     "off": true,
+     "z": 1.983903
+    },
+    "decayed": true,
+    "default_rate": 0.0281,
+    "defaults": 281,
+    "expected_loss": {
+     "model": 9731701.798026,
+     "relative_error": -0.015472,
+     "true": 9884635.25301
+    },
+    "features_at_watch_or_act": [
+     "fico_bureau"
+    ],
+    "funded": 10000,
+    "max_feature_psi": 0.434298,
+    "mean_fico_bureau": 725.1084,
+    "psi_features": {
+     "checking_overstatement_pct": {
+      "psi": 0.000599,
+      "rating": "stable"
+     },
+     "checking_stated": {
+      "psi": 0.001866,
+      "rating": "stable"
+     },
+     "checking_statement": {
+      "psi": 0.001327,
+      "rating": "stable"
+     },
+     "dti_stated": {
+      "psi": 0.003489,
+      "rating": "stable"
+     },
+     "fico_bureau": {
+      "psi": 0.434298,
+      "rating": "act"
+     },
+     "income_overstatement_pct": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "income_stated": {
+      "psi": 0.003385,
+      "rating": "stable"
+     },
+     "large_deposits_total": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "overdraft_count": {
+      "psi": 3.4e-05,
+      "rating": "stable"
+     },
+     "stated_monthly_debts": {
+      "psi": 0.002208,
+      "rating": "stable"
+     },
+     "statement_excess_pct": {
+      "psi": 0.000454,
+      "rating": "stable"
+     },
+     "tenure_months": {
+      "psi": 0.001763,
+      "rating": "stable"
+     },
+     "undisclosed_accounts": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "undisclosed_debt": {
+      "psi": 0.0,
+      "rating": "stable"
+     }
+    },
+    "psi_score": {
+     "psi": 0.090301,
+     "rating": "stable"
+    },
+    "psi_warned": true,
+    "seed": 1012,
+    "setting": "credit.score_base.mean 755 \u2192 725 (true FICO; claimed and bureau scores move with it)",
+    "share_fraud": 0.0416
+   },
+   "more_fraud": {
+    "all_defaults": 1332,
+    "applications": 20349,
+    "auc": 0.650145,
+    "auc_ci95": [
+     0.613403,
+     0.684692
+    ],
+    "auc_decayed": false,
+    "auc_difference_vs_test": {
+     "ci95": [
+      -0.042687,
+      0.065403
+     ],
+     "difference": 0.010419,
+     "resamples": 1000
+    },
+    "calibration_in_the_large": {
+     "mean_predicted": 0.029205,
+     "observed": 0.0306,
+     "true_pd": 0.029505
+    },
+    "calibration_test": {
+     "expected_defaults": 292.054305,
+     "observed_defaults": 306,
+     "off": false,
+     "z": 0.839058
+    },
+    "decayed": false,
+    "default_rate": 0.0306,
+    "defaults": 306,
+    "expected_loss": {
+     "model": 11265192.902878,
+     "relative_error": -0.010122,
+     "true": 11380388.32546
+    },
+    "features_at_watch_or_act": [],
+    "funded": 10000,
+    "max_feature_psi": 0.001924,
+    "mean_fico_bureau": 749.2688,
+    "psi_features": {
+     "checking_overstatement_pct": {
+      "psi": 0.00042,
+      "rating": "stable"
+     },
+     "checking_stated": {
+      "psi": 0.001503,
+      "rating": "stable"
+     },
+     "checking_statement": {
+      "psi": 0.001648,
+      "rating": "stable"
+     },
+     "dti_stated": {
+      "psi": 0.001822,
+      "rating": "stable"
+     },
+     "fico_bureau": {
+      "psi": 0.001924,
+      "rating": "stable"
+     },
+     "income_overstatement_pct": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "income_stated": {
+      "psi": 0.000764,
+      "rating": "stable"
+     },
+     "large_deposits_total": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "overdraft_count": {
+      "psi": 0.000385,
+      "rating": "stable"
+     },
+     "stated_monthly_debts": {
+      "psi": 0.001626,
+      "rating": "stable"
+     },
+     "statement_excess_pct": {
+      "psi": 0.000169,
+      "rating": "stable"
+     },
+     "tenure_months": {
+      "psi": 0.000681,
+      "rating": "stable"
+     },
+     "undisclosed_accounts": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "undisclosed_debt": {
+      "psi": 0.0,
+      "rating": "stable"
+     }
+    },
+    "psi_score": {
+     "psi": 0.015503,
+     "rating": "stable"
+    },
+    "psi_warned": false,
+    "seed": 1013,
+    "setting": "corruption.blend clean 0.79 \u2192 0.69; concealment 0.06 \u2192 0.11 and inflation 0.04 \u2192 0.09",
+    "share_fraud": 0.0924
+   },
+   "weaker_dealers": {
+    "all_defaults": 2002,
+    "applications": 18770,
+    "auc": 0.593948,
+    "auc_ci95": [
+     0.567163,
+     0.62113
+    ],
+    "auc_decayed": false,
+    "auc_difference_vs_test": {
+     "ci95": [
+      -0.091994,
+      0.003281
+     ],
+     "difference": -0.045779,
+     "resamples": 1000
+    },
+    "calibration_in_the_large": {
+     "mean_predicted": 0.024964,
+     "observed": 0.0573,
+     "true_pd": 0.054597
+    },
+    "calibration_test": {
+     "expected_defaults": 249.639116,
+     "observed_defaults": 573,
+     "off": true,
+     "z": 20.884071
+    },
+    "decayed": true,
+    "default_rate": 0.0573,
+    "defaults": 573,
+    "expected_loss": {
+     "model": 9670094.601947,
+     "relative_error": -0.544059,
+     "true": 21209110.139445
+    },
+    "features_at_watch_or_act": [],
+    "funded": 10000,
+    "max_feature_psi": 0.00188,
+    "mean_fico_bureau": 749.5521,
+    "psi_features": {
+     "checking_overstatement_pct": {
+      "psi": 0.00029,
+      "rating": "stable"
+     },
+     "checking_stated": {
+      "psi": 0.001183,
+      "rating": "stable"
+     },
+     "checking_statement": {
+      "psi": 0.001065,
+      "rating": "stable"
+     },
+     "dti_stated": {
+      "psi": 0.000844,
+      "rating": "stable"
+     },
+     "fico_bureau": {
+      "psi": 0.00188,
+      "rating": "stable"
+     },
+     "income_overstatement_pct": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "income_stated": {
+      "psi": 0.001128,
+      "rating": "stable"
+     },
+     "large_deposits_total": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "overdraft_count": {
+      "psi": 5e-05,
+      "rating": "stable"
+     },
+     "stated_monthly_debts": {
+      "psi": 0.001102,
+      "rating": "stable"
+     },
+     "statement_excess_pct": {
+      "psi": 0.00096,
+      "rating": "stable"
+     },
+     "tenure_months": {
+      "psi": 0.001411,
+      "rating": "stable"
+     },
+     "undisclosed_accounts": {
+      "psi": 0.0,
+      "rating": "stable"
+     },
+     "undisclosed_debt": {
+      "psi": 0.0,
+      "rating": "stable"
+     }
+    },
+    "psi_score": {
+     "psi": 0.000488,
+     "rating": "stable"
+    },
+    "psi_warned": false,
+    "seed": 1014,
+    "setting": "dealerEffect.strength 1 \u2192 2 (dealer quality drives default twice as hard; no applicant feature changes)",
+    "share_fraud": 0.0465
+   }
+  },
+  "calibration_test": "observed defaults against \u03a3 model PD, two-sided z-test at 95% with variance \u03a3 p(1 \u2212 p)",
+  "decay_rule": "performance has decayed when the calibration test fails or the AUC test fires",
+  "expected_loss_error": "\u03a3 model PD \u00d7 LGD \u00d7 EAD over \u03a3 true 30+ DPD probability \u00d7 LGD \u00d7 EAD, minus 1, on the funded loans (the same default event on both sides, so LGD cancels)",
+  "population": "each book's funded loans, scored by the headline credit_pd_xgb",
+  "psi_method": "the existing psi(): ten quantile bins of the reference, a 1e-6 floor on empty bins",
+  "reference": "the training books' funded loans (80,000)",
+  "test_book_auc": {
+   "auc": 0.639727,
+   "ci95": [
+    0.599947,
+    0.677862
+   ],
+   "defaults": 225
+  },
+  "thresholds": {
+   "act": 0.25,
+   "watch": 0.1
+  }
+ },
  "fairness": {
   "air_reference_line": {
    "not_shown_for": [

@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 import { generateBlendedCase } from "../../src/generator.js";
 import { applyProfile, getProfile } from "../../src/profiles/index.js";
 import { CREDIT_POLICY } from "../../src/creditRisk.js";
-import { buildDealerNetwork, dealerSettings, isFundedLoan, loanInputs, simulateLoans, aggregateDealers } from "../../src/dealers.js";
+import { buildDealerNetwork, dealerSettings, withDealerEffect, isFundedLoan, loanInputs, simulateLoans, aggregateDealers } from "../../src/dealers.js";
 import { expectedLoss } from "../../src/fundingStress.js";
 import { poolRecord, decide } from "../../src/policySandbox.js";
 
@@ -30,15 +30,19 @@ export function demoConfig() {
  * Build the book. `onCase(caseObj, record, index)` sees every generated application once, in seed
  * order, so callers can check per-case properties without keeping 18,674 full cases in memory.
  * `seed` builds an independent book from another seed (the credit model's training books); without
- * it the book is the locked seed-42 book (the profile's portfolio seed).
+ * it the book is the locked seed-42 book (the profile's portfolio seed). For the drift books,
+ * `configOverrides` are deep-merged into the generator configuration after the Solar preset, and
+ * `dealerEffectStrength` replaces the dealer-effect strength; both use existing settings only.
  */
-export function buildSolarBook({ onCase, seed: seedOverride } = {}) {
+export function buildSolarBook({ onCase, seed: seedOverride, configOverrides, dealerEffectStrength } = {}) {
   const solar = getProfile("SOLAR_PRIME");
-  const settings = dealerSettings(solar.defaults.dealerView);
+  const base = dealerSettings(solar.defaults.dealerView);
+  const settings = dealerEffectStrength === undefined ? base : withDealerEffect(base, dealerEffectStrength);
   const dealers = buildDealerNetwork(settings.network);
   const count = settings.portfolio.count;
   const seed = seedOverride ?? settings.portfolio.seed;
-  const config = applyProfile(demoConfig(), solar);
+  const solarConfig = applyProfile(demoConfig(), solar);
+  const config = configOverrides ? applyProfile(solarConfig, { preset: { overrides: configOverrides } }) : solarConfig;
   const lgd = 1 - settings.dealerFailure.baseRecovery.value;
 
   const inputs = [], pool = [], corruption = new Map();

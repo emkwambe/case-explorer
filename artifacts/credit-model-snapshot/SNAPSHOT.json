@@ -1,13 +1,13 @@
 {
- "data_manifest_sha256": "4b39d747e21360ed627dd27774b0da80dd9bdaeca3c3838b9a6154b7c244bf79",
+ "data_manifest_sha256": "2d5e15d918accab3b8990295ca07c24ff2395400e51a328dbe0a4843ed33203b",
  "files": {
   "credit-model-cases.json": {
    "bytes": 32243,
    "sha256": "a714639c711f9fd0edff024fff5eda8f421ac43bc5807af11fff7947f201503e"
   },
   "credit-model-properties.json": {
-   "bytes": 81478,
-   "sha256": "decc25b7a9f922042f3c2c7b4d0ca01912bf06351eda85ee54f1cf5ca2136453"
+   "bytes": 91884,
+   "sha256": "cef627a3a471aa9297b5020b00278c3a6d419d87306804c18456358bc9bbbc28"
   },
   "credit-model-summary.json": {
    "bytes": 60009,

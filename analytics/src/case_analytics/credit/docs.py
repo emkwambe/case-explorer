@@ -122,6 +122,7 @@ def readme(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         "**Selection bias, stated plainly.** Outcomes a lender observes exist only for funded loans, so the headline model learns from approved applicants only. The all-applications diagnostic shows what the simulation would let it learn otherwise; the augmented sets below test standard reject inference.",
         "",
         *(augmented_md(p) if p and "reject_inference" in p else []),
+        *(shifted_md(p) if p and "drift" in p else []),
     ]
     return "\n".join(L)
 
@@ -149,6 +150,23 @@ def augmented_md(p: dict[str, Any]) -> list[str]:
             f"| `{fam}` | Fuzzy | {n(fz['rows'])} (weight {n(fz['weighted_rows'])}) | {fz['weighted_defaults']:,.1f} weighted | each twice: default with weight PD, non-default with weight 1 − PD (expected {fz['expected_reject_defaults']:,.1f} defaults) |",
             f"| `{fam}` | Oracle | {n(o['rows'])} | {n(o['defaults'])} | the simulated outcome |",
         ]
+    return L + [""]
+
+
+def shifted_md(p: dict[str, Any]) -> list[str]:
+    books = p["drift"]["books"]
+    L = [
+        "## Shifted books (drift)",
+        "",
+        "Built by `node scripts/export_credit_features.mjs` with the same book pipeline as every other book, each from a new seed with one stated change to an existing generator setting (no generator code changes), and an unchanged control seed. Gitignored with the other books; their SHA-256 values are in the manifest under `drift_books`, kept apart from the training, calibration and test seeds. Each book funds 10,000 credit-policy approvals in seed order, so a riskier population needs more applications.",
+        "",
+        "| Book | Seed | Setting | Applications | All-application defaults | Funded | Funded defaults | Hidden-fraud share (funded) | Mean bureau FICO (funded) |",
+        "|---|---|---|---|---|---|---|---|---|",
+    ]
+    for name, r in books.items():
+        L.append(
+            f"| {name} | {r['seed']} | {r['setting']} | {n(r['applications'])} | {n(r['all_defaults'])} | {n(r['funded'])} | {n(r['defaults'])} ({pct(r['default_rate'])}) | {pct(r['share_fraud'])} | {r['mean_fico_bureau']:.1f} |"
+        )
     return L + [""]
 
 

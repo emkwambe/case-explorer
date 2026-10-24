@@ -105,3 +105,14 @@ Built in memory by `python -m case_analytics.credit.pipeline` from the training 
 | `credit_pd_xgb` | Hard cut-off | 150,170 | 6,165 | the 4,161 highest funded-only PDs (PD ≥ 0.1693) as defaults, the rest as non-defaults |
 | `credit_pd_xgb` | Fuzzy | 220,340 (weight 150,170) | 6,164.8 weighted | each twice: default with weight PD, non-default with weight 1 − PD (expected 4,160.8 defaults) |
 | `credit_pd_xgb` | Oracle | 150,170 | 8,171 | the simulated outcome |
+
+## Shifted books (drift)
+
+Built by `node scripts/export_credit_features.mjs` with the same book pipeline as every other book, each from a new seed with one stated change to an existing generator setting (no generator code changes), and an unchanged control seed. Gitignored with the other books; their SHA-256 values are in the manifest under `drift_books`, kept apart from the training, calibration and test seeds. Each book funds 10,000 credit-policy approvals in seed order, so a riskier population needs more applications.
+
+| Book | Seed | Setting | Applications | All-application defaults | Funded | Funded defaults | Hidden-fraud share (funded) | Mean bureau FICO (funded) |
+|---|---|---|---|---|---|---|---|---|
+| control | 1011 | unchanged | 19,023 | 1,078 | 10,000 | 249 (2.49%) | 4.78% | 750.0 |
+| lower_fico | 1012 | credit.score_base.mean 755 → 725 (true FICO; claimed and bureau scores move with it) | 20,491 | 1,295 | 10,000 | 281 (2.81%) | 4.16% | 725.1 |
+| more_fraud | 1013 | corruption.blend clean 0.79 → 0.69; concealment 0.06 → 0.11 and inflation 0.04 → 0.09 | 20,349 | 1,332 | 10,000 | 306 (3.06%) | 9.24% | 749.3 |
+| weaker_dealers | 1014 | dealerEffect.strength 1 → 2 (dealer quality drives default twice as hard; no applicant feature changes) | 18,770 | 2,002 | 10,000 | 573 (5.73%) | 4.65% | 749.6 |

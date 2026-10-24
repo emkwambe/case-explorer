@@ -28,6 +28,7 @@ from sklearn.metrics import log_loss, roc_auc_score
 from sklearn.model_selection import GroupKFold
 
 from . import challengers as ch
+from . import drift as dr
 from . import evaluate as ev
 from . import fairness as fr
 from . import reasons as rs
@@ -429,6 +430,9 @@ def run(out: Path = SNAPSHOT_DIR, log=print) -> dict[str, Any]:
             "sandbox_candidates": sandbox,
             "reject_inference": ch.reject_inference(
                 data, final, {k: tuning[k]["winner"] for k in final}, float(recon["loans"]["lgd"]), log
+            ),
+            "drift": dr.drift_section(
+                data, final[XGB_NAME], float(recon["loans"]["lgd"]), yte, test_scores[XGB_NAME], log
             ),
         }
     )

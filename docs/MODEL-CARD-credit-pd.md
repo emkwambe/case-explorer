@@ -313,13 +313,38 @@ The logistic model's FICO coefficient goes from −0.038 per SD (funded-only) to
 
 Only real outcomes for declined applicants close the gap. In practice that means a small, controlled sample of approvals below the cut-off, or bureau outcomes on credit the applicant took elsewhere; the oracle row shows how much it is worth here. Shapes of the augmented sets are in the data README.
 
+## Drift
+
+Do the monitors notice a population shift before, or alongside, the performance decay? Four new books, each a new seed: an unchanged control and three shifts of one existing generator setting each. The reference is the training books' funded loans (80,000). PSI uses the existing psi(): ten quantile bins of the reference, a 1e-6 floor on empty bins, rated at 0.10 (watch) and 0.25 (act), on each book's funded loans, scored by the headline credit_pd_xgb. Expected-loss error is Σ model PD × LGD × EAD over Σ true 30+ DPD probability × LGD × EAD, minus 1, on the funded loans (the same default event on both sides, so LGD cancels). The calibration test compares observed defaults against Σ model PD, two-sided z-test at 95% with variance Σ p(1 − p). The AUC test compares each book with the test book (AUC 0.640, 95% CI 0.600–0.678): both books bootstrapped independently (1,000 resamples each); the 95% percentile interval of (book AUC − test-book AUC); the AUC has decayed only if that whole interval is below 0. A book's performance counts as decayed if either of two things holds: the calibration test fails, or the AUC test fires.
+
+| Book | Seed | Setting | Funded defaults (rate) | Largest feature PSI | Features at watch or act | Score PSI | AUC (95% CI) | AUC − test book (95% CI) | Mean predicted / observed | Expected-loss error | Calibration test | Decayed |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Control (unchanged) | 1011 | unchanged | 249 (2.49%) | 0.002 (`fico_bureau`, stable) | 0 | 0.001 (stable) | 0.584 (0.546–0.623) | −0.056 (−0.115 to +0.002) | 2.51% / 2.49% | −1.1% | z = −0.14, holds | no |
+| Lower FICO | 1012 | credit.score_base.mean 755 → 725 (true FICO; claimed and bureau scores move with it) | 281 (2.81%) | 0.434 (`fico_bureau`, act) | 1 | 0.090 (stable) | 0.577 (0.538–0.614) | −0.062 (−0.118 to −0.006) | 2.50% / 2.81% | −1.5% | z = +1.98, off | yes |
+| More fraud | 1013 | corruption.blend clean 0.79 → 0.69; concealment 0.06 → 0.11 and inflation 0.04 → 0.09 | 306 (3.06%) | 0.002 (`fico_bureau`, stable) | 0 | 0.016 (stable) | 0.650 (0.613–0.685) | +0.010 (−0.043 to +0.065) | 2.92% / 3.06% | −1.0% | z = +0.84, holds | no |
+| Weaker dealers | 1014 | dealerEffect.strength 1 → 2 (dealer quality drives default twice as hard; no applicant feature changes) | 573 (5.73%) | 0.002 (`fico_bureau`, stable) | 0 | 0.000 (stable) | 0.594 (0.567–0.621) | −0.046 (−0.092 to +0.003) | 2.50% / 5.73% | −54.4% | z = +20.88, off | yes |
+
+**Control (unchanged):** PSI is under 0.10 on every feature and on the score, as an unchanged book must be. Performance also holds: calibration held (249 defaults observed against 251 expected) and the AUC test did not fire (AUC 0.584 against the test book's 0.640, a difference of −0.056 with a 95% CI of −0.115 to +0.002, an interval that reaches 0 or above).
+
+**Lower FICO:** the monitors warned alongside the decay. PSI reached the watch line on `fico_bureau` (score PSI 0.090). Performance decayed: calibration is off (281 defaults observed against 250 expected) and ranking weakened (AUC 0.577 against the test book's 0.640, a difference of −0.062 with a 95% CI of −0.118 to −0.006, wholly below 0).
+
+**More fraud:** no warning and no measurable decay: calibration held (306 defaults observed against 292 expected) and the AUC test did not fire (AUC 0.650 against the test book's 0.640, a difference of +0.010 with a 95% CI of −0.043 to +0.065, an interval that reaches 0 or above).
+
+**Weaker dealers:** **the shift hurt performance without moving PSI.** No feature and not the score reached 0.10 (largest feature PSI 0.002), yet calibration is off (573 defaults observed against 250 expected).
+
+**With this few defaults, AUC is a blunt monitor.** With about 250 defaults per book (225 to 306 in the test book and the other drift books, against 573 in the weaker-dealer book), AUC can't reliably detect drops of about 0.05: the difference intervals above reach about ±0.054 on average, so a drop of that size sits at the edge of what one book can show (the unchanged control alone differs from the test book by −0.056). Calibration is the more sensitive monitor here: it compares the whole book's default count with the model's expectation.
+
+**Feature PSI can't see a channel shift.** The weaker-dealer book changes only how strongly dealer quality drives default. The dealer is not a model input and no applicant changes, so no feature distribution moves and neither does the score; only outcomes do. Watching it takes outcome monitors (early delinquency against prediction, and delinquency by dealer in the Dealer View), which arrive months after funding.
+
+**Before or alongside?** PSI is computable on the day a loan is funded; the 30+ DPD outcome takes up to 18 months. So where PSI warns here, it warns months before the decay could be measured; where it doesn't, nothing warns until defaults arrive. PSI is coarse on zero-inflated features such as the discrepancy fields: most values are 0 and fall into one quantile bin.
+
 ## Limitations
 
 - Synthetic data from a known, simple process (above); results do not transfer to real lending.
 - 225 test defaults: confidence intervals are wide.
 - Funded-only selection bias. Neither augmentation method reduces it on these books (each raises the chosen book's expected loss); only the oracle, which a lender never has, closes the gap.
 - Fairness evidence is monitoring only (above): sensitive and geographic attributes are excluded and unread, but group outcomes still differ through the credit factors, and none of this is a legal conclusion.
-- No out-of-time test (one as-of date). No drift monitoring (Sprint 12).
+- No out-of-time test (one as-of date). Drift is tested on shifted synthetic books only (above), each changing one setting at a time.
 - Generator defects the model sees (bureau scores above 850; one extra bureau account on most loans) are logged in [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md) for a future generator version.
 
 ## How this would run in production

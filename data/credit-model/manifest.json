@@ -104,6 +104,40 @@
     }
   },
   "training_funded_defaults": 2004,
+  "drift_books": {
+    "control": {
+      "seed": 1011,
+      "setting": "unchanged",
+      "applications": 19023,
+      "funded": 10000,
+      "funded_defaults": 249,
+      "all_defaults": 1078
+    },
+    "lower_fico": {
+      "seed": 1012,
+      "setting": "credit.score_base.mean 755 → 725 (true FICO; claimed and bureau scores move with it)",
+      "applications": 20491,
+      "funded": 10000,
+      "funded_defaults": 281,
+      "all_defaults": 1295
+    },
+    "more_fraud": {
+      "seed": 1013,
+      "setting": "corruption.blend clean 0.79 → 0.69; concealment 0.06 → 0.11 and inflation 0.04 → 0.09",
+      "applications": 20349,
+      "funded": 10000,
+      "funded_defaults": 306,
+      "all_defaults": 1332
+    },
+    "weaker_dealers": {
+      "seed": 1014,
+      "setting": "dealerEffect.strength 1 → 2 (dealer quality drives default twice as hard; no applicant feature changes)",
+      "applications": 18770,
+      "funded": 10000,
+      "funded_defaults": 573,
+      "all_defaults": 2002
+    }
+  },
   "files": {
     "applications-seed-42.csv": {
       "role": "test book: decision-time features, funded flag and simulated outcome for every application",
@@ -171,6 +205,30 @@
       "committed": false,
       "sha256": "3a21700d5a248e452a416d2eee4dcb1d360d5bd8a25e5ddb86e198bd360e4726"
     },
+    "books/applications-seed-1011.csv": {
+      "role": "drift (control) book: decision-time features, funded flag and simulated outcome for every application",
+      "rows": 19023,
+      "committed": false,
+      "sha256": "9c159c11e7f0139c35b748cd94e1a8e1aa362fafd95725c6cdba81711c20b7b5"
+    },
+    "books/applications-seed-1012.csv": {
+      "role": "drift (lower_fico) book: decision-time features, funded flag and simulated outcome for every application",
+      "rows": 20491,
+      "committed": false,
+      "sha256": "590c8406761db9e722cca33b3573365ba16348e2fc8536bdc129c63996886f31"
+    },
+    "books/applications-seed-1013.csv": {
+      "role": "drift (more_fraud) book: decision-time features, funded flag and simulated outcome for every application",
+      "rows": 20349,
+      "committed": false,
+      "sha256": "8268e689e5f4833eb9e68a4560f3946761dcac979a2d6de7b851ca322e7bb351"
+    },
+    "books/applications-seed-1014.csv": {
+      "role": "drift (weaker_dealers) book: decision-time features, funded flag and simulated outcome for every application",
+      "rows": 18770,
+      "committed": false,
+      "sha256": "e1497a68b4f5171fd5c60ae09bd0039c05094e2dac60e0adfd1dd7c93a394e8d"
+    },
     "books/decisions-seed-1001.csv": {
       "role": "training book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
       "rows": 18600,
@@ -231,6 +289,30 @@
       "committed": false,
       "sha256": "69110511ad4f4fc7df25371549b56bfa61af80b0194bf0bc185754678bb34c8f"
     },
+    "books/decisions-seed-1011.csv": {
+      "role": "drift (control) book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 19023,
+      "committed": false,
+      "sha256": "4470231607760a79bef32efa1fd525d739a1c612d09d9fbc73084f500cb90051"
+    },
+    "books/decisions-seed-1012.csv": {
+      "role": "drift (lower_fico) book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 20491,
+      "committed": false,
+      "sha256": "e255e9d17f86b5914a4bf49dc56ae184814e9a86e1c486cdabab6676a5e9d03f"
+    },
+    "books/decisions-seed-1013.csv": {
+      "role": "drift (more_fraud) book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 20349,
+      "committed": false,
+      "sha256": "34916b5231221f5694aae67b2b131d89269d3376146c54eb871dabbc136c7f69"
+    },
+    "books/decisions-seed-1014.csv": {
+      "role": "drift (weaker_dealers) book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",
+      "rows": 18770,
+      "committed": false,
+      "sha256": "164c7d02b652aeb3129d657285c4d92d29c43d853857615afc724046056b8848"
+    },
     "books/oracle-seed-1001.csv": {
       "role": "training book: answer key — never a model input",
       "rows": 18600,
@@ -290,6 +372,30 @@
       "rows": 19001,
       "committed": false,
       "sha256": "2326a2cb07a176d2d007fcfd233d18c9ebe5e45bfafa27046269724a8d1fe74e"
+    },
+    "books/oracle-seed-1011.csv": {
+      "role": "drift (control) book: answer key — never a model input",
+      "rows": 19023,
+      "committed": false,
+      "sha256": "8ae1db1a496274f934cbd74c0b7c79209957cdb58bdd149c4ae3fca87879b58a"
+    },
+    "books/oracle-seed-1012.csv": {
+      "role": "drift (lower_fico) book: answer key — never a model input",
+      "rows": 20491,
+      "committed": false,
+      "sha256": "8649833cb1dde0b39aa75fa063bb6db6d722326f6ff73d0ab5e95c1e99d84395"
+    },
+    "books/oracle-seed-1013.csv": {
+      "role": "drift (more_fraud) book: answer key — never a model input",
+      "rows": 20349,
+      "committed": false,
+      "sha256": "b126e061e65a0dab52a8836eae35d17b6944cda6cef205904305eb8e48aaa188"
+    },
+    "books/oracle-seed-1014.csv": {
+      "role": "drift (weaker_dealers) book: answer key — never a model input",
+      "rows": 18770,
+      "committed": false,
+      "sha256": "d35ed4f0463723409366ba5333cd1bef1e40cfc83ed4cadfea21741cc2d72620"
     },
     "decisions-seed-42.csv": {
       "role": "test book: credit-policy decision on the claimed FICO (the app's policy) and on the bureau FICO (the bureau-score policy, evaluation only)",

@@ -527,6 +527,7 @@ def model_card(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         *(fairness_md(p) if p and "fairness" in p else []),
         *(champion_md(p) if p and "champion_challenger" in p else []),
         *(reject_md(p) if p and "reject_inference" in p else []),
+        *(drift_md(p) if p and "drift" in p else []),
         "## Limitations",
         "",
         "- Synthetic data from a known, simple process (above); results do not transfer to real lending.",
@@ -541,7 +542,11 @@ def model_card(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
             if p and "fairness" in p
             else "- Fairness is not yet tested (Sprint 12). Sensitive and geographic attributes are excluded, which does not by itself establish fair outcomes."
         ),
-        "- No out-of-time test (one as-of date). No drift monitoring (Sprint 12).",
+        (
+            "- No out-of-time test (one as-of date). Drift is tested on shifted synthetic books only (above), each changing one setting at a time."
+            if p and "drift" in p
+            else "- No out-of-time test (one as-of date). No drift monitoring (Sprint 12)."
+        ),
         "- Generator defects the model sees (bureau scores above 850; one extra bureau account on most loans) are logged in [docs/KNOWN_ISSUES.md](KNOWN_ISSUES.md) for a future generator version.",
         "",
         "## How this would run in production",
@@ -652,6 +657,7 @@ def walkthrough(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         *(walkthrough_fairness(p) if p and "fairness" in p else []),
         *(walkthrough_champion(p) if p and "champion_challenger" in p else []),
         *(walkthrough_reject(p) if p and "reject_inference" in p else []),
+        *(walkthrough_drift(p) if p and "drift" in p else []),
         "## Answer key",
         "",
         "1. A lender observes whether a loan defaulted, never its probability; the PD exists only inside the simulation.",
@@ -677,6 +683,13 @@ def walkthrough(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
                 "13. Augmentation labels the declined applicants with the funded-only model's own scores, so it can only teach the new model what the old one already believed, including its bias. Only real outcomes for declined applicants (the oracle here; in practice a test-and-learn sample of approvals below the cut-off, or bureau outcomes on loans taken elsewhere) add information.",
             ]
             if p and "reject_inference" in p
+            else []
+        ),
+        *(
+            [
+                "14. The dealer is not a model input and no applicant changes, so every feature's distribution, and the score's, stays where it was: PSI has nothing to see. Outcome monitors do: calibration-in-the-large on early delinquency, and delinquency by dealer (the Dealer View's ratings), which watch the channel rather than the applicant."
+            ]
+            if p and "drift" in p
             else []
         ),
         "",
@@ -888,3 +901,153 @@ def reject_limit(p: dict[str, Any]) -> str:
     if best <= 0:
         return "- Funded-only selection bias. Neither augmentation method reduces it on these books (each raises the chosen book's expected loss); only the oracle, which a lender never has, closes the gap."
     return f"- Funded-only selection bias. The best augmentation closes {pct(best, 0)} of the expected-loss gap to the oracle, which a lender never has."
+
+
+DRIFT_NAMES = {
+    "control": "Control (unchanged)",
+    "lower_fico": "Lower FICO",
+    "more_fraud": "More fraud",
+    "weaker_dealers": "Weaker dealers",
+}
+
+
+def calibration_words(r: dict[str, Any]) -> str:
+    c = r["calibration_test"]
+    return f"{n(c['observed_defaults'])} defaults observed against {c['expected_defaults']:,.0f} expected"
+
+
+def auc_words(r: dict[str, Any], test: dict[str, Any]) -> str:
+    d = r["auc_difference_vs_test"]
+    lo, hi = d["ci95"]
+    return f"AUC {f3(r['auc'])} against the test book's {f3(test['auc'])}, a difference of {signed(d['difference'], 3)} with a 95% CI of {signed(lo, 3)} to {signed(hi, 3)}"
+
+
+def decay_words(r: dict[str, Any], test: dict[str, Any]) -> str:
+    """Which of the two decay signals fired, with the evidence for each."""
+    signals = []
+    if r["calibration_test"]["off"]:
+        signals.append(f"calibration is off ({calibration_words(r)})")
+    if r["auc_decayed"]:
+        signals.append(f"ranking weakened ({auc_words(r, test)}, wholly below 0)")
+    return " and ".join(signals)
+
+
+def held_words(r: dict[str, Any], test: dict[str, Any]) -> str:
+    return f"calibration held ({calibration_words(r)}) and the AUC test did not fire ({auc_words(r, test)}, an interval that reaches 0 or above)"
+
+
+def drift_reading(name: str, r: dict[str, Any], test: dict[str, Any]) -> str:
+    decayed, warned = r["decayed"], r["psi_warned"]
+    label = DRIFT_NAMES.get(name, name)
+    if name == "control":
+        clean = r["max_feature_psi"] < 0.10 and r["psi_score"]["psi"] < 0.10
+        return (
+            f"**{label}:** "
+            + (
+                "PSI is under 0.10 on every feature and on the score, as an unchanged book must be."
+                if clean
+                else "**PSI reached 0.10 on an unchanged book**, so the monitor's noise floor is too high for these thresholds."
+            )
+            + (
+                f" Performance also holds: {held_words(r, test)}."
+                if not decayed
+                else f" Yet {decay_words(r, test)}, which an unchanged book should not show."
+            )
+        )
+    feats = ", ".join(f"`{f}`" for f in r["features_at_watch_or_act"]) or "no feature"
+    if warned and decayed:
+        return f"**{label}:** the monitors warned alongside the decay. PSI reached the watch line on {feats} (score PSI {r['psi_score']['psi']:.3f}). Performance decayed: {decay_words(r, test)}."
+    if warned:
+        return f"**{label}:** PSI warned on {feats} (score PSI {r['psi_score']['psi']:.3f}), but {held_words(r, test)}: the model absorbed this shift."
+    if decayed:
+        return f"**{label}:** **the shift hurt performance without moving PSI.** No feature and not the score reached 0.10 (largest feature PSI {r['max_feature_psi']:.3f}), yet {decay_words(r, test)}."
+    return f"**{label}:** no warning and no measurable decay: {held_words(r, test)}."
+
+
+def drift_md(p: dict[str, Any]) -> list[str]:
+    d = p["drift"]
+    books = d["books"]
+    order = [k for k in DRIFT_NAMES if k in books]
+    L = [
+        "## Drift",
+        "",
+        f"Do the monitors notice a population shift before, or alongside, the performance decay? Four new books, each a new seed: an unchanged control and three shifts of one existing generator setting each. The reference is {d['reference']}. PSI uses {d['psi_method']}, rated at {d['thresholds']['watch']:.2f} (watch) and {d['thresholds']['act']:.2f} (act), on {d['population']}. Expected-loss error is {d['expected_loss_error']}. The calibration test compares {d['calibration_test']}. The AUC test compares each book with the test book (AUC {f3(d['test_book_auc']['auc'])}, 95% CI {f3(d['test_book_auc']['ci95'][0])}–{f3(d['test_book_auc']['ci95'][1])}): {d['auc_test']}. A book's performance counts as decayed if either of two things holds: the calibration test fails, or the AUC test fires.",
+        "",
+        "| Book | Seed | Setting | Funded defaults (rate) | Largest feature PSI | Features at watch or act | Score PSI | AUC (95% CI) | AUC − test book (95% CI) | Mean predicted / observed | Expected-loss error | Calibration test | Decayed |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for k in order:
+        r = books[k]
+        top = max(r["psi_features"].items(), key=lambda kv: kv[1]["psi"])
+        cil = r["calibration_in_the_large"]
+        L.append(
+            f"| {DRIFT_NAMES[k]} | {r['seed']} | {r['setting']} | {n(r['defaults'])} ({pct(r['default_rate'])}) | {top[1]['psi']:.3f} (`{top[0]}`, {top[1]['rating']}) | "
+            f"{len(r['features_at_watch_or_act'])} | {r['psi_score']['psi']:.3f} ({r['psi_score']['rating']}) | {f3(r['auc'])} ({f3(r['auc_ci95'][0])}–{f3(r['auc_ci95'][1])}) | {signed(r['auc_difference_vs_test']['difference'], 3)} ({signed(r['auc_difference_vs_test']['ci95'][0], 3)} to {signed(r['auc_difference_vs_test']['ci95'][1], 3)}) | "
+            f"{pct(cil['mean_predicted'])} / {pct(cil['observed'])} | {signed(100 * r['expected_loss']['relative_error'], 1)}% | z = {signed(r['calibration_test']['z'], 2)}, {'off' if r['calibration_test']['off'] else 'holds'} | {'yes' if r['decayed'] else 'no'} |"
+        )
+    L += [""]
+    for k in order:
+        L += [drift_reading(k, books[k], d["test_book_auc"]), ""]
+    L += [auc_sensitivity(d), ""]
+    if "weaker_dealers" in books:
+        L += [
+            "**Feature PSI can't see a channel shift.** The weaker-dealer book changes only how strongly dealer quality drives default. The dealer is not a model input and no applicant changes, so no feature distribution moves and neither does the score; only outcomes do. Watching it takes outcome monitors (early delinquency against prediction, and delinquency by dealer in the Dealer View), which arrive months after funding.",
+            "",
+        ]
+    L += [
+        "**Before or alongside?** PSI is computable on the day a loan is funded; the 30+ DPD outcome takes up to 18 months. So where PSI warns here, it warns months before the decay could be measured; where it doesn't, nothing warns until defaults arrive. PSI is coarse on zero-inflated features such as the discrepancy fields: most values are 0 and fall into one quantile bin.",
+        "",
+    ]
+    return L
+
+
+def auc_sensitivity(d: dict[str, Any]) -> str:
+    books = d["books"]
+    counts = [d["test_book_auc"]["defaults"]] + [
+        r["defaults"] for k, r in books.items() if k != "weaker_dealers"
+    ]
+    widths = [
+        r["auc_difference_vs_test"]["ci95"][1] - r["auc_difference_vs_test"]["ci95"][0]
+        for r in books.values()
+    ]
+    dealers = (
+        f", against {n(books['weaker_dealers']['defaults'])} in the weaker-dealer book"
+        if "weaker_dealers" in books
+        else ""
+    )
+    return (
+        f"**With this few defaults, AUC is a blunt monitor.** With about 250 defaults per book ({n(min(counts))} to {n(max(counts))} "
+        f"in the test book and the other drift books{dealers}), AUC can't reliably detect drops of about 0.05: the difference "
+        f"intervals above reach about ±{sum(widths) / len(widths) / 2:.3f} on average, so a drop of that size sits at the edge of "
+        "what one book can show"
+        + (
+            f" (the unchanged control alone differs from the test book by {signed(books['control']['auc_difference_vs_test']['difference'], 3)}). "
+            if "control" in books
+            else ". "
+        )
+        + "Calibration is the more sensitive monitor here: it compares the whole book's default count with the model's expectation."
+    )
+
+
+def walkthrough_drift(p: dict[str, Any]) -> list[str]:
+    d, test = p["drift"]["books"], p["drift"]["test_book_auc"]
+    w = d.get("weaker_dealers")
+    lines = [
+        "## 14. Drift",
+        "",
+        "PSI (population stability index) compares a feature's distribution today with the training data, bin by bin: under 0.10 is stable, 0.10 to 0.25 is worth watching, above 0.25 calls for action. It needs no outcomes, so it can warn on the day loans are funded. Performance counts as decayed if the calibration test fails (observed defaults against the model's expected count) or the AUC test fires (the 95% interval of the book's AUC minus the test book's, from independent bootstraps of both, lies wholly below 0). "
+        + " ".join(drift_reading(k, d[k], test) for k in DRIFT_NAMES if k in d),
+        "",
+    ]
+    if w and not w["psi_warned"] and w["decayed"] and w["calibration_test"]["off"]:
+        direction = "under-predicts" if w["calibration_test"]["z"] > 0 else "over-predicts"
+        lines += [
+            f"*Check yourself:* in the weaker-dealer book no feature's PSI reaches 0.10, yet the model {direction} defaults. Why can't PSI see it, and what would?",
+            "",
+        ]
+    else:
+        lines += [
+            "*Check yourself:* a shift changes how strongly dealer quality drives default, and nothing about the applicants. Why can't feature PSI see it, and what would?",
+            "",
+        ]
+    return lines
