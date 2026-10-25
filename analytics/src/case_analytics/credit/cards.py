@@ -669,7 +669,12 @@ def walkthrough(s: dict[str, Any], p: dict[str, Any] | None = None) -> str:
         "7. Both measure one cause, the debt burden; stated separately they would repeat one reason and crowd out a different one.",
         "8. Only the simulation knows each loan's true probability; a lender sees outcomes only.",
         "9. The fraud rules and document checks, which name the falsified field directly.",
-        "10. Any two of: independent validation; out-of-time and drift testing; fairness and disparate-impact testing; reject inference; real data.",
+        (
+            "10. Any two of: independent validation; out-of-time testing; real data. Steps 11, 13 and 14 add fairness monitoring, reject inference and drift testing on shifted books, "
+            "but as the developer's own tests on synthetic data, so they do not replace an independent validator's."
+            if p and all(k in p for k in ("fairness", "reject_inference", "drift"))
+            else "10. Any two of: independent validation; out-of-time and drift testing; fairness and disparate-impact testing; reject inference; real data."
+        ),
         *(
             [
                 "11. No. The flips prove only that no engine reads age. The difference arrives through the decision inputs (FICO, DTI, liquidity and fraud review) as they vary with age, so it is evidence for a reviewer to weigh (is each factor justified by risk, and is there a less discriminatory alternative?), not proof of fair or unfair treatment."
@@ -872,14 +877,52 @@ def reject_md(p: dict[str, Any]) -> list[str]:
     if lg:
         L += [""]
         L.append(
-            f"The logistic model's FICO coefficient goes from {signed(lg['funded_only']['fico_coefficient_per_sd'])} per SD (funded-only) to {signed(lg['hard_cutoff']['fico_coefficient_per_sd'])} (hard cut-off) and {signed(lg['fuzzy']['fico_coefficient_per_sd'])} (fuzzy); the oracle learns {signed(lg['oracle']['fico_coefficient_per_sd'])}."
+            f"On the table's measure, the logistic model's FICO effect goes from {signed(lg['funded_only']['fico_effect_per_sd'])} per SD (funded-only) to {signed(lg['hard_cutoff']['fico_effect_per_sd'])} (hard cut-off) and {signed(lg['fuzzy']['fico_effect_per_sd'])} (fuzzy); the oracle's is {signed(lg['oracle']['fico_effect_per_sd'])}. "
+            "This is not the fitted coefficient quoted in the policy view: a coefficient is per SD of that model's own training set, whose FICO spread is wider once not-funded applicants are added, and ignores the clipping."
         )
+    xg = r["families"].get(XGB)
+    if xg and "fico_effect_by_band" in xg["oracle"]:
+        L += ["", oracle_fico_note(r, xg)]
     L += [
         "",
         "Only real outcomes for declined applicants close the gap. In practice that means a small, controlled sample of approvals below the cut-off, or bureau outcomes on credit the applicant took elsewhere; the oracle row shows how much it is worth here. Shapes of the augmented sets are in the data README.",
         "",
     ]
     return L
+
+
+def oracle_fico_note(r: dict[str, Any], xg: dict[str, Any]) -> str:
+    """Where the funded-only and oracle XGBoost models put their FICO effect, by bureau FICO band."""
+    f0, orc = xg["funded_only"], xg["oracle"]
+    share = r["pool_fico_band_share"]
+    low, high = list(FICO_BANDS[:3]), list(FICO_BANDS[3:])
+
+    def bands(row: dict[str, Any], keys: list[str]) -> str:
+        def one(b: str) -> str:
+            v = signed(row["fico_effect_by_band"][b]).replace("+0.000", "0.000").replace("−0.000", "0.000")
+            return f"{v} {b}" if b.startswith("below") else f"{v} at {b.replace('-', '–')}"
+
+        return ", ".join(one(b) for b in keys)
+
+    def part(row: dict[str, Any], keys: list[str]) -> float:
+        return sum(share[b] * row["fico_effect_by_band"][b] for b in keys)
+
+    weaker = abs(orc["fico_effect_per_sd"]) < abs(f0["fico_effect_per_sd"])
+    return (
+        f"**Where `{XGB}` puts its FICO effect.** The oracle's mean effect is {signed(orc['fico_effect_per_sd'])} per SD against {signed(f0['fico_effect_per_sd'])} funded-only"
+        + (", weaker although it sees every outcome. " if weaker else ". ")
+        + f"The mean hides where each model puts it. Below bureau FICO 700, where the funded book has few loans, the oracle has {bands(orc, low)}, "
+        + f"against {bands(f0, low)} funded-only. From 700 up the oracle has {bands(orc, high)}, while the funded-only model has {bands(f0, high)}. "
+        + f"Below 700 holds {pct(sum(share[b] for b in low), 1)} of the seed-42 pool and 700 and above {pct(sum(share[b] for b in high), 1)}, so the pool mean adds "
+        + f"{signed(part(orc, low))} and {signed(part(orc, high))} for the oracle against {signed(part(f0, low))} and {signed(part(f0, high))} funded-only."
+        + (
+            " The oracle's effect is concentrated where it has outcomes the funded book lacks; its mean is smaller because it puts none on the 700-and-above majority, "
+            "where the funded-only model's effect at 780 and above alone carries "
+            f"{pct(share['780 and above'] * f0['fico_effect_by_band']['780 and above'] / f0['fico_effect_per_sd'], 0)} of its mean."
+            if weaker and abs(part(orc, high)) < 0.0005 and abs(part(f0, high)) > abs(part(orc, high))
+            else ""
+        )
+    )
 
 
 def walkthrough_champion(p: dict[str, Any]) -> list[str]:
@@ -922,6 +965,9 @@ def reject_limit(p: dict[str, Any]) -> str:
     return f"- Funded-only selection bias. The best augmentation closes {pct(best, 0)} of the expected-loss gap to the oracle, which a lender never has."
 
 
+# The reject-inference snapshot's bureau FICO bands, lowest first (keys of fico_effect_by_band).
+FICO_BANDS = ("below 620", "620-659", "660-699", "700-739", "740-779", "780 and above")
+
 DRIFT_NAMES = {
     "control": "Control (unchanged)",
     "lower_fico": "Lower FICO",
@@ -955,7 +1001,42 @@ def held_words(r: dict[str, Any], test: dict[str, Any]) -> str:
     return f"calibration held ({calibration_words(r)}) and the AUC test did not fire ({auc_words(r, test)}, an interval that reaches 0 or above)"
 
 
-def drift_reading(name: str, r: dict[str, Any], test: dict[str, Any]) -> str:
+def psi_words(r: dict[str, Any]) -> str:
+    """Each feature at watch or act with its PSI and the line it crossed, then the score's own PSI."""
+    line = {
+        "act": "past the 0.25 action line",
+        "watch": "past the 0.10 watch line",
+        "stable": "under the 0.10 watch line",
+    }
+    feats = [
+        f"PSI is {r['psi_features'][f]['psi']:.3f} on `{f}`, {line[r['psi_features'][f]['rating']]}"
+        for f in r["features_at_watch_or_act"]
+    ]
+    s = r["psi_score"]
+    return "; ".join([*feats, f"the score's own PSI is {s['psi']:.3f}, {line[s['rating']]}"])
+
+
+def fico_shift_note(r: dict[str, Any], d: dict[str, Any]) -> str | None:
+    """Why bureau FICO can move sharply while the score barely moves: how much of the shift reached the
+    funded loans, and how far the score moves on FICO alone."""
+    f, s = r["psi_features"]["fico_bureau"], r["psi_score"]
+    if f["rating"] != "act" or s["rating"] != "stable" or "fico_only" not in r:
+        return None
+    ref, fo = d["reference_mean_fico_bureau"], r["fico_only"]
+    apps = r["mean_fico_bureau_applications"] - ref["applications"]
+    funded = r["mean_fico_bureau"] - ref["funded"]
+    return (
+        f"**Why `fico_bureau` shifted sharply ({f['psi']:.3f}) while the score barely moved ({s['psi']:.3f}).** "
+        f"The credit policy's 660 floor did not screen the shift out before funding: the floor reads the claimed score, and "
+        f"{pct(funded / apps, 0)} of the shift reached the funded loans (mean bureau FICO {signed(apps, 1)} points against the training books "
+        f"across applications, {signed(funded, 1)} across funded loans; PSI {r['psi_fico_bureau_applications']:.3f} on applications, "
+        f"{f['psi']:.3f} on funded loans). The model gives FICO little weight: moving only `fico_bureau` by {signed(fo['mean_shift'], 1)} points "
+        f"on the training books' funded loans changes their mean log-odds by {signed(fo['mean_log_odds_change'], 3)}, against a spread (SD) "
+        f"of {fo['reference_log_odds_sd']:.3f}, for a score PSI of {fo['score_psi']:.3f}."
+    )
+
+
+def drift_reading(name: str, r: dict[str, Any], test: dict[str, Any], d: dict[str, Any] | None = None) -> str:
     decayed, warned = r["decayed"], r["psi_warned"]
     label = DRIFT_NAMES.get(name, name)
     if name == "control":
@@ -973,11 +1054,12 @@ def drift_reading(name: str, r: dict[str, Any], test: dict[str, Any]) -> str:
                 else f" Yet {decay_words(r, test)}, which an unchanged book should not show."
             )
         )
-    feats = ", ".join(f"`{f}`" for f in r["features_at_watch_or_act"]) or "no feature"
+    note = fico_shift_note(r, d) if d else None
+    tail = f" {note}" if note else ""
     if warned and decayed:
-        return f"**{label}:** the monitors warned alongside the decay. PSI reached the watch line on {feats} (score PSI {r['psi_score']['psi']:.3f}). Performance decayed: {decay_words(r, test)}."
+        return f"**{label}:** the monitors warned alongside the decay. {psi_words(r)}. Performance decayed: {decay_words(r, test)}.{tail}"
     if warned:
-        return f"**{label}:** PSI warned on {feats} (score PSI {r['psi_score']['psi']:.3f}), but {held_words(r, test)}: the model absorbed this shift."
+        return f"**{label}:** {psi_words(r)}, but {held_words(r, test)}: the model absorbed this shift.{tail}"
     if decayed:
         return f"**{label}:** **the shift hurt performance without moving PSI.** No feature and not the score reached 0.10 (largest feature PSI {r['max_feature_psi']:.3f}), yet {decay_words(r, test)}."
     return f"**{label}:** no warning and no measurable decay: {held_words(r, test)}."
@@ -1006,7 +1088,7 @@ def drift_md(p: dict[str, Any]) -> list[str]:
         )
     L += [""]
     for k in order:
-        L += [drift_reading(k, books[k], d["test_book_auc"]), ""]
+        L += [drift_reading(k, books[k], d["test_book_auc"], d), ""]
     L += [auc_sensitivity(d), ""]
     if "weaker_dealers" in books:
         L += [
@@ -1055,7 +1137,7 @@ def walkthrough_drift(p: dict[str, Any]) -> list[str]:
         "## 14. Drift",
         "",
         "PSI (population stability index) compares a feature's distribution today with the training data, bin by bin: under 0.10 is stable, 0.10 to 0.25 is worth watching, above 0.25 calls for action. It needs no outcomes, so it can warn on the day loans are funded. Performance counts as decayed if the calibration test fails (observed defaults against the model's expected count) or the AUC test fires (the 95% interval of the book's AUC minus the test book's, from independent bootstraps of both, lies wholly below 0). "
-        + " ".join(drift_reading(k, d[k], test) for k in DRIFT_NAMES if k in d),
+        + " ".join(drift_reading(k, d[k], test, p["drift"]) for k in DRIFT_NAMES if k in d),
         "",
     ]
     if w and not w["psi_warned"] and w["decayed"] and w["calibration_test"]["off"]:

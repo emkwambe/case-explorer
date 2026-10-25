@@ -279,9 +279,16 @@
      "true": 9675300.770055
     },
     "features_at_watch_or_act": [],
+    "fico_only": {
+     "mean_log_odds_change": 0.0,
+     "mean_shift": 0.3972,
+     "reference_log_odds_sd": 0.377778,
+     "score_psi": 0.0
+    },
     "funded": 10000,
     "max_feature_psi": 0.001637,
     "mean_fico_bureau": 749.9817,
+    "mean_fico_bureau_applications": 732.628292,
     "psi_features": {
      "checking_overstatement_pct": {
       "psi": 0.000306,
@@ -340,6 +347,7 @@
       "rating": "stable"
      }
     },
+    "psi_fico_bureau_applications": 0.000238,
     "psi_score": {
      "psi": 0.001445,
      "rating": "stable"
@@ -388,9 +396,16 @@
     "features_at_watch_or_act": [
      "fico_bureau"
     ],
+    "fico_only": {
+     "mean_log_odds_change": 0.030507,
+     "mean_shift": -24.4761,
+     "reference_log_odds_sd": 0.377778,
+     "score_psi": 0.112504
+    },
     "funded": 10000,
     "max_feature_psi": 0.434298,
     "mean_fico_bureau": 725.1084,
+    "mean_fico_bureau_applications": 701.964131,
     "psi_features": {
      "checking_overstatement_pct": {
       "psi": 0.000599,
@@ -449,6 +464,7 @@
       "rating": "stable"
      }
     },
+    "psi_fico_bureau_applications": 0.385992,
     "psi_score": {
      "psi": 0.090301,
      "rating": "stable"
@@ -495,9 +511,16 @@
      "true": 11380388.32546
     },
     "features_at_watch_or_act": [],
+    "fico_only": {
+     "mean_log_odds_change": 0.001177,
+     "mean_shift": -0.3157,
+     "reference_log_odds_sd": 0.377778,
+     "score_psi": 0.000151
+    },
     "funded": 10000,
     "max_feature_psi": 0.001924,
     "mean_fico_bureau": 749.2688,
+    "mean_fico_bureau_applications": 732.653546,
     "psi_features": {
      "checking_overstatement_pct": {
       "psi": 0.00042,
@@ -556,6 +579,7 @@
       "rating": "stable"
      }
     },
+    "psi_fico_bureau_applications": 0.000282,
     "psi_score": {
      "psi": 0.015503,
      "rating": "stable"
@@ -602,9 +626,16 @@
      "true": 21209110.139445
     },
     "features_at_watch_or_act": [],
+    "fico_only": {
+     "mean_log_odds_change": 0.001177,
+     "mean_shift": -0.0324,
+     "reference_log_odds_sd": 0.377778,
+     "score_psi": 0.000151
+    },
     "funded": 10000,
     "max_feature_psi": 0.00188,
     "mean_fico_bureau": 749.5521,
+    "mean_fico_bureau_applications": 732.612573,
     "psi_features": {
      "checking_overstatement_pct": {
       "psi": 0.00029,
@@ -663,6 +694,7 @@
       "rating": "stable"
      }
     },
+    "psi_fico_bureau_applications": 0.00104,
     "psi_score": {
      "psi": 0.000488,
      "rating": "stable"
@@ -676,9 +708,14 @@
   "calibration_test": "observed defaults against \u03a3 model PD, two-sided z-test at 95% with variance \u03a3 p(1 \u2212 p)",
   "decay_rule": "performance has decayed when the calibration test fails or the AUC test fires",
   "expected_loss_error": "\u03a3 model PD \u00d7 LGD \u00d7 EAD over \u03a3 true 30+ DPD probability \u00d7 LGD \u00d7 EAD, minus 1, on the funded loans (the same default event on both sides, so LGD cancels)",
+  "fico_only_method": "the book's mean shift in bureau FICO (funded loans) added to every reference funded loan, all other features unchanged, scored by the same model: the score PSI and mean log-odds change from FICO alone",
   "population": "each book's funded loans, scored by the headline credit_pd_xgb",
   "psi_method": "the existing psi(): ten quantile bins of the reference, a 1e-6 floor on empty bins",
   "reference": "the training books' funded loans (80,000)",
+  "reference_mean_fico_bureau": {
+   "applications": 732.45926,
+   "funded": 749.5845
+  },
   "test_book_auc": {
    "auc": 0.639727,
    "ci95": [
@@ -3508,6 +3545,14 @@
      "auc_not_funded": 0.556844,
      "expected_loss_at_champion_count": 7060868.029404,
      "fico_coefficient_per_sd": -0.037574,
+     "fico_effect_by_band": {
+      "620-659": -0.035444,
+      "660-699": -0.03573,
+      "700-739": -0.035783,
+      "740-779": -0.036234,
+      "780 and above": -0.036678,
+      "below 620": -0.035778
+     },
      "fico_effect_per_sd": -0.036053
     },
     "fuzzy": {
@@ -3516,6 +3561,14 @@
      "auc_not_funded": 0.546271,
      "expected_loss_at_champion_count": 7947537.116789,
      "fico_coefficient_per_sd": -0.037902,
+     "fico_effect_by_band": {
+      "620-659": -0.026658,
+      "660-699": -0.026921,
+      "700-739": -0.026984,
+      "740-779": -0.027332,
+      "780 and above": -0.027517,
+      "below 620": -0.026726
+     },
      "fico_effect_per_sd": -0.027151,
      "gap_closed": {
       "auc_all_applications": -0.230056,
@@ -3529,6 +3582,14 @@
      "auc_not_funded": 0.496078,
      "expected_loss_at_champion_count": 9473520.336439,
      "fico_coefficient_per_sd": 0.068576,
+     "fico_effect_by_band": {
+      "620-659": 0.049839,
+      "660-699": 0.049761,
+      "700-739": 0.04994,
+      "740-779": 0.050539,
+      "780 and above": 0.051283,
+      "below 620": 0.049902
+     },
      "fico_effect_per_sd": 0.050328,
      "gap_closed": {
       "auc_all_applications": -0.978168,
@@ -3542,6 +3603,14 @@
      "auc_not_funded": 0.674227,
      "expected_loss_at_champion_count": 4891162.122603,
      "fico_coefficient_per_sd": -0.194736,
+     "fico_effect_by_band": {
+      "620-659": -0.150331,
+      "660-699": -0.150331,
+      "700-739": -0.150331,
+      "740-779": -0.150331,
+      "780 and above": -0.150331,
+      "below 620": -0.150331
+     },
      "fico_effect_per_sd": -0.150331
     }
    },
@@ -3551,6 +3620,14 @@
      "auc_funded_test_book": 0.639727,
      "auc_not_funded": 0.659962,
      "expected_loss_at_champion_count": 4432345.268282,
+     "fico_effect_by_band": {
+      "620-659": -0.156776,
+      "660-699": -0.149133,
+      "700-739": -0.01024,
+      "740-779": -0.000861,
+      "780 and above": -0.168288,
+      "below 620": 0.0
+     },
      "fico_effect_per_sd": -0.063223
     },
     "fuzzy": {
@@ -3558,6 +3635,14 @@
      "auc_funded_test_book": 0.642271,
      "auc_not_funded": 0.661612,
      "expected_loss_at_champion_count": 4500634.225561,
+     "fico_effect_by_band": {
+      "620-659": -0.118499,
+      "660-699": -0.13834,
+      "700-739": -0.012169,
+      "740-779": -0.001254,
+      "780 and above": -0.028457,
+      "below 620": 0.0
+     },
      "fico_effect_per_sd": -0.035904,
      "gap_closed": {
       "auc_all_applications": 0.121565,
@@ -3570,6 +3655,14 @@
      "auc_funded_test_book": 0.635597,
      "auc_not_funded": 0.648316,
      "expected_loss_at_champion_count": 5971649.176077,
+     "fico_effect_by_band": {
+      "620-659": -0.241733,
+      "660-699": -0.345449,
+      "700-739": 0.0,
+      "740-779": 0.0,
+      "780 and above": 0.0,
+      "below 620": 0.0
+     },
      "fico_effect_per_sd": -0.064782,
      "gap_closed": {
       "auc_all_applications": -1.712025,
@@ -3582,12 +3675,28 @@
      "auc_funded_test_book": 0.631769,
      "auc_not_funded": 0.727444,
      "expected_loss_at_champion_count": 3821795.039895,
+     "fico_effect_by_band": {
+      "620-659": -0.361456,
+      "660-699": -0.132572,
+      "700-739": 0.0,
+      "740-779": 0.0,
+      "780 and above": 0.0,
+      "below 620": -0.282783
+     },
      "fico_effect_per_sd": -0.048263
     }
    }
   },
-  "fico_effect_definition": "mean change in log-odds for +1 SD of bureau FICO (training funded SD), over the seed-42 pool",
+  "fico_effect_definition": "mean change in log-odds for +1 SD of bureau FICO (training funded SD), over the seed-42 pool, with predictions clipped to 1e-9 and 1 \u2212 1e-9",
   "fico_sd": 39.423733,
+  "pool_fico_band_share": {
+   "620-659": 0.05762,
+   "660-699": 0.14721,
+   "700-739": 0.278837,
+   "740-779": 0.315358,
+   "780 and above": 0.172968,
+   "below 620": 0.028007
+  },
   "training_books": {
    "all_defaults": 8171,
    "applications": 150170,

@@ -244,14 +244,36 @@ def champion_challenger(
     return block, sandbox
 
 
-def fico_effect(model: Any, X: pd.DataFrame, sd: float) -> float:
-    """Mean change in log-odds for one standard deviation more bureau FICO, over the rows of X. For the
-    logistic model this is its coefficient per SD; for XGBoost it is the same quantity, read off the trees."""
+# Bureau FICO bands for locating a model's FICO effect: (label, low inclusive, high exclusive).
+FICO_BANDS = (
+    ("below 620", -np.inf, 620),
+    ("620-659", 620, 660),
+    ("660-699", 660, 700),
+    ("700-739", 700, 740),
+    ("740-779", 740, 780),
+    ("780 and above", 780, np.inf),
+)
+
+
+def fico_effect_rows(model: Any, X: pd.DataFrame, sd: float) -> np.ndarray:
+    """Each row's change in log-odds for one standard deviation more bureau FICO. For the logistic model
+    this is its coefficient per SD wherever the prediction is not clipped; for XGBoost it is the same
+    quantity, read off the trees."""
     up = X.copy()
     up["fico_bureau"] = up["fico_bureau"] + sd
     p0 = np.clip(predict(model, X), 1e-9, 1 - 1e-9)
     p1 = np.clip(predict(model, up), 1e-9, 1 - 1e-9)
-    return float(np.nanmean(np.log(p1 / (1 - p1)) - np.log(p0 / (1 - p0))))
+    return np.log(p1 / (1 - p1)) - np.log(p0 / (1 - p0))
+
+
+def fico_effect(model: Any, X: pd.DataFrame, sd: float) -> float:
+    """Mean change in log-odds for one standard deviation more bureau FICO, over the rows of X."""
+    return float(np.nanmean(fico_effect_rows(model, X, sd)))
+
+
+def fico_effect_by_band(model: Any, X: pd.DataFrame, sd: float) -> dict[str, float]:
+    d, fico = fico_effect_rows(model, X, sd), X["fico_bureau"].to_numpy()
+    return {label: float(np.nanmean(d[(fico >= lo) & (fico < hi)])) for label, lo, hi in FICO_BANDS}
 
 
 def augmented_sets(data: Data, base: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -327,12 +349,19 @@ def reject_inference(
     n = int(champ.sum())
     test_funded = data.frame([data.test])
     sd = float(data.X(data.frame(data.training))["fico_bureau"].std(ddof=0))
+    fico_pool = Xp["fico_bureau"].to_numpy()
     sets = augmented_sets(data, base)
     seed42 = set(pool["application_id"])
     out: dict[str, Any] = {
         "approval_count": n,
-        "fico_effect_definition": "mean change in log-odds for +1 SD of bureau FICO (training funded SD), over the seed-42 pool",
+        "fico_effect_definition": (
+            "mean change in log-odds for +1 SD of bureau FICO (training funded SD), over the seed-42 pool, "
+            "with predictions clipped to 1e-9 and 1 − 1e-9"
+        ),
         "fico_sd": sd,
+        "pool_fico_band_share": {
+            label: float(np.mean((fico_pool >= lo) & (fico_pool < hi))) for label, lo, hi in FICO_BANDS
+        },
         "families": {},
         "training_sets": {},
     }
@@ -362,6 +391,7 @@ def reject_inference(
                     roc_auc_score(data.y(test_funded), predict(model, data.X(test_funded)))
                 ),
                 "fico_effect_per_sd": fico_effect(model, Xp, sd),
+                "fico_effect_by_band": fico_effect_by_band(model, Xp, sd),
                 "expected_loss_at_champion_count": float(el[lowest(p, n)].sum()),
             }
             if family == LOGIT_NAME:

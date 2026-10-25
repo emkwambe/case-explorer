@@ -264,3 +264,38 @@ def test_decay_is_a_failed_calibration_test_or_an_auc_difference_interval_wholly
         "AUC can't reliably detect drops of about 0.05" in card
         and "Calibration is the more sensitive monitor here" in card
     )
+
+
+def test_drift_card_names_each_psi_against_the_line_it_crossed_and_why_the_score_barely_moved():
+    d = properties()["drift"]
+    lf = d["books"]["lower_fico"]
+    assert lf["psi_features"]["fico_bureau"]["rating"] == "act" and lf["psi_score"]["rating"] == "stable"
+    fo = lf["fico_only"]
+    assert fo["mean_shift"] == pytest.approx(
+        lf["mean_fico_bureau"] - d["reference_mean_fico_bureau"]["funded"], abs=1e-4
+    )
+    walkthrough = docs.WALKTHROUGH.read_text(encoding="utf-8")
+    for text in (docs.MODEL_CARD.read_text(encoding="utf-8"), walkthrough):
+        assert "reached the watch line" not in text
+        assert (
+            f"PSI is {lf['psi_features']['fico_bureau']['psi']:.3f} on `fico_bureau`, past the 0.25 action line"
+            in text
+        )
+        assert f"the score's own PSI is {lf['psi_score']['psi']:.3f}, under the 0.10 watch line" in text
+        assert f"for a score PSI of {fo['score_psi']:.3f}" in text
+    assert "10. Any two of: independent validation; out-of-time testing; real data." in walkthrough
+
+
+def test_reject_inference_band_effects_weighted_by_the_pool_add_up_to_the_mean_effect():
+    r = properties()["reject_inference"]
+    share = r["pool_fico_band_share"]
+    assert sum(share.values()) == pytest.approx(1.0, abs=1e-5)
+    for fam, rows in r["families"].items():
+        for method, row in rows.items():
+            weighted = sum(share[b] * row["fico_effect_by_band"][b] for b in share)
+            assert weighted == pytest.approx(row["fico_effect_per_sd"], abs=1e-5), (fam, method)
+    ri = docs.MODEL_CARD.read_text(encoding="utf-8").split("## Reject inference", 1)[1].split("\n## ", 1)[0]
+    lg = r["families"]["credit_pd_logistic"]
+    assert "On the table's measure" in ri and "FICO coefficient goes from" not in ri
+    assert f"the oracle's is {lg['oracle']['fico_effect_per_sd']:+.3f}".replace("-", "−") in ri
+    assert "**Where `credit_pd_xgb` puts its FICO effect.**" in ri

@@ -29,6 +29,11 @@ def rating(value: float) -> str:
     return "act" if value >= ACT else "watch" if value >= WATCH else "stable"
 
 
+def log_odds(p: np.ndarray) -> np.ndarray:
+    q = np.clip(p, 1e-9, 1 - 1e-9)
+    return np.log(q / (1 - q))
+
+
 def calibration_test(y: np.ndarray, p: np.ndarray) -> dict[str, float | bool]:
     """Observed defaults against the model's expected count (Σ p, variance Σ p(1 − p)): a two-sided
     z-test at 95%. `off` means the book's default rate is not what the model predicts."""
@@ -63,6 +68,7 @@ def book_report(
     seed: int,
     ref_X,
     ref_p: np.ndarray,
+    ref_apps_fico,
     lgd: float,
     test_auc: float,
     test_draws: np.ndarray,
@@ -75,6 +81,13 @@ def book_report(
     ead = frame["ead"].to_numpy()
     features = {c: psi(ref_X[c].dropna(), X[c].dropna()) for c in X.columns}
     score = psi(ref_p, p)
+    apps_fico = data.X(data.frame([book], funded_only=False))["fico_bureau"]
+    # The same mean shift in bureau FICO applied to the reference funded loans alone, everything else held:
+    # how far the score moves on FICO by itself.
+    shift = float(np.nanmean(X["fico_bureau"]) - np.nanmean(ref_X["fico_bureau"]))
+    moved = ref_X.copy()
+    moved["fico_bureau"] = moved["fico_bureau"] + shift
+    p_moved = predict(model, moved)
     auc = float(roc_auc_score(y, p))
     # The book's own resamples, drawn independently of the test book's (a seed of its own).
     draws = auc_draws(y, p, np.random.default_rng([ev.BOOTSTRAP_SEED, seed]))
@@ -85,6 +98,14 @@ def book_report(
         "default_rate": float(y.mean()),
         "share_fraud": float((frame["fraud_true"].to_numpy() == 1).mean()),
         "mean_fico_bureau": float(np.nanmean(X["fico_bureau"])),
+        "mean_fico_bureau_applications": float(np.nanmean(apps_fico)),
+        "psi_fico_bureau_applications": psi(ref_apps_fico.dropna(), apps_fico.dropna()),
+        "fico_only": {
+            "mean_shift": shift,
+            "score_psi": psi(ref_p, p_moved),
+            "mean_log_odds_change": float(np.mean(log_odds(p_moved) - log_odds(ref_p))),
+            "reference_log_odds_sd": float(np.std(log_odds(ref_p))),
+        },
         "psi_features": {c: {"psi": v, "rating": rating(v)} for c, v in features.items()},
         "psi_score": {"psi": score, "rating": rating(score)},
         "features_at_watch_or_act": sorted(c for c, v in features.items() if v >= WATCH),
@@ -122,10 +143,19 @@ def drift_section(
     ref = data.frame(data.training)
     ref_X = data.X(ref)
     ref_p = predict(model, ref_X)
+    ref_apps_fico = data.X(data.frame(data.training, funded_only=False))["fico_bureau"]
     books = data.manifest["drift_books"]
     out: dict[str, Any] = {
         "reference": f"the training books' funded loans ({len(ref):,})",
         "thresholds": {"watch": WATCH, "act": ACT},
+        "reference_mean_fico_bureau": {
+            "funded": float(np.nanmean(ref_X["fico_bureau"])),
+            "applications": float(np.nanmean(ref_apps_fico)),
+        },
+        "fico_only_method": (
+            "the book's mean shift in bureau FICO (funded loans) added to every reference funded loan, all other "
+            "features unchanged, scored by the same model: the score PSI and mean log-odds change from FICO alone"
+        ),
         "psi_method": "the existing psi(): ten quantile bins of the reference, a 1e-6 floor on empty bins",
         "population": "each book's funded loans, scored by the headline credit_pd_xgb",
         "expected_loss_error": (
@@ -146,7 +176,7 @@ def drift_section(
         "books": {},
     }
     for name, b in books.items():
-        r = book_report(data, model, int(b["seed"]), ref_X, ref_p, lgd, test_auc, test_draws)
+        r = book_report(data, model, int(b["seed"]), ref_X, ref_p, ref_apps_fico, lgd, test_auc, test_draws)
         r["seed"], r["setting"] = int(b["seed"]), b["setting"]
         r["applications"], r["all_defaults"] = int(b["applications"]), int(b["all_defaults"])
         r["psi_warned"] = bool(r["max_feature_psi"] >= WATCH or r["psi_score"]["psi"] >= WATCH)
